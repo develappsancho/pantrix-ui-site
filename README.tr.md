@@ -58,4 +58,4 @@ Bir değişikliğin nasıl geldiği, sitenin kuralları ve pull request'ten önc
 
 ## Lisans
 
-Site [Apache License 2.0](./LICENSE) ile lisanslanmıştır. Sitenin kodunun yazıldığı JetBrains Mono, SIL Open Font License ile gelir; lisansın metnini site taşır: `core/designsystem/src/commonMain/composeResources/files/licenses/jetbrains_mono_ofl.txt`.
+Site [Apache License 2.0](./LICENSE) ile lisanslanmıştır. Sitenin kodunun yazıldığı JetBrains Mono ile Arapçasının ve kendi işaretlerinin çizildiği Noto alt kümeleri SIL Open Font License ile gelir; lisansların metinlerini site taşır: `core/designsystem/src/commonMain/composeResources/files/licenses/`.

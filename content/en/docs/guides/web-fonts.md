@@ -176,6 +176,27 @@ PantrixTypefaceGate(loaded = areTypefacesLoaded(PantrixTypeface.Default, PlusJak
 
 The price is the bytes downloaded: in the sample app fifteen files, 2.0 MB. For a product the right thing is mostly to read ahead only the first screen's typeface, and to leave the others to the change.
 
+### 3.5. Characters the fonts lack
+
+In a browser, Compose draws a character none of the app's fonts has (an arrow, `⌘`, an Arabic letter) in a Noto font it fetches from Google's servers (`NotoFontDownloader`, `https://fonts.gstatic.com/s/`). That has three costs:
+
+*   Every visitor's browser asks Google for it.
+*   A page that is offline leaves the character blank.
+*   A content security policy (CSP) must put `https://fonts.gstatic.com` in its `connect-src`.
+
+Compose has no general setting that turns it off. But it installs what it fetched in a public way, `FontFamily.Resolver.preload`; where a font that has the character was installed that way before, Compose sees no missing character and fetches nothing.
+
+A `PantrixTypeface`'s `fallbacks` are those fonts. They are read with the typeface's fonts and installed in the resolver, and `areTypefacesLoaded` (the gate too) waits for them as well. The library's own typeface, `PantrixTypeface.Default`, carries Pantrix Symbols for the marks a shortcut is written in on Apple's systems and Plus Jakarta Sans lacks: `⌘ ⇧ ⌥ ⌫ ⌦ ⇥ ⇞ ⇟ ⎋`, 3 KB cut from three of Noto's fonts. An app that gives its own typeface adds it itself; an app that writes Arabic gives its own Arabic font too:
+
+```kotlin
+val Brand = PantrixTypeface(
+    fonts = listOf(PantrixFont(Res.font.brand_regular), PantrixFont(Res.font.brand_bold, FontWeight.Bold)),
+    fallbacks = PantrixTypeface.Default.fallbacks + PantrixFont(Res.font.noto_sans_arabic)
+)
+```
+
+On Android, iOS and the desktop the system's fonts draw such a character; the fallbacks are not read there. Which characters are fetched shows, while the page is open, in `performance.getEntriesByType('resource')` as `fonts.gstatic.com` addresses.
+
 ## 4. Without Pantrix {#without}
 
 The same solution, with Compose Multiplatform's own API only. The code below can be copied into any project; it is a simplified form of its counterparts in the library.
@@ -296,6 +317,31 @@ fun main() {
 
 The page and the style are the same as those in 3.3.
 
+### 4.4. Characters the fonts lack
+
+A fallback font is installed in the window's font resolver once it is read; it is the way Compose installs what it fetches itself:
+
+```kotlin
+// webMain
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun installFallbacks(fallbacks: List<FontResource>): Boolean {
+    val read = fallbacks.map { preloadFont(it).value }
+    val resolver = LocalFontFamilyResolver.current
+    var installed by remember(fallbacks, resolver) { mutableStateOf(false) }
+    LaunchedEffect(read, resolver) {
+        val fonts = read.filterNotNull()
+        if (fonts.size == fallbacks.size) {
+            fonts.forEach { resolver.preload(FontFamily(it)) }
+            installed = true
+        }
+    }
+    return fallbacks.isEmpty() || installed
+}
+```
+
+It is given to the gate with the fonts: `FontGate(loaded = areFontsLoaded(Brand) && installFallbacks(Symbols))`. The `&&` here does not hold the second call back, as both are called at every composition and the read starts at the first call; taking each into a value and joining them after is clearer.
+
 ## 5. Pitfalls {#pitfalls}
 
 :::table
@@ -313,6 +359,7 @@ The page and the style are the same as those in 3.3.
 | **Browser tests** | Karma does not serve the resources: in tests the font never arrives, and the question always says "not read" | Give the test your own reader (`LocalResourceReader`) |
 | **Reading everything ahead** | Typefaces that will never be used come down to every visitor too | Read ahead only the first screen's typeface; leave the others to the change |
 | **An array in `webMain`** | In the source set that `js` and `wasmJs` share, the editor cannot resolve an array's extension: `flatMap` on a `vararg` parameter gives the warning "Cannot access 'kotlin.Cloneable' which is a supertype of 'Array'". The build passes; the warning is only in the editor | Turn the `vararg` into a list in common code; let the platform counterpart take a list (like `areFontsLoaded` in 4.1) |
+| **A character the font lacks** | Compose fetches a Noto font from Google for it; offline the character stays blank, and a CSP must let Google in | Give a font that has the character as a fallback (3.5): `PantrixTypeface.Default.fallbacks` carries the marks of a Mac's keys |
 :::
 
 ## 6. Verification {#verification}
@@ -353,6 +400,8 @@ The order expected: the fonts have been read **before** the app's first long fra
 | `ui/foundation`, `PantrixTypefaceTest` | Outside the web a typeface has been read from the start; one on its way is not given, the last one read is given |
 | `ui/foundation`, `PantrixTypefaceGateTest` | The gate opens when the typeface arrives, stays open once opened, tells after the content has been drawn on the page, and gives up waiting after a while |
 | `app/shared`, `WebFontPreloadTest` | The files the page downloads ahead are the same as the files in the font folders; every line carries `as="fetch"` and `crossorigin` |
+| `ui/foundation`, `PantrixTypefaceWebTest` (in a browser), fallbacks | Fallbacks are asked for with the fonts; a typeface is read once its fallback is read and installed; a fallback that cannot be read keeps it waiting; a fallback that is no font breaks nothing |
+| `ui/foundation`, `PantrixSymbolsOnTheDesktopTest` | Every character a shortcut is written in on Apple's systems is in Plus Jakarta Sans or in Pantrix Symbols |
 :::
 
 ## 7. Where it is in this repository {#repository toc="7. In the repository"}
@@ -367,6 +416,8 @@ The order expected: the fonts have been read **before** the app's first long fra
 | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/theme/Typefaces.kt` | The sample app's own two typefaces |
 | `app/webApp/src/webMain/kotlin/com/pantrixui/cmp/demo/main.kt` | The web entry: the box, the gate, the removal of the loading mark |
 | `app/webApp/src/webMain/resources/index.html`, `styles.css` | The preload lines, `#app` and `#loading` |
+| `ui/foundation/src/commonMain/composeResources/font/pantrix_symbols.ttf` | Pantrix Symbols, the library's fallback; its licence beside it: `files/licenses/pantrix_symbols_ofl.txt` |
+| `tooling/fonts/pantrix_symbols.py` | Cuts Pantrix Symbols from three of Noto's fonts (fontTools) |
 :::
 
 ## 8. What is left open {#open}

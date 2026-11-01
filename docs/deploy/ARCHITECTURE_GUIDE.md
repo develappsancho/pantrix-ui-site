@@ -390,7 +390,7 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 *   **İçerik güvenliği politikası (CSP):** şimdilik yalnızca raporlanır (`Content-Security-Policy-Report-Only`): hiçbir şeyi engellemez, tarayıcı uymayanı konsoluna yazar. Sayfanın yükleyebildikleri:
     *   **betik:** sitenin kendisi, WebAssembly'si (`'wasm-unsafe-eval'`) ve her sayfadaki tek satır içi betik, karmasıyla. `check.sh` karmanın sayfadakiyle aynı olduğunu denetler;
     *   **stil:** sitenin kendisi ve Compose'un tuvalinin gölge köküne yazdığı stil (`'unsafe-inline'`): Compose'la değiştiği için karmayla tutulmaz;
-    *   **bağlantı:** sitenin kendisi, GitHub'ın API'si (indirme sayfası) ve `fonts.gstatic.com`: Compose for Web, sitenin yazı tiplerinde olmayan bir karakter için oradan bir Noto yazı tipi indirir (Symbols 2, Math, Arabic görüldü);
+    *   **bağlantı:** sitenin kendisi ve GitHub'ın API'si (indirme sayfası). Google'ın yazı tipleri yok: Compose for Web, sitenin yazı tiplerinde olmayan bir karakter için `fonts.gstatic.com`'dan bir Noto yazı tipi indirirdi (Symbols 2, Math ve Arabic görüldü). Sitenin yazı tipi o karakterlerin yedeklerini taşır: Mac tuşlarının işaretleri için kütüphanenin Pantrix Symbols'ı, Arapça için Noto Sans Arabic'in bir alt kümesi, sitenin kendi işaretleri için Pantrix Site Symbols (`SiteTypefaces`, `tools/fonts/site_fonts.py`);
     *   **çerçeve:** yalnızca site kendini çerçeveleyebilir (`frame-ancestors 'self'`).
 
     Yirmi sayfada ve aramada hiç rapor çıkmadı; canlıda bir süre rapor çıkmazsa politika `Content-Security-Policy` olarak uygulanır.

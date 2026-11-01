@@ -155,7 +155,7 @@ class McpEndpoint {
 
 ### Claude code eklentisi
 
-Paket deposu Claude Code'un bir eklenti pazarıdır da. Tek eklentisi `pantrix-ui`, sürümün skill'ini getirir; MCP sunucusu bir siteden sunulduğunda eklenti onun adresini de taşır (`release.sh`'deki `MCP_URL`):
+Paket deposu Claude Code'un bir eklenti pazarıdır da. Tek eklentisi `pantrix-ui`, sürümün skill'ini ve MCP sunucusunu, Pantrix UI'ın sitesinin sunduğu adresiyle getirir: `https://pantrixui.com/mcp` (`release.sh`'deki `MCP_URL`). Asistanın ne Java'ya ne de jar'a ihtiyacı olur:
 
 ```bash
 claude plugin marketplace add develappsancho/pantrix-ui-cmp-package
@@ -308,7 +308,7 @@ Belgeler bir asistana yanlış bir şey söyleyecekse ya da hiçbir şey söylem
 *   Belgenin bir yerinde adı geçen her kimlik (bir sayfanın API'si, bir bileşenin biçimleri ve parçaları, bir parametrenin `ref`'i) belgede vardır.
 *   Her sayfanın ve her modülün Markdown'ı jar'dadır.
 *   `llms.txt` llmstxt.org'un biçimindedir. Her sayfa kendi bölümünün altında bir kez anılır, her bağlantının hedefi jar'dadır ve dizin 50.000 karakterin altında kalır. `llms-full.txt` her sayfanın Markdown'ını ve sayfası olmayan her bildirimi tutar.
-*   **Sunucu:** her araç jar'ın belgelerine karşı sınanır (`toast` `Snackbar`'ı bulur, `Buton` `Button`'ı önerir). Jar bir asistanın çalıştırdığı gibi ayrı bir süreçte çalıştırılır ve onunla JSON-RPC konuşulur: listeler, bir araç, bir kaynak ve bir prompt. Standart çıktısında protokolden başka satır olmadığı ve girişi kapanınca sıfırla çıktığı ölçülür. `get_rules` skill'in kendisini, `get_documentation_page` referanslarını anahtarlarıyla ve skill'in bağlantılarıyla verir; arama referansları da bulur; `pantrix://skill` skill'in bütünüdür. Araç süzgeci ve olmayan bir aracın reddi de sınanır. `docs` ve `skill` komutlarının yazdıkları da sınanır; skill Agent Skills biçimine uyar (adı klasörünün adı, açıklaması 1.024 karakterden kısa, `SKILL.md` 500 satırın altında).
+*   **Sunucu:** her araç jar'ın belgelerine karşı sınanır (`toast` `Snackbar`'ı bulur, `Buton` `Button`'ı önerir). Jar bir asistanın çalıştırdığı gibi ayrı bir süreçte çalıştırılır ve onunla JSON-RPC konuşulur: listeler, bir araç, bir kaynak ve bir prompt. Standart çıktısında protokolden başka satır olmadığı ve girişi kapanınca sıfırla çıktığı ölçülür; giriş, `printf … | java -jar`'daki gibi son mesajın hemen ardından kapandığında da. `get_rules` skill'in kendisini, `get_documentation_page` referanslarını anahtarlarıyla ve skill'in bağlantılarıyla verir; arama referansları da bulur; `pantrix://skill` skill'in bütünüdür. Araç süzgeci ve olmayan bir aracın reddi de sınanır. `docs` ve `skill` komutlarının yazdıkları da sınanır; skill Agent Skills biçimine uyar (adı klasörünün adı, açıklaması 1.024 karakterden kısa, `SKILL.md` 500 satırın altında).
 *   **HTTP:** `PantrixMcp.http()` bir sitenin sunucusunun çağıracağı gibi çağrılır: her POST kendi oturumunda cevaplanır ve oturum kapanır; bir mesaj listesi kendi sırasıyla bir listeyle cevaplanır; aynı kimlikle aynı anda soran sekiz istemcinin her biri kendi cevabını alır; GET, başka bir köken, yanlış bir içerik türü ve `Accept`, desteklenmeyen bir protokol sürümü, okunamayan ve 64 KB'tan büyük bir gövde reddedilir; cevap vermeyen bir araç `-32001`'le cevaplanır.
 *   **Skill:** `skill` komutu referansları da yazar ve skill'in her bağlantısı onun bir dosyasına gider; `references/components.md` her bileşeni anar. `llms.txt` kuralları `SKILL.md`'nin yazdığı gibi söyler ve skill'e bağlanır.
 *   **Rehberler:** jar uygulamalara dönük 24 rehberi İngilizce taşır, her birini anahtarıyla ve Türkçesine giden satırı olmadan; arama onları bulur, `get_documentation_page` onları anahtarlarıyla, yollarıyla ve başlıklarıyla verir; bağlantıları belgelere ya da deponun dosyalarına gider.
@@ -338,7 +338,7 @@ claude -p "$(cat gorev.txt)" --mcp-config .mcp.json --strict-mcp-config \
 
 ### Doğrulananlar
 
-*   **Testler:** `:ai:mcp`'nin 34 ve `build-logic`'in 201 testi geçiyor.
+*   **Testler:** `:ai:mcp`'nin 35 ve `build-logic`'in 202 testi geçiyor.
 *   **Sunucunun süresi:** süreç başlayıp `initialize`'ı 0,35 saniye kadarda yanıtlıyor; ilk araç çağrısı 0,03–0,07 saniye, sayfaların hepsini ilk kez tarayan belge araması yarım saniye kadar sürüyor.
 *   **Korumalar:** her biri gerçek kaynaklar bozularak denendi (bir örneğin argümanı, bir sayfanın `api`'si, bir İngilizce metin); her biri 6. bölümdeki mesajıyla durdu.
 *   **Rehberlerin denetimi:** koruma on iki yoldan bozuldu (bir tablonun satırları, bir liste maddesinin türü, bir görsel, yorumlarıyla okunan Kotlin, İngilizcenin bir Türkçeye bağlantısı, bir bağlantının gittiği başlık, öteki dile giden satır, İngilizcesi verilen bir depo rehberi, koddaki bağlantılar, Türkçeye giden satırın kalması, bloklardaki bağlantılar, bir rehberin Türkçesinin İngilizcesine gitmemesi); her biri bir testi kırmızıya çevirdi. Koruma derlemeye yazılmadan önce her rehberin İngilizcesi onunla Türkçesine karşı okundu.

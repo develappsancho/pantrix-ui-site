@@ -92,6 +92,6 @@ as [SECURITY.md](./SECURITY.md) says, never in an issue. Everyone taking part fo
 
 ## Licence
 
-The site is licensed under the [Apache License 2.0](./LICENSE). JetBrains Mono, which its code is set in, comes under the
-SIL Open Font License, whose text the site carries:
-`core/designsystem/src/commonMain/composeResources/files/licenses/jetbrains_mono_ofl.txt`.
+The site is licensed under the [Apache License 2.0](./LICENSE). JetBrains Mono, which its code is set in, and the subsets
+of Noto's fonts it draws its Arabic and its own marks in come under the SIL Open Font License, whose texts the site
+carries in `core/designsystem/src/commonMain/composeResources/files/licenses/`.

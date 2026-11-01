@@ -29,9 +29,16 @@
     </script>
     <!-- The site's typefaces are fetched while its code is, so they are there when the app asks for them. The
          addresses are the ones Compose's resource reader asks for; without `crossorigin` the browser does not count
-         these fetches as those requests. Pantrix's own typeface first, then the site's code typeface. -->
+         these fetches as those requests. Pantrix's own typeface first and its fallback for a Mac's keys, then the site's
+         fallbacks, for Arabic and for its own marks, and its code typeface. -->
     <link rel="preload" as="fetch" type="font/ttf" crossorigin
           href="composeResources/com.pantrixui.foundation.generated.resources/font/plus_jakarta_sans.ttf">
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/com.pantrixui.foundation.generated.resources/font/pantrix_symbols.ttf">
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/com.pantrixui.site.core.designsystem.generated.resources/font/noto_sans_arabic.ttf">
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/com.pantrixui.site.core.designsystem.generated.resources/font/site_symbols.ttf">
     <link rel="preload" as="fetch" type="font/ttf" crossorigin
           href="composeResources/com.pantrixui.site.core.designsystem.generated.resources/font/jetbrains_mono_medium.ttf">
 </head>

@@ -155,7 +155,7 @@ class McpEndpoint {
 
 ### The Claude code plugin
 
-The package repository is also a marketplace of Claude Code's plugins. Its one plugin, `pantrix-ui`, brings the release's skill; once a site serves the MCP server, the plugin carries its address too (`MCP_URL` in `release.sh`):
+The package repository is also a marketplace of Claude Code's plugins. Its one plugin, `pantrix-ui`, brings the release's skill and the MCP server, at the address Pantrix UI's site serves it at: `https://pantrixui.com/mcp` (`MCP_URL` in `release.sh`). The assistant needs neither Java nor the jar:
 
 ```bash
 claude plugin marketplace add develappsancho/pantrix-ui-cmp-package
@@ -308,7 +308,7 @@ The schema (`ai/schema/pantrix-ui.schema.json`) describes every field of `pantri
 *   Every id named somewhere in the document (a page's API, a component's forms and parts, a parameter's `ref`) is in the document.
 *   Every page and every module has its Markdown in the jar.
 *   `llms.txt` is in the format of llmstxt.org. Every page is named once under its own group, every link points to a file in the jar, and the index stays under 50,000 characters. `llms-full.txt` holds the Markdown of every page and every declaration with no page.
-*   **The server:** every tool is tried against the jar's documents (`toast` finds `Snackbar`, `Buton` offers `Button`). The jar is run as an assistant runs it, as a process of its own, and spoken to in JSON-RPC: the lists, a tool, a resource and a prompt. That its standard output holds nothing but the protocol, and that it exits with nought when its input closes, is measured. `get_rules` gives the skill itself and `get_documentation_page` its references, by their keys and by the skill's links; the search finds the references too; `pantrix://skill` is the skill whole. The tool filter, and the refusal of a tool it does not have, are tried too. What the commands `docs` and `skill` write is tried as well; the skill keeps to the Agent Skills format (its name its folder's, a description under 1,024 characters, `SKILL.md` under 500 lines).
+*   **The server:** every tool is tried against the jar's documents (`toast` finds `Snackbar`, `Buton` offers `Button`). The jar is run as an assistant runs it, as a process of its own, and spoken to in JSON-RPC: the lists, a tool, a resource and a prompt. That its standard output holds nothing but the protocol, and that it exits with nought when its input closes, is measured, also when the input closes right after the last message, as `printf … | java -jar` closes it. `get_rules` gives the skill itself and `get_documentation_page` its references, by their keys and by the skill's links; the search finds the references too; `pantrix://skill` is the skill whole. The tool filter, and the refusal of a tool it does not have, are tried too. What the commands `docs` and `skill` write is tried as well; the skill keeps to the Agent Skills format (its name its folder's, a description under 1,024 characters, `SKILL.md` under 500 lines).
 *   **HTTP:** `PantrixMcp.http()` is called as a site's server calls it: each POST is answered in a session of its own, which then closes; a list of messages is answered with a list in its order; eight clients that ask at once with the same id each get their own answer; a GET, another origin, a wrong content type and `Accept`, a protocol version it does not support, a body it cannot read and one over 64 KB are refused; a tool that does not answer is answered with `-32001`.
 *   **The skill:** the command `skill` writes the references too, and every link of the skill leads to one of its files; `references/components.md` names every component. `llms.txt` tells the rules as `SKILL.md` writes them, and links the skill.
 *   **The guides:** the jar has the 24 guides for apps in English, each under its key and without the line to its Turkish; the search finds them, and `get_documentation_page` gives them by their keys, their paths and their titles; their links lead to the documents or to the repository's files.
@@ -338,7 +338,7 @@ claude -p "$(cat task.txt)" --mcp-config .mcp.json --strict-mcp-config \
 
 ### Verified
 
-*   **Tests:** the 34 tests of `:ai:mcp` and the 201 of `build-logic` pass.
+*   **Tests:** the 35 tests of `:ai:mcp` and the 202 of `build-logic` pass.
 *   **The server's times:** the process starts and answers `initialize` in some 0.35 seconds; a first call to a tool takes 0.03 to 0.07 seconds, and a search of the documentation that reads every page for the first time some half a second.
 *   **Guards:** each was tried by breaking real sources (an example's argument, a page's `api`, an English text); each stopped the build with its message in section 6.
 *   **The guides' check:** the guard was broken in twelve ways (a table's lines, a list item's kind, an image, the Kotlin read with its comments, the English's link to a Turkish, a heading a link leads to, the line to the other language, a repository guide given an English, links in code, the line to the Turkish kept, links in blocks, the Turkish of a guide not led to its English); each turned a test red. Every guide's English was read against its Turkish by the guard before the guard was written into the build.

@@ -78,7 +78,7 @@ Kurallar `com.pantrixui:detekt-rules` olarak yayınlanır. Bir uygulama onları 
 
 ```kotlin
 dependencies {
-    detektPlugins("com.pantrixui:detekt-rules:0.1.0-alpha03")
+    detektPlugins("com.pantrixui:detekt-rules:0.1.0-alpha04")
 }
 ```
 

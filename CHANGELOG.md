@@ -17,6 +17,9 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 - **HTTPS alone:** the site asks a browser to come back over HTTPS alone (`Strict-Transport-Security`), for a short
   while to begin with, and reports what its pages load against a content security policy, which it does not enforce
   yet.
+- **No fonts from Google:** the site draws the marks of a Mac's keys, its own marks and its Arabic in fonts it carries,
+  built with Pantrix UI 0.1.0-alpha04, and a visitor's browser asks Google for no font any more, but on the guide to
+  text order, whose check marks come with the library's next release.
 
 ## [26.10.31] - 2026-10-31
 

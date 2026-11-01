@@ -390,7 +390,7 @@ On a first visit, a visitor downloads about 7 MB for the app instead of 23 MB; o
 *   **Content security policy (CSP):** for now it is reported alone (`Content-Security-Policy-Report-Only`): it blocks nothing, and the browser writes what does not keep to it in its console. What a page may load:
     *   **scripts:** the site's own, its WebAssembly (`'wasm-unsafe-eval'`), and the one inline script on every page, by its hash. `check.sh` holds the hash to the page's;
     *   **styles:** the site's own, and the style Compose writes into its canvas's shadow root (`'unsafe-inline'`): it changes with Compose, so it is not held by a hash;
-    *   **connections:** the site's own, GitHub's API (the download page), and `fonts.gstatic.com`: for a character the site's fonts do not have, Compose for Web fetches a Noto font from there (Symbols 2, Math and Arabic were seen);
+    *   **connections:** the site's own, and GitHub's API (the download page). Not Google's fonts: for a character the site's fonts do not have, Compose for Web would fetch a Noto font from `fonts.gstatic.com` (Symbols 2, Math and Arabic were seen). The site's typeface carries fallbacks for those characters: the library's Pantrix Symbols for the marks of a Mac's keys, a subset of Noto Sans Arabic for Arabic, and Pantrix Site Symbols for the site's own marks (`SiteTypefaces`, `tools/fonts/site_fonts.py`);
     *   **frames:** the site alone may frame itself (`frame-ancestors 'self'`).
 
     Twenty pages and the search reported nothing; once the host has reported nothing for a while, the policy is enforced as `Content-Security-Policy`.

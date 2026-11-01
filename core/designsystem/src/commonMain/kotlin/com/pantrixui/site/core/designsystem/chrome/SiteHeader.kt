@@ -216,7 +216,7 @@ private fun HeaderRow(
                 it.placeAt(x)
                 x += it.width + room
             }
-            if (fits) links?.placeAt(x)
+            if (fits) links.placeAt(x)
             tools?.let { it.placeAt(constraints.maxWidth - it.width) }
         }
     }

@@ -176,6 +176,27 @@ PantrixTypefaceGate(loaded = areTypefacesLoaded(PantrixTypeface.Default, PlusJak
 
 Bedeli indirilen bayttır: örnek uygulamada on beş dosya, 2,0 MB. Bir ürün için doğru olan çoğunlukla yalnızca ilk ekranın yazı tipini önden okumak, ötekileri değişime bırakmaktır.
 
+### 3.5. Fontlarda olmayan karakterler
+
+Tarayıcıda Compose, uygulamanın hiçbir fontunda olmayan bir karakteri (bir okun, `⌘`'nin, Arapça bir harfin) Google'ın sunucularından indirdiği bir Noto fontuyla çizer (`NotoFontDownloader`, `https://fonts.gstatic.com/s/`). Bunun üç bedeli vardır:
+
+*   Her ziyaretçinin tarayıcısı Google'a istek atar.
+*   Çevrimdışı bir sayfada karakter boş kalır.
+*   Bir içerik güvenliği politikası (CSP) `connect-src`'üne `https://fonts.gstatic.com`'u koymak zorunda kalır.
+
+Compose'un bunu kapatan genel bir ayarı yoktur. Ama indirdiği fontu herkese açık bir yolla kurar, `FontFamily.Resolver.preload`; karakteri taşıyan bir font önceden aynı yolla kurulmuşsa Compose eksik karakter görmez ve hiçbir şey indirmez.
+
+`PantrixTypeface`'in `fallbacks`'i bu fontlardır. Yazı tipinin fontlarıyla birlikte okunur, çözücüye kurulur ve `areTypefacesLoaded` (kapı da) onları da bekler. Kütüphanenin kendi yazı tipi, `PantrixTypeface.Default`, bir kısayolun Apple'ın sistemlerinde yazıldığı ve Plus Jakarta Sans'ta olmayan işaretler için Pantrix Symbols'ı taşır: `⌘ ⇧ ⌥ ⌫ ⌦ ⇥ ⇞ ⇟ ⎋`, Noto'nun üç fontundan kesilmiş 3 KB. Kendi yazı tipini veren bir uygulama onu kendisi ekler; Arapça yazan bir uygulama kendi Arapça fontunu da verir:
+
+```kotlin
+val Brand = PantrixTypeface(
+    fonts = listOf(PantrixFont(Res.font.brand_regular), PantrixFont(Res.font.brand_bold, FontWeight.Bold)),
+    fallbacks = PantrixTypeface.Default.fallbacks + PantrixFont(Res.font.noto_sans_arabic)
+)
+```
+
+Android'de, iOS'ta ve masaüstünde böyle bir karakteri sistemin fontları çizer; yedekler orada okunmaz. Hangi karakterlerin indirildiği, sayfa açıkken `performance.getEntriesByType('resource')`'da `fonts.gstatic.com` adresleriyle görülür.
+
 ## 4. Pantrix olmadan {#without}
 
 Aynı çözüm, yalnızca Compose Multiplatform'un kendi API'siyle. Aşağıdaki kod herhangi bir projeye kopyalanabilir; kütüphanedeki karşılıklarının sadeleştirilmiş hâlidir.
@@ -296,6 +317,31 @@ fun main() {
 
 Sayfa ve stil 3.3'tekilerle aynıdır.
 
+### 4.4. Fontlarda olmayan karakterler
+
+Yedek bir font, okununca pencerenin yazı tipi çözücüsüne kurulur; Compose'un kendi indirdiklerini kurduğu yol budur:
+
+```kotlin
+// webMain
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun installFallbacks(fallbacks: List<FontResource>): Boolean {
+    val read = fallbacks.map { preloadFont(it).value }
+    val resolver = LocalFontFamilyResolver.current
+    var installed by remember(fallbacks, resolver) { mutableStateOf(false) }
+    LaunchedEffect(read, resolver) {
+        val fonts = read.filterNotNull()
+        if (fonts.size == fallbacks.size) {
+            fonts.forEach { resolver.preload(FontFamily(it)) }
+            installed = true
+        }
+    }
+    return fallbacks.isEmpty() || installed
+}
+```
+
+Kapıya fontlarla birlikte verilir: `FontGate(loaded = areFontsLoaded(Brand) && installFallbacks(Symbols))`. Buradaki `&&` ikinci çağrıyı geciktirmez, çünkü ikisi de her kurulumda çağrılır ve okuma ilk çağrıda başlar; bir değişkene alıp sonra birleştirmek daha açıktır.
+
 ## 5. Tuzaklar {#pitfalls}
 
 :::table
@@ -313,6 +359,7 @@ Sayfa ve stil 3.3'tekilerle aynıdır.
 | **Tarayıcı testleri** | Karma kaynakları sunmaz: testlerde font hiç gelmez ve soru hep "okunmadı" der | Teste kendi okuyucunu ver (`LocalResourceReader`) |
 | **Her şeyi önden okumak** | Hiç kullanılmayacak yazı tipleri de her ziyaretçiye iner | Yalnızca ilk ekranın yazı tipini önden oku; ötekileri değişime bırak |
 | **`webMain`'de dizi** | `js` ile `wasmJs`'in ortak kaynak kümesinde editör bir dizinin uzantısını çözemez: `vararg` bir parametrede `flatMap`, "Cannot access 'kotlin.Cloneable' which is a supertype of 'Array'" uyarısı verir. Derleme geçer, uyarı yalnızca editördedir | `vararg`'ı ortak kodda listeye çevir; platform karşılığı liste alsın (4.1'deki `areFontsLoaded` gibi) |
+| **Fontta olmayan bir karakter** | Compose onun için Google'dan bir Noto fontu indirir; sayfa çevrimdışıysa karakter boş kalır, CSP Google'a izin vermek zorunda kalır | Karakteri taşıyan fontu yedek olarak ver (3.5): `PantrixTypeface.Default.fallbacks` Mac tuşlarının işaretlerini taşır |
 :::
 
 ## 6. Doğrulama {#verification}
@@ -353,6 +400,8 @@ Beklenen sıra: fontlar uygulamanın ilk uzun karesinden **önce** okunmuştur, 
 | `ui/foundation`, `PantrixTypefaceTest` | Web dışında yazı tipi baştan okunmuştur; yolda olan verilmez, en son okunan verilir |
 | `ui/foundation`, `PantrixTypefaceGateTest` | Kapı yazı tipi gelince açılır, bir kez açılınca açık kalır, sayfaya içerik çizildikten sonra haber verir, bir süre sonra beklemekten vazgeçer |
 | `app/shared`, `WebFontPreloadTest` | Sayfanın önden indirdiği dosyalar, font klasörlerindeki dosyalarla aynıdır; her satır `as="fetch"` ve `crossorigin` taşır |
+| `ui/foundation`, `PantrixTypefaceWebTest` (tarayıcıda), yedekler | Yedek fontlarla birlikte istenir; yazı tipi yedek okunup kurulunca okunmuştur; okunamayan yedek yazı tipini bekletir; font olmayan bir yedek hiçbir şeyi kırmaz |
+| `ui/foundation`, `PantrixSymbolsOnTheDesktopTest` | Bir kısayolun Apple'ın sistemlerinde yazıldığı her karakter Plus Jakarta Sans'ta ya da Pantrix Symbols'ta vardır |
 :::
 
 ## 7. Bu depoda nerede {#repository toc="7. Depoda"}
@@ -367,6 +416,8 @@ Beklenen sıra: fontlar uygulamanın ilk uzun karesinden **önce** okunmuştur, 
 | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/theme/Typefaces.kt` | Örnek uygulamanın kendi iki yazı tipi |
 | `app/webApp/src/webMain/kotlin/com/pantrixui/cmp/demo/main.kt` | Web girişi: kutu, kapı, yükleme işaretinin kaldırılması |
 | `app/webApp/src/webMain/resources/index.html`, `styles.css` | Ön yükleme satırları, `#app` ve `#loading` |
+| `ui/foundation/src/commonMain/composeResources/font/pantrix_symbols.ttf` | Pantrix Symbols, kütüphanenin yedeği; lisansı yanında: `files/licenses/pantrix_symbols_ofl.txt` |
+| `tooling/fonts/pantrix_symbols.py` | Pantrix Symbols'ı Noto'nun üç fontundan keser (fontTools) |
 :::
 
 ## 8. Açık kalanlar {#open}

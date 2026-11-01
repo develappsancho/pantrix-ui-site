@@ -27,7 +27,7 @@ dependencyResolutionManagement {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/develappsancho/pantrix-ui-cmp")
+            url = uri("https://maven.pkg.github.com/develappsancho/pantrix-ui-cmp-package")
             credentials(PasswordCredentials::class)
         }
         google()
@@ -37,7 +37,7 @@ dependencyResolutionManagement {
 ```
 
 :::callout warning
-**GitHub Packages asks for a token, even for a public package.** Put `GitHubPackagesUsername` and `GitHubPackagesPassword`, a token with `read:packages`, in `~/.gradle/gradle.properties`, never in the project.
+**GitHub Packages asks for a token, even for a public package.** Put `GitHubPackagesUsername` and `GitHubPackagesPassword`, a token with `read:packages`, in `~/.gradle/gradle.properties`, never in the project. The packages, each version's notes and the demo app are in [the package repository](https://github.com/develappsancho/pantrix-ui-cmp-package).
 :::
 
 ### Local Maven

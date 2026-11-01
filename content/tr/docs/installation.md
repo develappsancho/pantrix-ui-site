@@ -27,7 +27,7 @@ dependencyResolutionManagement {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/develappsancho/pantrix-ui-cmp")
+            url = uri("https://maven.pkg.github.com/develappsancho/pantrix-ui-cmp-package")
             credentials(PasswordCredentials::class)
         }
         google()
@@ -37,7 +37,7 @@ dependencyResolutionManagement {
 ```
 
 :::callout warning
-**GitHub Packages, herkese açık bir paket için bile bir token ister.** `GitHubPackagesUsername` ile `GitHubPackagesPassword`'ü, `read:packages` izinli bir token'la, `~/.gradle/gradle.properties` dosyasına koyun, hiçbir zaman projeye değil.
+**GitHub Packages, herkese açık bir paket için bile bir token ister.** `GitHubPackagesUsername` ile `GitHubPackagesPassword`'ü, `read:packages` izinli bir token'la, `~/.gradle/gradle.properties` dosyasına koyun, hiçbir zaman projeye değil. Paketler, her sürümün notları ve demo uygulaması [paket deposundadır](https://github.com/develappsancho/pantrix-ui-cmp-package).
 :::
 
 ### Yerel Maven

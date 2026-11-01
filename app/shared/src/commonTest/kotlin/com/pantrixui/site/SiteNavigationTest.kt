@@ -23,6 +23,21 @@ class SiteNavigationTest {
     }
 
     @Test
+    fun the_pages_the_header_opens_switch_as_tabs_and_the_pages_opened_from_them_come_in_over_them() {
+        val parts = listOf(Route.Home) + SitePart.entries.map { it.route }
+        parts.forEach { route -> assertTrue(route.isSitePart, "$route") }
+        val opened = listOf(
+            Route.Doc("installation"),
+            Route.Guides,
+            Route.Guide("testing"),
+            Route.Changelog,
+            Route.Component("text-area"),
+            Route.NotFound("/nowhere")
+        )
+        opened.forEach { route -> assertFalse(route.isSitePart, "$route") }
+    }
+
+    @Test
     fun the_sidebar_stands_beside_the_documentation_and_the_page_for_no_page() {
         assertTrue(Route.Doc("installation").hasDocsSidebar)
         assertTrue(Route.NotFound("/nowhere").hasDocsSidebar)

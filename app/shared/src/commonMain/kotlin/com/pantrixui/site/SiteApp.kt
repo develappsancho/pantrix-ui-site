@@ -1,10 +1,8 @@
 package com.pantrixui.site
 
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -29,7 +27,6 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
-import androidx.navigation3.ui.NavDisplay
 import com.pantrixui.foundation.keyboard.PantrixShortcut
 import com.pantrixui.foundation.keyboard.onShortcut
 import com.pantrixui.foundation.keyboard.shortcutRoot
@@ -185,19 +182,28 @@ private fun SiteShell(
                     }
                 )
             }
-            NavDisplay(
+            // On a phone a page comes in as the platform's own do, from the side on iOS and fading on Android, and the
+            // site's parts switch in place, as tabs. A wider window changes its pages in place, as a browser does, and
+            // so does every window when the system asks for less motion.
+            val still = PantrixTheme.motion.reduceMotion || layout != SiteLayout.Phone
+            PageDisplay(
                 backStack = navigator.backStack,
-                modifier = Modifier.weight(1f).fillMaxHeight(),
+                transitions = if (still) PageTransitions.InPlace else PageTransitions.Default,
                 onBack = { navigator.back() },
+                modifier = Modifier.weight(1f).fillMaxHeight(),
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator()
                 ),
-                // A page of a site replaces the one before it at once, as a browser's does.
-                transitionSpec = { NO_TRANSITION },
-                popTransitionSpec = { NO_TRANSITION },
-                predictivePopTransitionSpec = { NO_TRANSITION },
-                entryProvider = { key -> NavEntry(key) { SitePage(it, open, onSearch) } }
+                // Each page stands on the site's ground: while one comes in over another, the one under it does not
+                // show through.
+                entryProvider = { key ->
+                    NavEntry(key, metadata = if (key.isSitePart) SectionSwitch else emptyMap()) {
+                        Box(Modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
+                            SitePage(it, open, onSearch)
+                        }
+                    }
+                }
             )
         }
     }
@@ -309,9 +315,6 @@ private val SiteTitleFormat = PantrixWindowTitleFormat { "$it · Pantrix UI" }
 
 /** The page the site opens at where no address names one. */
 private val START_PAGE: Route = Route.Home
-
-/** No animation from one page to the next. */
-private val NO_TRANSITION = ContentTransform(EnterTransition.None, ExitTransition.None)
 
 /** The part of the page on show, as the site's [Navigator] keeps it and the browser's address shows it. */
 private class NavigatorSection(private val navigator: Navigator<Route>) : PageSection {

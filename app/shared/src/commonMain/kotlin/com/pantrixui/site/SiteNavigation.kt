@@ -50,6 +50,13 @@ internal val Route.part: SitePart?
         Route.Roadmap -> SitePart.Roadmap
     }
 
+/**
+ * Whether [this] page is one the header opens, the landing page or a part's own: the pages a phone switches between in
+ * place, as tabs, where a page opened from one of them comes in over it.
+ */
+internal val Route.isSitePart: Boolean
+    get() = this == Route.Home || SitePart.entries.any { it.route == this }
+
 /** Whether a desktop shows the components' sidebar beside [this] page: a component's page does. */
 internal val Route.hasComponentsSidebar: Boolean
     get() = this is Route.Component

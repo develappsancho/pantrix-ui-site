@@ -29,9 +29,9 @@ object SiteDownloads {
  * The desktop app's latest release, as the download page shows it.
  *
  * @property version its version, the day it was made: `26.10.31`.
- * @property year the year GitHub published it in, in UTC.
- * @property month the month it was published in, from 1 for January.
- * @property day the day of the month it was published on.
+ * @property year the year of the day it was made on, which its version names.
+ * @property month the month of that day, from 1 for January.
+ * @property day the day of the month.
  * @property notes the address of its page, with its notes.
  * @property macSize the macOS disk image's size in bytes, or null where the release has none.
  * @property macSha256 the macOS disk image's SHA-256 in small hexadecimal letters, or null where GitHub gives none.

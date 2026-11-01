@@ -40,19 +40,24 @@ class GitHubReleaseRepository(
 }
 
 /**
- * The release GitHub's API describes in [json]: its tag less its `v` as the version, the day it was published, and
- * the macOS disk image's size and SHA-256 where the release has one.
+ * The release GitHub's API describes in [json]: its tag less its `v` as the version, its day, and the macOS disk
+ * image's size and SHA-256 where the release has one. The day is the one its version names, `26.10.31`, as it was where
+ * the release was made: GitHub gives the moment it was published in UTC, which is the day before for a release made
+ * after midnight east of Greenwich. A version that names no day takes the day GitHub gives.
  */
 fun releaseOf(json: String): DesktopRelease {
     val release = Json.parseToJsonElement(json).jsonObject
     val tag = checkNotNull(release.text("tag_name")) { "The release has no tag" }
     val published = checkNotNull(release.text("published_at")) { "The release is not published" }
-    val (year, month, day) = published.substringBefore('T').split('-').map { it.toInt() }
+    val version = tag.removePrefix("v")
+    val (year, month, day) = VERSION_DAY.matchEntire(version)?.destructured?.let { (year, month, day) ->
+        listOf(CENTURY + year.toInt(), month.toInt(), day.toInt())
+    } ?: published.substringBefore('T').split('-').map { it.toInt() }
     val mac = release["assets"]?.jsonArray.orEmpty().map { it.jsonObject }.firstOrNull {
         it.text("name") == SiteDownloads.MAC_FILE
     }
     return DesktopRelease(
-        version = tag.removePrefix("v"),
+        version = version,
         year = year,
         month = month,
         day = day,
@@ -69,3 +74,9 @@ internal expect suspend fun fetchText(url: String): String?
 private fun JsonObject.text(key: String): String? = get(key)?.jsonPrimitive?.contentOrNull
 
 private const val SHA256 = "sha256:"
+
+/** A version that is a day, `YY.M.D`, as `deploy/deploy.sh` names a release. */
+private val VERSION_DAY = Regex("""(\d{2})\.(\d{1,2})\.(\d{1,2})""")
+
+/** The century a version's two-digit year is in. */
+private const val CENTURY = 2000

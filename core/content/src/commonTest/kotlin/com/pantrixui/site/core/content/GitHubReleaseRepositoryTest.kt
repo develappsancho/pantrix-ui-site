@@ -26,6 +26,18 @@ class GitHubReleaseRepositoryTest {
     }
 
     @Test
+    fun a_release_s_day_is_the_one_its_version_names_not_the_utc_day_github_gives() {
+        // Made at 00:50 in Istanbul on the 31st: GitHub says 21:50 on the 30th.
+        val late = releaseOf(RELEASE.replace("2026-10-31T09:12:44Z", "2026-10-30T21:50:31Z"))
+        assertEquals(Triple(2026, 10, 31), Triple(late.year, late.month, late.day))
+        // A tag that names no day takes GitHub's.
+        val named = releaseOf(
+            RELEASE.replace("v26.10.31", "v1.2.0").replace("2026-10-31T09:12:44Z", "2026-11-02T08:00:00Z")
+        )
+        assertEquals(Triple(2026, 11, 2), Triple(named.year, named.month, named.day))
+    }
+
+    @Test
     fun a_release_without_the_disk_image_or_its_hash_has_neither() {
         val bare = releaseOf("""{"tag_name": "v26.11.2", "published_at": "2026-11-02T08:00:00Z", "assets": []}""")
         assertEquals("26.11.2", bare.version)

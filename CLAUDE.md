@@ -41,7 +41,7 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 
 | Path | What it is |
 | :--- | :--- |
-| `app/shared` | The composition root: `SiteApp` (theme, header, sidebar, menu, `PageDisplay`: Navigation 3's `NavDisplay` with the demo's page transitions, `PageTransitions.kt`), `SiteViewModel`, the site's links (`SiteNavigation.kt`), Koin (`SiteKoin.kt`); `wasmJsMain/WebSite.kt` (address, browser history, typeface gate); `iosMain/MainViewController.kt` |
+| `app/shared` | The composition root: `SiteApp` (theme, header, sidebar, menu, `PageDisplay`: Navigation 3's `NavDisplay` with the demo's page transitions, `PageTransitions.kt`), `SiteViewModel`, the site's links (`SiteNavigation.kt`), Koin (`SiteKoin.kt`); `wasmJsMain/WebSite.kt` (address, browser history, typeface gate); `iosMain/MainViewController.kt`; `jvmTest/PageScreenshotTest.kt` and `screenshots/jvm/`: the pages' screenshots |
 | `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp` |
 | `core/base` | MVI: `UiState`, `UiAction`, `UiEffect`, `BaseViewModel`, `BaseScreen`, `LoadState` |
 | `core/navigation` | `Navigator`, `NavigationHistory`, `BrowserNavigationHistory` (History API: path addresses, each entry keeping the stack it was written with, so a reload and Back or Forward reopen it) |
@@ -77,6 +77,12 @@ something surprising — flag it, even if it is unrelated to the task at hand.
   other address `404.html` with a 404. The static pages are written into the same folder after the distribution; a
   browser with scripts off shows them.
 - The server: `./gradlew :server:test` asks every kind of MCP message over real HTTP.
+- The pages' screenshots, when a page's look changes: `./gradlew :app:shared:verifyRoborazziJvm` (about six minutes).
+  `PageScreenshotTest` draws one page of each kind (14, and the home page and Installation in Turkish too) at 1440×900,
+  834×1194 and 390×844, light and dark, on the desktop's Skia: 96 images in `app/shared/screenshots/jvm/`. A change
+  that is meant is recorded again with `recordRoborazziJvm`, and the dark images are looked at too. A plain `jvmTest`
+  leaves them out (`site.screenshots`). The system's theme and the screen's clock are fixed in the test, so a picture
+  changes with neither the machine nor the day.
 - When the library's version changes: `pantrix` in `gradle/libs.versions.toml`, `LibraryFacts.RELEASE` once it is
   released, and the skill written again with the new jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`).
 - When the library's guides change: take its new version (a release, or a `-SNAPSHOT` published to `mavenLocal`), run

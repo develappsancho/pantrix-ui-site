@@ -1,6 +1,7 @@
 plugins {
     id("site.kmp.library")
     id("site.kmp.compose")
+    id("site.screenshots")
     alias(libs.plugins.kotlinSerialization)
 }
 

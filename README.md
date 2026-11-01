@@ -30,6 +30,8 @@ repository (`./gradlew publishToMavenLocal`).
 - `./gradlew detekt lintKotlin`
 - `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`
 - `./gradlew :server:test`
+- `./gradlew :app:shared:verifyRoborazziJvm`: one page of each kind at a desktop's, a tablet's and a phone's size, light
+  and dark, against the images in `app/shared/screenshots/jvm/` (`recordRoborazziJvm` writes them again)
 
 ## The content
 

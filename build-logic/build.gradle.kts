@@ -80,6 +80,10 @@ gradlePlugin {
             id = "site.jvm.tool"
             implementationClass = "com.pantrixui.site.buildlogic.JvmToolConventionPlugin"
         }
+        register("siteScreenshots") {
+            id = "site.screenshots"
+            implementationClass = "com.pantrixui.site.buildlogic.ScreenshotConventionPlugin"
+        }
         register("siteServer") {
             id = "site.server"
             implementationClass = "com.pantrixui.site.buildlogic.ServerConventionPlugin"

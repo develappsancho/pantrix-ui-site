@@ -1,6 +1,6 @@
 # Components
 
-Every component of Pantrix UI 0.1.0-alpha03, under the group of its page: its composable, the package it is imported from, what it is for, the words it is also known by, the names its automation tags start with, and the key of its page. A component is imported by its package and its name: `import com.pantrixui.components.elements.button.PantrixButton`. This file is written from the library's sources at every build.
+Every component of Pantrix UI 0.1.0-alpha04, under the group of its page: its composable, the package it is imported from, what it is for, the words it is also known by, the names its automation tags start with, and the key of its page. A component is imported by its package and its name: `import com.pantrixui.components.elements.button.PantrixButton`. This file is written from the library's sources at every build.
 
 Contents: Elements · Form · Date & Time · Containers · Navigation · Overlays · Data · Charts · Adaptive · Icons
 

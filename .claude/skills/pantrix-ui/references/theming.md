@@ -83,6 +83,10 @@ code.
   scale in it, and `rememberPantrixTypography(Brand, codeTypeface = BrandMono)` sets code in a face of its own.
   `buildPantrixTypography(fontFamily, headingFontFamily, monoFamily)` keeps the scale and changes the families. The
   sizes are in sp: text grows with the system's font size.
+- **Characters a brand's fonts lack, on the web.** Compose for Web fetches a Noto font from Google for a character
+  none of the app's fonts has. A brand's typeface gives the fonts for them as `fallbacks`, read with it, and Pantrix's
+  own for the marks of a Mac's keys: `PantrixTypeface(fonts = listOf(…), fallbacks =
+  PantrixTypeface.Default.fallbacks)`. An app that writes Arabic adds an Arabic font of its own there.
 
 ## A brand's look
 

@@ -12,6 +12,12 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Changed
+
+- **Pantrix UI 0.1.0-alpha04:** the lines that install the library, on the home page and in Installation, and the files
+  for coding assistants name its new release, whose Claude Code plugin brings the MCP server at `pantrixui.com/mcp`
+  too.
+
 ### Security
 
 - **HTTPS alone:** the site asks a browser to come back over HTTPS alone (`Strict-Transport-Security`), for a short

@@ -173,6 +173,8 @@ Its settings are all in one file: [`deploy/web/default.conf.template`](../../dep
 | Passing `/mcp` | `location = /mcp`, `proxy_pass` | The server stays closed to the outside; nginx passes this one path to it |
 | The second name | `server_name www.${SITE_HOST}`, `return 301` | `www.pantrixui.com` goes to `pantrixui.com` for good: the site has one name (section 6.2) |
 | The size limit | `client_max_body_size 64k` | A message over 64 KB is refused before it reaches the server (413) |
+| The rate limit | `limit_req_zone`, `limit_req` | An address asks `/mcp` at most 10 times a second, with a burst of 20 let through at once; past that nginx answers 429 itself, and the request never reaches the server |
+| The visitor's address | `set_real_ip_from`, `real_ip_header X-Forwarded-For` | Behind Traefik every request comes from Traefik's address: nginx takes the visitor's from the header Traefik writes, so the rate limit counts each visitor apart |
 | Security headers | `add_header`, `server_tokens off` | Section 9 |
 
 ### 3.3 Why Spring Boot Does Not Serve the Files
@@ -388,7 +390,7 @@ On a first visit, a visitor downloads about 7 MB for the app instead of 23 MB, t
 
 *   **One way in:** only `web` is open to the outside; `server`'s port is published nowhere.
 *   **A user with no rights:** the server runs not as root but as a user with no rights of its own (`65534`, nobody).
-*   **Limits:** a message cannot be over 64 KB (nginx), and an answer cannot take over 30 seconds (the server). The server's memory is limited to 512 MB, and Java's heap is three quarters of it; when memory runs out, the server stops and Docker starts it again.
+*   **Limits:** a message cannot be over 64 KB (nginx), and an answer cannot take over 30 seconds (the server). An address may ask `/mcp` 10 times a second, with a burst of 20; past that nginx answers 429. The server's memory is limited to 512 MB, and Java's heap is three quarters of it; when memory runs out, the server stops and Docker starts it again.
 *   **The origin check:** an MCP request a browser sends from a page of another site is refused (403). An assistant's own process sends no origin, and is answered.
 *   **No secrets in the images:** the images hold only what was built. The key to GitHub Packages stays on the machine that builds, so the images can be public.
 *   **Headers:** `X-Content-Type-Options: nosniff` (the browser does not guess a file's type), `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN` (the site cannot be framed by another site), `server_tokens off` (nginx's version is not given).

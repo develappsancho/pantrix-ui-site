@@ -13,6 +13,10 @@ map $uri $site_cache {
     default                   "no-cache";
 }
 
+# How often an address may ask the site's server, which answers each message with work of its own: ten times a second,
+# a burst of twenty let through at once. What comes past that nginx answers itself, 429, and the server never sees it.
+limit_req_zone $binary_remote_addr zone=site_mcp:10m rate=10r/s;
+
 # The site's host under www is the same site under a second name: it is sent, for good, to the one its pages give.
 server {
     listen 80;
@@ -28,6 +32,15 @@ server {
 
     server_tokens off;
     charset utf-8;
+
+    # The address a request comes from is the visitor's, not that of the proxy in front of the stack (Coolify's Traefik),
+    # which writes the visitor's into X-Forwarded-For: an address of a private network is a proxy's, and is passed over.
+    # Without it every visitor would come from the proxy's one address, and the limit on /mcp would count them as one.
+    set_real_ip_from 10.0.0.0/8;
+    set_real_ip_from 172.16.0.0/12;
+    set_real_ip_from 192.168.0.0/16;
+    real_ip_header X-Forwarded-For;
+    real_ip_recursive on;
 
     # Every file worth it was compressed when the image was made: nginx sends the .gz beside it to a browser that
     # takes gzip, and compresses nothing itself.
@@ -79,5 +92,8 @@ server {
         # The server takes a message of 64 KB at most, and answers within 30 seconds.
         client_max_body_size 64k;
         proxy_read_timeout 60s;
+        # An address asks at most as often as site_mcp lets it; past that, 429 (Too Many Requests).
+        limit_req zone=site_mcp burst=20 nodelay;
+        limit_req_status 429;
     }
 }

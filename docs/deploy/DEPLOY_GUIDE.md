@@ -146,10 +146,10 @@ Site canlıda Coolify'ın yönettiği VPS'te, `https://pantrixui.com`'da çalı�
     | Ortam değişkeni | `SITE_URL=https://pantrixui.com` |
 
     **Save** ile kaydedilir; ilk yayını betik başlatır.
-5.  **Kaynağın UUID'si.** Panelde kaynağın adresinin son parçasıdır: `…/application/<uuid>`. Kaynağın adındaki kimlik UUID değildir: ad `pantrix-ui-site:main-cntrex…` iken UUID `sfyuo3…`'tür. UUID de `~/.gradle/gradle.properties`'e yazılır:
+5.  **Kaynağın UUID'si.** Panelde kaynağın adresinin son parçasıdır: `…/application/<uuid>`. Kaynağın adının sonundaki kimlik UUID değildir: ikisi ayrı dizilerdir. UUID de `~/.gradle/gradle.properties`'e yazılır:
 
     ```properties
-    CoolifySiteUuid=sfyuo3lhlbdznx7whlflkz3f
+    CoolifySiteUuid=…
     ```
 
 6.  **DNS.** `pantrixui.com` ve `www.pantrixui.com` VPS'in adresine gider. Sertifikaları Traefik, Let's Encrypt'ten ilk yayında alır.

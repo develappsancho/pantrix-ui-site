@@ -12,6 +12,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Security
+
+- **A limit on the MCP server:** an address may ask `/mcp` ten times a second, with a burst of twenty; past that the
+  site answers 429 (Too Many Requests), so that no one visitor can keep the server busy for everyone else.
+
 ## [26.11.1] - 2026-11-01
 
 The site built with Pantrix UI 0.1.0, the library's first release, with the apps built with it, the home page's

@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Güvenlik
+
+*   **MCP sunucusunda bir sınır:** bir adres `/mcp`'ye saniyede on kez, bir kerede yirmilik bir taşmayla sorabilir; ötesine site 429 (Too Many Requests) döner, böylece tek bir ziyaretçi sunucuyu herkes için meşgul edemez.
+
 ## [26.11.1] - 2026-11-01
 
 Site, kütüphanenin ilk sürümü Pantrix UI 0.1.0 ile yapıldı; onunla yapılmış uygulamalar, ana sayfanın uyarlanabilir turu ve sunucuya soran sayfa geldi. Masaüstü uygulamasının ikinci sürümü.

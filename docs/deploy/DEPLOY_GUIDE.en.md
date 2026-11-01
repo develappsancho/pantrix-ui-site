@@ -146,10 +146,10 @@ On the host, the site runs on a VPS that Coolify manages, at `https://pantrixui.
     | Environment variable | `SITE_URL=https://pantrixui.com` |
 
     **Save** keeps it; the script starts the first deploy.
-5.  **The resource's UUID.** In the panel it is the last part of the resource's address: `…/application/<uuid>`. The id in the resource's name is not its UUID: the name is `pantrix-ui-site:main-cntrex…` while the UUID is `sfyuo3…`. The UUID goes into `~/.gradle/gradle.properties` too:
+5.  **The resource's UUID.** In the panel it is the last part of the resource's address: `…/application/<uuid>`. The id at the end of the resource's name is not its UUID: the two are different strings. The UUID goes into `~/.gradle/gradle.properties` too:
 
     ```properties
-    CoolifySiteUuid=sfyuo3lhlbdznx7whlflkz3f
+    CoolifySiteUuid=…
     ```
 
 6.  **DNS.** `pantrixui.com` and `www.pantrixui.com` lead to the VPS's address. Traefik gets their certificates from Let's Encrypt at the first deploy.

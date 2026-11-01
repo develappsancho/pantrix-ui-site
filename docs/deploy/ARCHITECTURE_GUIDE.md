@@ -173,6 +173,8 @@ Ayarların hepsi tek bir dosyadadır: [`deploy/web/default.conf.template`](../..
 | `/mcp`'yi geçirmek | `location = /mcp`, `proxy_pass` | Sunucu dışarıya kapalı kalır; nginx yalnızca bu yolu ona iletir |
 | İkinci ad | `server_name www.${SITE_HOST}`, `return 301` | `www.pantrixui.com` kalıcı olarak `pantrixui.com`'a gider: sitenin tek bir adı olur (bölüm 6.2) |
 | Boyut sınırı | `client_max_body_size 64k` | 64 KB'tan büyük bir mesaj sunucuya ulaşmadan reddedilir (413) |
+| İstek sınırı | `limit_req_zone`, `limit_req` | Bir adres `/mcp`'ye saniyede en çok 10 kez sorar, bir kerede 20 isteklik bir taşma geçer; ötesini nginx 429'la kendisi yanıtlar ve istek sunucuya hiç ulaşmaz |
+| Ziyaretçinin adresi | `set_real_ip_from`, `real_ip_header X-Forwarded-For` | Traefik'in arkasında her istek Traefik'in adresinden gelir: nginx ziyaretçinin adresini Traefik'in yazdığı başlıktan alır, böylece istek sınırı her ziyaretçiyi ayrı sayar |
 | Güvenlik başlıkları | `add_header`, `server_tokens off` | Bölüm 9 |
 
 ### 3.3 Neden Dosyaları Spring Boot Sunmuyor?
@@ -388,7 +390,7 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 
 *   **Tek kapı:** Dışarıya yalnızca `web` açıktır; `server`'ın portu hiçbir yere yayımlanmaz.
 *   **Yetkisiz kullanıcı:** Sunucu, root değil, hiçbir yetkisi olmayan bir kullanıcıyla (`65534`, nobody) çalışır.
-*   **Sınırlar:** Mesaj 64 KB'ı aşamaz (nginx), yanıt 30 saniyeyi aşamaz (sunucu). Sunucunun belleği 512 MB'la sınırlıdır, Java'nın yığını bunun dörtte üçüdür; bellek biterse sunucu durur ve Docker onu yeniden başlatır.
+*   **Sınırlar:** Mesaj 64 KB'ı aşamaz (nginx), yanıt 30 saniyeyi aşamaz (sunucu). Bir adres `/mcp`'ye saniyede 10 kez, bir kerede 20'lik bir taşmayla sorabilir; ötesine nginx 429 döner. Sunucunun belleği 512 MB'la sınırlıdır, Java'nın yığını bunun dörtte üçüdür; bellek biterse sunucu durur ve Docker onu yeniden başlatır.
 *   **Kaynak denetimi:** Başka bir sitenin sayfasından, tarayıcıyla gelen bir MCP isteği reddedilir (403). Asistanların kendi süreçleri bir kaynak (Origin) göndermez ve yanıtlanır.
 *   **İmajlarda sır yok:** İmajlarda yalnızca derlenmiş çıktı vardır. GitHub Packages'ın anahtarı derleyen makinede kalır; imajlar bu yüzden herkese açık olabilir.
 *   **Başlıklar:** `X-Content-Type-Options: nosniff` (tarayıcı bir dosyanın türünü tahmin etmez), `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN` (site başka bir sitenin çerçevesine konamaz), `server_tokens off` (nginx'in sürümü söylenmez).

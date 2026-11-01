@@ -9,10 +9,18 @@ import vm from 'node:vm';
 const SOURCE = readFileSync(new URL('../webMain/resources/site.js', import.meta.url), 'utf8');
 const WASM = 'site-wasm.js';
 const JS = 'site-js.js';
+// The user agents of Chrome on a Mac, of Safari 27.2 on a Mac, and of Chrome on an iPhone, which draws with WebKit.
+const CHROME = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) ' +
+    'Chrome/142.0.0.0 Safari/537.36';
+const SAFARI = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) ' +
+    'Version/27.2 Safari/605.1.15';
+const CHROME_ON_IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 ' +
+    '(KHTML, like Gecko) CriOS/142.0.0.0 Mobile/15E148 Safari/604.1';
 
 // Runs the loader in a browser whose Wasm is `wasm`: "gc", with garbage collection; "plain", without it; "throws",
-// when its test throws; "none", no Wasm at all. What it hands back drives the page and reads what the loader did.
-function load(wasm) {
+// when its test throws; "none", no Wasm at all. The browser says it is `agent`, Chrome unless told. What it hands back
+// drives the page and reads what the loader did.
+function load(wasm, agent = CHROME) {
     const scripts = [];
     const listeners = {};
     const classes = new Set(['app']);
@@ -33,6 +41,7 @@ function load(wasm) {
     const context = {
         document,
         window: { addEventListener: (type, listener) => { listeners[type] = listener; } },
+        navigator: { userAgent: agent },
         console: { warn: (message) => warnings.push(message) },
         Uint8Array,
         String,
@@ -75,6 +84,16 @@ test('a browser with Wasm garbage collection starts the Wasm build alone', () =>
     const page = load('gc');
     assert.deepEqual(page.started(), [WASM]);
     assert.equal(page.showsStaticWords(), false);
+});
+
+test('Safari starts the JavaScript build though it has Wasm garbage collection', () => {
+    const page = load('gc', SAFARI);
+    assert.deepEqual(page.started(), [JS]);
+    assert.equal(page.showsStaticWords(), false);
+});
+
+test('a browser on iOS, which draws with WebKit whatever it is called, starts the JavaScript build', () => {
+    assert.deepEqual(load('gc', CHROME_ON_IOS).started(), [JS]);
 });
 
 test('a browser with plain Wasm starts the JavaScript build', () => {

@@ -67,9 +67,12 @@ export async function serve(root = DIST) {
 }
 
 // Opens `path` of the site at `base` in a Chrome of its own, in a window `width` by `height`, with `prepare` run in the
-// page before any of its scripts, and the app's Wasm answered with broken bytes where `breakAppWasm`. Hands back what
-// the page loaded and the ways a test asks the page and acts on it.
-export async function open({ base, path = '/', width = 1280, height = 800, prepare = '', breakAppWasm = false }) {
+// page before any of its scripts, the app's Wasm answered with broken bytes where `breakAppWasm`, and the browser
+// saying it is `userAgent` where one is given. Hands back what the page loaded and the ways a test asks the page and
+// acts on it.
+export async function open({
+    base, path = '/', width = 1280, height = 800, prepare = '', breakAppWasm = false, userAgent = null
+}) {
     const profile = mkdtempSync(join(tmpdir(), 'site-browser-'));
     const port = 9400 + Math.floor(Math.random() * 400);
     const chrome = spawn(CHROME, ['--headless=new', '--no-first-run', '--no-default-browser-check', '--hide-scrollbars',
@@ -118,6 +121,7 @@ export async function open({ base, path = '/', width = 1280, height = 800, prepa
     await send('Page.enable');
     await send('Runtime.enable');
     await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false });
+    if (userAgent) await send('Emulation.setUserAgentOverride', { userAgent });
     if (prepare) await send('Page.addScriptToEvaluateOnNewDocument', { source: prepare });
     if (appWasm) await send('Fetch.enable', { patterns: [{ urlPattern: `*/${appWasm}` }] });
     await send('Page.navigate', { url: `${base}${path}` });

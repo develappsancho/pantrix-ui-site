@@ -7,6 +7,9 @@ import assert from 'node:assert/strict';
 import { DRAWN, SKIP, open, serve } from './chrome.mjs';
 
 const STATIC_WORDS = '!document.documentElement.classList.contains("app")';
+// Safari 27.2's user agent on a Mac.
+const SAFARI = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) ' +
+    'Version/27.2 Safari/605.1.15';
 
 let site;
 
@@ -25,6 +28,15 @@ test('a browser that runs Wasm garbage collection starts the Wasm build alone, w
 
 test('a browser without Wasm garbage collection starts the JavaScript build, which draws', { skip: SKIP }, async () => {
     const page = await open({ base: site.base, prepare: 'WebAssembly.validate = () => false;' });
+    try {
+        assert.equal(await page.until(DRAWN), true, `the app drew its first frame: ${page.report()}`);
+        assert.ok(page.loaded.includes('/site-js.js'));
+        assert.ok(!page.loaded.includes('/site-wasm.js'));
+    } finally { await page.close(); }
+});
+
+test('a browser that says it is Safari starts the JavaScript build, which draws', { skip: SKIP }, async () => {
+    const page = await open({ base: site.base, userAgent: SAFARI });
     try {
         assert.equal(await page.until(DRAWN), true, `the app drew its first frame: ${page.report()}`);
         assert.ok(page.loaded.includes('/site-js.js'));

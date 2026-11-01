@@ -6,6 +6,11 @@
 // a module. A failure of Wasm before the app has drawn its first frame starts the JavaScript build instead. Where that
 // fails too, or the browser has no Wasm at all, the page's static words are shown: index.html's `app` mark is taken
 // away, and its styles show the words the build wrote for the page.
+//
+// WebKit, Safari and every browser on iOS, is given the JavaScript build whatever it runs. From WebKit 27.2 on its
+// Wasm compiler, once warm, gets the Wasm build's measuring of text wrong: the app draws its first frame and stops on
+// an error, and the page stays blank. Which WebKit a browser is cannot be told on iOS, whose browsers name no version
+// of it, so WebKit of every version is given the build that draws there.
 (function () {
     "use strict";
 
@@ -56,6 +61,13 @@
             error instanceof WebAssembly.LinkError || error instanceof WebAssembly.RuntimeError);
     }
 
+    // Whether the browser draws with WebKit: Safari, and each browser on iOS. Chrome and the browsers built on it name
+    // Chrome in their user agent, and WebKit as well.
+    function webKit() {
+        var agent = typeof navigator === "object" && navigator.userAgent || "";
+        return /AppleWebKit\//.test(agent) && !/Chrom(e|ium)\//.test(agent);
+    }
+
     // Whether the error's stack runs through the script: what the Wasm build still throws as it stops, after the
     // JavaScript build has started, is the Wasm build's failure and not the JavaScript one's.
     function thrownBy(error, script) {
@@ -86,7 +98,7 @@
     } catch (unsupported) {
         collected = false;
     }
-    if (collected) {
+    if (collected && !webKit()) {
         starting = "wasm";
         load(WASM, startJavaScript);
     } else if (typeof WebAssembly === "object") {

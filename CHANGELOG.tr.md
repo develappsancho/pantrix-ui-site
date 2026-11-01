@@ -11,6 +11,7 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ### Düzeltilenler
 
+*   **Safari 27.2 ve iOS 27.2'deki her tarayıcı:** site yeniden açılıyor; boş kalıyordu. WebKit 27.2'nin WebAssembly derleyicisi Wasm sürümünün metin ölçümünü yanlış derliyor; bu yüzden WebKit'e, Safari'ye ve iOS'taki her tarayıcıya JavaScript sürümü verilir.
 *   **Ekran okuyucunun ayırt edebildiği sekmeler:** kodlama asistanları sayfasının istemcileri ve temeller sayfasının bölümleri, görünüşlerinin söylediği gibi hangisinin seçili olduğunu da söyler.
 
 ### Güvenlik

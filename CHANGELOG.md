@@ -14,6 +14,9 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ### Fixed
 
+- **Safari 27.2 and every browser on iOS 27.2:** the site opens again; it stayed blank. WebKit 27.2's WebAssembly
+  compiler gets the Wasm build's measuring of text wrong, so WebKit, Safari and every browser on iOS, is given the
+  JavaScript build.
 - **Tabs a screen reader can tell apart:** the clients of the page for coding assistants and the sections of the
   foundations' page say which one is chosen, as their look does.
 

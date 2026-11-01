@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.pantrixui.site.SiteApp
+import com.pantrixui.site.core.content.ReleaseRepository
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.navigation.NavigationHistory
@@ -16,6 +17,7 @@ import com.pantrixui.site.core.navigation.Navigator
 import com.pantrixui.site.core.routing.SiteRoutes
 import com.pantrixui.site.startSiteKoin
 import kotlinx.serialization.json.Json
+import org.koin.dsl.module
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -26,7 +28,12 @@ import kotlin.system.exitProcess
 fun main(args: Array<String>) {
     val options = args.toList().chunked(2).associate { it.first() to it.last() }
     val out = File(options.getValue("--out"))
-    startSiteKoin()
+    // The static pages are written from what the site has, not from what the network answers at that moment.
+    startSiteKoin(
+        module {
+            single<ReleaseRepository> { ReleaseRepository { error("No release while the pages are written") } }
+        }
+    )
     val words = Language.entries.associate { language ->
         language.code to LANDING.associate { route -> SiteRoutes.pathOf(route) to wordsOf(route, language) }
     }
@@ -37,7 +44,8 @@ fun main(args: Array<String>) {
 }
 
 /** The pages whose words are the app's code, not one of the site's content files. */
-internal val LANDING = listOf(Route.Home, Route.Foundations, Route.Theme, Route.Adaptive, Route.Ai, Route.Roadmap)
+internal val LANDING =
+    listOf(Route.Home, Route.Foundations, Route.Theme, Route.Adaptive, Route.Ai, Route.Roadmap, Route.Download)
 
 /** The words of [route] in [language]: the app drawn in a window of a desktop's size, one window for each page. */
 @OptIn(ExperimentalTestApi::class)

@@ -11,7 +11,9 @@ import com.pantrixui.site.core.designsystem.content.LiveExample
 /**
  * A page's words as the app shows them, read from its semantics, in HTML: its headings and its text in their order,
  * the first heading the page's own. What a reader acts on (a button, a tab, a switch, a field) and the parts where live
- * components run ([LiveExample]) are left out: their words are the controls', not the page's.
+ * components run ([LiveExample]) are left out: their words are the controls', not the page's. So is what the page
+ * hides from a screen reader, such as a picture drawn with words in it: the tree read here keeps it, a screen reader
+ * does not.
  */
 internal object LandingText {
     /** The words under [root], the app's root, in HTML. */
@@ -26,6 +28,8 @@ internal object LandingText {
             val heading = config.contains(SemanticsProperties.Heading)
             when {
                 config.contains(LiveExample) || config.contains(SemanticsProperties.Role) -> Unit
+
+                config.isClearingSemantics -> Unit
 
                 config.contains(SemanticsProperties.EditableText) -> Unit
 

@@ -17,9 +17,13 @@ class SiteNavigationTest {
         docs.forEach { route -> assertEquals(SitePart.Docs, route.part, "$route") }
         assertEquals(SitePart.Components, Route.Component("text-area").part)
         assertEquals(SitePart.Roadmap, Route.Roadmap.part)
+        assertEquals(SitePart.Download, Route.Download.part)
         assertNull(Route.Home.part)
         val links = headerLinks(SiteStrings.English, Route.Guide("testing"))
         assertEquals(listOf("docs"), links.filter { it.current }.map { it.key })
+        // The header's last link is the desktop app's page, which the header marks while it is on show.
+        val download = headerLinks(SiteStrings.Turkish, Route.Download).last()
+        assertEquals(Triple("download", "İndir", true), Triple(download.key, download.label, download.current))
     }
 
     @Test
@@ -60,7 +64,11 @@ class SiteNavigationTest {
     fun the_menu_adds_the_parts_of_the_site_the_sidebar_leaves_out() {
         val menu = menuSections(SiteStrings.English, Language.English, Route.Theme)
         assertEquals("Pantrix UI", menu.last().title)
-        assertEquals(listOf("components", "foundations", "adaptive", "theme"), menu.last().items.map { it.key })
+        assertEquals(
+            listOf("components", "foundations", "adaptive", "theme", "download"),
+            menu.last().items.map { it.key }
+        )
+        assertEquals("/download", menu.last().items.last().href)
         assertEquals("theme", menu.flatMap { it.items }.single { it.current }.key)
         assertEquals("Theme", menuTitle(SiteStrings.English, Route.Theme))
         assertEquals("Pantrix UI", menuTitle(SiteStrings.English, Route.Home))

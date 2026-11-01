@@ -100,6 +100,17 @@ object LandingHeads {
         )
     )
 
+    /** The page of the desktop app, `/download`. */
+    val Download = LandingHead(
+        title = Words("Download", "İndir"),
+        description = Words(
+            "Pantrix UI's site as a desktop app for macOS, signed and notarized: every page in both languages, the " +
+                "components live, the theme builder and the adaptive simulator.",
+            "Pantrix UI'ın sitesi, imzalı ve Apple'ın onayından geçmiş bir macOS uygulaması olarak: her sayfa iki " +
+                "dilde, bileşenler canlı, tema oluşturucu ve uyarlanabilir simülatör."
+        )
+    )
+
     /** The head of [route], or null where the route's page is one of the site's `content` files or a component's. */
     fun of(route: Route): LandingHead? = when (route) {
         Route.Home -> Home
@@ -109,6 +120,7 @@ object LandingHeads {
         Route.Adaptive -> Adaptive
         Route.Ai -> Ai
         Route.Roadmap -> Roadmap
+        Route.Download -> Download
         else -> null
     }
 }

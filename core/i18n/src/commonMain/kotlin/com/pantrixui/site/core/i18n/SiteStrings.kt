@@ -22,6 +22,7 @@ import com.pantrixui.site.core.model.Language
  * @property forAi the page for coding assistants, in the header.
  * @property forAiAssistants the same page, in a menu.
  * @property roadmap the roadmap.
+ * @property download the page of the desktop app, to download.
  * @property changelog the changelog.
  * @property searchTheDocs what the search box says before anything is typed.
  * @property switchToLight the theme button, in the dark theme.
@@ -110,6 +111,7 @@ class SiteStrings(
     val forAi: String,
     val forAiAssistants: String,
     val roadmap: String,
+    val download: String,
     val changelog: String,
     val searchTheDocs: String,
     val switchToLight: String,
@@ -241,6 +243,7 @@ class SiteStrings(
             forAi = "For AI",
             forAiAssistants = "For AI assistants",
             roadmap = "Roadmap",
+            download = "Download",
             changelog = "Changelog",
             searchTheDocs = "Search the docs",
             switchToLight = "Switch to the light theme",
@@ -343,6 +346,7 @@ class SiteStrings(
             forAi = "Yapay zekâ",
             forAiAssistants = "Yapay zekâ asistanları için",
             roadmap = "Yol haritası",
+            download = "İndir",
             changelog = "Değişiklik günlüğü",
             searchTheDocs = "Belgelerde ara",
             switchToLight = "Açık temaya geç",

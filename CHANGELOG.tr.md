@@ -20,8 +20,9 @@ Sitenin ilk sürümü, Pantrix UI 0.1.0-alpha03 ile yapıldı. Henüz yayında d
     *   temeller, temadan canlı okunur;
     *   tema oluşturucu, bir `DesignPreset`'i Kotlin olarak yazar;
     *   uyarlanabilir arayüz simülatörü, kütüphanenin iskelelerini her boyuttaki pencerelerde çizer;
-    *   kodlama asistanları sayfası, yol haritası, ⌘K araması ve sayfası olmayan bir adresin sayfası.
+    *   kodlama asistanları sayfası, yol haritası, ⌘K araması ve sayfası olmayan bir adresin sayfası;
+    *   masaüstü uygulamasının indirme sayfası; son sürümün sürüm numarası, boyutu ve SHA-256'sıyla.
 *   **Her sayfa statik HTML olarak** uygulamanın yanında; arama motorları ve Wasm çalıştıramayan bir tarayıcı için: başlığı, açıklaması, asıl adresi, paylaşım görseli ve metni. Onlarla birlikte `sitemap.xml`, `robots.txt`, `llms.txt` ve `llms-full.txt`.
 *   **Pantrix UI'ın MCP sunucusu** `/mcp`'de, Streamable HTTP üzerinden: bir kodlama asistanına yalnızca adresi verilir.
-*   **Aynı site uygulama olarak:** Android, iOS ve masaüstü için.
-*   **Yayına alma:** nginx'in ardındaki site ve sunucusu, tek bir Compose yığınında iki Docker imajı olarak. `deploy/deploy.sh local` onu `http://localhost:4004`'te çalıştırır; bir yığının sunulduğu adres bir ayardır, `SITE_URL`.
+*   **Aynı site uygulama olarak:** Android, iOS ve masaüstü için. Bir Developer ID ile imzalı ve Apple'ın onayından geçmiş macOS uygulaması, sitenin GitHub'daki sürümlerinden indirilir.
+*   **Yayına alma:** nginx'in ardındaki site ve sunucusu, tek bir Compose yığınında iki Docker imajı olarak. `deploy/deploy.sh local` onu `http://localhost:4004`'te çalıştırır; bir yığının sunulduğu adres bir ayardır, `SITE_URL`. `deploy/deploy.sh web` onu Coolify üzerinden sunucuya koyar, `deploy/deploy.sh desktop` macOS uygulamasını yayımlar, `deploy/deploy.sh release` ikisini birden yapar.

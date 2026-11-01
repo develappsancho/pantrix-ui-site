@@ -24,6 +24,7 @@ kotlin {
             implementation(projects.feature.adaptive)
             implementation(projects.feature.ai)
             implementation(projects.feature.roadmap)
+            implementation(projects.feature.download)
             implementation(projects.feature.search)
             implementation(projects.core.base)
             implementation(projects.core.navigation)
@@ -35,6 +36,8 @@ kotlin {
             implementation(libs.pantrix.components)
             implementation(libs.navigation3.ui)
             implementation(libs.androidx.lifecycle.viewmodelNavigation3)
+            // The graph's modules are the shared module's own API: an entry point or a tool may give its own.
+            api(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.composeViewmodel)
         }

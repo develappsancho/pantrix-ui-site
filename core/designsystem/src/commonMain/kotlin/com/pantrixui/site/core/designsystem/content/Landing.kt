@@ -222,6 +222,8 @@ enum class LandingButtonKind { Main, Outline }
  * @param colors its colours where the band it stands on asks for others than its [kind]'s, as a dark one does.
  * @param weight the weight of its words.
  * @param leading a mark before its words, as "+" before a suggestion.
+ * @param trailing a mark after its words in place of the arrow, as one that says the link leaves the site.
+ * @param iconSize how large its marks are.
  */
 @Composable
 fun LandingButton(
@@ -237,7 +239,9 @@ fun LandingButton(
     textSize: TextUnit = 15.sp,
     colors: ButtonColors? = null,
     weight: FontWeight = FontWeight.Bold,
-    leading: ImageVector? = null
+    leading: ImageVector? = null,
+    trailing: ImageVector? = null,
+    iconSize: Dp = 16.dp
 ) {
     val theme = PantrixTheme.colors
     val buttonColors = colors ?: when (kind) {
@@ -261,9 +265,10 @@ fun LandingButton(
         tagKey = tag
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (leading != null) PantrixIcon(imageVector = leading, contentDescription = null, size = 16.dp)
+            if (leading != null) PantrixIcon(imageVector = leading, contentDescription = null, size = iconSize)
             PantrixText(text = text, style = SiteTheme.type.button.sized(textSize).copy(fontWeight = weight))
-            if (arrow) PantrixIcon(imageVector = PantrixIcons.ArrowForward, contentDescription = null, size = 16.dp)
+            val after = trailing ?: PantrixIcons.ArrowForward.takeIf { arrow }
+            if (after != null) PantrixIcon(imageVector = after, contentDescription = null, size = iconSize)
         }
     }
 }

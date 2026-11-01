@@ -76,6 +76,7 @@ include(":feature:theme")
 include(":feature:adaptive")
 include(":feature:ai")
 include(":feature:roadmap")
+include(":feature:download")
 include(":feature:search")
 
 // The site's server, which runs beside it on its host: Pantrix UI's MCP server over HTTP, at /mcp.

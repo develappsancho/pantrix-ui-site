@@ -14,12 +14,15 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.pantrixui.foundation.date.LocalPantrixClock
 import com.pantrixui.foundation.date.PantrixClock
+import com.pantrixui.site.core.content.ReleaseRepository
+import com.pantrixui.site.core.model.DesktopRelease
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.navigation.NavigationHistory
 import com.pantrixui.site.core.navigation.Navigator
 import io.github.takahirom.roborazzi.captureRoboImage
 import org.koin.core.context.GlobalContext
+import org.koin.dsl.module
 import kotlin.test.Test
 import kotlin.time.Clock
 import kotlin.time.Duration
@@ -63,6 +66,9 @@ class PageScreenshotTest {
 
     @Test
     fun roadmap() = capture("roadmap", Route.Roadmap)
+
+    @Test
+    fun download() = capture("download", Route.Download)
 
     @Test
     fun changelog() = capture("changelog", Route.Changelog)
@@ -124,8 +130,11 @@ class PageScreenshotTest {
         const val FRAME_TIME = 400L
 
         init {
-            // The site's dependencies, once for every page: Koin keeps one graph for the whole JVM.
-            if (GlobalContext.getOrNull() == null) startSiteKoin()
+            // The site's dependencies, once for every page: Koin keeps one graph for the whole JVM. The desktop app's
+            // release is a fixed one, so the download page is drawn the same whatever the network answers.
+            if (GlobalContext.getOrNull() == null) {
+                startSiteKoin(module { single<ReleaseRepository> { ReleaseRepository { SCREEN_RELEASE } } })
+            }
         }
     }
 }
@@ -156,6 +165,17 @@ private fun PageAt(
         SiteApp(history = remember { StartAt(route) }, startLanguage = language)
     }
 }
+
+/** The desktop app's release the download page shows: a day's version, its disk image's size and hash. */
+private val SCREEN_RELEASE = DesktopRelease(
+    version = "26.10.31",
+    year = 2026,
+    month = 10,
+    day = 31,
+    notes = "https://github.com/develappsancho/pantrix-ui-site/releases/tag/v26.10.31",
+    macSize = 92_143_171,
+    macSha256 = "0e6bb0079ca77d507192d5b8530f5897002a62ae4ab8d02dde71863f766707a5"
+)
 
 /** The day the pages are drawn on, noon in UTC: a calendar marks it as today. */
 private val SCREEN_CLOCK = PantrixClock(

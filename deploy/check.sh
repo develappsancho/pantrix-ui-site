@@ -69,6 +69,9 @@ check "/tr/docs/installation is its Turkish page" \
     eval 'is "$(status)" 200 && has "rel=\"canonical\" href=\"$BASE/tr/docs/installation\""'
 fetch GET /components/button
 check "/components/button is a component's page" eval 'is "$(status)" 200 && has "<title>"'
+fetch GET /download
+check "/download is the desktop app's page, which leads to the latest release's disk image" \
+    eval 'is "$(status)" 200 && has "<title>" && has "releases/latest"'
 fetch GET /404.html
 missing_title="$(grep -o '<title>[^<]*</title>' "$WORK/body" | head -1)"
 fetch GET /no/page/here

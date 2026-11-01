@@ -52,6 +52,10 @@ sealed interface Route {
     @Serializable
     data object Roadmap : Route
 
+    /** The desktop app, to download. */
+    @Serializable
+    data object Download : Route
+
     /** The changelog. */
     @Serializable
     data object Changelog : Route

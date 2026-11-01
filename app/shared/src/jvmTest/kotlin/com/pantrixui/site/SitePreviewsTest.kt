@@ -79,7 +79,7 @@ class SitePreviewsTest {
         const val MAIN = "src/commonMain/kotlin"
 
         /** The screens the site has at least, and the four previews each one has. */
-        const val SCREENS = 12
+        const val SCREENS = 13
         val KINDS = listOf("", "Dark", "Phone", "PhoneDark")
 
         /** The sizes the design system names, which a preview's annotation gives by their names. */

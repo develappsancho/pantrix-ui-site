@@ -22,6 +22,7 @@ object SiteRoutes {
         Route.Theme -> "/theme"
         Route.Ai -> "/ai"
         Route.Roadmap -> "/roadmap"
+        Route.Download -> "/download"
         Route.Changelog -> "/changelog"
         is Route.NotFound -> route.path
     }
@@ -75,6 +76,7 @@ object SiteRoutes {
         "theme" to Route.Theme,
         "ai" to Route.Ai,
         "roadmap" to Route.Roadmap,
+        "download" to Route.Download,
         "changelog" to Route.Changelog
     )
 

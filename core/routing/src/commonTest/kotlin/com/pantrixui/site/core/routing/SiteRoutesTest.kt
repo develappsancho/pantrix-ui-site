@@ -18,6 +18,7 @@ class SiteRoutesTest {
         Route.Theme,
         Route.Ai,
         Route.Roadmap,
+        Route.Download,
         Route.Changelog
     )
 

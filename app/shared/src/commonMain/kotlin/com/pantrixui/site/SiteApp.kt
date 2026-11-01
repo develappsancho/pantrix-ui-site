@@ -62,6 +62,7 @@ import com.pantrixui.site.feature.docs.ChangelogRoute
 import com.pantrixui.site.feature.docs.DocRoute
 import com.pantrixui.site.feature.docs.GuidesRoute
 import com.pantrixui.site.feature.docs.NotFoundScreen
+import com.pantrixui.site.feature.download.DownloadRoute
 import com.pantrixui.site.feature.foundations.FoundationsRoute
 import com.pantrixui.site.feature.home.HomeRoute
 import com.pantrixui.site.feature.roadmap.RoadmapRoute
@@ -209,8 +210,9 @@ private fun SiteShell(
     }
     // Always composed, so that the search leaves with its motion: closed, it composes nothing.
     SiteSearch(searching, state.language, onAction, open) { searching = false }
+    // The header's menu button opens it: a tablet's and a phone's, and a desktop's too narrow for the header's links.
     SiteMenu(
-        visible = state.menuOpen && layout != SiteLayout.Desktop,
+        visible = state.menuOpen,
         onDismissRequest = { onAction(SiteAction.CloseMenu) },
         title = menuTitle(strings, route),
         sections = menuSections(strings, state.language, route),
@@ -302,6 +304,10 @@ private fun SitePage(
 
         Route.Roadmap -> {
             RoadmapRoute(onNavigate)
+        }
+
+        Route.Download -> {
+            DownloadRoute()
         }
     }
 }

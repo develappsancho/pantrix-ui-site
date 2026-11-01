@@ -11,7 +11,8 @@ import androidx.compose.ui.unit.dp
 
 /**
  * The site's own icons, for what Pantrix's set has no mark for: a language, the theme, a feed, a lock, a link out,
- * code and a tool. Each is drawn as the design draws it, in strokes on a 24 grid, in the colour of where it stands.
+ * code, a tool, and the download page's platforms and marks. Each is drawn as the design draws it, in strokes on a 24
+ * grid, in the colour of where it stands.
  */
 object SiteIcons {
     /** A language: a globe with its equator and a meridian. */
@@ -129,6 +130,98 @@ object SiteIcons {
         }
     }
 
+    /** macOS, as a computer: a laptop's screen over its base. */
+    val Laptop: ImageVector by lazy {
+        icon("Laptop", strokeWidth = 1.8f) {
+            roundRect(4f, 5f, 16f, 11f, 2f)
+            moveTo(2f, 19f)
+            horizontalLineTo(22f)
+        }
+    }
+
+    /** Windows: four panes in a square. */
+    val Panes: ImageVector by lazy {
+        icon("Panes", strokeWidth = 1.8f) {
+            roundRect(4f, 4f, 7f, 7f, 1f)
+            roundRect(13f, 4f, 7f, 7f, 1f)
+            roundRect(4f, 13f, 7f, 7f, 1f)
+            roundRect(13f, 13f, 7f, 7f, 1f)
+        }
+    }
+
+    /** Linux, as its terminal: a prompt and a cursor in a window. */
+    val Terminal: ImageVector by lazy {
+        icon("Terminal", strokeWidth = 1.8f) {
+            roundRect(3f, 4f, 18f, 16f, 2f)
+            moveTo(7f, 9f)
+            lineTo(10f, 12f)
+            lineTo(7f, 15f)
+            moveTo(13f, 15f)
+            horizontalLineTo(17f)
+        }
+    }
+
+    /** What is signed and checked: a shield with a tick. */
+    val Shield: ImageVector by lazy {
+        icon("Shield", strokeWidth = 1.9f) {
+            moveTo(12f, 3f)
+            lineTo(5f, 6f)
+            verticalLineTo(12f)
+            curveTo(5f, 16.5f, 8f, 19.5f, 12f, 21f)
+            curveTo(16f, 19.5f, 19f, 16.5f, 19f, 12f)
+            verticalLineTo(6f)
+            close()
+            moveTo(9f, 12f)
+            lineTo(11f, 14f)
+            lineTo(15f, 10f)
+        }
+    }
+
+    /** Pages to read: a book. */
+    val Book: ImageVector by lazy {
+        icon("Book", strokeWidth = 1.8f) {
+            moveTo(4f, 5f)
+            arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = true, 6f, 3f)
+            horizontalLineTo(19f)
+            verticalLineTo(19f)
+            horizontalLineTo(6f)
+            arcTo(2f, 2f, 0f, isMoreThanHalf = false, isPositiveArc = false, 4f, 21f)
+            close()
+            moveTo(4f, 21f)
+            verticalLineTo(5f)
+        }
+    }
+
+    /** Components: three blocks and a fourth being added. */
+    val Blocks: ImageVector by lazy {
+        icon("Blocks", strokeWidth = 1.8f) {
+            roundRect(4f, 4f, 7f, 7f, 2f)
+            roundRect(13f, 4f, 7f, 7f, 2f)
+            roundRect(4f, 13f, 7f, 7f, 2f)
+            moveTo(16.5f, 13f)
+            verticalLineTo(20f)
+            moveTo(13f, 16.5f)
+            horizontalLineTo(20f)
+        }
+    }
+
+    /** A theme's colours: a painter's palette. */
+    val Palette: ImageVector by lazy {
+        icon("Palette", strokeWidth = 1.8f) {
+            moveTo(12f, 3f)
+            arcTo(9f, 9f, 0f, isMoreThanHalf = false, isPositiveArc = false, 12f, 21f)
+            curveTo(13.1f, 21f, 13.6f, 20.1f, 13.2f, 19.2f)
+            curveTo(12.7f, 18.1f, 13.5f, 17f, 14.7f, 17f)
+            horizontalLineTo(17f)
+            arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = false, 21f, 13f)
+            curveTo(21f, 7.5f, 17f, 3f, 12f, 3f)
+            close()
+            circle(7.5f, 11f, 1.2f)
+            circle(11f, 7f, 1.2f)
+            circle(15.5f, 8.5f, 1.2f)
+        }
+    }
+
     private fun icon(
         name: String,
         strokeWidth: Float,
@@ -147,6 +240,26 @@ object SiteIcons {
         strokeLineJoin = StrokeJoin.Round,
         pathBuilder = draw
     ).build()
+
+    /** A rectangle from ([x], [y]), [width] by [height], its corners rounded by [radius]. */
+    private fun PathBuilder.roundRect(
+        x: Float,
+        y: Float,
+        width: Float,
+        height: Float,
+        radius: Float
+    ) {
+        moveTo(x + radius, y)
+        horizontalLineTo(x + width - radius)
+        arcTo(radius, radius, 0f, isMoreThanHalf = false, isPositiveArc = true, x + width, y + radius)
+        verticalLineTo(y + height - radius)
+        arcTo(radius, radius, 0f, isMoreThanHalf = false, isPositiveArc = true, x + width - radius, y + height)
+        horizontalLineTo(x + radius)
+        arcTo(radius, radius, 0f, isMoreThanHalf = false, isPositiveArc = true, x, y + height - radius)
+        verticalLineTo(y + radius)
+        arcTo(radius, radius, 0f, isMoreThanHalf = false, isPositiveArc = true, x + radius, y)
+        close()
+    }
 
     private fun PathBuilder.circle(
         x: Float,

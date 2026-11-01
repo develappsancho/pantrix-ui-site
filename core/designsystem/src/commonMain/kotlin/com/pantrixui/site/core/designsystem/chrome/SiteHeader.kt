@@ -6,11 +6,9 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,9 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,9 +73,10 @@ data class HeaderLink(
 
 /**
  * The site's header, across the window: the brand, the parts of the site, the search, the language and the
- * theme. On a desktop the parts are links in it; on a tablet and a phone they are in the menu its first button opens.
- * It is laid out alike on every page, from the window's one edge to the other, so that nothing in it moves as the
- * reader goes from one part of the site to another.
+ * theme. On a desktop wide enough for all of them the parts are links in it; on a narrower one, a tablet and a phone
+ * they are in the menu its first button opens, which takes the links' place. It is laid out alike on every page, from
+ * the window's one edge to the other, so that nothing in it moves as the reader goes from one part of the site to
+ * another.
  *
  * @param links the parts of the site, in order.
  * @param onNavigate what choosing a part does, given its key; the brand is the key "home".
@@ -82,7 +85,7 @@ data class HeaderLink(
  * @param addressIn the page's address in a language: the language menu writes it under the language's name.
  * @param dark whether the theme is dark: the theme button offers the other.
  * @param onToggleTheme what the theme button does.
- * @param onOpenMenu what the menu button of a tablet or a phone does.
+ * @param onOpenMenu what the menu button does, where the links have no room.
  * @param modifier the header's modifier.
  */
 @Composable
@@ -100,41 +103,41 @@ fun SiteHeader(
     val layout = SiteTheme.layout
     val strings = LocalSiteStrings.current
     Column(modifier.fillMaxWidth().background(PantrixTheme.colors.background)) {
-        BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
-            val showLinks = layout == SiteLayout.Desktop && maxWidth >= 960.dp
-            Row(
-                Modifier
-                    .height(if (layout == SiteLayout.Phone) 56.dp else 64.dp)
-                    .padding(layout.headerRoom)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(
-                    when (layout) {
-                        SiteLayout.Desktop -> 28.dp
-                        SiteLayout.Tablet -> 12.dp
-                        SiteLayout.Phone -> 4.dp
-                    }
+        val gap = when (layout) {
+            SiteLayout.Desktop -> 28.dp
+            SiteLayout.Tablet -> 12.dp
+            SiteLayout.Phone -> 4.dp
+        }
+        HeaderRow(
+            gap = gap,
+            modifier = Modifier
+                .height(if (layout == SiteLayout.Phone) 56.dp else 64.dp)
+                .padding(layout.headerRoom)
+                .fillMaxWidth()
+        ) {
+            Box(Modifier.layoutId(HeaderPart.Menu)) {
+                HeaderIconButton(
+                    icon = PantrixIcons.Menu,
+                    description = strings.openTheMenu,
+                    onClick = onOpenMenu,
+                    tint = PantrixTheme.colors.textPrimary,
+                    iconSize = 22.dp,
+                    tag = "openMenu"
                 )
-            ) {
-                if (layout != SiteLayout.Desktop) {
-                    HeaderIconButton(
-                        icon = PantrixIcons.Menu,
-                        description = strings.openTheMenu,
-                        onClick = onOpenMenu,
-                        tint = PantrixTheme.colors.textPrimary,
-                        iconSize = 22.dp,
-                        tag = "openMenu"
-                    )
-                }
-                Brand(onClick = { onNavigate("home") })
-                if (showLinks) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        links.forEachIndexed { index, link ->
-                            HeaderLinkButton(link, narrow = index >= WIDE_LINKS, onNavigate)
-                        }
+            }
+            Box(Modifier.layoutId(HeaderPart.Brand)) { Brand(onClick = { onNavigate("home") }) }
+            if (layout == SiteLayout.Desktop) {
+                Row(Modifier.layoutId(HeaderPart.Links), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    links.forEachIndexed { index, link ->
+                        HeaderLinkButton(link, narrow = index >= WIDE_LINKS, onNavigate)
                     }
                 }
-                Spacer(Modifier.weight(1f))
+            }
+            Row(
+                Modifier.layoutId(HeaderPart.Tools),
+                horizontalArrangement = Arrangement.spacedBy(gap),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 when (layout) {
                     SiteLayout.Phone -> HeaderIconButton(
                         icon = PantrixIcons.Search,
@@ -165,6 +168,57 @@ fun SiteHeader(
             }
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(SiteTheme.colors.hairline))
+    }
+}
+
+/** The parts of the header's row, which [HeaderRow] lays out by what they are. */
+private enum class HeaderPart { Menu, Brand, Links, Tools }
+
+/**
+ * The header's row: the brand, then the links where they are given and there is room for them beside the brand and
+ * the tools; where there is not, the menu button before the brand in their place. The tools stand at the row's end.
+ * Each part is measured as wide as it is, so a language whose names are longer, or a larger type, takes the links
+ * away sooner. What is not placed, the menu button or the links, is out of the reach of a screen reader and of the
+ * keyboard as well as out of sight: Compose leaves a part that is not placed out of both.
+ *
+ * @param gap the room between the parts, and between the tools.
+ * @param modifier the row's modifier, which gives its height.
+ * @param content the parts, each with its [HeaderPart] as its layout id.
+ */
+@Composable
+private fun HeaderRow(
+    gap: Dp,
+    modifier: Modifier,
+    content: @Composable () -> Unit
+) {
+    Layout(content, modifier) { measurables, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+
+        fun part(part: HeaderPart) = measurables.firstOrNull { it.layoutId == part }
+        val room = gap.roundToPx()
+        val brand = part(HeaderPart.Brand)?.measure(loose)
+        val tools = part(HeaderPart.Tools)?.measure(loose)
+        // The links as wide as they are, which no window's width limits: what decides whether they have room.
+        val links = part(HeaderPart.Links)?.measure(loose.copy(maxWidth = Constraints.Infinity))
+        val fits = links != null &&
+            (brand?.width ?: 0) + room + links.width + room + (tools?.width ?: 0) <= constraints.maxWidth
+        val menu = if (fits) null else part(HeaderPart.Menu)?.measure(loose)
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            // Centred as a row centres what it holds, its half pixel rounded the same way.
+            fun Placeable.placeAt(x: Int) =
+                placeRelative(x, Alignment.CenterVertically.align(height, constraints.maxHeight))
+            var x = 0
+            menu?.let {
+                it.placeAt(x)
+                x += it.width + minOf(room, MENU_GAP.roundToPx())
+            }
+            brand?.let {
+                it.placeAt(x)
+                x += it.width + room
+            }
+            if (fits) links?.placeAt(x)
+            tools?.let { it.placeAt(constraints.maxWidth - it.width) }
+        }
     }
 }
 
@@ -427,6 +481,9 @@ private val SiteLayout.headerRoom: PaddingValues
         SiteLayout.Tablet -> PaddingValues(start = 12.dp, end = 16.dp)
         SiteLayout.Phone -> PaddingValues(horizontal = 6.dp)
     }
+
+/** The room after the menu button: a tablet's, on a desktop too, and a phone's own closer one on a phone. */
+private val MENU_GAP = 12.dp
 
 /** How many of the header's first links have the wider room on each side; the later ones are set closer. */
 private const val WIDE_LINKS = 3

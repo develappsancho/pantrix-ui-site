@@ -14,6 +14,7 @@ import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Page
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.model.ShareImage
+import com.pantrixui.site.core.model.SiteDownloads
 import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.routing.SiteRoutes
 import kotlinx.serialization.KSerializer
@@ -65,14 +66,30 @@ internal class StaticPages(
     fun all(): List<StaticPage> = landingPages() + docs() + components() + listOf(changelog())
 
     private fun landingPages(): List<StaticPage> =
-        listOf(Route.Home, Route.Foundations, Route.Theme, Route.Adaptive, Route.Ai, Route.Roadmap).map { route ->
+        LANDING_PAGES.map { route ->
             val head = checkNotNull(LandingHeads.of(route))
             val words = landing[route] ?: (
                 html.heading(Html.TITLE, Html.text(head.title.of(language))) +
                     "\n<p>${Html.text(head.description.of(language))}</p>"
             )
-            StaticPage(route, language, head.title.of(language), head.description.of(language), kickerOf(route), words)
+            // The download page's buttons are the app's: a page read without it still leads to the file.
+            val links = if (route == Route.Download) "\n" + downloadLinks() else ""
+            StaticPage(
+                route,
+                language,
+                head.title.of(language),
+                head.description.of(language),
+                kickerOf(route),
+                words + links
+            )
         }
+
+    /** The links the download page's buttons are: the macOS app's disk image, and the latest release's notes. */
+    private fun downloadLinks(): String {
+        val words = StaticWords.of(language)
+        return "<p>" + html.link(SiteDownloads.MAC_DOWNLOAD, Html.text(words.downloadForMac)) + " · " +
+            html.link(SiteDownloads.LATEST, Html.text(words.releaseNotes)) + "</p>"
+    }
 
     private fun docs(): List<StaticPage> {
         val folder = File(root, ContentFiles.pageFile(language, "docs")).parentFile.resolve("docs")
@@ -183,6 +200,7 @@ internal class StaticPages(
         Route.Theme -> strings.theme
         Route.Adaptive -> strings.adaptive
         Route.Ai -> strings.forAi
+        Route.Download -> strings.download
         else -> strings.roadmap
     }
 
@@ -192,6 +210,17 @@ internal class StaticPages(
     ): T = ContentFiles.json.decodeFromString(serializer, file.readText())
 
     companion object {
+        /** The pages whose words are the app's own code, with no content file: `:tools:render` reads them. */
+        val LANDING_PAGES = listOf(
+            Route.Home,
+            Route.Foundations,
+            Route.Theme,
+            Route.Adaptive,
+            Route.Ai,
+            Route.Roadmap,
+            Route.Download
+        )
+
         /** [spans] as the words they say, without their marks: what a page's description is written from. */
         fun plain(spans: List<Span>): String = spans.joinToString("") { span ->
             when (span) {

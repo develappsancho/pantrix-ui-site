@@ -29,7 +29,8 @@ internal enum class SitePart(
     Adaptive("adaptive", Route.Adaptive),
     Theme("theme", Route.Theme),
     Ai("ai", Route.Ai),
-    Roadmap("roadmap", Route.Roadmap);
+    Roadmap("roadmap", Route.Roadmap),
+    Download("download", Route.Download);
 
     companion object {
         /** The part [key] names, or null for the brand's "home". */
@@ -48,6 +49,7 @@ internal val Route.part: SitePart?
         Route.Theme -> SitePart.Theme
         Route.Ai -> SitePart.Ai
         Route.Roadmap -> SitePart.Roadmap
+        Route.Download -> SitePart.Download
     }
 
 /**
@@ -223,7 +225,8 @@ internal fun menuSections(
             item("components", strings.components, Route.Components),
             item("foundations", strings.foundations, Route.Foundations),
             item("adaptive", strings.adaptiveUi, Route.Adaptive),
-            item("theme", strings.themeBuilder, Route.Theme)
+            item("theme", strings.themeBuilder, Route.Theme),
+            item("download", strings.download, Route.Download)
         )
     )
 }
@@ -242,6 +245,7 @@ private fun SitePart.label(strings: SiteStrings): String = when (this) {
     SitePart.Theme -> strings.theme
     SitePart.Ai -> strings.forAi
     SitePart.Roadmap -> strings.roadmap
+    SitePart.Download -> strings.download
 }
 
 /** The guides the sidebar lists by name, by key, with what it calls each. */

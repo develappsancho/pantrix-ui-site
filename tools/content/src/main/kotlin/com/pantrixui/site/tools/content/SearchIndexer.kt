@@ -313,6 +313,10 @@ internal class SearchIndexer(
                 Words("Roadmap", "Yol haritası") to
                     Words("What is built, and what comes next", "Neyin yapıldığı, sırada ne olduğu")
             ),
+            "/download" to (
+                Words("Download", "İndir") to
+                    Words("The site as a desktop app for macOS", "Site, macOS için bir masaüstü uygulaması olarak")
+            ),
             "/changelog" to (
                 Words("Changelog", "Değişiklik günlüğü") to
                     Words("What changed, version by version", "Sürüm sürüm ne değiştiği")

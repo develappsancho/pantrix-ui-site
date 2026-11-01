@@ -13,6 +13,7 @@ application {
 dependencies {
     implementation(projects.app.shared)
     implementation(projects.core.model)
+    implementation(projects.core.content)
     implementation(projects.core.navigation)
     implementation(projects.core.routing)
     implementation(projects.core.i18n)

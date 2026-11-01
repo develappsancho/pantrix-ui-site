@@ -50,6 +50,7 @@ import com.pantrixui.site.core.designsystem.content.CodeView
 import com.pantrixui.site.core.designsystem.content.LandingBand
 import com.pantrixui.site.core.designsystem.content.LinkCard
 import com.pantrixui.site.core.designsystem.content.OnPlatform
+import com.pantrixui.site.core.designsystem.content.live
 import com.pantrixui.site.core.designsystem.content.siteName
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LocalLanguage
@@ -225,6 +226,7 @@ private fun MannersCard(
     val email = remember { TextFieldState() }
     Column(
         modifier
+            .live()
             .clip(shape)
             .background(PantrixTheme.colors.surface)
             .border(1.dp, PantrixTheme.colors.border, shape)

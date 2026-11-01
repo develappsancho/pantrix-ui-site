@@ -69,3 +69,5 @@ include(":feature:search")
 
 // Programs that run at build time only.
 include(":tools:content")
+include(":tools:prerender")
+include(":tools:render")

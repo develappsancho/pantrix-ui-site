@@ -1,10 +1,14 @@
 html, body {
-    width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
     background: #ffffff;
+}
+
+/* Where the app runs, it is the whole page and scrolls itself. */
+html.app, html.app body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Under the dark theme of the system, the page is as dark as the site's dark theme before the app is drawn. */
@@ -29,4 +33,65 @@ html, body {
     align-items: center;
     justify-content: center;
     pointer-events: none;
+}
+
+/* The page's static words, which the build writes for each page: hidden where the app runs, and the page itself in a
+   browser that cannot run it, and for search engines. */
+html.app #static {
+    display: none;
+}
+
+html:not(.app) #loading,
+html:not(.app) #app {
+    display: none;
+}
+
+#static {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #101322;
+}
+
+#static nav a {
+    margin-right: 12px;
+}
+
+#static pre {
+    overflow: auto;
+    padding: 12px;
+    background: #f4f5f8;
+    border-radius: 8px;
+}
+
+#static table {
+    border-collapse: collapse;
+}
+
+#static th,
+#static td {
+    padding: 4px 8px;
+    border: 1px solid #e3e5ea;
+    text-align: left;
+    vertical-align: top;
+}
+
+@media (prefers-color-scheme: dark) {
+    #static {
+        color: #e7e9ed;
+    }
+
+    #static a {
+        color: #7aa2ff;
+    }
+
+    #static pre {
+        background: #151a26;
+    }
+
+    #static th,
+    #static td {
+        border-color: #2a3142;
+    }
 }

@@ -10,6 +10,7 @@ import com.pantrixui.site.core.model.ComponentGroups
 import com.pantrixui.site.core.model.ComponentIndex
 import com.pantrixui.site.core.model.ComponentLink
 import com.pantrixui.site.core.model.ComponentPage
+import com.pantrixui.site.core.model.DemoPages
 import com.pantrixui.site.core.model.Language
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -217,11 +218,7 @@ internal class ComponentReader(
 
     companion object {
         /** The key of the page of the component [name]: `text-area` for `TextArea`. */
-        fun keyOf(name: String): String = name.trim()
-            .replace(Regex("""(?<=[a-z0-9])(?=[A-Z])"""), "-")
-            .replace(Regex("""[^A-Za-z0-9]+"""), "-")
-            .trim('-')
-            .lowercase()
+        fun keyOf(name: String): String = DemoPages.componentKey(name)
 
         private fun JsonObject.string(name: String): String = getValue(name).jsonPrimitive.content
 

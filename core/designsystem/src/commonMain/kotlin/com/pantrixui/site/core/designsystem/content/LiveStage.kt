@@ -5,6 +5,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.pantrixui.foundation.a11y.PantrixPlatform
@@ -28,6 +30,15 @@ fun OnPlatform(
         content()
     }
 }
+
+/**
+ * Marks a part of a page where live components run: a showcase, a preview, a simulator. Their words are the
+ * components', not the page's: the static page the build writes from the page's words leaves them out.
+ */
+fun Modifier.live(): Modifier = semantics { this[LiveExample] = Unit }
+
+/** What [live] marks a part of a page with, which the static page's writer looks for. */
+val LiveExample = SemanticsPropertyKey<Unit>("LiveExample")
 
 /**
  * A ground of dots under what is drawn on it, as the design draws the stage a live component stands on.

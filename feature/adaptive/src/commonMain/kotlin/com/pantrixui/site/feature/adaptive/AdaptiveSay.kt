@@ -4,7 +4,6 @@ import com.pantrixui.site.core.model.Words
 
 /** The adaptive page's words, in each language. */
 internal object AdaptiveSay {
-    val WindowTitle = Words("Adaptive UI", "Uyarlanabilir arayüz")
     val Kicker = Words("Adaptive UI", "Uyarlanabilir arayüz")
     val Title = Words("One screen, every window. Folds too.", "Tek ekran, her pencere. Katlananlar da.")
     val Lead = Words(

@@ -4,6 +4,7 @@ import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.ComponentGroups
 import com.pantrixui.site.core.model.ComponentIndex
 import com.pantrixui.site.core.model.ComponentPage
+import com.pantrixui.site.core.model.DemoPages
 import com.pantrixui.site.core.model.FoundationSection
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page
@@ -61,7 +62,7 @@ internal class SearchIndexer(
             val component = byFunction[name] ?: demoPages.firstNotNullOfOrNull { byDemoPage[it] }
             val (path, anchor) = when {
                 component != null -> "/components/$component" to API
-                else -> demoPages.firstNotNullOfOrNull { PAGE_PLACES[it] } ?: return@mapNotNull null
+                else -> demoPages.firstNotNullOfOrNull { DemoPages.placeOf(it) } ?: return@mapNotNull null
             }
             Declaration(
                 title = titleOf(name, declaration["signature"]?.jsonPrimitive?.content.orEmpty()),
@@ -279,44 +280,6 @@ internal class SearchIndexer(
         }
 
         private fun JsonObject.string(name: String): String = getValue(name).jsonPrimitive.content
-
-        /**
-         * Where a declaration the demo documents on a page of its own, not a component's, is shown on the site: the
-         * foundations, the theming page, the adaptive page, a guide or the platforms.
-         */
-        private val PAGE_PLACES: Map<String, Pair<String, String?>> = mapOf(
-            "colors" to ("/foundations" to "colour"),
-            "typography" to ("/foundations" to "type"),
-            "spacing" to ("/foundations" to "spacing"),
-            "shapes" to ("/foundations" to "shape"),
-            "elevation" to ("/foundations" to "elevation"),
-            "motion" to ("/foundations" to "motion"),
-            "density" to ("/foundations" to "density"),
-            "component-styles" to ("/docs/theming" to "styles"),
-            "theme-inside-another" to ("/docs/theming" to "nested"),
-            "clipboard" to ("/docs/guides/clipboard" to null),
-            "shortcuts" to ("/docs/guides/keyboard-shortcuts" to null),
-            "files" to ("/docs/guides/files" to null),
-            "analytics" to ("/docs/guides/analytics" to null),
-            "analytics-connector" to ("/docs/guides/analytics" to null),
-            "diagnostics" to ("/docs/guides/diagnostics" to null),
-            "test-tags" to ("/docs/testing" to null),
-            "platform" to ("/docs/platforms" to null),
-            "haptics" to ("/docs/platforms" to null),
-            "accessibility" to ("/docs/platforms" to null),
-            "language" to ("/docs/platforms" to null),
-            "building-blocks" to ("/docs/platforms" to null)
-        ) + listOf(
-            "adaptive-window",
-            "adaptive-visibility",
-            "adaptive-login",
-            "adaptive-table",
-            "adaptive-two-pane",
-            "adaptive-list-detail",
-            "adaptive-supporting-pane",
-            "adaptive-tabletop",
-            "adaptive-fold-overlays"
-        ).associateWith { "/adaptive" to null }
 
         /** The site's own pages, which no Markdown writes: what each is called, and what it is. */
         private val SITE_PAGES: List<Pair<String, Pair<Words, Words>>> = listOf(

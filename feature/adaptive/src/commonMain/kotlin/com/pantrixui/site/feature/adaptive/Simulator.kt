@@ -52,6 +52,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.dotted
+import com.pantrixui.site.core.designsystem.content.live
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Words
@@ -223,6 +224,7 @@ private fun Scaled(
         PantrixWindowFrame(
             window,
             Modifier
+                .live()
                 .size(device.width.dp, device.height.dp)
                 .clip(RoundedCornerShape(device.corner.dp))
                 .background(PantrixTheme.colors.background)

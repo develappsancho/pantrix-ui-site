@@ -32,6 +32,17 @@ internal class LibraryDocuments(private val jar: File) {
             }
     }
 
+    /** The library's guides for apps in [language], each by its key: `files` for `guides/files.md`. */
+    fun guides(language: Language): Map<String, String> = ZipFile(jar).use { zip ->
+        val folder = if (language == Language.English) "$ROOT/guides/" else "$ROOT/${language.code}/guides/"
+        zip.entries().asSequence()
+            .filter { it.name.startsWith(folder) && it.name.endsWith(".md") && '/' !in it.name.removePrefix(folder) }
+            .associate { entry ->
+                entry.name.removePrefix(folder).removeSuffix(".md") to
+                    zip.getInputStream(entry).readBytes().decodeToString()
+            }
+    }
+
     /** The text of the document at [path], `CHANGELOG.md`, which the jar has. */
     fun text(path: String): String = ZipFile(jar).use { zip ->
         val entry = zip.getEntry("$ROOT/$path") ?: error("${jar.name} has no $ROOT/$path")

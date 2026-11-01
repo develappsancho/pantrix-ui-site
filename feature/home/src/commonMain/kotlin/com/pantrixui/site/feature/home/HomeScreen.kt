@@ -29,6 +29,7 @@ import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.sized
+import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.routing.SiteRoutes
@@ -75,7 +76,7 @@ fun HomeScreen(
 ) {
     val language = LocalLanguage.current
     val open: (Route) -> Unit = { onAction(HomeAction.OpenLink(SiteRoutes.addressOf(it, language))) }
-    PantrixWindowTitle(HomeSay.WindowTitle.of(language))
+    PantrixWindowTitle(LandingHeads.Home.title.of(language))
     Column(modifier.fillMaxSize().pantrixVerticalScroll(rememberScrollState())) {
         Hero(state, onAction, open)
         Numbers()

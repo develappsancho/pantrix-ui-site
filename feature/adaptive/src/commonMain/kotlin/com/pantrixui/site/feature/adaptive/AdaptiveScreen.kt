@@ -51,6 +51,7 @@ import com.pantrixui.site.core.designsystem.content.landingBandPadding
 import com.pantrixui.site.core.designsystem.content.landingGutter
 import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.siteClickable
+import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.Language
@@ -94,7 +95,7 @@ fun AdaptiveScreen(
     val language = LocalLanguage.current
     val layout = SiteTheme.layout
     val code = state.code.valueOrNull.orEmpty()
-    PantrixWindowTitle(AdaptiveSay.WindowTitle.of(language))
+    PantrixWindowTitle(LandingHeads.Adaptive.title.of(language))
     Column(modifier.fillMaxSize().pantrixVerticalScroll(rememberScrollState())) {
         Hero()
         LandingBand(

@@ -7,7 +7,6 @@ import com.pantrixui.site.core.model.Words
 
 /** The landing page's words, in each language. */
 internal object HomeSay {
-    val WindowTitle = Words("Compose Multiplatform design system", "Compose Multiplatform tasarım sistemi")
     val News = Words("New", "Yeni")
     val NewsLine = Words(
         "Text areas, a form's fields and a tap that puts the keyboard away",

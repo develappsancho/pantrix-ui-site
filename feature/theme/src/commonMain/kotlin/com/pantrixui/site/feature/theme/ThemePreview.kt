@@ -47,6 +47,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.shape.ShapeRole
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.content.live
 import com.pantrixui.site.core.designsystem.content.siteName
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Language
@@ -65,7 +66,7 @@ internal fun Preview(
     val layout = SiteTheme.layout
     val phone = layout == SiteLayout.Phone
     val line = SiteTheme.colors.hairline
-    Column(modifier.background(SiteTheme.colors.canvas)) {
+    Column(modifier.live().background(SiteTheme.colors.canvas)) {
         val platforms: @Composable (Modifier) -> Unit = { segmentModifier ->
             PantrixSegmentButton(
                 options = PlatformType.entries.map { SegmentOption(it, it.siteName, tagKey = it.name.lowercase()) },

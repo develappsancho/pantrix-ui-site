@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -82,7 +83,7 @@ fun CodeView(
     val file = code.file?.takeIf { !tabbed || layout == SiteLayout.Desktop }
     PantrixCodeBlock(
         code = text,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.codeExample().fillMaxWidth(),
         tokens = tokens,
         copyable = false,
         trailing = if (tabbed && file != null) ({ FileName(file, colors, Modifier.padding(end = 6.dp)) }) else null,
@@ -96,6 +97,11 @@ fun CodeView(
         textStyle = SiteTheme.type.code
     )
 }
+
+/** Marks a block of code: the static page's writer takes the words under it for code, one line after another. */
+val CodeExample = SemanticsPropertyKey<Unit>("CodeExample")
+
+private fun Modifier.codeExample(): Modifier = semantics { this[CodeExample] = Unit }
 
 /** The block's room: its header as tall as the design has it, a file's alone or the tabs', and its edges. */
 private fun codeStyle(
@@ -148,7 +154,7 @@ fun SmallCode(
     val (text, tokens) = remember(code) { code.lines.toCodeAndTokens() }
     PantrixCodeBlock(
         code = text,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.codeExample().fillMaxWidth(),
         tokens = tokens,
         copyable = false,
         colors = SiteTheme.colors.code.forCodeBlock(),
@@ -180,7 +186,7 @@ private fun LabelledCode(
     val layout = SiteTheme.layout
     PantrixCodeBlock(
         code = text,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.codeExample().fillMaxWidth(),
         tokens = tokens,
         copyable = false,
         // The header keeps 14 at its start and 8 at its end: the label stands 6 further in than the tabs. The label

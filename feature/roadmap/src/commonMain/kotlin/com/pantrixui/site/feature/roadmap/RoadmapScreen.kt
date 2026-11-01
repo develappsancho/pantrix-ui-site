@@ -46,6 +46,7 @@ import com.pantrixui.site.core.designsystem.content.pageAnchor
 import com.pantrixui.site.core.designsystem.content.pageAnchorRoot
 import com.pantrixui.site.core.designsystem.content.rememberScrollToAnchor
 import com.pantrixui.site.core.designsystem.sized
+import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.routing.SiteRoutes
 import org.koin.compose.viewmodel.koinViewModel
@@ -91,7 +92,7 @@ fun RoadmapScreen(
     val anchors = remember { PageAnchors() }
     val scrollTo = rememberScrollToAnchor(anchors, scroll)
     FollowPageSection(anchors, scroll)
-    PantrixWindowTitle(RoadmapSay.WindowTitle.of(language))
+    PantrixWindowTitle(LandingHeads.Roadmap.title.of(language))
     val suggest = { onAction(RoadmapAction.OpenLink(RoadmapSay.ISSUES)) }
     val open: (Link) -> Unit = { link ->
         when (link) {

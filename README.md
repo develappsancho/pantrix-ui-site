@@ -9,7 +9,9 @@ its own address: `/docs/installation` and `/tr/docs/installation`.
 Pantrix UI comes from `mavenLocal`: publish it from the library's repository first.
 
 - Web: `./gradlew :app:webApp:wasmJsBrowserDevelopmentExecutableDistribution`, then serve
-  `app/webApp/build/dist/wasmJs/developmentExecutable` with a server that answers every address with `index.html`.
+  `app/webApp/build/dist/wasmJs/developmentExecutable`: a file as it is, an address with a page its folder's
+  `index.html`, any other address `404.html`. Each page has a static `index.html` beside the app, for search engines
+  and for a browser that cannot run the app, with `sitemap.xml`, `robots.txt` and `llms.txt` at the root.
 - Desktop: `./gradlew :app:desktopApp:run`
 - Android: `./gradlew :app:androidApp:installDebug`
 - iOS: open `app/iosApp` in Xcode and run the `app.iosApp` scheme.
@@ -22,6 +24,7 @@ Pantrix UI comes from `mavenLocal`: publish it from the library's repository fir
 ## The content
 
 The pages are Markdown in `content/<language>/`, with the site's own pieces (`:::steps`, `:::facts`, `:::tabs`, …). The
-content tool (`tools/content`) turns them into JSON at build time; the app never reads Markdown.
+content tool (`tools/content`) turns them into JSON at build time; the app never reads Markdown. The guide pages are
+written from the library's guides: `./gradlew :core:content:writeGuidePages` after the library is published.
 
 `CLAUDE.md` has the project's map and its rules.

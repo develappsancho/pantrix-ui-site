@@ -6,7 +6,6 @@ import com.pantrixui.site.core.model.Words
 
 /** The page for coding assistants' words, in each language, and in each size where the design shortens them. */
 internal object AiSay {
-    val WindowTitle = Words("For coding assistants", "Kodlama asistanları için")
     val Kicker = Words("For coding assistants", "Kodlama asistanları için")
     val Title = Words("Your assistant writes Pantrix, not Material.", "Asistanın Material değil, Pantrix yazar.")
 

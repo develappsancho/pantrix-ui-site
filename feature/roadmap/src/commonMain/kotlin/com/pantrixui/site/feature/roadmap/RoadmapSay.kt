@@ -7,7 +7,6 @@ import com.pantrixui.site.core.model.Words
 
 /** The roadmap's words, in each language, and in each size where the design shortens them. */
 internal object RoadmapSay {
-    val WindowTitle = Words("Roadmap", "Yol haritası")
     val Kicker = Words("Roadmap", "Yol haritası")
     val Title = Words("What is built, and what comes next.", "Neyin yapıldığı, sırada ne olduğu.")
     val Lead = BySize(

@@ -41,6 +41,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.Hairline
+import com.pantrixui.site.core.designsystem.content.live
 import com.pantrixui.site.core.i18n.LocalLanguage
 
 /**
@@ -76,7 +77,7 @@ internal fun Preview(sample: Sample) {
                 .border(1.dp, colors.border, RoundedCornerShape(18.dp))
         }
     }
-    Column(frame.background(colors.surface)) {
+    Column(frame.live().background(colors.surface)) {
         PantrixText(
             text = SduiSay.screenTitle(sample).of(language),
             style = strong(if (layout == SiteLayout.Desktop) 17.sp else 16.sp),

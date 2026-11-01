@@ -9,6 +9,19 @@
     <title>Pantrix UI</title>
     <meta name="description" content="A Compose Multiplatform design system for Android, iOS, the desktop and the web.">
     <link type="text/css" rel="stylesheet" href="styles.css">
+    <!-- A browser that can run the app, one with Wasm's garbage collection, is marked `app`: it hides the page's static
+         words, the #static box the build writes for each page, and draws the app. One that cannot keeps the words. -->
+    <script>
+        (function () {
+            var app = false;
+            try {
+                app = WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 3, 1, 95, 0]));
+            } catch (e) {
+                app = false;
+            }
+            if (app) document.documentElement.className = "app";
+        })();
+    </script>
     <!-- The site's typefaces are fetched while its code is, so they are there when the app asks for them. The
          addresses are the ones Compose's resource reader asks for; without `crossorigin` the browser does not count
          these fetches as those requests. Pantrix's own typeface first, then the site's code typeface. -->

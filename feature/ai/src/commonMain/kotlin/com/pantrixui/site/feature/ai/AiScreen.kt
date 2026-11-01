@@ -22,6 +22,7 @@ import com.pantrixui.site.core.designsystem.content.PageAnchors
 import com.pantrixui.site.core.designsystem.content.pageAnchor
 import com.pantrixui.site.core.designsystem.content.pageAnchorRoot
 import com.pantrixui.site.core.designsystem.content.rememberScrollToAnchor
+import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -56,7 +57,7 @@ fun AiScreen(
     val anchors = remember { PageAnchors() }
     val scrollTo = rememberScrollToAnchor(anchors, scroll)
     FollowPageSection(anchors, scroll)
-    PantrixWindowTitle(AiSay.WindowTitle.of(language))
+    PantrixWindowTitle(LandingHeads.Ai.title.of(language))
     Column(modifier.fillMaxSize().pantrixVerticalScroll(scroll)) {
         Column(Modifier.fillMaxWidth().pageAnchorRoot(anchors)) {
             Hero(state, onAction, scrollTo)

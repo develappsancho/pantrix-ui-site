@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -52,6 +53,7 @@ import com.pantrixui.site.core.designsystem.content.LandingButton
 import com.pantrixui.site.core.designsystem.content.LandingButtonKind
 import com.pantrixui.site.core.designsystem.content.OnPlatform
 import com.pantrixui.site.core.designsystem.content.dotted
+import com.pantrixui.site.core.designsystem.content.live
 import com.pantrixui.site.core.designsystem.content.siteName
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LocalLanguage
@@ -425,8 +427,10 @@ private fun Stage(
                 PlatformCode(state.platform)
             }
         }
-        OnPlatform(state.platform) {
-            Showcase(layout)
+        Box(Modifier.live()) {
+            OnPlatform(state.platform) {
+                Showcase(layout)
+            }
         }
         PantrixText(
             text = buildAnnotatedString {

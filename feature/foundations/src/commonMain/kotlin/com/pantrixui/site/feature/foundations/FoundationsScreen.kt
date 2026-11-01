@@ -44,6 +44,7 @@ import com.pantrixui.site.core.designsystem.content.edgeToEdge
 import com.pantrixui.site.core.designsystem.content.pageAnchor
 import com.pantrixui.site.core.designsystem.content.rememberScrollToAnchor
 import com.pantrixui.site.core.designsystem.siteClickable
+import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.ContentsEntry
 import com.pantrixui.site.core.model.FoundationSection
@@ -82,7 +83,7 @@ fun FoundationsScreen(
     val anchors = remember { PageAnchors() }
     val scroll = rememberScrollState()
     val scrollTo = rememberScrollToAnchor(anchors, scroll)
-    PantrixWindowTitle(FoundationsSay.Title.of(language))
+    PantrixWindowTitle(LandingHeads.Foundations.title.of(language))
     ArticlePage(
         contents = contents,
         modifier = modifier,

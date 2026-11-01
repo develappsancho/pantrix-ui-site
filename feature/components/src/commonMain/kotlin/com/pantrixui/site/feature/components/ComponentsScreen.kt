@@ -62,6 +62,7 @@ import com.pantrixui.site.core.designsystem.content.PageFailed
 import com.pantrixui.site.core.designsystem.content.RichText
 import com.pantrixui.site.core.designsystem.content.edgeToEdge
 import com.pantrixui.site.core.designsystem.sized
+import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.ComponentCard
 import com.pantrixui.site.core.model.ComponentGroup
@@ -135,7 +136,7 @@ private fun ComponentsPage(
         SiteLayout.Phone -> 24.dp
     }
     val open: (String) -> Unit = { key -> onAction(ComponentsAction.OpenLink(componentAddress(key, language))) }
-    PantrixWindowTitle(ComponentsSay.Title.of(language))
+    PantrixWindowTitle(LandingHeads.Components.title.of(language))
     Box(modifier.fillMaxSize().pantrixVerticalScroll(rememberScrollState()), contentAlignment = Alignment.TopCenter) {
         Column(
             Modifier

@@ -18,8 +18,8 @@ Detekt, Kotlin için bir statik kod analizi aracıdır. Kotlinter kodun nasıl g
 :::table
 | Yer | Ayar | Ne çalışır |
 | :--- | :--- | :--- |
-| Kütüphane modülleri (`ui/foundation`, `ui/components`, `ui/annotations`, `ui/testing`, `ui/material3`) | [`config/detekt/detekt.yml`](../../../config/detekt/detekt.yml) | detekt'in kuralları ve projenin kütüphane kuralları. Her bulgu derlemeyi durdurur. |
-| Demo (`app/*`) | [`config/detekt/demo.yml`](../../../config/detekt/demo.yml) | Yalnızca projenin bir uygulamanın da uyduğu dört kuralı: `NoMaterialImport`, `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. Son ikisi bildirir ama derlemeyi durdurmaz. |
+| Kütüphane modülleri (`ui/foundation`, `ui/components`, `ui/annotations`, `ui/testing`, `ui/material3`) | [`config/detekt/detekt.yml`](https://github.com/developersancho/pantrix-ui-cmp/blob/main/config/detekt/detekt.yml) | detekt'in kuralları ve projenin kütüphane kuralları. Her bulgu derlemeyi durdurur. |
+| Demo (`app/*`) | [`config/detekt/demo.yml`](https://github.com/developersancho/pantrix-ui-cmp/blob/main/config/detekt/demo.yml) | Yalnızca projenin bir uygulamanın da uyduğu dört kuralı: `NoMaterialImport`, `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. Son ikisi bildirir ama derlemeyi durdurmaz. |
 :::
 
 detekt'in kendi kurallarından `UndocumentedPublicClass`, `UndocumentedPublicFunction` ve `UndocumentedPublicProperty` kütüphanede açıktır: bir sınıf, bir fonksiyon ve bir özellik KDoc'suz kalmaz. Bir enum'un girdisi de özellik sayılır. Parametreleri projenin `UndocumentedParameter`'ı tutar (3. bölüm).

@@ -7,6 +7,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
@@ -21,6 +22,9 @@ import org.jetbrains.compose.resources.ResourcesExtension
  * The site's content, written at build time by `:tools:content` from the pages in the repository's `content`
  * folder, and given to the module as its Compose resources: one JSON file for each page in each language, read when
  * the page is opened.
+ *
+ * It also gives the module `writeGuidePages`, run by hand when the library's guides change: it writes the guide
+ * pages in `content` from the library's documents, and they are committed with the site.
  */
 class ContentConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -47,6 +51,15 @@ class ContentConventionPlugin : Plugin<Project> {
             outputDirectory.set(layout.buildDirectory.dir("generated/siteContent"))
         }
 
+        tasks.register<WriteGuidePages>("writeGuidePages") {
+            group = "site"
+            description = "Writes the guide pages in content/ from the library's guides. Run by hand."
+            classpath = tool
+            mainClass.set(GUIDES_MAIN)
+            libraryDocuments.from(documents)
+            contentDirectory.set(rootProject.layout.projectDirectory.dir("content"))
+        }
+
         (extensions.getByType(ComposeExtension::class.java) as ExtensionAware)
             .extensions.configure<ResourcesExtension> {
                 customDirectory("commonMain", generate.flatMap { it.outputDirectory })
@@ -55,6 +68,7 @@ class ContentConventionPlugin : Plugin<Project> {
 
     private companion object {
         const val TOOL_MAIN = "com.pantrixui.site.tools.content.MainKt"
+        const val GUIDES_MAIN = "com.pantrixui.site.tools.content.GuidesMainKt"
     }
 }
 
@@ -87,6 +101,34 @@ abstract class GenerateSiteContent : JavaExec() {
                     libraryDocuments.singleFile.absolutePath,
                     "--out",
                     outputDirectory.get().asFile.absolutePath
+                )
+            }
+        )
+    }
+}
+
+/**
+ * Runs the content tool's guide writer: the library's guides in [libraryDocuments] in, the site's guide pages in
+ * [contentDirectory] out. The pages are the site's sources, so the task has no outputs and runs whenever it is asked.
+ */
+abstract class WriteGuidePages : JavaExec() {
+    /** The library's documents, the `com.pantrixui:mcp` jar: the guides in both languages come from it. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val libraryDocuments: ConfigurableFileCollection
+
+    /** The site's pages, `content/<language>/…`: the guides go under `docs/guides`. */
+    @get:Internal
+    abstract val contentDirectory: DirectoryProperty
+
+    init {
+        argumentProviders.add(
+            CommandLineArgumentProvider {
+                listOf(
+                    "--docs",
+                    libraryDocuments.singleFile.absolutePath,
+                    "--out",
+                    contentDirectory.get().asFile.absolutePath
                 )
             }
         )

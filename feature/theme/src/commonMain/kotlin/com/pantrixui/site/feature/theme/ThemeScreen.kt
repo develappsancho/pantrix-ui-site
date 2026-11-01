@@ -54,6 +54,7 @@ import com.pantrixui.site.core.base.BaseScreen
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.CodeView
+import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Block
 import org.koin.compose.viewmodel.koinViewModel
@@ -93,7 +94,7 @@ fun ThemeScreen(
     modifier: Modifier = Modifier
 ) {
     val language = LocalLanguage.current
-    PantrixWindowTitle(ThemeSay.Title.of(language))
+    PantrixWindowTitle(LandingHeads.Theme.title.of(language))
     Column(modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
         PageBar(state, onAction)
         when (SiteTheme.layout) {

@@ -61,7 +61,7 @@ A phone held sideways comes out Expanded by its width (iPhone 17: 874 × 402 dp)
 *   There is no sheet that opens from the bottom: menus and confirmations are popovers, forms are side sheets.
 *   The tabletop posture stands outside this rule (section 4).
 
-**Today:** `heightClass`, `byHeight(...)`, `isShort`. `PantrixScaffold` puts the navigation at the side by the width, so it is at the side on a phone held sideways. The part of the rule about sheets and menus will be those components' behaviour once they are written.
+**Today:** `heightClass`, `byHeight(...)`, `isShort`. `PantrixScaffold` puts the navigation at the side by the width, so it is at the side on a phone held sideways. The menu, the date picker and the supporting pane go by the width too: a phone held sideways is Expanded by its width, so there the menu is a popover and the supporting pane a panel at the side (section 10). They do not look at the height besides: a window both short and Compact in width still opens the menu as a sheet from the bottom.
 
 ## 3. Layout measures {#layout}
 
@@ -153,17 +153,24 @@ An app that reads the hinge itself gives the posture to the theme: `rememberPant
 
 ## 10. What changes with the size {#by-size}
 
-The navigation components and two panels (`PantrixTwoPane`) are there; which one to use the screen chooses itself today. Once the scaffold that manages a list and its detail itself and the sheets that adapt are written, their default behaviour will be this table.
+The table gives the library's components' defaults today. The scaffolds look at their own place, not at the window; a menu and a date picker look at the window they open over.
 
 :::table
 | Element | Compact | Medium | Expanded | Large and up |
 | :--- | :--- | :--- | :--- | :--- |
-| Navigation | A tab bar at the bottom | A rail at the side | A rail at the side | A sidebar and a top bar |
-| List and detail | One panel; the detail opens over it | One wide panel | The list and the detail side by side | The list and the detail side by side |
-| A form's and a detail's sheet | Full screen | A side sheet | A side sheet | A side sheet |
-| A row's menu, a confirmation | A sheet from the bottom | A popover | A popover | A popover |
-| The main action | Fixed at the bottom | In the header | In the header | In the header |
+| Navigation (`PantrixScaffold`) | A navigation bar at the bottom | A rail at the side | A rail at the side; a sidebar from 1088 dp | A sidebar at the side |
+| The page's title (`PantrixPageScaffold`, `PageTitlePlacement.Adaptive`) | In the top bar | In the top bar | At the top of the content, large | At the top of the content, large |
+| List and detail (`PantrixListDetailScaffold`) | One panel; the detail opens in the list's place | One panel; the detail opens in the list's place | The list and the detail side by side | Side by side; the extra panel beside them too |
+| Supporting pane (`PantrixSupportingPaneScaffold`) | A sheet from the bottom | A sheet from the end | A panel at the side | A panel at the side |
+| A row's menu, a date picker (`OverlayPresentation.Adaptive`, `DatePickerPresentation.Adaptive`) | A sheet from the bottom | A popover | A popover | A popover |
+| A confirmation (`PantrixDialog`) | A dialog in the middle | A dialog in the middle | A dialog in the middle | A dialog in the middle |
+| The page's actions (`PantrixPageScaffold`'s `actions`) | In the header, as their icons; what does not fit in the "…" menu | In the header, with their labels | In the header, with their labels | In the header, with their labels |
 :::
+
+*   **Navigation:** the scaffold moves the navigation from the bottom to the side at 600 dp (`ScaffoldStyle.sideNavigationMinWidth`); what stands at the side is the app's choice: `PantrixNavigationRail` or `PantrixSidebar`. An adaptive `PantrixSidebar` (its default) takes its rail by itself where its column would leave less than 840 dp beside it: in a place narrower than 1088 dp, with its column of 248 dp. In the tabletop posture the navigation is at the bottom at every width (section 4).
+*   **List and detail, supporting pane:** a scaffold counts its own room; the book posture makes two panels at every width, and the panels meet at the hinge. With `SupportingPanePresentation.Pane` the supporting pane opens in the main content's place in a narrow room.
+*   **Popovers and select boxes:** `PantrixPopover`, `PantrixSelect` and `PantrixMultiSelect` are popovers at every width; `presentation = OverlayPresentation.Adaptive` makes them do as the menu does.
+*   **What does not change with the window:** a confirmation is a dialog in the middle at every width, and the main action is in the header in a narrow window too. A screen that wants a confirmation from the bottom or an action fixed at the bottom in a narrow window builds it itself: `PantrixSheet` and `PantrixScaffold`'s `bottomBar`.
 
 ## 11. What there is today {#today}
 

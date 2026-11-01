@@ -61,7 +61,7 @@ Yatay tutulan telefon genişliğiyle Expanded çıkar (iPhone 17: 874 × 402 dp)
 *   Alttan açılan sheet olmaz: menüler ve onaylar popover'dır, formlar yan sheet'tir.
 *   Masa duruşu bu kuralın dışındadır (4. bölüm).
 
-**Bugün:** `heightClass`, `byHeight(...)`, `isShort`. `PantrixScaffold` navigasyonu genişliğe göre yana alır, yani yatay telefonda yandadır. Kuralın sheet ve menülerle ilgili kısmı, o bileşenler yazıldığında onların davranışı olacak.
+**Bugün:** `heightClass`, `byHeight(...)`, `isShort`. `PantrixScaffold` navigasyonu genişliğe göre yana alır, yani yatay telefonda yandadır. Menü, tarih seçici ve destek paneli de genişliğe bakar: yatay telefon genişliğiyle Expanded olduğundan orada menü popover, destek paneli yanda bir paneldir (10. bölüm). Yüksekliğe ayrıca bakmazlar: hem kısa hem Compact genişlikte bir pencere menüyü yine alttan sheet olarak açar.
 
 ## 3. Düzen ölçüleri {#layout}
 
@@ -153,17 +153,24 @@ Menteşeyi kendi okuyan bir uygulama duruşu temaya verir: `rememberPantrixWindo
 
 ## 10. Boyuta göre ne değişir {#by-size}
 
-Navigasyon bileşenleri ve iki panel (`PantrixTwoPane`) var; hangisinin seçileceğini bugün ekran kendisi seçer. Liste ve detayı kendisi yöneten iskelet ile uyarlanan sheet'ler yazıldığında varsayılan davranışları bu tablo olacak.
+Tablo, kütüphanenin bileşenlerinin bugünkü varsayılanıdır. İskeletler pencereye değil kendi yerlerine bakar; bir menü ve bir tarih seçici, açıldıkları pencereye.
 
 :::table
 | Öğe | Compact | Medium | Expanded | Large ve üstü |
 | :--- | :--- | :--- | :--- | :--- |
-| Navigasyon | Altta sekme çubuğu | Yanda rail | Yanda rail | Sidebar ve üst bar |
-| Liste ve detay | Tek panel; detay üstüne açılır | Tek, geniş panel | Liste ve detay yan yana | Liste ve detay yan yana |
-| Form ve ayrıntı sheet'i | Tam ekran | Yan sheet | Yan sheet | Yan sheet |
-| Satır menüsü, onay | Alttan sheet | Popover | Popover | Popover |
-| Ana aksiyon | Altta sabit | Başlıkta | Başlıkta | Başlıkta |
+| Navigasyon (`PantrixScaffold`) | Altta gezinme barı | Yanda ray | Yanda ray; 1088 dp'den sidebar | Yanda sidebar |
+| Sayfanın başlığı (`PantrixPageScaffold`, `PageTitlePlacement.Adaptive`) | Üst bar'da | Üst bar'da | İçeriğin başında, büyük | İçeriğin başında, büyük |
+| Liste ve detay (`PantrixListDetailScaffold`) | Tek panel; detay listenin yerinde açılır | Tek panel; detay listenin yerinde açılır | Liste ve detay yan yana | Yan yana; ek panel de yanlarında |
+| Destek paneli (`PantrixSupportingPaneScaffold`) | Alttan sheet | Yandan sheet | Yanda bir panel | Yanda bir panel |
+| Satır menüsü, tarih seçici (`OverlayPresentation.Adaptive`, `DatePickerPresentation.Adaptive`) | Alttan sheet | Popover | Popover | Popover |
+| Onay (`PantrixDialog`) | Ortada dialog | Ortada dialog | Ortada dialog | Ortada dialog |
+| Sayfanın aksiyonları (`PantrixPageScaffold`'ın `actions`'ı) | Başlıkta, ikonlarıyla; sığmayanlar "…" menüsünde | Başlıkta, etiketleriyle | Başlıkta, etiketleriyle | Başlıkta, etiketleriyle |
 :::
+
+*   **Navigasyon:** iskelet navigasyonu 600 dp'de (`ScaffoldStyle.sideNavigationMinWidth`) alttan yana alır; yanda ne duracağını uygulama seçer: `PantrixNavigationRail` ya da `PantrixSidebar`. Uyarlanabilir `PantrixSidebar` (varsayılanı) sütunu yanındakine 840 dp'den az yer bırakacaksa kendiliğinden rayına döner: 248 dp'lik sütunla 1088 dp'den dar bir yerde. Masa duruşunda navigasyon her genişlikte alttadır (4. bölüm).
+*   **Liste ve detay, destek paneli:** iskelet kendi alanını sayar; kitap duruşu her genişlikte iki panel yapar ve paneller menteşede buluşur. Destek paneli `SupportingPanePresentation.Pane` ile dar yerde ana içeriğin yerinde açılır.
+*   **Popover ve seçim kutuları:** `PantrixPopover`, `PantrixSelect` ve `PantrixMultiSelect` her genişlikte popover'dır; `presentation = OverlayPresentation.Adaptive` onları da menü gibi yapar.
+*   **Pencereyle değişmeyenler:** onay her genişlikte ortada bir dialog'dur, ana aksiyon dar pencerede de başlıktadır. Dar pencerede alttan açılan bir onay ya da altta sabit bir aksiyon isteyen ekran onu kendisi kurar: `PantrixSheet` ve `PantrixScaffold`'ın `bottomBar`'ı.
 
 ## 11. Bugün ne var {#today}
 

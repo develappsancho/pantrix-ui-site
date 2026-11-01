@@ -97,11 +97,13 @@ fetch GET /site-wasm.js
 wasm="$(grep -oE '[0-9a-f]{16,}\.wasm' "$WORK/body" | sort -u)"
 check "the Wasm build is asked for again each time, and names its WebAssembly" \
     eval 'is "$(status)" 200 && is "$(header Cache-Control)" no-cache && [ -n "$wasm" ]'
+check "the Wasm build holds no path of the machine that built it" eval '! has "file:///"'
 # The JavaScript build, for a browser that cannot run the Wasm one, draws with Skiko's WebAssembly: one of the two.
 fetch GET /site-js.js
 skiko="$(grep -oE '[0-9a-f]{16,}\.wasm' "$WORK/body" | sort -u)"
 check "the JavaScript build is asked for again each time, and draws with the Wasm build's Skiko" \
     eval 'is "$(status)" 200 && is "$(header Cache-Control)" no-cache && [ -n "$skiko" ] && contains "$wasm" "$skiko"'
+check "the JavaScript build holds no path of the machine that built it" eval '! has "file:///"'
 for file in $wasm; do
     fetch HEAD "/$file" -H 'Accept-Encoding: gzip'
     check "/$file is WebAssembly, compressed, kept for a year" \

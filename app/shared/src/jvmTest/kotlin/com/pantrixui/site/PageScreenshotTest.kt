@@ -43,6 +43,13 @@ class PageScreenshotTest {
     @Test
     fun home() = capture("home", Route.Home, turkishToo = true)
 
+    /**
+     * The home page in a window too narrow for its hero's two columns and too wide for a tablet's layout: a foldable
+     * open on its side, the iPhone Duo's 951 by 669. The hero's words take the tablet's single column.
+     */
+    @Test
+    fun home_between_a_tablet_and_a_desktop() = capture("home", Route.Home, sizes = listOf(FOLDABLE_ON_ITS_SIDE))
+
     @Test
     fun components() = capture("components", Route.Components)
 
@@ -85,16 +92,17 @@ class PageScreenshotTest {
     @Test
     fun not_found() = capture("not_found", Route.NotFound("/no-such-page"))
 
-    /** Draws [route] at each size and in both themes, in English and, with [turkishToo], in Turkish as well. */
+    /** Draws [route] at each of [sizes] and in both themes, in English and, with [turkishToo], in Turkish as well. */
     private fun capture(
         name: String,
         route: Route,
-        turkishToo: Boolean = false
+        turkishToo: Boolean = false,
+        sizes: List<Pair<Int, Int>> = SIZES
     ) {
         val languages = if (turkishToo) listOf(Language.English, Language.Turkish) else listOf(Language.English)
         languages.forEach { language ->
             val tongue = if (language == Language.English) "" else "_${language.code}"
-            SIZES.forEach { (width, height) ->
+            sizes.forEach { (width, height) ->
                 draw("${name}${tongue}_$width.png", route, language, width, height, dark = false)
                 draw("${name}${tongue}_${width}_dark.png", route, language, width, height, dark = true)
             }
@@ -123,6 +131,9 @@ class PageScreenshotTest {
     private companion object {
         /** A desktop's first screen, a tablet's held upright, and a phone's. */
         val SIZES = listOf(1440 to 900, 834 to 1194, 390 to 844)
+
+        /** A foldable's open screen on its side: the iPhone Duo's. */
+        val FOLDABLE_ON_ITS_SIDE = 951 to 669
 
         /** How many times a page is given real time to read its content, and the test's clock a step for its frames. */
         const val FRAMES = 12

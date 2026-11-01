@@ -48,6 +48,7 @@ import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.WithSiteLayout
 import com.pantrixui.site.core.designsystem.content.LandingBand
 import com.pantrixui.site.core.designsystem.content.LandingButton
 import com.pantrixui.site.core.designsystem.content.LandingButtonKind
@@ -80,7 +81,8 @@ internal fun Hero(
         if (layout == SiteLayout.Desktop) {
             BoxWithConstraints(Modifier.fillMaxWidth()) {
                 // The design's two columns grow from 440 and 560 wide, each by half of what is left; a window too
-                // narrow for both puts the stage under the words.
+                // narrow for both puts the stage under the words, which then take the tablet's single column: drawn
+                // for a wide column, it fills the width, where the desktop's left its right side empty.
                 val room = maxWidth - INTRO_BASIS - STAGE_BASIS - HERO_GAP
                 if (room >= 0.dp) {
                     Row(
@@ -92,7 +94,7 @@ internal fun Hero(
                     }
                 } else {
                     Column(verticalArrangement = Arrangement.spacedBy(HERO_GAP)) {
-                        Intro(state, onAction, open, Modifier.fillMaxWidth())
+                        WithSiteLayout(SiteLayout.Tablet) { Intro(state, onAction, open, Modifier.fillMaxWidth()) }
                         Stage(state, onAction, Modifier.fillMaxWidth())
                     }
                 }

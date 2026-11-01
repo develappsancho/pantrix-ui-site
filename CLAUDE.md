@@ -101,7 +101,8 @@ are the owner's on top of them.
   stack `pantrix-ui-site`.
 - The pages' screenshots, when a page's look changes: `./gradlew :app:shared:verifyRoborazziJvm` (about six minutes).
   `PageScreenshotTest` draws one page of each kind (14, and the home page and Installation in Turkish too) at 1440×900,
-  834×1194 and 390×844, light and dark, on the desktop's Skia: 96 images in `app/shared/screenshots/jvm/`. A change
+  834×1194 and 390×844, and the home page at 951×669 too (a foldable open on its side), light and dark, on the
+  desktop's Skia: 98 images in `app/shared/screenshots/jvm/`. A change
   that is meant is recorded again with `recordRoborazziJvm`, and the dark images are looked at too. A plain `jvmTest`
   leaves them out (`site.screenshots`). The system's theme and the screen's clock are fixed in the test, so a picture
   changes with neither the machine nor the day.

@@ -94,6 +94,19 @@ fun siteLayoutOf(widthClass: WindowWidthClass): SiteLayout = when (widthClass) {
     else -> SiteLayout.Desktop
 }
 
+/**
+ * Lays [content] out as the site lays it out in a window of [layout]'s width, whatever the window's own: a part of a
+ * page that keeps to one column in a window too narrow for the columns its layout draws takes that column's design,
+ * as the home page's hero takes the tablet's in a desktop window too narrow for its two.
+ */
+@Composable
+fun WithSiteLayout(
+    layout: SiteLayout,
+    content: @Composable () -> Unit
+) {
+    CompositionLocalProvider(LocalSiteLayout provides layout, content = content)
+}
+
 /** What Pantrix's components say their own words in: "Close", "Loading". */
 val Language.pantrixLocale: PantrixLocale
     get() = when (this) {

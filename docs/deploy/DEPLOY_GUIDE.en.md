@@ -65,7 +65,7 @@ deploy/deploy.sh stop
 | Part | What is tried |
 | :--- | :--- |
 | Pages | The home page; `/docs/installation` with no redirect, giving the address tried as its own; its Turkish; a component's page; an address with no page, as the 404 page with a 404 status; `llms.txt` as plain UTF-8 text that leads to the address tried; `sitemap.xml` at the address tried; `robots.txt` |
-| Compression and caching | A page gzipped and `no-cache`; the loader `site.js` `no-cache`, naming both builds; `site-wasm.js` `no-cache`, naming its Wasm; `site-js.js` `no-cache`, drawing with the Wasm build's Skia; each Wasm file as `application/wasm`, gzipped and cached for a year; no version of the server in the headers, and `nosniff` |
+| Compression and caching | A page gzipped and `no-cache`; the loader `site.js` `no-cache`, naming both builds; `site-wasm.js` `no-cache`, naming its Wasm; `site-js.js` `no-cache`, drawing with the Wasm build's Skia; neither build holding a `file:///` path of the machine that built it; each Wasm file as `application/wasm`, gzipped and cached for a year; no version of the server in the headers, and `nosniff` |
 | Security | `Strict-Transport-Security` over HTTPS, and none over plain HTTP; the content security policy reported, with the hash of the pages' inline script |
 | The second name | The name under `www` goes to the address tried for good (on this machine, with a `Host` header). On a test address that has no such name, `CHECK_WWW=no` leaves it out |
 | The MCP server | `initialize` answered by pantrix-ui; `tools/list`; a tool's call; a GET refused (405); a request from the site's own page answered; one from another site's page refused (403); a message over 64 KB refused (413) |

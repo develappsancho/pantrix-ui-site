@@ -19,6 +19,8 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
   too.
 - **The page for coding assistants:** Claude Code is set up with Pantrix UI's plugin alone, which brings the MCP server
   and the skill together, so the server is no longer added twice.
+- **The home page between a tablet and a desktop:** in a window from 840 to about 1100dp wide, as a foldable open on its
+  side, the home page's words fill the width in the tablet's single column, where they left the right side empty.
 
 ### Fixed
 
@@ -34,6 +36,8 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 - **No fonts from Google:** the site draws the marks of a Mac's keys, its own marks and its Arabic in fonts it carries,
   built with Pantrix UI 0.1.0-alpha04, and a visitor's browser asks Google for no font any more, but on the guide to
   text order, whose check marks come with the library's next release.
+- **No path of the build machine:** the site's scripts no longer hold the path of the machine they were built on, with
+  its user name and folders, which Skia's code wrote into them.
 
 ## [26.10.31] - 2026-10-31
 

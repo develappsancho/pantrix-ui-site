@@ -3,6 +3,7 @@ package com.pantrixui.site
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.testing.hasPantrixTag
 import kotlin.test.Test
@@ -89,6 +90,26 @@ class HomePageTest {
         press(hasPantrixTag("Link", "tourApi_pantrixnavigationrail"))
         untilAt("/components/navigation-rail")
     }
+
+    @Test
+    fun the_tour_s_box_holds_its_button_whole_and_keeps_one_height_on_every_window_in_both_languages() =
+        SiteSize.entries.forEach { size ->
+            Language.entries.forEach { language ->
+                siteAt(Route.Home, size, language) {
+                    // The column beside a desktop's stage once ran past the box's 600dp and lost the button under its
+                    // edge; and a box as tall as the step on show moved the page under it as the tour turned.
+                    val play = hasPantrixTag("Button", "tourPlay")
+                    val first = hasTestTag("Site_tour_phone")
+                    val heights = listOf("phone", "book", "table", "tablet", "desktop", "web").map { step ->
+                        press(hasTestTag("Site_tour_$step"))
+                        settle()
+                        assertTrue(whole(play), "the tour's button is cut at the step $step, $size, $language")
+                        place(play).bottom - place(first).top
+                    }
+                    assertEquals(1, heights.distinct().size, "the tour is not one height, $size, $language: $heights")
+                }
+            }
+        }
 
     @Test
     fun the_site_s_source_opens_on_github() = siteAt(Route.Home) {

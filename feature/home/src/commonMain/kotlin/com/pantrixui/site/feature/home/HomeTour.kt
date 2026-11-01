@@ -36,18 +36,22 @@ import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
@@ -72,6 +76,7 @@ import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.model.Words
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -263,6 +268,11 @@ internal fun AdaptiveTour(
 /**
  * The stage and what stands beside it, a desktop's, or under it elsewhere: the steps, what the step on show is, and
  * the button that stops the tour.
+ *
+ * A desktop's box is as tall as the stage's [TOUR_HEIGHT], or as its column where that is taller, as the design's box
+ * grows with its column: at a fixed height a column taller than the stage lost the button at its foot under the box's
+ * edge. The stage is measured after the column, to the box's size. On every window the caption keeps the room of the
+ * tallest step's, so the box holds one height as the tour turns and the page under it stands still.
  */
 @Composable
 private fun TourBox(
@@ -280,21 +290,26 @@ private fun TourBox(
         .background(SiteTheme.colors.canvas)
         .border(1.dp, SiteTheme.colors.hairline, shape)
     if (layout == SiteLayout.Desktop) {
-        Row(box.height(600.dp)) {
-            Stage(state.tourStep, photos, Modifier.weight(1f).fillMaxHeight().padding(32.dp))
-            Column(
-                Modifier
-                    .width(320.dp)
-                    .fillMaxHeight()
-                    .background(colors.surface)
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                StepList(state.tourStep, onAction)
-                Box(Modifier.fillMaxWidth().height(1.dp).background(SiteTheme.colors.hairline))
-                Caption(state.tourStep, open)
+        Box(box) {
+            Stage(state.tourStep, photos, Modifier.matchParentSize().padding(end = TOUR_COLUMN).padding(32.dp))
+            Row(Modifier.fillMaxWidth()) {
                 Spacer(Modifier.weight(1f))
-                PlayRow(state, onAction)
+                Column(
+                    Modifier
+                        .width(TOUR_COLUMN)
+                        .heightIn(min = TOUR_HEIGHT)
+                        .background(colors.surface)
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
+                ) {
+                    StepList(state.tourStep, onAction)
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Box(Modifier.fillMaxWidth().height(1.dp).background(SiteTheme.colors.hairline))
+                        InTallestRoom(state.tourStep) { step -> Caption(step, open) }
+                    }
+                    Spacer(Modifier.weight(1f))
+                    PlayRow(state, onAction)
+                }
             }
         }
     } else {
@@ -309,7 +324,7 @@ private fun TourBox(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 StepChips(state.tourStep, onAction, scrolls = layout == SiteLayout.Phone)
-                Caption(state.tourStep, open)
+                InTallestRoom(state.tourStep) { step -> Caption(step, open) }
                 PlayRow(state, onAction)
             }
         }
@@ -383,12 +398,16 @@ private fun StepList(
                 Column {
                     PantrixText(
                         text = step.title.of(language),
-                        style = SiteTheme.type.body.copy(fontSize = 14.5.sp, fontWeight = FontWeight.Bold),
+                        style = SiteTheme.type.body.copy(
+                            fontSize = 14.5.sp,
+                            lineHeight = STEP_LINE_HEIGHT,
+                            fontWeight = FontWeight.Bold
+                        ),
                         color = if (on) PantrixTheme.colors.primary.onContainer else PantrixTheme.colors.textSecondary
                     )
                     PantrixText(
                         text = step.sub.of(language),
-                        style = SiteTheme.type.bodySmall.copy(fontSize = 12.5.sp),
+                        style = SiteTheme.type.bodySmall.copy(fontSize = 12.5.sp, lineHeight = STEP_LINE_HEIGHT),
                         color = SiteTheme.colors.muted
                     )
                 }
@@ -472,12 +491,17 @@ private fun Caption(
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         PantrixText(
             text = "${step.sub.of(language)} · ${step.device.width} × ${step.device.height}".uppercase(),
-            style = SiteTheme.type.body.copy(fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.sp),
+            style = SiteTheme.type.body.copy(
+                fontSize = 12.sp,
+                lineHeight = CAPTION_LINE_HEIGHT,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.sp
+            ),
             color = colors.primary.onContainer
         )
         PantrixText(
             text = step.line.of(language),
-            style = SiteTheme.type.body.copy(fontSize = 14.5.sp, lineHeight = 21.sp),
+            style = SiteTheme.type.body.copy(fontSize = 14.5.sp, lineHeight = CAPTION_LINE_HEIGHT),
             color = colors.textSecondary,
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
         )
@@ -492,6 +516,29 @@ private fun Caption(
                 )
             }
         }
+    }
+}
+
+/**
+ * [content] of [step], in the room the tallest step's takes: what stands under it holds still as the tour turns. The
+ * other steps' are measured and never placed, and say nothing: only [step]'s is drawn, pressed and read, and it stays
+ * one part whose words change, which a screen reader reads out as they change.
+ */
+@Composable
+private fun InTallestRoom(
+    step: TourStep,
+    content: @Composable (TourStep) -> Unit
+) {
+    Layout(
+        content = {
+            content(step)
+            TourStep.entries.forEach { other -> Box(Modifier.clearAndSetSemantics {}) { content(other) } }
+        }
+    ) { measurables, constraints ->
+        val loose = constraints.copy(minHeight = 0)
+        val shown = measurables.first().measure(loose)
+        val tallest = measurables.drop(1).maxOf { it.measure(loose).height }
+        layout(shown.width, constraints.constrainHeight(max(shown.height, tallest))) { shown.place(0, 0) }
     }
 }
 
@@ -561,3 +608,15 @@ private const val TOUR_INTERVAL = 4_500L
 
 /** How much of the band, or of a window it does not fit, shows before the tour turns. */
 private const val IN_VIEW = 1f / 3f
+
+/** How tall a desktop's tour is: its stage's height, and the least its column beside it is. */
+private val TOUR_HEIGHT = 600.dp
+
+/** How wide the column beside a desktop's stage is. */
+private val TOUR_COLUMN = 320.dp
+
+/** A step's line in the desktop's list of steps, as many times its size as the design sets it. */
+private val STEP_LINE_HEIGHT = 1.3.em
+
+/** A line of what the step on show is, as many times its size as the design's running text. */
+private val CAPTION_LINE_HEIGHT = 1.55.em

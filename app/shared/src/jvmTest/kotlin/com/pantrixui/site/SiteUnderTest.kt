@@ -377,6 +377,21 @@ internal class SiteScreen(
             ?: config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString().orEmpty()
     }
 
+    /**
+     * Whether the node [matcher] finds is drawn whole, once the page has brought it into view: no part around it clips
+     * any of it, as a box of a fixed height clips what it holds past its edge.
+     */
+    fun whole(matcher: SemanticsMatcher): Boolean {
+        scrollTo(matcher)
+        settle()
+        val node = placed(matcher) ?: return false
+        val shown = node.boundsInRoot
+        return shown.height >= node.whole.height - EDGE && shown.width >= node.whole.width - EDGE
+    }
+
+    /** Where the node [matcher] finds stands in the window, whole, wherever the page is scrolled to. */
+    fun place(matcher: SemanticsMatcher): Rect = placed(matcher)?.whole ?: Rect.Zero
+
     /** Whether the first node [matcher] finds is chosen: a segment, a tab, a radio button. */
     fun chosen(matcher: SemanticsMatcher): Boolean =
         onAllNodes(matcher, useUnmergedTree = true).fetchSemanticsNodes().firstOrNull()
@@ -421,6 +436,9 @@ internal class SiteScreen(
         const val SCROLL_FRAMES = 10
 
         const val TAGS_SHOWN = 40
+
+        /** How much of a pixel a node's clipped bounds may differ from its whole ones by, by rounding alone. */
+        const val EDGE = 0.5f
     }
 }
 

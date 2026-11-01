@@ -12,6 +12,15 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Fixed
+
+- **The home page's tour on a desktop:** the button that pauses and plays the tour, and the step on show, stand at
+  the foot of the steps' column again; the column had grown past the tour's box, and its edge hid them.
+- **The home page's tour on every window:** it keeps one height as it turns from step to step, so the page under it
+  stands still; it grew and shrank with each step's caption.
+- **A step that may be left out, on a phone:** its "optional" follows the step's title, on its last line or the next;
+  beside a title that wrapped it stood one letter to a line down the page's edge, as on the coding assistants' page.
+
 ## [26.11.2] - 2026-11-02
 
 The site built with Pantrix UI 0.1.1: it opens again in Safari 27.2 and on iOS 27.2, its page says the language it is

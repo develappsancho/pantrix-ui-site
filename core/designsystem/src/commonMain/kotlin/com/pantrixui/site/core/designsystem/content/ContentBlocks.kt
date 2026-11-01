@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -32,9 +33,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pantrixui.components.container.alert.AlertColors
@@ -62,6 +67,7 @@ import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.Step
 import com.pantrixui.site.core.model.TableStyle
 import com.pantrixui.site.core.model.Tone
+import kotlin.math.roundToInt
 import com.pantrixui.site.core.model.Row as ContentRow
 
 /**
@@ -314,21 +320,66 @@ private fun StepNumber(
     }
 }
 
+/**
+ * A step's title, and the word that says the step may be left out after it, as the design sets the word in the
+ * title's line: on the title's last line and its baseline where there is room, at the start of a line of its own under
+ * it where there is not, and never broken. Beside the title as a part of a row, the word was left no room by a title
+ * that wraps, and stood one letter to a line. In the title's own text, its smaller letters would have been given the
+ * title's line on a baseline of their own, and the title would have stood taller.
+ */
 @Composable
 private fun StepTitle(
     step: Step,
     modifier: Modifier
 ) {
-    Row(modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        PantrixText(text = step.title, style = SiteTheme.type.stepTitle, color = PantrixTheme.colors.textPrimary)
-        if (step.optional) {
+    val style = SiteTheme.type.stepTitle
+    val color = PantrixTheme.colors.textPrimary
+    if (!step.optional) {
+        PantrixText(text = step.title, modifier = modifier, style = style, color = color)
+        return
+    }
+    val lines = remember { TitleLines() }
+    Layout(
+        content = {
+            PantrixText(text = step.title, style = style, color = color, onTextLayout = { lines.laid = it })
             PantrixText(
                 text = LocalSiteStrings.current.optional,
                 style = SiteTheme.type.button,
-                color = SiteTheme.colors.muted
+                color = SiteTheme.colors.muted,
+                maxLines = 1,
+                softWrap = false
             )
+        },
+        modifier = modifier
+    ) { measurables, constraints ->
+        val loose = constraints.copy(minWidth = 0, minHeight = 0)
+        val title = measurables[0].measure(loose)
+        val word = measurables[1].measure(loose)
+        val text = checkNotNull(lines.laid)
+        val last = text.lineCount - 1
+        val gap = OPTIONAL_GAP.roundToPx()
+        val rtl = layoutDirection == LayoutDirection.Rtl
+        val lineEnd = if (rtl) {
+            title.width - text.getLineLeft(last).roundToInt()
+        } else {
+            text.getLineRight(last).roundToInt()
+        }
+        val besideIt = lineEnd + gap + word.width <= constraints.maxWidth
+        val baseline = text.getLineBaseline(last).roundToInt()
+        val line = text.getLineBottom(last).roundToInt() - text.getLineTop(last).roundToInt()
+        val start = if (besideIt) lineEnd + gap else 0
+        val top = (if (besideIt) baseline else baseline + line) - word[FirstBaseline]
+        val width = maxOf(title.width, start + word.width)
+        layout(width, maxOf(title.height, top + word.height)) {
+            title.place(if (rtl) width - title.width else 0, 0)
+            word.place(if (rtl) width - start - word.width else start, top)
         }
     }
+}
+
+/** A step's title's lines, as it was measured last: read in the same pass of the layout, after the title's measure. */
+private class TitleLines {
+    var laid: TextLayoutResult? = null
 }
 
 @Composable
@@ -673,6 +724,9 @@ private val STEP_LINE = 2.dp
 
 /** The room between that line and the numbers at its ends. */
 private val STEP_LINE_GAP = 6.dp
+
+/** The room between a step's title and its "optional" on the title's last line. */
+private val OPTIONAL_GAP = 8.dp
 
 /** The narrowest a desktop's fact is: as many stand in a row as are this wide. */
 private val FACT_WIDTH = 170.dp

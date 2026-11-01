@@ -3,9 +3,15 @@ package com.pantrixui.site
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.text.font.FontFamily
+import com.pantrixui.site.core.designsystem.SiteLayout
+import com.pantrixui.site.core.designsystem.SiteType
+import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.testing.hasPantrixTag
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
@@ -26,6 +32,26 @@ class DocPageTest {
         press(hasTestTag("Site_toc_preset"))
         untilShown("the section in view", hasText("4. Your brand") and !hasAnyAncestor(hasTestTag("Site_toc_preset")))
     }
+
+    @Test
+    fun an_optional_step_s_word_stands_on_one_line_after_its_title_on_a_phone() =
+        siteAt(Route.Doc("ai-assistants"), SiteSize.Phone, Language.Turkish) {
+            // Beside a title that wraps, the word was once given no room and stood one letter to a line.
+            val title = hasText("Ya da sunucuyu kendi makinende çalıştır")
+            val word = hasText("isteğe bağlı")
+            scrollTo(title)
+            untilShown("the step's title", title)
+            val type = SiteType.of(SiteLayout.Phone, FontFamily.Default, FontFamily.Monospace)
+            val line = with(density) { type.button.lineHeight.toPx() }
+            assertEquals(2, count(word), "the page's two steps that may be left out")
+            onAllNodes(word, useUnmergedTree = true).fetchSemanticsNodes().forEach {
+                assertTrue(it.size.height < 2 * line && it.size.width > it.size.height, "the word is ${it.size}")
+            }
+            val words = onAllNodes(word, useUnmergedTree = true).fetchSemanticsNodes().map { it.positionInRoot }
+            val after = words.single { it.y >= place(title).top }
+            assertTrue(after.y < place(title).bottom + line, "the word stands under the title's last line, at $after")
+            assertTrue(place(title).right <= window().right, "the title runs past the window")
+        }
 
     @Test
     fun the_page_is_copied_for_an_assistant() = siteAt(Route.Doc("installation")) {

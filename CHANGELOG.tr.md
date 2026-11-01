@@ -9,6 +9,12 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Düzeltilenler
+
+*   **Ana sayfanın masaüstündeki turu:** turu duraklatan ve oynatan düğme ile gösterilen adım, adımlar sütununun altında yeniden görünür; sütun turun kutusundan uzun olmuştu ve kutunun kenarı onları saklıyordu.
+*   **Ana sayfanın turu her pencerede:** adımdan adıma geçerken tek bir yükseklikte kalır, altındaki sayfa da yerinde durur; her adımın açıklamasıyla uzayıp kısalıyordu.
+*   **Telefonda atlanabilen bir adım:** "isteğe bağlı" sözü adımın başlığının ardından, son satırında ya da bir alttakinde gelir; satıra sığmayan bir başlığın yanında, kodlama asistanları sayfasında olduğu gibi, sayfanın kenarından aşağı harf harf diziliyordu.
+
 ## [26.11.2] - 2026-11-02
 
 Site, Pantrix UI 0.1.1 ile yapıldı: Safari 27.2'de ve iOS 27.2'de yeniden açılıyor, sayfası okunduğu dili söylüyor, MCP sunucusu da her ziyaretçiye bir sınır içinde cevap veriyor.

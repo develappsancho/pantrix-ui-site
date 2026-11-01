@@ -27,7 +27,7 @@ Pantrix UI, `gradle/libs.versions.toml`'daki sürümün seçtiği iki depodan bi
 Site tek bir Docker Compose yığınında iki konteyner olarak çalışır: nginx'in ardında dosyaları ve yanında, yalnızca nginx'in `/mcp`'de ulaştığı sunucu. İki imaj da bu makinede, Gradle'ın yaptıklarından yapılır; sunucuda hiçbir şey derlenmez.
 
 *   Bu makinede: `deploy/deploy.sh local` siteyi ve sunucuyu derler, iki imajı yapar, yığını `http://localhost:4004`'te çalıştırır ve `deploy/check.sh` ile denetler; `deploy/deploy.sh stop` onu durdurur. Docker'ı ve GitHub Packages için yukarıdaki token'ı ister.
-*   Sunucuda, `pantrixui.com`: Coolify, GitHub'ın imaj deposundaki aynı imajlardan (sırada).
+*   Sunucuda, `pantrixui.com`: `deploy/deploy.sh web` aynı imajları GitHub'ın imaj deposuna gönderir ve Coolify'a yayımlatır; `deploy/deploy.sh desktop` macOS uygulamasını imzalı ve Apple'ın onayından geçmiş olarak bu deponun sürümlerinde yayımlar. Adımlar [docs/deploy/DEPLOY_GUIDE.md](docs/deploy/DEPLOY_GUIDE.md)'dedir.
 
 Sitenin adresi tek bir yerde yazılıdır: `gradle.properties`'teki `site.url`; derleme onu statik sayfalara, içeriğe (`{{site}}` olarak), paylaşım görsellerine ve uygulamalara verir. Çalışan bir yığın ise `SITE_URL`'de sunulur: web konteyneri açılırken onu sitenin dosyalarına yazar, web uygulaması da açıldığı adresi okur.
 

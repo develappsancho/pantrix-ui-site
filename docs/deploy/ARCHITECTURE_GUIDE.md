@@ -200,8 +200,8 @@ Spring Boot da dosya sunabilir; ama:
 | **Dockerfile** | Bir imajın tarifi: hangi tabanın üstüne ne konacağı | `deploy/web/Dockerfile`, `deploy/server/Dockerfile` |
 | **Katman** | Dockerfile'ın her adımı bir katmandır; değişmeyen katman yeniden kullanılır, indirilmez | nginx'in ve Java'nın tabanı bir kez çekilir |
 | **Compose** | Birlikte çalışan konteynerleri tek bir dosyada tanımlar ve aralarına ortak bir ağ kurar | `deploy/compose.yaml` |
-| **Kayıt (registry)** | İmajların saklandığı depo | GitHub'ın imaj deposu GHCR (`ghcr.io`), Coolify adımında |
-| **Etiket (tag)** | Bir imajın sürüm adı | Derlendiği commit'in kısa karması: `fbc4fe2` |
+| **Kayıt (registry)** | İmajların saklandığı depo | GitHub'ın imaj deposu GHCR (`ghcr.io`): `ghcr.io/develappsancho/pantrix-ui-site-web` ve `-server`, herkese açık |
+| **Etiket (tag)** | Bir imajın sürüm adı | Lokalde derlendiği commit'in kısa karması (`fbc4fe2`); GHCR'de sürüm (`26.10.31`), commit ve `latest` |
 
 ### 4.2 İki İmaj
 
@@ -261,7 +261,7 @@ flowchart LR
         d --> l["Lokal yığın<br/>localhost:4004"]
         l --> c["check.sh<br/>sayfalar, 404, gzip, önbellek, /mcp"]
     end
-    d -. "Coolify adımı: push" .-> r[("GHCR<br/>ghcr.io/develappsancho")]
+    d -. "deploy.sh web: push" .-> r[("GHCR<br/>ghcr.io/develappsancho")]
     r -. "pull" .-> v["Coolify · VPS<br/>pantrixui.com"]
 ```
 
@@ -279,7 +279,7 @@ flowchart LR
 
 | | Lokal | Canlı (Coolify) |
 | :--- | :--- | :--- |
-| Komut | `deploy/deploy.sh local` | Coolify adımında yazılacak |
+| Komut | `deploy/deploy.sh local` | `deploy/deploy.sh web` |
 | Compose dosyaları | `compose.yaml` ve `compose.local.yaml` | `compose.yaml` |
 | İmajlar | Bu makinede derlenir | GHCR'den çekilir |
 | Adres | `http://localhost:4004` | `https://pantrixui.com` |
@@ -351,7 +351,7 @@ flowchart LR
 
 </details>
 
-Coolify'daki kurulumun adımları, Coolify adımında [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)'ye eklenir.
+Coolify, depodaki `deploy/compose.yaml`'ı okur ve imajları GHCR'den çeker; hiçbir şey derlemez. Kurulumun ve her yayının adımları [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)'nin 7. bölümündedir.
 
 ## 8. Sıkıştırma ve Önbellek
 
@@ -408,7 +408,8 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 | [`deploy/web/default.conf.template`](../../deploy/web/default.conf.template) | nginx'in ayarları; `SITE_URL` ve `SITE_HOST`, konteyner açılırken yazılır |
 | [`deploy/web/05-site-address.envsh`](../../deploy/web/05-site-address.envsh), [`deploy/web/40-site-address.sh`](../../deploy/web/40-site-address.sh) | Konteyner açılırken: yığının adresini bulur ve dosyalara yazar |
 | [`deploy/server/Dockerfile`](../../deploy/server/Dockerfile) | Sunucu imajı: Java 21 ve `server.jar` |
-| [`deploy/deploy.sh`](../../deploy/deploy.sh) | Tek komut: derler, imajları yapar, yığını kaldırır, denetler |
+| [`deploy/deploy.sh`](../../deploy/deploy.sh) | Lokalde ve canlıda yayın: derler, imajları yapar ya da GHCR'ye gönderir, Coolify'a yayını başlatır, masaüstü sürümünü yapar, denetler |
+| [`deploy/desktop/macos-dmg.sh`](../../deploy/desktop/macos-dmg.sh), [`deploy/desktop/macos-entitlements.plist`](../../deploy/desktop/macos-entitlements.plist) | macOS uygulamasının DMG'si: Developer ID ile imza, Apple'ın onayı ve onayın DMG'ye eklenmesi |
 | [`deploy/check.sh`](../../deploy/check.sh) | Denetimler: herhangi bir adreste, lokalde ya da canlıda |
 
 ## 12. Sözlük
@@ -434,4 +435,6 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 *   **Adres, lokalde görülen (2026-10-30):** `SITE_URL=http://localhost:4004` ile `web` konteyneri açılırken 294 dosyadaki adresi yazdı (yaklaşık 1,3 saniye); dosyalarda canlı adres kalmadı, `.gz`'ler dosyalarıyla aynı, paket adları (`com.pantrixui.components`) ve rehberlerin örnekleri (`"pantrixui.com/tr"`) olduğu gibi. `check.sh`'in 22 denetimi bu adresle geçti: canonical, `llms.txt`, `sitemap.xml`, `www.localhost` yönlendirmesi ve sitenin kendi sayfasından gelen MCP isteği. Tarayıcıda yapay zekâ sayfası ve belgelerdeki asistan sayfası `http://localhost:4004/mcp`, 404 sayfası `localhost:4004/…` gösterdi. Aynı konteyner yeniden başlarken dosyalara dokunmadı; `SITE_URL` verilmeyen bir konteyner derlendiği adresle (`https://pantrixui.com`), başka bir adres verilen konteyner o adresle sunuldu.
 *   **Adres, bilinen sınır:** JavaScript'siz okuyucular için gizlenen statik metinde şemasız yazılan adres (`pantrixui.com/mcp`) değişmez; uygulama bu adresi açıldığı adresle gösterir.
 *   **Kaynakta okunan:** nginx'in `try_files`, `gzip_static`, `resolver` ve `add_header` davranışları nginx'in belgelerindedir.
-*   **Henüz denenmeyen:** Coolify, Traefik, HTTPS ve canlı alan adı; `amd64` imajı (lokalde `arm64` çalıştı). Bunlar Coolify adımında denenir.
+*   **Canlıda görülen (2026-10-31):** `deploy/deploy.sh web` iki imajı iki mimari için GHCR'ye gönderdi, Coolify yayını yaklaşık 30 saniyede bitirdi ve `check.sh`'in 23 denetimi `https://pantrixui.com`'da geçti: Traefik'in iki adın sertifikasını Let's Encrypt'ten alması, `www.pantrixui.com`'un kalıcı yönlendirmesi, VPS'te çekilen imajlar ve `/mcp` dahil. Sayfalar başsız Chrome'da çizildi. Masaüstü sürümü `v26.10.31` GitHub'da açıldı; DMG'yi Gatekeeper "Notarized Developer ID" diye kabul etti ve indirme sayfası sürümü, günü, boyutu ve SHA-256'yı GitHub'ın API'sinden gösterdi.
+*   **Canlıda bulunan:** Coolify 4.5.3 yayını yalnızca POST ile başlatır (GET'e 405); kaynağın adındaki kimlik UUID'si değildir; GitHub bir sürümün anını UTC ile verir, gece yarısından sonra açılan bir sürüm için bir önceki günü. Üçü de betikte ve sayfada düzeltildi. Eski siteyi açmış bir tarayıcı, sert bir yenilemeye kadar yalnızca statik metni gösterdi.
+*   **Henüz denenmeyen:** `SITE_TAG` ile bir sürüme dönmek; HSTS ve içerik güvenliği başlıkları (bölüm 9); Windows ve Linux paketleri.

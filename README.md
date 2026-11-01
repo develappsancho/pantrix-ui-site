@@ -44,7 +44,9 @@ the host.
 - On this machine: `deploy/deploy.sh local` builds the site and the server, makes the two images, runs the stack at
   `http://localhost:4004` and checks it with `deploy/check.sh`; `deploy/deploy.sh stop` stops it. It needs Docker, and
   the token above for GitHub Packages.
-- On the host, `pantrixui.com`: Coolify, from the same images on GitHub's container registry (to come).
+- On the host, `pantrixui.com`: `deploy/deploy.sh web` pushes the same images to GitHub's container registry and has
+  Coolify put them up, and `deploy/deploy.sh desktop` releases the macOS app, signed and notarized, on this
+  repository's releases. [docs/deploy/DEPLOY_GUIDE.en.md](docs/deploy/DEPLOY_GUIDE.en.md) has the steps.
 
 The site's address is written in one place: `site.url` in `gradle.properties`, which the build gives the static pages,
 the content (as `{{site}}`), the share images and the apps. A running stack is served at `SITE_URL` instead, which the

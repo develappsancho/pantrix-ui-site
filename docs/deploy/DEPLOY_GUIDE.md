@@ -24,6 +24,8 @@ Bir sürüm, yayının tarihidir: `YY.A.G` (`26.10.31`); verilmezse bugününki.
 *   **Docker Desktop**, açık. `docker compose` onunla gelir.
 *   **JDK 21** ve Gradle'ın kendisi (`./gradlew`).
 *   **GitHub Packages'ın anahtarı:** Pantrix UI'ın bir sürümü GitHub Packages'tan gelir ve GitHub, açık paketler için bile bir anahtar ister. `~/.gradle/gradle.properties`'te `GitHubPackagesUsername` ve `read:packages` yetkili bir token olarak `GitHubPackagesPassword`. Bir `-SNAPSHOT` sürümü yerel Maven deposundan gelir ve anahtar istemez.
+*   **Canlıya yayın için** (Bölüm 7): GitHub'ın komut satırı aracı `gh`, `write:packages` izniyle; Coolify'ın adresi, API anahtarı ve kaynağın UUID'si `~/.gradle/gradle.properties`'te.
+*   **Masaüstü sürümü için:** Xcode'un komut satırı araçları, anahtar zincirinde Developer ID sertifikası ve Apple'ın onayı için `pantrix-notary` adıyla kaydedilmiş bilgiler (Bölüm 7.1).
 
 ## 3. Lokalde Yayın
 
@@ -104,4 +106,103 @@ Yeni bir alan adı:
 
 ## 7. Coolify'da Yayın
 
-Bu bölüm bir sonraki adımda yazılacak: imajların GHCR'ye gönderilmesi, Coolify'da kaynağın kurulması, deneme adresinde denetim, alan adının taşınması ve eski sitenin kaldırılması.
+Site canlıda Coolify'ın yönettiği VPS'te, `https://pantrixui.com`'da çalışır. İmajlar bu makinede derlenir ve GHCR'ye gönderilir; Coolify depodaki `deploy/compose.yaml`'ı okur, imajları çeker ve yığını kaldırır. VPS'te hiçbir şey derlenmez. Masaüstü uygulaması aynı sürümle, sitenin GitHub'daki sürüm sayfasında yayımlanır.
+
+### 7.1 Bir Kerelik Kurulum
+
+1.  **GHCR'ye gönderme izni.** `gh` hangi hesapla açıksa imajlar o hesabın adına gider: `develappsancho`. İzin bir kez eklenir:
+
+    ```bash
+    gh auth refresh -h github.com -s write:packages
+    ```
+
+2.  **Coolify'ın API anahtarı.** Coolify'da **Keys & Tokens** → **API Tokens**'tan `read` ve `deploy` yetkili bir anahtar yaratılır. Panelin adresi ve anahtar `~/.gradle/gradle.properties`'e yazılır; depoya girmez:
+
+    ```properties
+    CoolifyUrl=https://coolify.ornek-alan-adi.com
+    CoolifyToken=…
+    ```
+
+    Bu anahtar ortam değişkenlerinin değerlerini okuyamaz: API onları boş gösterir. Değerler panelde görülür.
+3.  **İlk gönderim.** Coolify'daki kaynak, imajlar GHCR'de olmadan yayımlayamaz. İlk gönderim Coolify'a dokunmadan yapılır:
+
+    ```bash
+    deploy/deploy.sh web --no-coolify
+    ```
+
+    İki paket, `pantrix-ui-site-web` ve `pantrix-ui-site-server`, gizli olarak açılır. İmajların dizinindeki `org.opencontainers.image.source` bilgisiyle depoya kendiliğinden bağlanırlar. Her biri için GitHub'da paketin sayfası → **Package settings** → **Danger Zone** → **Change visibility** → **Public**. Coolify onları anahtarsız çeker.
+4.  **Coolify'da kaynak.** **Projects**'te projenin ortamı → **+ New** → **Public Repository**:
+
+    | Alan | Değer |
+    | :--- | :--- |
+    | Repository URL | `https://github.com/develappsancho/pantrix-ui-site` |
+    | Branch | `main` |
+    | Build Pack | Docker Compose |
+    | Base Directory | `/` |
+    | Docker Compose Location | `/deploy/compose.yaml` |
+    | `web`'in alan adları | `https://pantrixui.com,https://www.pantrixui.com` |
+    | `server`'ın alan adı | Boş: yalnızca nginx'in arkasındadır |
+    | Ortam değişkeni | `SITE_URL=https://pantrixui.com` |
+
+    **Save** ile kaydedilir; ilk yayını betik başlatır.
+5.  **Kaynağın UUID'si.** Panelde kaynağın adresinin son parçasıdır: `…/application/<uuid>`. Kaynağın adındaki kimlik UUID değildir: ad `pantrix-ui-site:main-cntrex…` iken UUID `sfyuo3…`'tür. UUID de `~/.gradle/gradle.properties`'e yazılır:
+
+    ```properties
+    CoolifySiteUuid=sfyuo3lhlbdznx7whlflkz3f
+    ```
+
+6.  **DNS.** `pantrixui.com` ve `www.pantrixui.com` VPS'in adresine gider. Sertifikaları Traefik, Let's Encrypt'ten ilk yayında alır.
+7.  **Apple'ın onayı.** Developer ID sertifikası anahtar zincirinde olmalıdır. Onay için gereken Apple bilgileri bir kez anahtar zincirine, `pantrix-notary` adıyla kaydedilir ve betik onları o addan okur:
+
+    ```bash
+    xcrun notarytool store-credentials pantrix-notary
+    ```
+
+### 7.2 Her Yayın
+
+Bir yayın, GitHub'daki bir commit'ten yapılır. Ağaçta commit'lenmemiş bir değişiklik varsa ya da yerel `main` GitHub'daki `main` değilse betik başlamaz.
+
+| Ne yayımlanıyor | Adımlar |
+| :--- | :--- |
+| Yalnızca site | Commit ve push, sonra `deploy/deploy.sh web` |
+| Site ve masaüstü uygulaması | `deploy/deploy.sh prepare`, iki değişiklik günlüğüne bakmak, commit ve push, sonra `deploy/deploy.sh release` |
+| Yalnızca masaüstü uygulaması | Değişiklik günlüğünde sürümün bölümü, commit ve push, sonra `deploy/deploy.sh desktop` |
+
+`web` şunları yapar:
+
+1.  Siteyi ve sunucuyu Gradle'la derler.
+2.  İki imajı `linux/amd64` ve `linux/arm64` için yapar, üç etiketle GHCR'ye gönderir: sürüm (`26.10.31`), commit (`08ec2a5`) ve `latest`. VPS kendi mimarisininkini çeker.
+3.  Coolify'a yayını POST ile sorar, her 10 saniyede durumunu okur ve bitmesini bekler (yaklaşık 30 saniye).
+4.  Canlı adreste `check.sh`'i çalıştırır. `www` yalnızca kalıcı alan adında denenir.
+
+`desktop` şunları yapar:
+
+1.  Uygulamayı sürümüyle derler (`-Psite.version=26.10.31`).
+2.  DMG'yi Developer ID ile imzalar, Apple'a onaya gönderir ve onayı içine ekler. Onay birkaç dakika sürer.
+3.  GitHub'da `v<sürüm>` sürümünü açar ve `PantrixUI-macOS.dmg`'yi ekler. Notlar, değişiklik günlüğünün o bölümüdür; her paragrafı tek satıra birleştirilir, çünkü GitHub bir sürümün satırlarını kırıldıkları yerde kırar. Sonlarında DMG'nin SHA-256'sı durur.
+
+Dosyanın adı her sürümde aynıdır, bu yüzden `releases/latest/download/PantrixUI-macOS.dmg` hep son sürümü verir. İndirme sayfası sürümü, günü, boyutu ve SHA-256'yı tarayıcıdan GitHub'ın API'sinden okur; gün, sürümün adındaki gündür.
+
+### 7.3 Bir Sürüme Dönmek
+
+Compose dosyası imajları `${SITE_TAG:-latest}` ile çeker. Coolify'da kaynağın ortam değişkenlerine `SITE_TAG=26.10.31` (ya da bir commit) eklenip yeniden yayımlanınca o sürüm çalışır. Değişken silinince yığın yine `latest`'e döner.
+
+### 7.4 Eski Site
+
+Önceki demo, `pantrix-u-i--demo`, Coolify'da durdurulmuş olarak ve aynı alan adlarıyla duruyor. Yeniden başlatılırsa iki kaynak aynı adı taşır ve Traefik'in yönlendirmesi karışır; alan adlarını ondan silmek ya da kaynağı silmek bunu önler.
+
+Eski siteyi açmış bir tarayıcı, ilk açılışta yeni sitenin yalnızca JavaScript'siz okuyucular için yazılmış metnini gösterebilir: eski sitenin önbelleği uygulamayı başlatmaz. Sert bir yenileme (Cmd + Shift + R) ya da geliştirici araçlarında **Application** → **Clear site data** çözer.
+
+### 7.5 Sorun Giderme
+
+| Belirti | Neden ve çözüm |
+| :--- | :--- |
+| `gh may not write packages` | 7.1'deki izin eksik: `gh auth refresh -h github.com -s write:packages` |
+| `main on GitHub is not this commit` | Son commit push edilmemiş |
+| Coolify'ın `401` ya da `403` yanıtı | Anahtar yanlış ya da `deploy` yetkisi yok |
+| Coolify'ın `404` yanıtı | `CoolifySiteUuid` kaynağın adındaki kimlik; adresin son parçası olmalı |
+| Coolify'ın `405` yanıtı | Coolify 4.5'ten beri yayın POST ile istenir; betiğin eski bir kopyası GET gönderiyor |
+| Coolify imajı çekemiyor | Paket hâlâ gizli (7.1, adım 3) |
+| `www`'nin sertifikası yok | `www.pantrixui.com`, `web`'in alan adlarında değil |
+| İndirme sayfası sürümü göstermiyor | Henüz sürüm yok, GitHub'ın API'si o adres için saatlik sınırını (60 istek) doldurmuş, ya da bir CSP `https://api.github.com`'a izin vermiyor |
+| macOS uygulamayı açmıyor | DMG onaydan geçmemiş: `--dry-run` onaya göndermez. `spctl -a -vv -t open --context context:primary-signature PantrixUI-macOS.dmg` "Notarized Developer ID" demeli |

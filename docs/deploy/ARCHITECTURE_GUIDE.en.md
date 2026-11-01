@@ -200,8 +200,8 @@ Spring Boot can serve files too; but:
 | **Dockerfile** | An image's recipe: what goes on top of which base | `deploy/web/Dockerfile`, `deploy/server/Dockerfile` |
 | **Layer** | Each step of a Dockerfile is a layer; a layer that did not change is used again, not downloaded | nginx's and Java's bases are pulled once |
 | **Compose** | Describes containers that run together in one file, and gives them a network of their own | `deploy/compose.yaml` |
-| **Registry** | Where images are kept | GitHub's container registry, GHCR (`ghcr.io`), in the Coolify step |
-| **Tag** | An image's version name | The short hash of the commit it is built from: `fbc4fe2` |
+| **Registry** | Where images are kept | GitHub's container registry, GHCR (`ghcr.io`): `ghcr.io/develappsancho/pantrix-ui-site-web` and `-server`, public |
+| **Tag** | An image's version name | On this machine the short hash of the commit it is built from (`fbc4fe2`); in GHCR the version (`26.10.31`), the commit and `latest` |
 
 ### 4.2 The Two Images
 
@@ -261,7 +261,7 @@ flowchart LR
         d --> l["The local stack<br/>localhost:4004"]
         l --> c["check.sh<br/>pages, 404, gzip, caching, /mcp"]
     end
-    d -. "the Coolify step: push" .-> r[("GHCR<br/>ghcr.io/develappsancho")]
+    d -. "deploy.sh web: push" .-> r[("GHCR<br/>ghcr.io/develappsancho")]
     r -. "pull" .-> v["Coolify · VPS<br/>pantrixui.com"]
 ```
 
@@ -279,7 +279,7 @@ The images are built on this machine, not on the server:
 
 | | This machine | The host (Coolify) |
 | :--- | :--- | :--- |
-| Command | `deploy/deploy.sh local` | Written in the Coolify step |
+| Command | `deploy/deploy.sh local` | `deploy/deploy.sh web` |
 | Compose files | `compose.yaml` and `compose.local.yaml` | `compose.yaml` |
 | Images | Built on this machine | Pulled from GHCR |
 | Address | `http://localhost:4004` | `https://pantrixui.com` |
@@ -351,7 +351,7 @@ flowchart LR
 
 </details>
 
-The steps of the setup in Coolify are added to [DEPLOY_GUIDE.en.md](./DEPLOY_GUIDE.en.md) in the Coolify step.
+Coolify reads `deploy/compose.yaml` from the repository and pulls the images from GHCR; it compiles nothing. The steps of the setup and of each release are in section 7 of [DEPLOY_GUIDE.en.md](./DEPLOY_GUIDE.en.md).
 
 ## 8. Compression and Caching
 
@@ -408,7 +408,8 @@ On a first visit, a visitor downloads about 7 MB for the app instead of 23 MB; o
 | [`deploy/web/default.conf.template`](../../deploy/web/default.conf.template) | nginx's settings; `SITE_URL` and `SITE_HOST` are written in as the container starts |
 | [`deploy/web/05-site-address.envsh`](../../deploy/web/05-site-address.envsh), [`deploy/web/40-site-address.sh`](../../deploy/web/40-site-address.sh) | As the container starts: they find the stack's address and write it into the files |
 | [`deploy/server/Dockerfile`](../../deploy/server/Dockerfile) | The server image: Java 21 and `server.jar` |
-| [`deploy/deploy.sh`](../../deploy/deploy.sh) | One command: builds, makes the images, runs the stack, checks it |
+| [`deploy/deploy.sh`](../../deploy/deploy.sh) | Deploys, on this machine and on the host: builds, makes the images or pushes them to GHCR, has Coolify put them up, releases the desktop app, checks it |
+| [`deploy/desktop/macos-dmg.sh`](../../deploy/desktop/macos-dmg.sh), [`deploy/desktop/macos-entitlements.plist`](../../deploy/desktop/macos-entitlements.plist) | The macOS app's DMG: signed with the Developer ID, notarized by Apple, and the ticket stapled to it |
 | [`deploy/check.sh`](../../deploy/check.sh) | The checks: at any address, on this machine or on the host |
 
 ## 12. Glossary
@@ -434,4 +435,6 @@ On a first visit, a visitor downloads about 7 MB for the app instead of 23 MB; o
 *   **The address, seen on this machine (2026-10-30):** with `SITE_URL=http://localhost:4004`, the `web` container wrote the address into 294 files as it started (in about 1.3 seconds); no address of the host was left in the files, the `.gz` copies match their files, and the package names (`com.pantrixui.components`) and the guides' examples (`"pantrixui.com/tr"`) are as they were. `check.sh`'s 22 checks passed at this address: the canonical, `llms.txt`, `sitemap.xml`, the `www.localhost` redirect and an MCP request from the site's own page. In the browser, the page for coding assistants and the assistants page of the docs showed `http://localhost:4004/mcp`, and the 404 page `localhost:4004/…`. The same container left the files alone when it restarted; a container given no `SITE_URL` served the site at the address it is built for (`https://pantrixui.com`), and one given another address served it at that one.
 *   **The address, a known limit:** in the static text hidden for readers without JavaScript, an address written with no scheme (`pantrixui.com/mcp`) does not change; the app shows that address with the one it was opened at.
 *   **Read in the sources:** how nginx's `try_files`, `gzip_static`, `resolver` and `add_header` behave is in nginx's documentation.
-*   **Not tried yet:** Coolify, Traefik, HTTPS and the live domain; the `amd64` image (`arm64` ran on this machine). They are tried in the Coolify step.
+*   **Seen on the host (2026-10-31):** `deploy/deploy.sh web` pushed both images for both architectures to GHCR, Coolify finished the deploy in about 30 seconds, and `check.sh`'s 23 checks passed at `https://pantrixui.com`: with Traefik getting both names' certificates from Let's Encrypt, the lasting redirect of `www.pantrixui.com`, the images pulled on the VPS, and `/mcp`. The pages were drawn in headless Chrome. The desktop release `v26.10.31` was opened on GitHub; Gatekeeper accepted the DMG as "Notarized Developer ID", and the download page showed the version, the day, the size and the SHA-256 from GitHub's API.
+*   **Found on the host:** Coolify 4.5.3 starts a deploy only by POST (405 to a GET); the id in a resource's name is not its UUID; GitHub gives a release's moment in UTC, the day before for a release made after midnight. All three were mended in the script and on the page. A browser that had opened the old site showed only the static text until a hard reload.
+*   **Not tried yet:** going back to a release with `SITE_TAG`; the HSTS and content security headers (section 9); the Windows and Linux packages.

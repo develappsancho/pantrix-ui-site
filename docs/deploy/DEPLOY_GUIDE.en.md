@@ -24,6 +24,8 @@ A version is the release's date: `YY.M.D` (`26.10.31`), today's when none is giv
 *   **Docker Desktop**, running. `docker compose` comes with it.
 *   **JDK 21**, and Gradle itself (`./gradlew`).
 *   **The key to GitHub Packages:** a release of Pantrix UI comes from GitHub Packages, and GitHub asks for a key even for public packages. In `~/.gradle/gradle.properties`, `GitHubPackagesUsername`, and a token with `read:packages` as `GitHubPackagesPassword`. A `-SNAPSHOT` comes from the local Maven repository, and needs no key.
+*   **For the host** (section 7): GitHub's command line tool, `gh`, with `write:packages`; Coolify's address, its API token and the resource's UUID in `~/.gradle/gradle.properties`.
+*   **For the desktop app's release:** Xcode's command line tools, the Developer ID certificate in the keychain, and the details Apple's notarization needs, stored as `pantrix-notary` (section 7.1).
 
 ## 3. On This Machine
 
@@ -104,4 +106,103 @@ A new domain:
 
 ## 7. Deploying in Coolify
 
-This section is written in the next step: pushing the images to GHCR, setting up the resource in Coolify, checking it at a test address, moving the domain, and taking the old site down.
+On the host, the site runs on a VPS that Coolify manages, at `https://pantrixui.com`. The images are built on this machine and pushed to GHCR; Coolify reads `deploy/compose.yaml` from the repository, pulls the images and starts the stack. Nothing is compiled on the VPS. The desktop app is released with the same version, on the site's release page on GitHub.
+
+### 7.1 Setting It Up Once
+
+1.  **Leave to push to GHCR.** The images go out under the account `gh` is signed in with: `develappsancho`. The scope is added once:
+
+    ```bash
+    gh auth refresh -h github.com -s write:packages
+    ```
+
+2.  **Coolify's API token.** In Coolify, **Keys & Tokens** → **API Tokens** makes a token with `read` and `deploy`. The panel's address and the token go into `~/.gradle/gradle.properties`, never into the repository:
+
+    ```properties
+    CoolifyUrl=https://coolify.example.com
+    CoolifyToken=…
+    ```
+
+    This token cannot read the environment variables' values: the API shows them empty. The panel shows them.
+3.  **The first push.** The resource in Coolify cannot deploy before the images are in GHCR. The first push leaves Coolify alone:
+
+    ```bash
+    deploy/deploy.sh web --no-coolify
+    ```
+
+    The two packages, `pantrix-ui-site-web` and `pantrix-ui-site-server`, are made private. They link themselves to the repository by the `org.opencontainers.image.source` on the images' index. For each, on GitHub: the package's page → **Package settings** → **Danger Zone** → **Change visibility** → **Public**. Coolify pulls them with no key.
+4.  **The resource in Coolify.** In **Projects**, the project's environment → **+ New** → **Public Repository**:
+
+    | Field | Value |
+    | :--- | :--- |
+    | Repository URL | `https://github.com/develappsancho/pantrix-ui-site` |
+    | Branch | `main` |
+    | Build Pack | Docker Compose |
+    | Base Directory | `/` |
+    | Docker Compose Location | `/deploy/compose.yaml` |
+    | `web`'s domains | `https://pantrixui.com,https://www.pantrixui.com` |
+    | `server`'s domain | Empty: it stands behind nginx alone |
+    | Environment variable | `SITE_URL=https://pantrixui.com` |
+
+    **Save** keeps it; the script starts the first deploy.
+5.  **The resource's UUID.** In the panel it is the last part of the resource's address: `…/application/<uuid>`. The id in the resource's name is not its UUID: the name is `pantrix-ui-site:main-cntrex…` while the UUID is `sfyuo3…`. The UUID goes into `~/.gradle/gradle.properties` too:
+
+    ```properties
+    CoolifySiteUuid=sfyuo3lhlbdznx7whlflkz3f
+    ```
+
+6.  **DNS.** `pantrixui.com` and `www.pantrixui.com` lead to the VPS's address. Traefik gets their certificates from Let's Encrypt at the first deploy.
+7.  **Apple's notarization.** The Developer ID certificate must be in the keychain. The Apple account details notarization needs are stored in the keychain once, under the name `pantrix-notary`, and the script reads them by that name:
+
+    ```bash
+    xcrun notarytool store-credentials pantrix-notary
+    ```
+
+### 7.2 Each Release
+
+A release is made from a commit that is on GitHub. With a change left out of a commit, or a local `main` that is not GitHub's, the script does not start.
+
+| What is released | Steps |
+| :--- | :--- |
+| The site alone | Commit and push, then `deploy/deploy.sh web` |
+| The site and the desktop app | `deploy/deploy.sh prepare`, a look at both changelogs, commit and push, then `deploy/deploy.sh release` |
+| The desktop app alone | The version's section in the changelog, commit and push, then `deploy/deploy.sh desktop` |
+
+`web`:
+
+1.  Builds the site and the server with Gradle.
+2.  Makes both images for `linux/amd64` and `linux/arm64` and pushes them to GHCR with three tags: the version (`26.10.31`), the commit (`08ec2a5`) and `latest`. The VPS pulls its own architecture's.
+3.  Asks Coolify for a deploy by POST, reads its status every 10 seconds and waits for it to end (about 30 seconds).
+4.  Runs `check.sh` at the live address. `www` is tried on the lasting domain alone.
+
+`desktop`:
+
+1.  Builds the app with its version (`-Psite.version=26.10.31`).
+2.  Signs the DMG with the Developer ID, sends it to Apple for notarization and staples the ticket to it. Notarization takes some minutes.
+3.  Opens the release `v<version>` on GitHub and attaches `PantrixUI-macOS.dmg`. Its notes are the changelog's section, each paragraph joined into one line, as GitHub breaks a release's lines where they break. The DMG's SHA-256 ends them.
+
+The file has the same name in every release, so `releases/latest/download/PantrixUI-macOS.dmg` always gives the latest. The download page reads the version, the day, the size and the SHA-256 from GitHub's API in the browser; the day is the one the version names.
+
+### 7.3 Going Back to a Release
+
+The compose file pulls the images as `${SITE_TAG:-latest}`. With `SITE_TAG=26.10.31` (or a commit) added to the resource's environment variables in Coolify and a new deploy, that release runs. With the variable removed, the stack goes back to `latest`.
+
+### 7.4 The Old Site
+
+The previous demo, `pantrix-u-i--demo`, stays stopped in Coolify with the same domains. Started again, two resources would carry one name and Traefik's routing would be muddled; removing its domains, or the resource, prevents that.
+
+A browser that opened the old site can show, at first, only the new site's words written for readers with no JavaScript: the old site's cache keeps the app from starting. A hard reload (Cmd + Shift + R), or **Application** → **Clear site data** in the developer tools, mends it.
+
+### 7.5 Troubleshooting
+
+| What you see | Why, and what to do |
+| :--- | :--- |
+| `gh may not write packages` | The scope of 7.1 is missing: `gh auth refresh -h github.com -s write:packages` |
+| `main on GitHub is not this commit` | The last commit is not pushed |
+| Coolify answers `401` or `403` | The token is wrong, or has no `deploy` |
+| Coolify answers `404` | `CoolifySiteUuid` is the id in the resource's name; it must be the last part of its address |
+| Coolify answers `405` | Since Coolify 4.5 a deploy is asked for by POST; an old copy of the script sends GET |
+| Coolify cannot pull an image | The package is still private (7.1, step 3) |
+| `www` has no certificate | `www.pantrixui.com` is not among `web`'s domains |
+| The download page shows no version | No release yet, GitHub's API has had its hourly limit (60 requests) from that address, or a CSP does not allow `https://api.github.com` |
+| macOS does not open the app | The DMG is not notarized: `--dry-run` does not send it to Apple. `spctl -a -vv -t open --context context:primary-signature PantrixUI-macOS.dmg` must say "Notarized Developer ID" |

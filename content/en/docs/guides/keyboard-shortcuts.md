@@ -60,7 +60,7 @@ Box(Modifier.shortcutRoot().onShortcut(PantrixShortcut(Key.K, command = true)) {
 }
 ```
 
-`shortcutRoot` stands once, at the window's root. The shortcuts have to be on the same node as it or above it: while the root has the focus, only the root's and its ancestors' listeners hear.
+`shortcutRoot` stands once, at the window's root. The shortcuts have to be on the same node as it or above it: while the root has the focus, only the root's and its ancestors' listeners hear. Where two roots stand side by side for a moment, as two screens do while one gives way to the other, the one that has the focus keeps it.
 
 ### 3.2. The commands' own shortcuts
 

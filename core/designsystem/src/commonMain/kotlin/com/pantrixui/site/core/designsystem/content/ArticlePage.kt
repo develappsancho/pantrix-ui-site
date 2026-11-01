@@ -43,17 +43,19 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 /**
- * A page of the documentation as its design lays it out: the article, [articleWidth] wide at most on a desktop and as
- * wide as a tablet's or a phone's window leaves it, and beside it, where [contentsBeside] says there is room, its "On
- * this page" list. The list stays in view as the article scrolls, marks the heading being read and scrolls to the one
- * chosen. The page opens at the part of it the site is at, its [LocalPageSection], and scrolls there whenever it
- * changes, as when a link names one.
+ * A page of the documentation as its design lays it out: the article, and beside it, where [contentsBeside] says there
+ * is room, its "On this page" list at the window's end. The article takes the room up to the list, however wide the
+ * window; without the list beside it, it is [articleWidth] wide at most on a desktop, and on a tablet and a phone as
+ * wide as the window leaves it. The list stays in view as the article scrolls, marks the heading being read and
+ * scrolls to the one chosen. The page opens at the part of it the site is at, its [LocalPageSection], and scrolls
+ * there whenever it changes, as when a link names one.
  *
  * @param contents the page's "On this page" list; the article marks each heading with [Modifier.pageAnchor].
  * @param modifier the page's modifier.
  * @param scrollState how far the page is scrolled.
  * @param anchors where the article's headings stand, as [Modifier.pageAnchor] records them.
- * @param articleWidth the widest the article is laid out on a desktop: 760 for a page, 780 for a guide.
+ * @param articleWidth the widest the article is laid out on a desktop where the list is not beside it: 760 for a
+ *   page, 780 for a guide.
  * @param contentsTitle what the list beside the article is called, where it is not "On this page".
  * @param contentsFooter what the list holds after the headings: links of the page's own.
  * @param article what the page says: its head, then its content.
@@ -85,13 +87,14 @@ fun ArticlePage(
                 .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
                 .padding(layout.pagePadding)
         ) {
-            // A desktop's article has a widest; a tablet's and a phone's are as wide as the window leaves them.
-            val width = if (layout == SiteLayout.Desktop) {
-                Modifier.widthIn(max = articleWidth)
-            } else {
-                Modifier.fillMaxWidth()
+            // Beside the list, the article reaches up to it; alone on a desktop it has a widest, and on a tablet and a
+            // phone it is as wide as the window leaves it.
+            val width = when {
+                showContents -> Modifier.weight(1f)
+                layout == SiteLayout.Desktop -> Modifier.weight(1f, fill = false).widthIn(max = articleWidth)
+                else -> Modifier.weight(1f, fill = false).fillMaxWidth()
             }
-            Column(Modifier.weight(1f, fill = false).then(width), content = article)
+            Column(width, content = article)
             if (showContents) {
                 Spacer(Modifier.width(CONTENTS_GAP))
                 OnThisPage(

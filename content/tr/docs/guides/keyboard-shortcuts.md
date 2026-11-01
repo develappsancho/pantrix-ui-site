@@ -60,7 +60,7 @@ Box(Modifier.shortcutRoot().onShortcut(PantrixShortcut(Key.K, command = true)) {
 }
 ```
 
-`shortcutRoot` pencerenin kökünde bir kez durur. Kısayollar onunla aynı düğümde ya da onun üstünde olmalıdır: odak kökteyken yalnızca kök ve atalarının dinleyicileri duyar.
+`shortcutRoot` pencerenin kökünde bir kez durur. Kısayollar onunla aynı düğümde ya da onun üstünde olmalıdır: odak kökteyken yalnızca kök ve atalarının dinleyicileri duyar. İki kök bir an yan yana durduğunda, biri ötekine yerini bırakırken iki ekranın durduğu gibi, odağı tutan onu bırakmaz.
 
 ### 3.2. Komutların kendi kısayolları
 

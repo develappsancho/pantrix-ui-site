@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
@@ -43,6 +44,8 @@ import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.scrollbar.pantrixVerticalScroll
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.overlay.sheet.PantrixSheet
+import com.pantrixui.foundation.files.PantrixFile
+import com.pantrixui.foundation.files.rememberFileSaver
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.platform.PantrixWindowTitle
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
@@ -60,11 +63,15 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ThemeRoute() {
     val viewModel = koinViewModel<ThemeViewModel>()
     val clipboard = rememberPantrixClipboard()
+    val saver = rememberFileSaver()
     BaseScreen(
         viewModel = viewModel,
         onEffect = { effect ->
             when (effect) {
                 is ThemeEffect.Copy -> viewModel.onAction(ThemeAction.Copied(clipboard.copyText(effect.text)))
+
+                // What became of the file is the platform's to show: its window, or the browser's downloads.
+                is ThemeEffect.Save -> saver.save(PantrixFile(effect.name, effect.text.encodeToByteArray(), KOTLIN)) {}
             }
         }
     ) { state, onAction -> ThemeScreen(state, onAction) }
@@ -179,9 +186,15 @@ private fun PageBar(
             BarButton(
                 text = (if (state.copied) ThemeSay.Copied else ThemeSay.CopyKotlin).of(language),
                 tag = "themeCopy",
-                variant = ButtonVariant.Solid,
-                icon = true
+                variant = ButtonVariant.Outline,
+                icon = PantrixIcons.Copy
             ) { onAction(ThemeAction.CopyKotlin) }
+            BarButton(
+                text = ThemeSay.download(state.fileName).of(language),
+                tag = "themeDownload",
+                variant = ButtonVariant.Solid,
+                icon = PantrixIcons.Download
+            ) { onAction(ThemeAction.Download) }
         }
     }
 }
@@ -191,7 +204,7 @@ private fun BarButton(
     text: String,
     tag: String,
     variant: ButtonVariant,
-    icon: Boolean = false,
+    icon: ImageVector? = null,
     onClick: () -> Unit
 ) {
     PantrixButton(
@@ -204,7 +217,7 @@ private fun BarButton(
         tagKey = tag
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            if (icon) PantrixIcon(imageVector = PantrixIcons.Copy, contentDescription = null, size = 15.dp)
+            if (icon != null) PantrixIcon(imageVector = icon, contentDescription = null, size = 15.dp)
             PantrixText(text = text, style = SiteTheme.type.button)
         }
     }
@@ -337,3 +350,6 @@ private val TABLET_CONTROLS_WIDTH = 300.dp
 private val CODE_WIDTH = 440.dp
 private val PHONE_BAR_ROOM = 96.dp
 private const val SOURCE_SET = "commonMain"
+
+/** What a file of Kotlin is, for the platform's window: text, which every platform shows and opens. */
+private const val KOTLIN = "text/plain"

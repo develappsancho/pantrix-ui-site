@@ -15,6 +15,7 @@ internal val GuideSketches: Map<String, @Composable () -> Unit> = mapOf(
     "files" to { FilesSketch() },
     "scroll-padding" to { ScrollPaddingSketch() },
     "system-bars" to { SystemBarsSketch() },
+    "modal" to { ModalSketch() },
     "testing" to { TestingSketch() },
     "window-title" to { WindowTitleSketch() },
     "pointer-icons" to { PointerIconsSketch() },

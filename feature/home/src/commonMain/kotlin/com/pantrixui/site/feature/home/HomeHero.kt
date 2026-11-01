@@ -248,7 +248,7 @@ private fun Title() {
     )
 }
 
-/** "Get started" and "Browse 98 components": beside each other, or one over the other filling a phone. */
+/** "Get started" and "Browse 100 components": beside each other, or one over the other filling a phone. */
 @Composable
 private fun WayIn(
     open: (Route) -> Unit,

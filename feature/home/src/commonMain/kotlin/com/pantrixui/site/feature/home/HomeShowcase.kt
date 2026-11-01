@@ -23,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,6 +38,7 @@ import com.pantrixui.components.date.datepicker.PantrixDatePicker
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.chip.PantrixChip
+import com.pantrixui.components.elements.selection.ControlPosition
 import com.pantrixui.components.elements.switchbutton.PantrixSwitchButton
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.inputs.textarea.PantrixTextArea
@@ -135,22 +135,16 @@ private fun ReviewCard(
             maxLength = COMMENT_LENGTH,
             tagKey = "homeComment"
         )
-        // The design's switch stands at the row's end, as a setting's does on iOS; Pantrix's switch button puts its
-        // label after the switch, so the words are drawn here and the switch carries them as its name.
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            PantrixText(
-                text = HomeSay.PostWithName.of(language),
-                style = SiteTheme.type.nav,
-                color = PantrixTheme.colors.textPrimary,
-                modifier = Modifier.weight(1f).clearAndSetSemantics { }
-            )
-            PantrixSwitchButton(
-                checked = named,
-                onCheckedChange = { named = it },
-                contentDescription = HomeSay.PostWithName.of(language),
-                tagKey = "homeNamed"
-            )
-        }
+        // The design's switch stands at the row's end, as a setting's does on iOS.
+        PantrixSwitchButton(
+            checked = named,
+            onCheckedChange = { named = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = HomeSay.PostWithName.of(language),
+            tagKey = "homeNamed",
+            labelStyle = SiteTheme.type.nav.copy(color = PantrixTheme.colors.textPrimary),
+            controlPosition = ControlPosition.End
+        )
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp, if (phone) Alignment.Start else Alignment.End)

@@ -80,7 +80,7 @@ The library gives the Kotlin side of the four pieces (`com.pantrixui.foundation.
 
 On Android, iOS and the desktop they all answer at once: the same code is written on every platform, and it waits only on the web.
 
-### 3.1. say the typeface once
+### 3.1. Say the typeface once
 
 ```kotlin
 // commonMain
@@ -102,7 +102,7 @@ The fonts are counted in one place; the family, and whether they have been read 
 
 An app that uses only the library's own typeface need not say anything: `PantrixTheme { … }` is enough.
 
-### 3.2. the Web entry
+### 3.2. The Web entry
 
 ```kotlin
 // webMain
@@ -123,7 +123,7 @@ fun main() {
 
 For the library's own typeface `loaded` is not given: `PantrixTypefaceGate(onShown = …) { App() }`.
 
-### 3.3. the page
+### 3.3. The page
 
 ```html
 <head>
@@ -159,7 +159,7 @@ html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
 
 The `<package>` in the address is the package of the generated `Res` class of the module that carries the resources. The address of the library's own typeface is `composeResources/com.pantrixui.foundation.generated.resources/font/plus_jakarta_sans.ttf`. To be sure, build the bundle once and look in the `build/dist/…/composeResources` folder.
 
-### 3.4. a typeface that changes while the app runs
+### 3.4. A typeface that changes while the app runs
 
 `rememberPantrixTypography(typeface)` solves this itself: when `typeface` changes, it goes on giving the old typography until the new one has been read, and gives the new one once, when all of it has arrived.
 
@@ -180,7 +180,7 @@ The price is the bytes downloaded: in the sample app fifteen files, 2.0 MB. For 
 
 The same solution, with Compose Multiplatform's own API only. The code below can be copied into any project; it is a simplified form of its counterparts in the library.
 
-### 4.1. common code (`commonMain`)
+### 4.1. Common code (`commonMain`)
 
 ```kotlin
 /** A font: the file in the resources, and the weight and style the family registers it at. */
@@ -238,7 +238,7 @@ fun FontGate(
 }
 ```
 
-### 4.2. platform counterparts
+### 4.2. Platform counterparts
 
 ```kotlin
 // webMain
@@ -259,7 +259,7 @@ actual fun areFontsLoaded(fonts: List<AppFont>): Boolean = true
 
 `preloadFont` exists only in the web source sets and carries `@ExperimentalResourceApi`; it cannot be called from common code. That is why `expect`/`actual` is needed. `webMain` is the source set Kotlin sets up by itself when the `js` and `wasmJs` targets are both defined.
 
-### 4.3. use
+### 4.3. Use
 
 ```kotlin
 // commonMain

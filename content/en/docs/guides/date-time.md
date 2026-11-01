@@ -51,7 +51,7 @@ No date dependency was added to the library. `PantrixDate` and `PantrixTime` are
 
 ## 3. With Pantrix {#with}
 
-### 3.1. having a day chosen
+### 3.1. Having a day chosen
 
 ```kotlin
 var due by remember { mutableStateOf<PantrixDate?>(null) }
@@ -67,7 +67,7 @@ The calendar does not keep the selection: `selected` is the app's, and the day p
 
 The calendar stands at its own width (the room of seven days; on a phone, as much as the platform's touch target), so it does not widen a popover or a dialog needlessly. In a sheet, or at a page's width, give `Modifier.fillMaxWidth()`: the calendar fills that width, its columns widen up to `DatePickerStyle.maxCellWidth` (one and a half times the cell), and its rows and the days' circles keep their height; in a wider room it stands in the middle.
 
-### 3.2. turning it into your own date type
+### 3.2. Turning it into your own date type
 
 `kotlinx-datetime` (0.7 and later; in older versions `monthNumber` in place of `month.number`, and `dayOfMonth` in place of `day`):
 
@@ -87,7 +87,7 @@ With a server or a JSON, by ISO 8601 text: `PantrixDate.parse("2026-10-17")` and
 
 By a number (a database, preferences): `date.epochDays` and `PantrixDate.ofEpochDays(days)`.
 
-### 3.3. writing a day
+### 3.3. Writing a day
 
 ```kotlin
 val strings = PantrixTheme.strings
@@ -99,7 +99,7 @@ strings.weekday(day.dayOfWeek)                   // "Saturday", "Cumartesi"
 
 An app's own pack gives these fields in its own language: `PantrixStrings(longMonthNames = …, weekdayNames = …)`. A pack without twelve months and seven days is refused. The day the week starts on is not a word but a habit of the language: it is in `PantrixLocale.firstDayOfWeek` (Monday in Turkish, Saturday in Arabic, Sunday in English and in the other languages), and a locale can give it itself too: `PantrixLocale("de", LayoutDirection.Ltr, firstDayOfWeek = 1)`.
 
-### 3.4. today
+### 3.4. Today
 
 *   On a screen, **`rememberToday()`**: it is read again at midnight, and what reads it is drawn again. If the clock is changed by hand, or the device moves to another time zone, the new day shows when the screen is set up again, or at the next midnight.
 *   Once: **`PantrixDate.today()`**.
@@ -113,7 +113,7 @@ An app's own pack gives these fields in its own language: `PantrixStrings(longMo
     ```
 *   A moment's day: **`PantrixDate.of(instant)`** on the device's clock; **`PantrixDate.of(instant, 3.hours)`** on a clock three hours ahead of UTC.
 
-### 3.5. a range
+### 3.5. A range
 
 ```kotlin
 var stay by remember { mutableStateOf<PantrixDateRange?>(null) }
@@ -121,7 +121,7 @@ PantrixDatePicker(selectedRange = stay, onRangeSelect = { stay = it }, tagKey = 
 val nights = stay?.let { it.end.epochDays - it.start.epochDays }
 ```
 
-### 3.6. having a time chosen
+### 3.6. Having a time chosen
 
 ```kotlin
 var at by remember { mutableStateOf<PantrixTime?>(null) }
@@ -140,7 +140,7 @@ The picker does not keep the selection either: pressing a value gives a whole ti
 
 If `minTime` is after `maxTime`, the times that can be chosen cross midnight (22:00–06:00 is a night). The bounds are read by their hours and minutes, not by their seconds.
 
-### 3.7. a moment from a day and a time
+### 3.7. A moment from a day and a time
 
 ```kotlin
 val moment: Instant = day.at(time)                  // on the device's clock
@@ -159,7 +159,7 @@ fun java.time.LocalTime.toPantrix(): PantrixTime = PantrixTime(hour, minute, sec
 fun PantrixTime.toJavaLocalTime(): java.time.LocalTime = java.time.LocalTime.of(hour, minute, second)
 ```
 
-### 3.8. a range that slides with the clock
+### 3.8. A range that slides with the clock
 
 ```kotlin
 val lastQuarterHour = PantrixTimeRange(PantrixTimePoint.Relative(-15, PantrixTimeUnit.Minutes), PantrixTimePoint.Now)
@@ -209,7 +209,7 @@ PantrixElasticDatePicker(
 *   **The time zone**: `utcOffset` is the offset by which moments are read and written (if it is not given, the device's); `timeZoneName` names the zone, with its offset, in the ends' panels ("Time zone: Europe/Istanbul (UTC+03:00)"), and changes nothing.
 *   **A disabled picker's text**: with `enabled = false`, `disabledText = "All time"` shows that text in the range's place.
 
-### 3.9. date math in an address
+### 3.9. Date math in an address
 
 ```kotlin
 val (from, to) = range.toDateMath()                         // "now-15m", "now"
@@ -222,7 +222,7 @@ val back = PantrixTimeRange(
 
 What is read: `now`, then one operation (`now-15m`, `now+2h`; with no number, like Kibana, `now-d`) and one rounding (`now-1d/d`, `now/w`, `/1d` like Elasticsearch); the units `y M w d h m s`, and `H` for the hour. A moment is the form ISO 8601 writes with the UTC offset or with `Z`; the fraction of a second is kept in groups of three digits (`14:15:00.250+03:00`). Everything else is `null`: two operations (`now-1d/d+8h`), a date with `||`, an ISO text with no offset or with only a day.
 
-### 3.10. having a day typed: the date field
+### 3.10. Having a day typed: the date field
 
 A day the user knows (a birthday, the start of a contract) is typed rather than looked for in a calendar. `PantrixDateTextField` is a text field: the day is typed in digits, and the button at the end of the box opens the calendar.
 
@@ -246,7 +246,7 @@ PantrixDateTextField(
 *   **The calendar.** It opens with the button, with Alt+↓, by pressing the box of a read-only (`readOnly`) field, and with Enter or Space. `presentation: DatePickerPresentation` (shared with the Elastic picker): a popover under the box, a sheet or a dialog; the same on every platform. Pressing a day takes the day and closes the calendar. Opened with the keyboard, the focus goes to the selected day, or else to today; on closing, it comes back to the field.
 *   **A filled box.** `PantrixDateFilledTextField` is the same field, drawn like `PantrixFilledTextField`: the label inside the box, and the layout showing when the label goes up.
 
-### 3.11. having a time typed: the time field
+### 3.11. Having a time typed: the time field
 
 A time the user knows (the start of a meeting, an alarm) is typed rather than scrolled in columns. `PantrixTimeTextField` is the date field's counterpart for a time: the time is typed in digits, and the button at the end of the box opens `PantrixTimePicker`.
 

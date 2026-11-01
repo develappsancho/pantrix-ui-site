@@ -80,7 +80,7 @@ Kütüphane dört parçanın Kotlin tarafını verir (`com.pantrixui.foundation.
 
 Android'de, iOS'ta ve masaüstünde hepsi hemen cevap verir: aynı kod her platformda yazılır, yalnızca web'de bekler.
 
-### 3.1. yazı tipini bir kez söyle
+### 3.1. Yazı tipini bir kez söyle
 
 ```kotlin
 // commonMain
@@ -123,7 +123,7 @@ fun main() {
 
 Kütüphanenin kendi yazı tipi için `loaded` verilmez: `PantrixTypefaceGate(onShown = …) { App() }`.
 
-### 3.3. sayfa
+### 3.3. Sayfa
 
 ```html
 <head>
@@ -159,7 +159,7 @@ html, body { width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
 
 Adresteki `<paket>`, kaynakları taşıyan modülün üretilen `Res` sınıfının paketidir. Kütüphanenin kendi yazı tipinin adresi `composeResources/com.pantrixui.foundation.generated.resources/font/plus_jakarta_sans.ttf`'dir. Emin olmak için paketi bir kez derleyip `build/dist/…/composeResources` klasörüne bakın.
 
-### 3.4. çalışırken değişen yazı tipi
+### 3.4. Çalışırken değişen yazı tipi
 
 `rememberPantrixTypography(typeface)` bunu kendisi çözer: `typeface` değiştiğinde, yenisi okunana dek eski tipografiyi vermeyi sürdürür ve yenisini bir kez, tamamı geldiğinde verir.
 
@@ -180,7 +180,7 @@ Bedeli indirilen bayttır: örnek uygulamada on beş dosya, 2,0 MB. Bir ürün i
 
 Aynı çözüm, yalnızca Compose Multiplatform'un kendi API'siyle. Aşağıdaki kod herhangi bir projeye kopyalanabilir; kütüphanedeki karşılıklarının sadeleştirilmiş hâlidir.
 
-### 4.1. ortak kod (`commonMain`)
+### 4.1. Ortak kod (`commonMain`)
 
 ```kotlin
 /** Bir font: kaynaklardaki dosya ve ailenin onu kaydettiği ağırlık ile stil. */
@@ -238,7 +238,7 @@ fun FontGate(
 }
 ```
 
-### 4.2. platform karşılıkları
+### 4.2. Platform karşılıkları
 
 ```kotlin
 // webMain
@@ -259,7 +259,7 @@ actual fun areFontsLoaded(fonts: List<AppFont>): Boolean = true
 
 `preloadFont` yalnızca web kaynak kümelerinde vardır ve `@ExperimentalResourceApi` taşır; ortak koddan çağrılamaz. `expect`/`actual` bu yüzden gerekir. `webMain`, `js` ve `wasmJs` hedeflerinin ikisi de tanımlıysa Kotlin'in kendiliğinden kurduğu kaynak kümesidir.
 
-### 4.3. kullanım
+### 4.3. Kullanım
 
 ```kotlin
 // commonMain

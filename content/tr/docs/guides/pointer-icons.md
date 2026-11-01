@@ -65,7 +65,7 @@ Kütüphanede kullanıldığı yerler:
 | Grafiklerin gezgini (`ChartZoom(navigator = true)`) | Görünen parçanın iki ucu ve bir uç sürüklenirken. Yatay çubuk grafiğin dikey gezgininde `ResizeVertical` |
 :::
 
-### 3.1. konuma göre değişen imleç
+### 3.1. Konuma göre değişen imleç
 
 Gezgin tek bir düğümdür: imleç düğümün her yerinde aynı değildir. Görünen parçanın ucunun üstünde boyutlandırma imleci, ortasında ve dışında oktur. Bunun için işaretçinin konumu dinlenir ve imleç bir durumdan okunur:
 
@@ -88,13 +88,13 @@ Box(
 
 Compose, imleç değişince işaretçi düğümün üstündeyse yenisini hemen gösterir (`HoverIconModifierNode.icon`'un atayıcısı). Sürüklenen uç (`held`) sürükleme bitene kadar tutulur: uç bir sınıra dayanıp işaretçi ondan uzaklaşsa da imleç boyutlandırma imleci kalır.
 
-### 3.2. klavye ve ekran okuyucu
+### 3.2. Klavye ve ekran okuyucu
 
 İmleç yalnızca fareyi tutana söyler. Gerçek bir tutamaç klavyeye ve ekran okuyucuya da açıktır: odak alır, ok tuşlarıyla adım adım, Home ve End ile uçlarına gider ve ekran okuyucuya ayarlanabilir bir değer olarak söylenir (`progressBarRangeInfo` ve `setProgress`). `PantrixListDetailScaffold`'un tutamacı ve `PantrixDataTable`'ın kolon ucu öyledir; demo'nun "Platform ve sistem" sayfasındaki örnek, imleci tek başına göstermek için bunları yazmaz.
 
 ## 4. Pantrix olmadan {#without}
 
-### 4.1. ortak kod (`commonMain`)
+### 4.1. Ortak kod (`commonMain`)
 
 ```kotlin
 package com.example.pointer
@@ -110,7 +110,7 @@ internal expect val resizeHorizontal: PointerIcon
 internal expect val resizeVertical: PointerIcon
 ```
 
-### 4.2. platform karşılıkları
+### 4.2. Platform karşılıkları
 
 `androidMain`:
 

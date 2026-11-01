@@ -7,7 +7,7 @@ section: Getting started
 ## What it is {#what}
 
 :::facts
-- Components: 98, in eight groups
+- Components: 100, in eight groups
 - Targets: Android, iOS, JVM, Wasm, JS
 - Dependency: Compose Foundation alone
 - Languages: English, Turkish, Arabic
@@ -31,7 +31,7 @@ fun App() {
 ## What it holds {#modules}
 
 :::table The modules
-- `com.pantrixui:components`: The 98 components: elements, inputs, dates, containers, navigation, overlays, data and charts. It brings `foundation` and `annotations` with it
+- `com.pantrixui:components`: The 100 components: elements, inputs, dates, containers, navigation, overlays, data and charts. It brings `foundation` and `annotations` with it
 - `com.pantrixui:foundation`: The theme and its presets, the tokens, the window and its folds, languages, and the platform's services: the clipboard, files, shortcuts, haptics
 - `com.pantrixui:testing`: For an app's tests: finding by tag, a theme that is the same on every machine, doubles of the platform's services
 - `com.pantrixui:material3`: The bridge to Material 3, both ways, for an app that moves a screen at a time

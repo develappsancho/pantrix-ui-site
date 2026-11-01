@@ -66,7 +66,7 @@ public fun Modifier.scrollPadding(padding: PaddingValues): Modifier
 
 Boşluk **eklemez**, içeriğin bıraktığı boşluğu **söyler**. Kaydırılanın üstüne, kaydırıcının içine konur.
 
-### 3.1. kayan bir sütun ya da satır
+### 3.1. Kayan bir sütun ya da satır
 
 Kaydırmadan sonra, sözünü ettiği `padding`'den önce:
 
@@ -93,7 +93,7 @@ val ring = PaddingValues(horizontal = PantrixTheme.platform.focusRingReach)
 Box(Modifier.horizontalScroll(state).scrollPadding(ring).padding(ring)) { content() }
 ```
 
-### 3.2. lazy liste
+### 3.2. Lazy liste
 
 Her öğeye; değer, listenin `contentPadding`'idir:
 
@@ -111,7 +111,7 @@ PantrixScaffold(bottomBar = { insets -> AppTabs(Modifier.padding(insets)) }) { p
 
 Öğesine konmayan bir satır eskisi gibi davranır: kenara gelir. Listede `contentPadding` söylenenden azsa listeden olmayan istenir (2. bölüm, 1. ayrıntı): **iki değer aynı değişkenden gelmelidir.** Izgaralarda (`LazyVerticalGrid`) kullanım aynıdır.
 
-### 3.3. klavye açıkken
+### 3.3. Klavye açıkken
 
 Metin alanı olan ekran kaydırma alanını klavyenin üstünde bitirir. O sırada alt bar klavyenin arkasındadır; boşluktan klavyenin payı düşülür. Compose'un `PaddingValues` çıkarması bunu yapar: sıfırın altına inmez ve değeri sorulduğu anda okur, klavye oynarken ekran yeniden kurulmaz.
 
@@ -127,7 +127,7 @@ Column(
 
 Demo'nun sayfası böyledir (`App.kt`, `DemoPage`).
 
-### 3.4. içindeki kaydırıcılar
+### 3.4. İçindeki kaydırıcılar
 
 Onlara dokunulmaz. Sütunun içindeki yana kayan bir satır öğesini kendi kenarına getirir, her zamanki gibi; ondan çıkan istek sütunun modifier'ından geçer ve sütun satırı bar'ın üstünde gösterir. Bir metin alanının imleci kendi kutusunda olduğu gibi kalır.
 

@@ -3,9 +3,9 @@ title: Bir grafiği dosya olarak dışa aktarma
 description: Bir Pantrix grafiğinin PNG, SVG ve PDF olarak nasıl dışa aktarıldığı, kütüphanenin neyi yapıp neyi uygulamaya bıraktığı, üretilen dosyanın kullanıcıya her platformda nasıl ulaştırılacağı ve üç dosya türünün sınırları.
 ---
 
-Kütüphane dosyayı **üretir** ve uygulamaya **verir**; kaydetmez, paylaşmaz, indirmez. Bunun nedeni 3. bölümdedir: bir dosyayı kullanıcıya ulaştırmak dört platformda dört ayrı iştir ve Android'de bir dosya sağlayıcısı ister.
+Grafik dosyayı **üretir** ve uygulamaya **verir**; kaydetmez, paylaşmaz, indirmez. Kullanıcıya foundation'ın `FileSaver`'ı verir, her platformun kaydetme penceresiyle (3. bölüm); paylaşım sayfası uygulamanındır.
 
-Burada kütüphane hakkında söylenen her şey bu depoda koşan testlerde ya da üretilen dosyalara bakılarak görülmüştür; hangisinin nerede görüldüğü 6. bölümde yazılıdır. 3. bölümdeki platform kodu demonun kendi kodudur (`app/shared`'deki `com.pantrixui.cmp.demo.platform` paketi) ve dört platformda derlenir; nerede denendiği 6. bölümdedir. Oradaki tek taslak, Android'in kaydetme penceresi, derlenmedi.
+Burada kütüphane hakkında söylenen her şey bu depoda koşan testlerde ya da üretilen dosyalara bakılarak görülmüştür; hangisinin nerede görüldüğü 6. bölümde yazılıdır. 3. bölümdeki iki paylaşım parçası demonun eski kodudur ve dört platformda derlenmişti; nerede denendiği 6. bölümdedir.
 
 ## 1. Kullanım {#use}
 
@@ -73,39 +73,32 @@ PDF'te Helvetica, Batı Avrupa dillerinin ve Türkçenin harflerini yazar (Türk
 
 ## 3. Dosyayı kullanıcıya ulaştırmak {#getting-the-file-to-the-user}
 
-`onExport` bir `ChartExportFile` alır: `name`, `mimeType`, `format`, `bytes`. Gerisi platformun işidir.
+`onExport` bir `ChartExportFile` alır: `name`, `mimeType`, `format`, `bytes`. Onu kullanıcıya foundation'ın `FileSaver`'ı verir: her platformun kaydetme penceresi ([dosyalar rehberi](/docs/guides/files), 3.4).
 
 :::table
 | Platform | Alışılmış yol | Ne ister |
 | :--- | :--- | :--- |
-| Android | Paylaşım sayfası (`Intent.ACTION_SEND`) ya da "farklı kaydet" (`CreateDocument`) | Paylaşmak için manifestte bir `FileProvider`; kaydetmek için bir `Activity` sonucu |
-| iOS | Paylaşım sayfası (`UIActivityViewController`) | Geçici bir dosya ve sayfayı sunacak bir görünüm denetleyicisi |
+| Android | "Farklı kaydet" (`ACTION_CREATE_DOCUMENT`), `FileSaver`'ın yolu; ya da paylaşım sayfası (`Intent.ACTION_SEND`) | Kaydetmek için bir `Activity` sonucu; paylaşmak için manifestte bir `FileProvider` |
+| iOS | Dosyalar'a aktarma (`UIDocumentPickerViewController`), `FileSaver`'ın yolu; ya da paylaşım sayfası (`UIActivityViewController`) | Geçici bir dosya ve pencereyi sunacak bir görünüm denetleyicisi |
 | Masaüstü | Kaydetme penceresi | Yok |
 | Web | Tarayıcının indirmesi | Yok |
 :::
 
-Kütüphane bunu şimdilik kendisi yapmaz. Android'de paylaşmak bir `FileProvider` ve bir yol dosyası ister; bir kütüphane onları kendi manifestinde tanımlayabilir (uygulamanın manifestine birleşir), ama o zaman kütüphaneyi kullanan her uygulamaya bir sağlayıcı eklenir. Bunun kütüphaneye alınması açık bir karardır (`docs/OPEN_ITEMS.md`, 2. bölüm).
+`FileSaver` paylaşım sayfasını açmaz: Android'de paylaşmak bir `FileProvider` ve bir yol dosyası ister, ve kütüphane onları kendi manifestinde tanımlasa kütüphaneyi kullanan her uygulamaya bir sağlayıcı eklenirdi. Dosyayı bir mesaja ya da bir e-postaya vermek isteyen uygulama sayfayı kendisi açar, aşağıdaki iki parça gibi.
 
-Demo bu yolları `app/shared`'deki `com.pantrixui.cmp.demo.platform` paketinde yazar: ortak kodda tek bir bildirim, her platformun kaynak kümesinde onun karşılığı (`FileSaver.android.kt`, `FileSaver.ios.kt`, `FileSaver.jvm.kt`, `FileSaver.web.kt`). Grafik örneklerindeki dışa aktarma örneği (`ChartExported`) üretilen dosyayı önce gösterir, "Dosyayı kaydet" düğmesiyle de verir.
+Grafik örneklerindeki dışa aktarma örneği (`ChartExported`) üretilen dosyayı önce gösterir, "Dosyayı kaydet" düğmesiyle de kütüphanenin kaydedicisine verir:
 
 ```kotlin
-// commonMain
-internal fun interface FileSaver {
-    fun save(name: String, mimeType: String, bytes: ByteArray)
-}
-
-@Composable
-internal expect fun rememberFileSaver(): FileSaver
-
-// Grafikte:
 val saver = rememberFileSaver()
 PantrixLineChart(
     // ...
-    export = ChartExport { file -> saver.save(file.name, file.mimeType, file.bytes) }
+    export = ChartExport { file ->
+        saver.save(PantrixFile(file.name, file.bytes, file.mimeType)) { result -> saved = result }
+    }
 )
 ```
 
-Bildirim bir örnek dosyasında değil ayrı bir pakettedir: demonun her örnek dosyası İngilizce ikiziyle başka bir pakete kopyalanır, ve `expect` bir bildirimin kopyasının karşılığı olmaz. Aşağıdaki parçalar o dosyalardandır.
+Aşağıdaki iki parça, 2026-10-28'e kadar demonun kendi kaydedicisiydi (`app/shared`'deki `com.pantrixui.cmp.demo.platform` paketi); demo kütüphanenin kaydedicisine geçince kaldırıldılar, paylaşmak isteyen bir uygulama için burada duruyorlar.
 
 ### Android: paylaşım sayfası
 
@@ -144,24 +137,7 @@ Sayfada seçilen uygulama dosyayı `FileProvider`'ın verdiği adresle okur. Sa�
 </paths>
 ```
 
-`FileProvider`, `androidx.core` kitaplığındadır (demo `androidMain`'e `androidx.core.ktx`'i ekler). Manifestteki `authorities` koddaki adresle aynı olmalıdır; değilse `getUriForFile` hata fırlatır. Dosya klasörün dışındaysa da öyle.
-
-### Android: kaydetme penceresi
-
-Demoda yoktur; **bu parça derlenmedi.** Okuyucu dosyanın nereye yazılacağını seçer, sağlayıcı gerekmez:
-
-```kotlin
-val pending = remember { mutableStateOf<ChartExportFile?>(null) }
-val saver = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
-    val file = pending.value
-    if (uri != null && file != null) {
-        context.contentResolver.openOutputStream(uri)?.use { it.write(file.bytes) }
-    }
-    pending.value = null
-}
-// onExport:
-{ file -> pending.value = file; saver.launch(file.name) }
-```
+`FileProvider`, `androidx.core` kitaplığındadır (`androidx.core.ktx`, uygulamanın `androidMain`'ine eklenir). Manifestteki `authorities` koddaki adresle aynı olmalıdır; değilse `getUriForFile` hata fırlatır. Dosya klasörün dışındaysa da öyle.
 
 ### iOS: paylaşım sayfası
 
@@ -181,54 +157,6 @@ top?.presentViewController(sheet, animated = true, completion = null)
 ```
 
 "Dosyalara Kaydet" de sayfanın içindedir. Sayfa en üstteki görünüm denetleyicisinden sunulur: başka bir denetleyiciyi sunmakta olan bir denetleyici ikinci bir sunumu reddeder. iPad'de sayfa bir açılır pencere olarak sunulur ve neye bağlanacağını (`popoverPresentationController.sourceView`) ister. `NSData.create`'e boş bir dizinin adresi verilemez: boş dosya ayrı yazılır.
-
-### Masaüstü: kaydetme penceresi
-
-```kotlin
-val dialog = FileDialog(null as Frame?, name, FileDialog.SAVE).apply {
-    file = name
-    isVisible = true
-}
-val chosen = dialog.file
-if (chosen != null) File(dialog.directory, chosen).writeBytes(bytes)
-```
-
-Pencere kapatılırsa `dialog.file` boştur ve hiçbir şey yazılmaz.
-
-### Web: indirme
-
-```kotlin
-val scope = rememberCoroutineScope()
-// save:
-val url = URL.createObjectURL(blobOf(bytes, mimeType))
-val link = document.createElement("a") as HTMLAnchorElement
-link.href = url
-link.download = name
-link.click()
-scope.launch {
-    delay(40.seconds)
-    URL.revokeObjectURL(url)
-}
-```
-
-Adres basıştan hemen sonra geri alınmaz: indirme basışla başlar ama dosyayı sonra okur, ve adresi hemen geri alınan indirmeyi bazı tarayıcılar yarıda keser.
-
-`blobOf`, `js` ve `wasmJs` hedeflerinde ayrı yazılır; ikisinin ortak kaynak kümesi (`webMain`) bir `ByteArray`'i tarayıcının bayt dizisine çeviremez:
-
-```kotlin
-// jsMain: Kotlin/JS'te bir ByteArray zaten bir Int8Array'dir
-internal actual fun blobOf(bytes: ByteArray, type: String): Blob =
-    Blob(arrayOf(bytes.unsafeCast<Int8Array>()), BlobPropertyBag(type = type))
-
-// wasmJsMain: baytlar tarayıcının belleğine bir bir kopyalanır
-internal actual fun blobOf(bytes: ByteArray, type: String): Blob {
-    val array = Uint8Array(bytes.size)
-    bytes.forEachIndexed { index, byte -> array[index] = byte }
-    val parts = JsArray<JsAny?>()
-    parts[0] = array
-    return Blob(parts, BlobPropertyBag(type = type))
-}
-```
 
 ## 4. Bilinmesi gerekenler {#what-to-know}
 
@@ -258,7 +186,7 @@ Dışa aktarma düğmesinin etiketi grafiğin kendi etiketinin ardından `.Expor
 | Üç türün görünüşü | Masaüstünde üretilen dosyalara macOS'un çizimiyle (Quick Look, `sips`) bakıldı: ekran yoğunluğu 1 ve 2,75 |
 | Android'de üretim | Emülatörde (ekran yoğunluğu 3,5) üç tür üretildi; PNG demoda geri gösterildi, üç dosya cihazdan alınıp macOS'ta çizildi |
 | iOS'ta üretim | Simülatörde (ekran yoğunluğu 3) üç tür üretildi; PNG demoda geri gösterildi, üç dosya simülatörden alınıp macOS'ta çizildi |
-| 3. bölümdeki demo kodu | Dört platformda derlendi. iOS simülatöründe PDF seçilip "Dosyayı kaydet"e basıldı: paylaşım sayfası dosyanın adıyla, türüyle ve boyutuyla açıldı ("visits", PDF, 5 KB), "Dosyalara Kaydet" sayfadaydı; bir yere kaydedilmedi |
+| 3. bölümdeki paylaşım parçaları | Demonun eski kaydedicisi olarak dört platformda derlendi. iOS simülatöründe PDF seçilip "Dosyayı kaydet"e basıldı: paylaşım sayfası dosyanın adıyla, türüyle ve boyutuyla açıldı ("visits", PDF, 5 KB), "Dosyalara Kaydet" sayfadaydı; bir yere kaydedilmedi. Kütüphanenin kaydedicisinin nerede denendiği dosyalar rehberindedir |
 :::
 
-Doğrulanamayanlar: eksenli grafiğin dosyalarına web'de bakılamadı (tarayıcı paneli ekranda değildi; testler tarayıcıda koşuyor ama üretilen dosya bir tarayıcıda açılmadı); öteki türlerin web'de yalnızca PNG'sine bakıldı, Android ve iOS'ta dosyalarına bakılmadı; PDF'e Adobe Acrobat, Chrome ve Firefox'un çizimiyle bakılmadı (yalnızca macOS'unkiyle); SVG'ye bir tarayıcıda ve bir çizim programında bakılmadı (yalnızca macOS'un Quick Look'uyla); 3. bölümdeki demo kodu Android'de, masaüstünde ve web'de yalnızca derlendi, denenmedi (Android'in emülatörü o sırada başka bir iş için kullanılıyordu; masaüstünün kaydetme penceresi açılmadı; web'e bakılamadı); Android'in kaydetme penceresi taslağı derlenmedi; basılı çıktıya bakılmadı; gerçek bir telefonda denenmedi.
+Doğrulanamayanlar: eksenli grafiğin dosyalarına web'de bakılamadı (tarayıcı paneli ekranda değildi; testler tarayıcıda koşuyor ama üretilen dosya bir tarayıcıda açılmadı); öteki türlerin web'de yalnızca PNG'sine bakıldı, Android ve iOS'ta dosyalarına bakılmadı; PDF'e Adobe Acrobat, Chrome ve Firefox'un çizimiyle bakılmadı (yalnızca macOS'unkiyle); SVG'ye bir tarayıcıda ve bir çizim programında bakılmadı (yalnızca macOS'un Quick Look'uyla); 3. bölümdeki Android paylaşım parçası yalnızca derlendi, denenmedi; basılı çıktıya bakılmadı; gerçek bir telefonda denenmedi.

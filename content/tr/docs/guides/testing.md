@@ -47,7 +47,7 @@ Birinci parça olmadan ötekiler kırılgandır: elle yazılmış her etiket bir
 
 Test modülü `ui/testing`, `com.pantrixui:testing` olarak yayınlanır; paketi `com.pantrixui.testing`. Yalnızca `:ui:foundation`'a ve compose ui-test'e bağlıdır: bileşenler adlarıyla, metin olarak verilir. Foundation'da üç açılım onunla birlikte gelir: `pantrixTestTagOf`, `LocalPantrixClock` ve `LocalFilePicker`.
 
-### 3.1. kurulum
+### 3.1. Kurulum
 
 ```kotlin
 kotlin {
@@ -66,7 +66,7 @@ kotlin {
 *   **Android'in host testleri.** Android'in host testleri ayrı bir kaynak ağacındaysa (`androidHostTest`), modül oraya ayrıca eklenir. Bağımlı olunca etkinlik testin manifest'ine birleşir; testin kendi `AndroidManifest.xml`'ine gerek kalmaz (`TestingOnAndroidTest` bu yüzden manifest'sizdir).
 *   **Deneysel API.** `ComposeUiTest` ve `runComposeUiTest` compose ui-test'te `@ExperimentalTestApi`'dir. Onu alan yardımcılar (`onEachPlatform`, `assertNoFindings`) da öyledir; bulma yardımcıları değildir.
 
-### 3.2. bir bileşeni bulmak
+### 3.2. Bir bileşeni bulmak
 
 :::table
 | API | Ne yapar |
@@ -92,7 +92,7 @@ onPantrixNode("Segment", "newest", scope = "SegmentButton_sort") // bir kontrol�
 *   **Parça kontrolün etiketinin içindedir.** Anahtarı olan bir kontrolün parçası `Kontrol_anahtar.Parça_anahtar`'dır: `scope` kontrolün etiketidir. Anahtarı olmayan bir kontrolün parçası yalnızca kendi etiketini taşır.
 *   **`pantrixTags()`** yeni bir ekranın testini ya da bir Maestro akışını yazarken neyin arandığını gösterir: `println(pantrixTags().joinToString("\n"))`. Uygulamanın kendi `Modifier.testTag("login")` gibi başka biçimde bir etiketi listede yoktur. Varsayılan olarak her düğümün ağacına bakar (`useUnmergedTree = true`): bir düğmenin birleştirdiği içindekiler de görünür.
 
-### 3.3. sabit bir tema
+### 3.3. Sabit bir tema
 
 `PantrixTestTheme` bir ekranı her makinede aynı gösterir. Varsayılanlar:
 
@@ -135,7 +135,7 @@ onEachPlatform({ platform -> PantrixTestTheme(platform = platform) { SaveButton(
 }
 ```
 
-### 3.4. test çiftleri
+### 3.4. Test çiftleri
 
 :::table
 | Çift | Ne tutar, nasıl cevap verir |
@@ -145,13 +145,17 @@ onEachPlatform({ platform -> PantrixTestTheme(platform = platform) { SaveButton(
 | `RecordingHaptics()` | Çalınan dokunsal geri bildirimleri sırayla: `played` |
 | `TestFilePicker(files)` | Her seçime `files` ile cevap verir: yalnızca seçicinin gösterdiği türlerden, tek dosya istenmişse ilkiyle; hiçbiri uymuyorsa cevap vermez, seçiciyi kapatan bir kullanıcı gibi. `requests` her seçimin ne istediğini tutar |
 | `TestClock(now, utcOffset)` | Testin kurduğu anı gösterir; yalnızca test ilerletince ilerler (`advanceBy`, `now = …`). `utcOffset` verilmezse UTC'nin saatidir |
+| `TestFileSaver(result)` | Ekranın kaydettiği dosyaları sırayla tutar (`files`) ve her kaydetmeye `result` ile cevap verir: verilmezse kaydedildi. Tema her zaman kendisininkini verir, hiçbir kaydetme penceresi açılmaz; kaydedileni okuyan test kendisininkini temanın içinde, `LocalFileSaver` ile verir |
 :::
 
-Listelenen çiftler `PantrixTestTheme`'in parametreleridir. Tema kullanılmadan da verilebilirler, foundation'ın kendi yerlerinden:
+Listelenen çiftler, `TestFileSaver` dışında, `PantrixTestTheme`'in parametreleridir. Tema kullanılmadan da verilebilirler, foundation'ın kendi yerlerinden:
 
 ```kotlin
 // Bütün ekranın seçicisi: rememberFilePicker() ve PantrixFileDrop'un varsayılanı bunu alır.
 CompositionLocalProvider(LocalFilePicker provides picker) { OfferScreen() }
+
+// Ekranın kaydedicisi: rememberFileSaver() bunu verir. PantrixTestTheme'in içinde verilir.
+CompositionLocalProvider(LocalFileSaver provides saver) { ThemeBuilderScreen() }
 
 // Ekranın saati: rememberToday(), saat alanının seçicisi, elastic date picker ve grafiklerin anları bunu okur.
 CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hours }) { BookingScreen() }
@@ -160,7 +164,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 *   **`TestClock` ekranın okuduğu zamandır, testin kareleri değil.** Gece yarısını bekleyen bir ekran testin kendi saatini de bekler: `clock.advanceBy(1.minutes)` ile birlikte `mainClock.advanceTimeBy(60_000)`.
 *   **Ekranın saati cihazınki değildir.** `PantrixDate.today()` ve `PantrixTime.now()` cihazın saatini okur, `LocalPantrixClock`'u okumaz; bir ekranda `rememberToday()` ya da `LocalPantrixClock.current.today()` ([tarih rehberi](/docs/guides/date-time)).
 
-### 3.5. doğrulamalar
+### 3.5. Doğrulamalar
 
 :::table
 | API | Ne doğrular |
@@ -174,7 +178,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 
 Piksel ve renk yardımcıları modülde yoktur: bir rengi pikselde aramak bileşenin çizimine bağlıdır ve yalnızca Pantrix'in kendi testlerinde durur.
 
-### 3.6. ekran görüntüleri
+### 3.6. Ekran görüntüleri
 
 Ekran görüntüsü testleri için modülde bir yardımcı yoktur ve modül Roborazzi'ye bağlanmaz: hangi platformda, hangi araçla ve nereye kaydedileceği uygulamanın seçimidir. Pantrix'in kendi kurulumu [Roborazzi rehberindedir](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/roborazzi/ROBORAZZI_GUIDE.md). Bir uygulama için özeti:
 
@@ -183,7 +187,7 @@ Ekran görüntüsü testleri için modülde bir yardımcı yoktur ve modül Robo
 *   **Her platformun kendi referansı.** Masaüstü ve iOS Skiko ile çizer, Android kendi çizicisiyle; aynı bileşen birkaç piksel farklı çıkar.
 *   **Referanslar Compose'un ve simülatörün sürümüne bağlıdır.** Compose Multiplatform 1.12.1'den 1.12.2'ye geçiş, Skiko ile birlikte gölgeleri değiştirdi; iOS referansları da kaydedildikleri simülatöre ve iOS sürümüne bağlıdır.
 
-### 3.7. cihaz otomasyonu: Maestro
+### 3.7. Cihaz otomasyonu: Maestro
 
 Pantrix'in etiketleri cihazın erişilebilirlik ağacına ulaşır: Android'de `resource-id` olarak (en dıştaki tema ve her modal ya da açılır katmanın kökü `testTagsAsResourceId`'yi açar), iOS'ta `accessibilityIdentifier` olarak (Compose `testTag`'i kendisi çevirir). Bir [Maestro](https://maestro.dev) akışı bir bileşeni `id:` ile, ekrandaki kodun anahtarıyla bulur; uygulama başka bir dilde açılınca akış kırılmaz.
 
@@ -216,7 +220,7 @@ appId: ${APP_ID}
 **Demo'nun akışları** `app/maestro/` altındadır; kataloğun her sayfasının bir akışı vardır:
 
 *   **`flows/shell/`:** uygulamanın kabuğu: genel bakış, katalog (bölüm süzgeci ve arama), bir bileşen sayfası (sekmeler) ve ayarlar (dil ve tanılama). Etiketi `shell`.
-*   **`flows/<bölüm>/<sayfa>.yaml`:** kataloğun 114 sayfası, bölümlerinin klasöründe (`flows/form/checkbox.yaml`). Akış sayfayı bağlantısıyla açar, `pantrixui://page/<anahtar>`; her örneğin kartını sayfadaki sırayla ekrana getirir, koduna geçer ve örneğe döner; sonra sayfanın bileşeninin asıl işini dener: basmak, yazmak, seçmek, açıp kapamak. Etiketleri `page` ve bölümün adı (`form`); birkaçı `smoke`.
+*   **`flows/<bölüm>/<sayfa>.yaml`:** kataloğun 118 sayfası, bölümlerinin klasöründe (`flows/form/checkbox.yaml`). Akış sayfayı bağlantısıyla açar, `pantrixui://page/<anahtar>`; her örneğin kartını sayfadaki sırayla ekrana getirir, koduna geçer ve örneğe döner; sonra sayfanın bileşeninin asıl işini dener: basmak, yazmak, seçmek, açıp kapamak. Etiketleri `page` ve bölümün adı (`form`); birkaçı `smoke`.
 *   **`flows/fold/`:** katlanan bir telefonun iç ekranında, telefon kitap gibi tutulurken bakılan sayfalar: menteşede buluşan iki panel, yan ray. Etiketi `fold`. Akış önce duruşa bakar; Pixel_9_Pro_Fold emülatöründe menteşe `adb emu sensor set hinge-angle0 90` ile yarı açılır.
 *   **`subflows/`:** ortak adımlar ve iki platformun ayrıldığı yerler: bir sayfayı bağlantısıyla açmak, bir örneğin kartı, bir öğeyi ekranın ortasına getirmek, bir seçeneğin seçili olduğu ya da olmadığı, bir bölümü açmak.
 
@@ -248,7 +252,7 @@ Demo'nun `MaestroFlowsTest`'i (JVM) akışların kataloğun gerisinde kalmadığ
 
 Aşağıdakiler kütüphanesiz bir projeye kopyalanabilecek en kısa hâllerdir; Pantrix'in kodu (`ui/testing/src/`) aynı şeyi testleri ve kenar durumlarıyla yapar.
 
-### 4.1. etiketi tek yerden kurmak (`commonMain` ve `commonTest`)
+### 4.1. Etiketi tek yerden kurmak (`commonMain` ve `commonTest`)
 
 ```kotlin
 // commonMain: bileşen etiketini bununla kurar.
@@ -262,7 +266,7 @@ fun SemanticsNodeInteractionsProvider.onComponent(component: String, key: String
     onNode(hasTestTag(testTagOf(component, key, scope)))
 ```
 
-### 4.2. sabit bir tema ve testin panosu (`commonTest`)
+### 4.2. Sabit bir tema ve testin panosu (`commonTest`)
 
 ```kotlin
 class KeptClipboard : Clipboard {
@@ -285,7 +289,7 @@ fun FixedScreen(clipboard: Clipboard = remember { KeptClipboard() }, content: @C
 
 Temanın kendi varsayılanları da (dil, karanlık mod, hareket, işletim sistemi) aynı biçimde açıkça verilmelidir; hangileri olduğu temanın parametrelerinde okunur.
 
-### 4.3. etiketleri android'in otomasyonuna açmak (`androidMain`)
+### 4.3. Etiketleri android'in otomasyonuna açmak (`androidMain`)
 
 ```kotlin
 // Kökte bir kez; bir Dialog ya da Popup ayrı bir pencere olduğundan onun kökünde de.
@@ -386,7 +390,7 @@ Her davranış bir kez bozulup testin kırmızıya döndüğü görüldü (8. b�
 
 ## 9. Bu depoda nerede {#repository toc="9. Depoda"}
 
-*   Test modülü: `ui/testing/src/commonMain/kotlin/com/pantrixui/testing/` (`PantrixTags.kt`, `PantrixTestTheme.kt`, `TestClipboard.kt` ve her platformun okuması ve panosu, `RecordingAnalytics.kt`, `RecordingHaptics.kt`, `TestFilePicker.kt`, `TestClock.kt`, `PantrixAssertions.kt`); manifest `ui/testing/src/androidMain/AndroidManifest.xml`.
+*   Test modülü: `ui/testing/src/commonMain/kotlin/com/pantrixui/testing/` (`PantrixTags.kt`, `PantrixTestTheme.kt`, `TestClipboard.kt` ve her platformun okuması ve panosu, `RecordingAnalytics.kt`, `RecordingHaptics.kt`, `TestFilePicker.kt`, `TestFileSaver.kt`, `TestClock.kt`, `PantrixAssertions.kt`); manifest `ui/testing/src/androidMain/AndroidManifest.xml`.
 *   Foundation'ın açılımları: `testing/TestTag.kt` (`pantrixTestTagOf`), `date/PantrixClock.kt`, `files/FilePicker.kt` (`LocalFilePicker`); otomasyon köprüsü `testing/AutomationBridge.kt` (`pantrixAutomationRoot`).
 *   Maestro: akışlar `app/maestro/`; görevler `build-logic/src/main/kotlin/com/pantrixui/plugins/maestro/` (`pantrix.demo.maestro`, `app/androidApp` ve `app/shared`'de uygulanır).
 *   Demo: `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/samples/TestTagsSamples.kt` ("Testin aradığı etiket"), `FilesSamples.kt` ("Örnek dosyalarla bir ekran"), `DatePickerSamples.kt` ("Ekranın saati").

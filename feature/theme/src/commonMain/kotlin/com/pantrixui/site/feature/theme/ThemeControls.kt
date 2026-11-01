@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.pantrixui.components.container.alert.AlertTone
 import com.pantrixui.components.container.alert.PantrixAlert
 import com.pantrixui.components.elements.segmentbutton.PantrixSegmentButton
+import com.pantrixui.components.elements.segmentbutton.SegmentButtonColors
 import com.pantrixui.components.elements.segmentbutton.SegmentButtonStyle
 import com.pantrixui.components.elements.segmentbutton.SegmentOption
 import com.pantrixui.components.elements.text.PantrixText
@@ -163,21 +164,23 @@ private fun <T> Choice(
     tag: String,
     onSelect: (T) -> Unit
 ) {
-    val type = PantrixTheme.typography
-    // Pantrix's segment button sets its labels in the theme's label type and takes no other: three long ones in a
-    // narrow column are set a size smaller in a theme of their own.
-    PantrixTheme(typography = type.copy(label = type.label.copy(fontSize = CHOICE_TEXT))) {
-        PantrixSegmentButton(
-            options = options.map { SegmentOption(it, label(it), tagKey = it.toString().lowercase()) },
-            selected = selected,
-            onSelect = onSelect,
-            modifier = Modifier.fillMaxWidth(),
-            fullWidth = true,
-            // Three choices share the column: their labels keep a little room at their sides, not the platform's.
-            style = SegmentButtonStyle(segmentPadding = CHOICE_PADDING),
-            tagKey = tag
-        )
-    }
+    // Three long labels in a narrow column, set as the design sets them: smaller and bold, the chosen one in the text's
+    // colour and the others in the muted one.
+    PantrixSegmentButton(
+        options = options.map { SegmentOption(it, label(it), tagKey = it.toString().lowercase()) },
+        selected = selected,
+        onSelect = onSelect,
+        modifier = Modifier.fillMaxWidth(),
+        fullWidth = true,
+        // Three choices share the column: their labels keep a little room at their sides, not the platform's.
+        style = SegmentButtonStyle(segmentPadding = CHOICE_PADDING),
+        colors = SegmentButtonColors(
+            selectedContent = PantrixTheme.colors.textPrimary,
+            unselectedContent = SiteTheme.colors.muted
+        ),
+        tagKey = tag,
+        labelStyle = PantrixTheme.typography.label.copy(fontSize = CHOICE_TEXT, fontWeight = FontWeight.Bold)
+    )
 }
 
 /** The swatches to start from, the one chosen ringed. */

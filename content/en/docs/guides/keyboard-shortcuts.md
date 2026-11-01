@@ -50,7 +50,7 @@ A node that does this has to watch two things too:
 
 ## 3. With Pantrix {#with}
 
-### 3.1. the whole window's shortcut
+### 3.1. The whole window's shortcut
 
 ```kotlin
 var palette by rememberSaveable { mutableStateOf(false) }
@@ -62,7 +62,7 @@ Box(Modifier.shortcutRoot().onShortcut(PantrixShortcut(Key.K, command = true)) {
 
 `shortcutRoot` stands once, at the window's root. The shortcuts have to be on the same node as it or above it: while the root has the focus, only the root's and its ancestors' listeners hear.
 
-### 3.2. the commands' own shortcuts
+### 3.2. The commands' own shortcuts
 
 `Modifier.commandShortcuts(commands, onRun)` binds the shortcut of every command in the list that can be run. What the palette shows and what the keyboard runs is one list:
 
@@ -77,7 +77,7 @@ Box(
 
 A command with `enabled = false` lets its key go by; of two commands that carry the same shortcut, the first runs. While a Pantrix modal is open the keys are its: the shortcuts below it are not heard.
 
-### 3.3. how a shortcut is written
+### 3.3. How a shortcut is written
 
 ```kotlin
 val shortcut = PantrixShortcut(Key.R, command = true, shift = true)

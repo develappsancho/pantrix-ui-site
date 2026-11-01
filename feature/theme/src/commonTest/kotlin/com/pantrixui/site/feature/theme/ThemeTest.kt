@@ -106,4 +106,15 @@ class ThemeTest {
         assertIs<ThemeEffect.Copy>(copy)
         assertTrue(copy.text.startsWith("object ShopeersPreset : DesignPreset {"))
     }
+
+    @Test
+    fun a_download_hands_over_the_preset_s_file_by_its_name() = runTest(dispatcher) {
+        val model = ThemeViewModel()
+        model.onAction(ThemeAction.Name("Acme"))
+        model.onAction(ThemeAction.Download)
+        val save = model.effects.first()
+        assertIs<ThemeEffect.Save>(save)
+        assertEquals("AcmePreset.kt", save.name)
+        assertEquals(presetText(model.state.value), save.text, "the file is the code shown")
+    }
 }

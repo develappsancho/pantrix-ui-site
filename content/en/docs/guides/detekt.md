@@ -53,7 +53,7 @@ The reports are in each module's `build/reports/detekt/` folder: HTML (for readi
 | `SizeOutsideStyle` | A component's size is in its style or in a named constant; no `12.dp` is written in the code. 0 and 1 are free | `ui/components` (but the style files) |
 | `ColorOutsideTokens` | A component's colour comes from the theme or from its own colours; no `Color(0xFF…)` is written | `ui/components` (but the style files) |
 | `ImageWithoutDescription` | An image says what it shows, or says it is decoration with `contentDescription = null`; an empty description is not given | The demo (reports) |
-| `UntaggedControl` | A control carries a `tagKey` (or is bound to a form's field, or puts its tag on in its `modifier` itself). A chip given `onClick = null` that shows only a word does not count as a control | The demo (reports) |
+| `UntaggedControl` | A control carries a `tagKey` (or is bound to a form's field, or puts its tag on in its `modifier` itself). A chip given `onClick = null` that shows only a word, and a list's row given no `onClick` at all, which is only read, do not count as controls | The demo (reports) |
 :::
 
 Where the rules can be configured (`allowedPathPattern`, `includes`, `excludes`, lists of names) is written in each rule's KDoc.

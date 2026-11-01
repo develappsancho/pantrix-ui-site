@@ -78,7 +78,7 @@ fun SiteSidebar(
 /**
  * The card under the sidebar's links: a count and a line, leading to a page.
  *
- * @param title its first line: "98 components".
+ * @param title its first line: "100 components".
  * @param text the line under it.
  * @param onClick what pressing it does.
  * @param tag its automation tag.

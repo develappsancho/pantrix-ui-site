@@ -78,7 +78,7 @@ Kütüphane üç parçayı da verir (`com.pantrixui.foundation.platform`):
 | `LocalClipboardTraits` | `rememberPantrixClipboard()`'un baktığı huylar. Verilmezse platformunkidir; bir test başka bir platformunkini buradan verir |
 :::
 
-### 3.1. kopyalama düğmesi
+### 3.1. Kopyalama düğmesi
 
 ```kotlin
 // commonMain
@@ -108,7 +108,7 @@ fun CopyLinkButton(link: String) {
 
 Platforma bakan tek bir satır yoktur: aynı düğme beş hedefte de derlenir. `rememberCoroutineScope()` düğmenin kendi kapsamıdır; ekran terk edilirse yarım kalan kopyalama da iptal olur ve cevap gelmez.
 
-### 3.2. düğme ne der, ne zaman susar
+### 3.2. Düğme ne der, ne zaman susar
 
 :::table
 | Durum | `copyText` | Huy | Düğme |
@@ -123,7 +123,7 @@ Platforma bakan tek bir satır yoktur: aynı düğme beş hedefte de derlenir. `
 *   **`writable` basılmadan önce bilinir.** Düğmeyi baştan kapalı çizmek ya da hiç çizmemek de bir seçimdir: `enabled = clipboard.traits.writable`. Bu depodaki örnek uygulama düğmeyi çizer ve basılınca "kopyalanamadı" der.
 *   **Kural uygulamanındır.** Kütüphane ne olduğunu söyler; ne deneceğine uygulama karar verir. Örnek uygulamada bu karar tek bir fonksiyondur ve ayrıca sınanır (`copyMessage`, `CopyMessageTest`).
 
-### 3.3. etiket
+### 3.3. Etiket
 
 `label` panoya konanın ne olduğunu söyler: "Bağlantı", "Kod". Yalnızca Android taşır; `ClipData.newPlainText`'in belgesi ona "User-visible label for the clip data" der, bu yüzden uygulamanın dilinde verilir. Diğer platformlarda yok sayılır. Verilmezse boştur.
 
@@ -131,7 +131,7 @@ Platforma bakan tek bir satır yoktur: aynı düğme beş hedefte de derlenir. `
 
 Aynı çözüm, yalnızca Compose Multiplatform'un kendi API'siyle. Aşağıdaki kod herhangi bir projeye kopyalanabilir; kütüphanedeki karşılıklarının sadeleştirilmiş hâlidir.
 
-### 4.1. ortak kod (`commonMain`)
+### 4.1. Ortak kod (`commonMain`)
 
 ```kotlin
 /** [text], bu platformun panosunun aldığı türde. Etiketi yalnızca Android taşır. */
@@ -169,7 +169,7 @@ suspend fun Clipboard.copyText(
 
 `CancellationException` burada `kotlin.coroutines.cancellation.CancellationException`'dır.
 
-### 4.2. platform karşılıkları
+### 4.2. Platform karşılıkları
 
 ```kotlin
 // androidMain
@@ -216,7 +216,7 @@ private fun browserClipboardWrites(): Boolean =
 
 Tarayıcıya sorulan soru `webMain`'de tek kez yazılır; `ClipEntry.withPlainText` ise yazılamaz, iki hedefte ayrı ayrı durur (bkz. 7. bölüm, "`webMain`'e yazılan karşılık"). Yalnızca bir web hedefi olan projede ikisi de o hedefin kaynak kümesine yazılır.
 
-### 4.3. kullanım
+### 4.3. Kullanım
 
 ```kotlin
 // commonMain
@@ -267,7 +267,7 @@ Yardımcı tek bir iş yapar: düz bir metni panoya koyar ve konup konmadığın
 
 ## 6. Test etmek {#testing}
 
-### 6.1. sahte pano
+### 6.1. Sahte pano
 
 Compose bir teste gerçek panoyu verir (bkz. 7. bölüm, "Sahtesi verilmeyen pano"). Kopyalayan her test kendi panosunu `LocalClipboard` ile verir:
 
@@ -287,7 +287,7 @@ class RecordingClipboard(private val refuses: Boolean = false) : Clipboard {
 
 `Clipboard` ortak koddadır: bu sahte, ortak bir testte de yazılır. Orada bakılabilenler kaç kez yazıldığı ve `copyText`'in ne dediğidir; gelen `ClipEntry`'nin içindeki metin ortak kodda okunamaz.
 
-### 6.2. başka bir platformun huyu
+### 6.2. Başka bir platformun huyu
 
 Android 13'ün ya da panosu olmayan bir sayfanın davranışı, o platformda koşmayan bir testte de sınanır: huylar `LocalClipboardTraits` ile verilir.
 
@@ -323,7 +323,7 @@ class CopyLinkButtonTest {
 
 `ClipboardTraits(writable = false)` ile aynı test panosu olmayan sayfayı sınar: sahte panoya hiçbir şey gelmez ve düğme "kopyalanamadı" der. `RecordingClipboard(refuses = true)` reddeden bir tarayıcıdır.
 
-### 6.3. gelen metni okumak
+### 6.3. Gelen metni okumak
 
 Metnin kendisine her platformun testi kendi yoluyla bakar:
 

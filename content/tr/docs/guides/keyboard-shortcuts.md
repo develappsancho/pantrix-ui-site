@@ -50,7 +50,7 @@ Bunu yapan bir düğüm de iki şeye dikkat etmelidir:
 
 ## 3. Pantrix ile {#with}
 
-### 3.1. bütün pencerenin kısayolu
+### 3.1. Bütün pencerenin kısayolu
 
 ```kotlin
 var palette by rememberSaveable { mutableStateOf(false) }
@@ -62,7 +62,7 @@ Box(Modifier.shortcutRoot().onShortcut(PantrixShortcut(Key.K, command = true)) {
 
 `shortcutRoot` pencerenin kökünde bir kez durur. Kısayollar onunla aynı düğümde ya da onun üstünde olmalıdır: odak kökteyken yalnızca kök ve atalarının dinleyicileri duyar.
 
-### 3.2. komutların kendi kısayolları
+### 3.2. Komutların kendi kısayolları
 
 `Modifier.commandShortcuts(commands, onRun)` listedeki her çalıştırılabilir komutun kısayolunu bağlar. Paletin gösterdiği ile klavyenin çalıştırdığı aynı listedir:
 
@@ -77,7 +77,7 @@ Box(
 
 `enabled = false` olan bir komut tuşunu geçirir; aynı kısayolu taşıyan iki komuttan ilki çalışır. Bir Pantrix modal'ı açıkken tuşlar onundur: altındaki kısayollar duyulmaz.
 
-### 3.3. kısayolun yazılışı
+### 3.3. Kısayolun yazılışı
 
 ```kotlin
 val shortcut = PantrixShortcut(Key.R, command = true, shift = true)

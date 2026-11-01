@@ -3,9 +3,9 @@ title: Exporting a chart as a file
 description: How a Pantrix chart is exported as PNG, SVG and PDF, what the library does and what it leaves to the app, how the file made reaches the user on each platform, and the limits of the three kinds of file.
 ---
 
-The library **makes** the file and **hands** it to the app; it does not save it, share it or download it. The reason is in section 3: getting a file to the user is four separate jobs on four platforms, and on Android it needs a file provider.
+The chart **makes** the file and **hands** it to the app; it does not save it, share it or download it. Foundation's `FileSaver` gives it to the user, with each platform's window for saving a file (section 3); the share sheet is the app's.
 
-Everything said here of the library was seen in tests that run in this repository, or by looking at the files made; which was seen where is written in section 6. The platform code in section 3 is the demo's own code (the package `com.pantrixui.cmp.demo.platform` in `app/shared`), and compiles on four platforms; where it was tried is in section 6. The one sketch there, Android's save dialog, was not compiled.
+Everything said here of the library was seen in tests that run in this repository, or by looking at the files made; which was seen where is written in section 6. The two pieces for sharing in section 3 are the demo's old code, and compiled on four platforms; where they were tried is in section 6.
 
 ## 1. Use {#use}
 
@@ -73,39 +73,32 @@ In PDF, Helvetica writes the letters of the Western European languages and of Tu
 
 ## 3. Getting the file to the user {#getting-the-file-to-the-user}
 
-`onExport` takes a `ChartExportFile`: `name`, `mimeType`, `format`, `bytes`. The rest is the platform's job.
+`onExport` takes a `ChartExportFile`: `name`, `mimeType`, `format`, `bytes`. Foundation's `FileSaver` gives it to the user: each platform's window for saving a file ([the files guide](/docs/guides/files), 3.4).
 
 :::table
 | Platform | The usual way | What it asks for |
 | :--- | :--- | :--- |
-| Android | The share sheet (`Intent.ACTION_SEND`) or "save as" (`CreateDocument`) | To share, a `FileProvider` in the manifest; to save, an `Activity`'s result |
-| iOS | The share sheet (`UIActivityViewController`) | A temporary file, and a view controller to present the sheet |
+| Android | "Save as" (`ACTION_CREATE_DOCUMENT`), `FileSaver`'s way; or the share sheet (`Intent.ACTION_SEND`) | To save, an `Activity`'s result; to share, a `FileProvider` in the manifest |
+| iOS | Exporting to Files (`UIDocumentPickerViewController`), `FileSaver`'s way; or the share sheet (`UIActivityViewController`) | A temporary file, and a view controller to present the window |
 | Desktop | The save dialog | Nothing |
 | Web | The browser's download | Nothing |
 :::
 
-For now the library does not do this itself. On Android sharing needs a `FileProvider` and a file of paths; a library can declare them in its own manifest (it merges into the app's), but then every app that uses the library gets a provider. Whether to take this into the library is an open decision (`docs/OPEN_ITEMS.md`, section 2).
+`FileSaver` does not open the share sheet: on Android sharing needs a `FileProvider` and a file of paths, and were the library to declare them in its own manifest, every app that uses the library would get a provider. An app that wants to give the file to a message or an email opens the sheet itself, as the two pieces below do.
 
-The demo writes these ways in the package `com.pantrixui.cmp.demo.platform` of `app/shared`: one declaration in common code, and its counterpart in each platform's source set (`FileSaver.android.kt`, `FileSaver.ios.kt`, `FileSaver.jvm.kt`, `FileSaver.web.kt`). The export example among the chart examples (`ChartExported`) first shows the file made, and hands it over with the button "Save the file" too.
+The export example among the chart examples (`ChartExported`) first shows the file made, and hands it to the library's saver with the button "Save the file" too:
 
 ```kotlin
-// commonMain
-internal fun interface FileSaver {
-    fun save(name: String, mimeType: String, bytes: ByteArray)
-}
-
-@Composable
-internal expect fun rememberFileSaver(): FileSaver
-
-// In the chart:
 val saver = rememberFileSaver()
 PantrixLineChart(
     // ...
-    export = ChartExport { file -> saver.save(file.name, file.mimeType, file.bytes) }
+    export = ChartExport { file ->
+        saver.save(PantrixFile(file.name, file.bytes, file.mimeType)) { result -> saved = result }
+    }
 )
 ```
 
-The declaration is in a package of its own, not in an example's file: each of the demo's example files is copied into another package with its English twin, and the copy of an `expect` declaration has no counterpart. The pieces below are from those files.
+The two pieces below were the demo's own saver until 2026-10-28 (the package `com.pantrixui.cmp.demo.platform` in `app/shared`); they were taken out when the demo moved to the library's saver, and stay here for an app that wants to share.
 
 ### Android: the share sheet
 
@@ -144,24 +137,7 @@ The app chosen in the sheet reads the file by the address the `FileProvider` giv
 </paths>
 ```
 
-`FileProvider` is in the library `androidx.core` (the demo adds `androidx.core.ktx` to `androidMain`). The manifest's `authorities` has to be the same as the address in the code; if it is not, `getUriForFile` throws. So it does if the file is outside the folder.
-
-### Android: the save dialog
-
-It is not in the demo; **this piece was not compiled.** The reader chooses where the file is written, and no provider is needed:
-
-```kotlin
-val pending = remember { mutableStateOf<ChartExportFile?>(null) }
-val saver = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri ->
-    val file = pending.value
-    if (uri != null && file != null) {
-        context.contentResolver.openOutputStream(uri)?.use { it.write(file.bytes) }
-    }
-    pending.value = null
-}
-// onExport:
-{ file -> pending.value = file; saver.launch(file.name) }
-```
+`FileProvider` is in the library `androidx.core` (`androidx.core.ktx`, added to the app's `androidMain`). The manifest's `authorities` has to be the same as the address in the code; if it is not, `getUriForFile` throws. So it does if the file is outside the folder.
 
 ### iOS: the share sheet
 
@@ -181,54 +157,6 @@ top?.presentViewController(sheet, animated = true, completion = null)
 ```
 
 "Save to Files" is in the sheet too. The sheet is presented from the topmost view controller: a controller that is presenting another refuses a second presentation. On an iPad the sheet is presented as a popover, and asks what it is anchored to (`popoverPresentationController.sourceView`). The address of an empty array cannot be given to `NSData.create`: an empty file is written apart.
-
-### Desktop: the save dialog
-
-```kotlin
-val dialog = FileDialog(null as Frame?, name, FileDialog.SAVE).apply {
-    file = name
-    isVisible = true
-}
-val chosen = dialog.file
-if (chosen != null) File(dialog.directory, chosen).writeBytes(bytes)
-```
-
-If the dialog is closed, `dialog.file` is empty and nothing is written.
-
-### Web: the download
-
-```kotlin
-val scope = rememberCoroutineScope()
-// save:
-val url = URL.createObjectURL(blobOf(bytes, mimeType))
-val link = document.createElement("a") as HTMLAnchorElement
-link.href = url
-link.download = name
-link.click()
-scope.launch {
-    delay(40.seconds)
-    URL.revokeObjectURL(url)
-}
-```
-
-The address is not taken back right after the press: the download starts with the press but reads the file later, and some browsers cut short a download whose address is taken back at once.
-
-`blobOf` is written apart on the `js` and `wasmJs` targets; the source set the two share (`webMain`) cannot turn a `ByteArray` into the browser's array of bytes:
-
-```kotlin
-// jsMain: in Kotlin/JS a ByteArray is an Int8Array already
-internal actual fun blobOf(bytes: ByteArray, type: String): Blob =
-    Blob(arrayOf(bytes.unsafeCast<Int8Array>()), BlobPropertyBag(type = type))
-
-// wasmJsMain: the bytes are copied into the browser's memory one by one
-internal actual fun blobOf(bytes: ByteArray, type: String): Blob {
-    val array = Uint8Array(bytes.size)
-    bytes.forEachIndexed { index, byte -> array[index] = byte }
-    val parts = JsArray<JsAny?>()
-    parts[0] = array
-    return Blob(parts, BlobPropertyBag(type = type))
-}
-```
 
 ## 4. What to know {#what-to-know}
 
@@ -258,7 +186,7 @@ The export button's tag is `.Export` after the chart's own tag: `Chart_<tagKey>.
 | The look of the three kinds | The files made on the desktop were looked at with macOS's drawing (Quick Look, `sips`): screen densities 1 and 2.75 |
 | Making them on Android | In the emulator (screen density 3.5) the three kinds were made; the PNG was shown back in the demo, and the three files were taken off the device and drawn on macOS |
 | Making them on iOS | In the simulator (screen density 3) the three kinds were made; the PNG was shown back in the demo, and the three files were taken off the simulator and drawn on macOS |
-| The demo code in section 3 | Compiled on four platforms. In the iOS simulator, PDF was chosen and "Save the file" pressed: the share sheet opened with the file's name, type and size ("visits", PDF, 5 KB), and "Save to Files" was in the sheet; it was not saved anywhere |
+| The pieces for sharing in section 3 | Compiled on four platforms as the demo's old saver. In the iOS simulator, PDF was chosen and "Save the file" pressed: the share sheet opened with the file's name, type and size ("visits", PDF, 5 KB), and "Save to Files" was in the sheet; it was not saved anywhere. Where the library's saver was tried is in the files guide |
 :::
 
-Not verified: the files of a chart with axes could not be looked at on the web (the browser pane was not on the screen; the tests run in a browser, but a file made was not opened in a browser); of the other kinds, only the PNG was looked at on the web, and their files were not looked at on Android and iOS; the PDF was not looked at in the drawing of Adobe Acrobat, Chrome and Firefox (only in macOS's); the SVG was not looked at in a browser and in a drawing program (only in macOS's Quick Look); the demo code in section 3 was only compiled on Android, the desktop and the web, not tried (Android's emulator was then used for another job; the desktop's save dialog was not opened; the web could not be looked at); the sketch of Android's save dialog was not compiled; printed output was not looked at; it was not tried on a real phone.
+Not verified: the files of a chart with axes could not be looked at on the web (the browser pane was not on the screen; the tests run in a browser, but a file made was not opened in a browser); of the other kinds, only the PNG was looked at on the web, and their files were not looked at on Android and iOS; the PDF was not looked at in the drawing of Adobe Acrobat, Chrome and Firefox (only in macOS's); the SVG was not looked at in a browser and in a drawing program (only in macOS's Quick Look); the piece for sharing on Android in section 3 was only compiled, not tried; printed output was not looked at; it was not tried on a real phone.

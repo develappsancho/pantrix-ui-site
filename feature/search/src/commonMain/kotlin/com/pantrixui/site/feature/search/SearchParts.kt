@@ -38,13 +38,15 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.pantrixui.components.data.listitem.ListItemColors
+import com.pantrixui.components.data.listitem.ListItemStyle
+import com.pantrixui.components.data.listitem.PantrixListItem
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.inputs.textfield.PantrixTextField
@@ -52,6 +54,7 @@ import com.pantrixui.components.inputs.textfield.TextFieldColors
 import com.pantrixui.components.inputs.textfield.TextFieldStyle
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
+import com.pantrixui.foundation.token.shape.ShapeSpec
 import com.pantrixui.foundation.token.typography.TypeRole
 import com.pantrixui.site.core.base.LoadState
 import com.pantrixui.site.core.designsystem.SiteLayout
@@ -431,7 +434,10 @@ private fun GroupHeading(kind: SearchKind?) {
     )
 }
 
-/** A result: its kind's square, its title with the word typed marked, and what it is; it opens its page. */
+/**
+ * A result: its kind's square, its title with the word typed marked, and what it is; it opens its page. The one the
+ * arrows are on is tinted, as the pointer's is; a phone's results lead on with a chevron.
+ */
 @Composable
 private fun ResultRow(
     row: SearchRow,
@@ -443,89 +449,68 @@ private fun ResultRow(
     val layout = SiteTheme.layout
     val colors = PantrixTheme.colors
     val entry = row.entry
-    val shape = RoundedCornerShape(10.dp)
+    val phone = layout == SiteLayout.Phone
     val (markSize, titleSize, subSize) = when (layout) {
         SiteLayout.Desktop -> Triple(32.dp, 14.5.sp, 12.5.sp)
         SiteLayout.Tablet -> Triple(34.dp, 15.sp, 12.5.sp)
         SiteLayout.Phone -> Triple(36.dp, 15.5.sp, 13.sp)
     }
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = minHeightOf(layout))
-            .background(
-                if (selected &&
-                    layout != SiteLayout.Phone
-                ) {
-                    SiteTheme.colors.hover
-                } else {
-                    Color.Transparent
-                },
-                shape
-            )
+    val tinted = selected && !phone
+    PantrixListItem(
+        headline = buildAnnotatedString {
+            val hit = row.hit
+            if (hit == null) {
+                append(entry.title)
+            } else {
+                append(entry.title.substring(0, hit.first))
+                withStyle(SpanStyle(color = colors.primary.onContainer, fontWeight = FontWeight.ExtraBold)) {
+                    append(entry.title.substring(hit.first, hit.last + 1))
+                }
+                append(entry.title.substring(hit.last + 1))
+            }
+        },
+        modifier = Modifier
+            .semantics { this.selected = selected }
             .pointerInput(onPoint) {
                 awaitPointerEventScope {
                     while (true) {
                         if (awaitPointerEvent().type == PointerEventType.Enter) onPoint()
                     }
                 }
-            }
-            .semantics { this.selected = selected }
-            .siteClickable(tag = "searchResult_$place", role = Role.Button, shape = shape, onClick = onOpen)
-            .padding(
-                horizontal = if (layout == SiteLayout.Phone) 8.dp else 10.dp,
-                vertical = when (layout) {
-                    SiteLayout.Desktop -> 9.dp
-                    SiteLayout.Tablet -> 8.dp
-                    SiteLayout.Phone -> 6.dp
-                }
-            ),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Mark(entry, markSize)
-        Column(Modifier.weight(1f)) {
-            PantrixText(
-                text = buildAnnotatedString {
-                    val hit = row.hit
-                    if (hit == null) {
-                        append(entry.title)
-                    } else {
-                        append(entry.title.substring(0, hit.first))
-                        withStyle(SpanStyle(color = colors.primary.onContainer, fontWeight = FontWeight.ExtraBold)) {
-                            append(entry.title.substring(hit.first, hit.last + 1))
-                        }
-                        append(entry.title.substring(hit.last + 1))
-                    }
-                },
-                style = SiteTheme.type.body.copy(fontSize = titleSize, fontWeight = FontWeight.SemiBold),
-                color = colors.textPrimary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            PantrixText(
-                text = entry.sub,
-                style = SiteTheme.type.bodySmall.copy(fontSize = subSize),
-                color = SiteTheme.colors.muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        when {
-            layout == SiteLayout.Phone -> {
-                PantrixIcon(
-                    imageVector = PantrixIcons.ChevronForward,
-                    contentDescription = null,
-                    tint = SiteTheme.colors.muted,
-                    size = 18.dp
-                )
-            }
-
-            selected && layout == SiteLayout.Desktop -> {
-                PantrixText(text = "↵", style = SiteTheme.type.body, color = SiteTheme.colors.muted)
-            }
-        }
-    }
+            },
+        supportingText = entry.sub,
+        leading = { Mark(entry, markSize) },
+        trailing = if (selected && layout == SiteLayout.Desktop) {
+            { PantrixText(text = "↵", style = SiteTheme.type.body, color = SiteTheme.colors.muted) }
+        } else {
+            null
+        },
+        chevron = phone,
+        onClick = onOpen,
+        supportingMaxLines = 1,
+        style = ListItemStyle(
+            oneLineHeight = minHeightOf(layout),
+            twoLineHeight = minHeightOf(layout),
+            horizontalPadding = if (phone) 8.dp else 10.dp,
+            verticalPadding = when (layout) {
+                SiteLayout.Desktop -> 9.dp
+                SiteLayout.Tablet -> 8.dp
+                SiteLayout.Phone -> 6.dp
+            },
+            gap = 12.dp,
+            shape = ShapeSpec.Fixed(RoundedCornerShape(10.dp)),
+            chevronSize = 18.dp
+        ),
+        // The row the arrows are on is tinted, not chosen: its words keep their colours.
+        colors = ListItemColors(
+            container = if (tinted) SiteTheme.colors.hover else Color.Unspecified,
+            content = colors.textPrimary,
+            supportingContent = SiteTheme.colors.muted
+        ),
+        tagKey = "searchResult_$place",
+        headlineStyle = SiteTheme.type.body.copy(fontSize = titleSize, fontWeight = FontWeight.SemiBold),
+        supportingTextStyle = SiteTheme.type.bodySmall.copy(fontSize = subSize)
+    )
 }
 
 /** A result's square: a component's first letter on the brand's light ground, the mark of any other kind on grey. */

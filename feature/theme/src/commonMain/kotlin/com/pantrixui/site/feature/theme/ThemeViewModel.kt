@@ -37,6 +37,8 @@ class ThemeViewModel : BaseViewModel<ThemeUiState, ThemeAction, ThemeEffect>(The
 
             is ThemeAction.Copied -> if (action.done) showCopied()
 
+            ThemeAction.Download -> sendEffect(ThemeEffect.Save(currentState.fileName, presetText(currentState)))
+
             is ThemeAction.ShowCode -> updateState { copy(codeOpen = action.open) }
         }
     }

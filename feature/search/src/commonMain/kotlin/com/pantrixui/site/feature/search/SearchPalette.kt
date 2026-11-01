@@ -2,19 +2,13 @@ package com.pantrixui.site.feature.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -22,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -32,12 +25,9 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.semantics.paneTitle
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
-import com.pantrixui.foundation.overlay.PantrixPortal
+import com.pantrixui.components.overlay.modal.ModalPosition
+import com.pantrixui.components.overlay.modal.PantrixModal
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.base.BaseScreen
 import com.pantrixui.site.core.base.valueOrNull
@@ -50,28 +40,40 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 /**
- * The site's search, over the page it was opened on: a palette in the middle of a desktop's and a tablet's window
- * over a scrim, the whole screen on a phone. It opens afresh each time, in the site's language.
+ * The site's search, over the page it was opened on: a palette near the top of a desktop's and a tablet's window over
+ * the scrim, a page of its own on a phone. It opens afresh each time, in the site's language, and leaves with the
+ * theme's motion.
  *
- * @param onDismiss what closing it does: the escape key, its cancel, a press on the scrim.
+ * @param visible whether the search is open.
+ * @param onDismiss what closing it does: the escape key, its cancel, a press on the scrim, back.
  * @param onOpen what opening a result does, given it and the language it was found in.
  */
 @Composable
 fun SearchRoute(
+    visible: Boolean,
     onDismiss: () -> Unit,
     onOpen: (SearchEntry, Language) -> Unit
 ) {
     val language = LocalLanguage.current
+    val layout = SiteTheme.layout
+    val phone = layout == SiteLayout.Phone
     val viewModel = koinViewModel<SearchViewModel>(key = "search") { parametersOf(language) }
-    LaunchedEffect(viewModel) { viewModel.onAction(SearchAction.Open(language)) }
-    // A layer of its own over the whole window, which takes the keys and, on Android, the back button.
-    PantrixPortal {
-        Popup(
-            onDismissRequest = onDismiss,
-            properties = PopupProperties(focusable = true, dismissOnBackPress = true, dismissOnClickOutside = false)
-        ) {
-            BaseScreen(viewModel) { state, onAction -> SearchPalette(state, onAction, onDismiss, onOpen) }
-        }
+    LaunchedEffect(viewModel, visible) { if (visible) viewModel.onAction(SearchAction.Open(language)) }
+    PantrixModal(
+        visible = visible,
+        onDismissRequest = onDismiss,
+        position = if (phone) ModalPosition.Center else ModalPosition.Top,
+        margin = when (layout) {
+            SiteLayout.Desktop -> PaddingValues(start = 16.dp, end = 16.dp, top = 88.dp, bottom = 16.dp)
+            SiteLayout.Tablet -> PaddingValues(start = 16.dp, end = 16.dp, top = 72.dp, bottom = 16.dp)
+            SiteLayout.Phone -> PaddingValues()
+        },
+        paneTitle = SearchSay.Dialog.of(language),
+        // A phone's search is a page of its own: its ground runs behind the window's bars too.
+        scrimColor = if (phone) PantrixTheme.colors.background else PantrixTheme.colors.scrim,
+        tagKey = "search"
+    ) {
+        BaseScreen(viewModel) { state, onAction -> SearchPalette(state, onAction, onDismiss, onOpen) }
     }
 }
 
@@ -134,47 +136,21 @@ fun SearchPalette(
         ) { onOpen(it, state.language) }
         Footer(state, onAction)
     }
-    val title = SearchSay.Dialog.of(LocalLanguage.current)
     if (layout == SiteLayout.Phone) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .background(PantrixTheme.colors.background)
-                .windowInsetsPadding(WindowInsets.safeDrawing)
-                .semantics { paneTitle = title }
-                .then(keys)
-        ) { content() }
+        Column(Modifier.fillMaxSize().background(PantrixTheme.colors.background).then(keys)) { content() }
         return
     }
     val shape = RoundedCornerShape(18.dp)
-    Box(
+    Column(
         Modifier
-            .fillMaxSize()
-            .background(PantrixTheme.colors.scrim)
-            .clickable(
-                interactionSource = remember {
-                    MutableInteractionSource()
-                },
-                indication = null,
-                onClick = onDismiss
-            )
-            .padding(start = 16.dp, end = 16.dp, top = if (layout == SiteLayout.Desktop) 88.dp else 72.dp),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Column(
-            Modifier
-                .widthIn(max = if (layout == SiteLayout.Desktop) 660.dp else 680.dp)
-                .fillMaxWidth()
-                .shadow(DIALOG_SHADOW, shape)
-                .clip(shape)
-                .background(PantrixTheme.colors.surface)
-                .border(1.dp, SiteTheme.colors.hairline, shape)
-                // A press inside the palette is its own, not the scrim's.
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {}
-                .semantics { paneTitle = title }
-                .then(keys)
-        ) { content() }
-    }
+            .widthIn(max = if (layout == SiteLayout.Desktop) 660.dp else 680.dp)
+            .fillMaxWidth()
+            .shadow(DIALOG_SHADOW, shape)
+            .clip(shape)
+            .background(PantrixTheme.colors.surface)
+            .border(1.dp, SiteTheme.colors.hairline, shape)
+            .then(keys)
+    ) { content() }
 }
 
 /** How far the palette stands off the page. */

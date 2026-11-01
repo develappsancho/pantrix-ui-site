@@ -58,7 +58,7 @@ The library gives all four pieces (`com.pantrixui.foundation.diagnostics`; the i
 | `contrastRatio(foreground, background)` | The WCAG 2.2 ratio of two colours |
 :::
 
-### 3.1. the six checks
+### 3.1. The six checks
 
 :::table
 | Check | When it is reported | Where it comes from | How it is put right |
@@ -75,7 +75,7 @@ The theme's 34 pairs: for each of the six roles (`primary`, `success`, `info`, `
 
 **A ground with no fill.** A ground that shows what is under it, like the ground of a button with no fill, is measured on the theme's `background` and `surface` if the component stands on one of the theme's own grounds, and the lower ratio is counted. If the place the component stands on is a fill of another colour that gives its own content colour (`ProvidePantrixContentColor`, as a dark card does), such a pair is not measured: what is under it is not known.
 
-### 3.2. only in the debug build
+### 3.2. Only in the debug build
 
 Pantrix does not know what kind of build it runs in; the app tells it. The plainest way is for each platform's entry point to give common code a `debug`:
 
@@ -103,7 +103,7 @@ Each platform knows the debug build its own way:
 | Web | There is no build type the code in the browser can read | The page's address: `window.location.search.contains("debug")` (`kotlinx.browser`). Anyone who knows the address can turn it on; since the diagnostics only write to the console, this is often enough. If it is not, the build writes a constant |
 :::
 
-### 3.3. in a test
+### 3.3. In a test
 
 ```kotlin
 @Test
@@ -118,7 +118,7 @@ fun the_checkout_screen_has_no_findings() = runComposeUiTest {
 
 A finding's `message` is enough in the test's failure message: it says in English what is wrong and how it is put right. `values` carries what was measured (in `LowContrast`, `ratio`, `needed`, `foreground`, `background` and, if it was measured, `ground`; in `SmallTouchTarget`, `width`, `height` and `needed`).
 
-### 3.4. your own component
+### 3.4. Your own component
 
 The app's own component takes part in the checks too. The component itself knows its name and its colours:
 
@@ -139,7 +139,7 @@ fun Swatch(name: String, fill: Color, label: Color) {
 
 The pairs of `checkContrast` are asked for only while diagnostics are on, and again when the diagnostics or the theme's colours change. A disabled component gives no pairs, since no one is expected to read it.
 
-### 3.5. a part with a receiver of its own
+### 3.5. A part with a receiver of its own
 
 A theme inside can take its own receiver: `PantrixTheme(diagnostics = own) { … }`. That part's findings go only to `own`, not to the outer one. The demo in this repository shows the examples of the "Diagnostics" page this way: each example's flaw is gathered in its own receiver, and does not fall into the app's own inspector.
 
@@ -147,7 +147,7 @@ A theme inside can take its own receiver: `PantrixTheme(diagnostics = own) { …
 
 The checks made from inside the component (colour, name, touch target) need a library or the app's own component layer: code that looks from outside does not know which colour a button draws on which. The two pieces below, though, can be copied into any project as they are.
 
-### 4.1. the contrast ratio (`commonMain`)
+### 4.1. The contrast ratio (`commonMain`)
 
 ```kotlin
 import androidx.compose.ui.graphics.Color
@@ -167,7 +167,7 @@ fun contrastRatio(foreground: Color, background: Color): Float {
 
 This is the body of the library's `contrastRatio`. A foreground colour that shows what is behind it is measured as it is drawn, put over the ground; the ground is measured as it is given.
 
-### 4.2. repeated tags in a test (`commonTest`)
+### 4.2. Repeated tags in a test (`commonTest`)
 
 ```kotlin
 import androidx.compose.ui.semantics.SemanticsProperties

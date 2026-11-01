@@ -37,13 +37,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pantrixui.components.container.alert.AlertColors
+import com.pantrixui.components.container.alert.AlertStyle
+import com.pantrixui.components.container.alert.PantrixAlert
 import com.pantrixui.components.container.card.CardColors
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
+import com.pantrixui.components.elements.icon.IconStyle
 import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
+import com.pantrixui.foundation.token.shape.ShapeSpec
+import com.pantrixui.foundation.token.style.ProvidePantrixStyles
+import com.pantrixui.foundation.token.style.pantrixStyles
 import com.pantrixui.site.core.designsystem.SiteIcons
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
@@ -593,7 +600,7 @@ private fun TableView(
 
 /**
  * A note set apart from the text. Its first bold words are written in the note's own colour, as the design writes a
- * warning's lead.
+ * warning's lead. It is there before the reader comes, so it is not announced.
  */
 @Composable
 private fun CalloutView(
@@ -607,32 +614,36 @@ private fun CalloutView(
         Tone.Danger -> PantrixTheme.colors.danger
     }
     val edge = if (callout.tone == Tone.Warning) SiteTheme.colors.warningLine else role.container
-    val shape = RoundedCornerShape(12.dp)
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(role.container)
-            .border(1.dp, edge, shape)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        PantrixIcon(
-            imageVector = if (callout.tone == Tone.Warning) SiteIcons.Lock else PantrixIcons.Info,
-            contentDescription = null,
-            tint = role.onContainer,
-            modifier = Modifier.padding(top = 3.dp).size(18.dp)
-        )
-        val spans = (callout.blocks.firstOrNull() as? Block.Paragraph)?.text.orEmpty()
-        RichText(
-            spans = spans,
-            onLink = onLink,
-            style = SiteTheme.type.bodySmall.copy(fontSize = SiteTheme.type.sidebarItem.fontSize),
-            strongColor = role.onContainer,
-            modifier = Modifier.weight(1f)
+    val spans = (callout.blocks.firstOrNull() as? Block.Paragraph)?.text.orEmpty()
+    ProvidePantrixStyles(CALLOUT_ICON) {
+        PantrixAlert(
+            message = richText(spans, onLink, strongColor = role.onContainer),
+            modifier = Modifier.fillMaxWidth(),
+            icon = if (callout.tone == Tone.Warning) SiteIcons.Lock else PantrixIcons.Info,
+            announce = false,
+            style = CALLOUT_STYLE,
+            colors = AlertColors(
+                container = role.container,
+                content = PantrixTheme.colors.textSecondary,
+                accent = role.onContainer,
+                border = edge
+            ),
+            textStyle = SiteTheme.type.bodySmall.copy(fontSize = SiteTheme.type.sidebarItem.fontSize)
         )
     }
 }
+
+/** A callout's corners, room and edge, as the design draws them. */
+private val CALLOUT_STYLE = AlertStyle(
+    shape = ShapeSpec.Fixed(RoundedCornerShape(12.dp)),
+    horizontalPadding = 14.dp,
+    verticalPadding = 12.dp,
+    contentGap = 12.dp,
+    borderWidth = 1.dp
+)
+
+/** A callout's icon, smaller than the theme's. */
+private val CALLOUT_ICON = pantrixStyles(IconStyle.override(all = IconStyle(size = 18.dp)))
 
 @Composable
 private fun BorderedList(

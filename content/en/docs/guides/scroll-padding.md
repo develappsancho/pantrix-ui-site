@@ -66,7 +66,7 @@ public fun Modifier.scrollPadding(padding: PaddingValues): Modifier
 
 It does **not add** padding; it **tells** the padding the content leaves. It is put over what is scrolled, inside the scroller.
 
-### 3.1. a scrolling column or row
+### 3.1. A scrolling column or row
 
 After the scroll, before the `padding` it speaks of:
 
@@ -93,7 +93,7 @@ val ring = PaddingValues(horizontal = PantrixTheme.platform.focusRingReach)
 Box(Modifier.horizontalScroll(state).scrollPadding(ring).padding(ring)) { content() }
 ```
 
-### 3.2. a lazy list
+### 3.2. A lazy list
 
 On each item; the value is the list's `contentPadding`:
 
@@ -111,7 +111,7 @@ PantrixScaffold(bottomBar = { insets -> AppTabs(Modifier.padding(insets)) }) { p
 
 A row it is not put on behaves as before: it comes to the edge. If the list's `contentPadding` is less than what is said, the list is asked for what it does not have (section 2, detail 1): **the two values must come from the same variable.** In grids (`LazyVerticalGrid`) the use is the same.
 
-### 3.3. while the keyboard is open
+### 3.3. While the keyboard is open
 
 A screen with a text field ends the scrolling area above the keyboard. Meanwhile the bottom bar is behind the keyboard; the keyboard's share is taken off the padding. Compose's subtraction of `PaddingValues` does this: it does not go below zero and reads its value at the moment it is asked, so the screen is not composed again while the keyboard moves.
 
@@ -127,7 +127,7 @@ Column(
 
 The demo's page is like this (`App.kt`, `DemoPage`).
 
-### 3.4. scrollers inside
+### 3.4. Scrollers inside
 
 They are not touched. A row that scrolls sideways inside the column brings its item to its own edge, as always; the request that comes out of it passes through the column's modifier, and the column shows the row above the bar. A text field's cursor stays as it is in its own box.
 

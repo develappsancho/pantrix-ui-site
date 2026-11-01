@@ -177,15 +177,15 @@ internal object AiSay {
             Words("llms.txt", "llms.txt"),
             BySize(
                 Words(
-                    "The index an assistant reads first, about 8,000 tokens. llms-full.txt holds everything in one " +
+                    "The index an assistant reads first, about 8,500 tokens. llms-full.txt holds everything in one " +
                         "file.",
-                    "Asistanın önce okuduğu dizin, yaklaşık 8.000 token. llms-full.txt her şeyi tek dosyada tutar."
+                    "Asistanın önce okuduğu dizin, yaklaşık 8.500 token. llms-full.txt her şeyi tek dosyada tutar."
                 ),
                 tablet = Words(
-                    "The index read first, about 8,000 tokens; llms-full.txt holds everything.",
-                    "Önce okunan dizin, yaklaşık 8.000 token; llms-full.txt her şeyi tutar."
+                    "The index read first, about 8,500 tokens; llms-full.txt holds everything.",
+                    "Önce okunan dizin, yaklaşık 8.500 token; llms-full.txt her şeyi tutar."
                 ),
-                phone = Words("The index read first, about 8,000 tokens.", "Önce okunan dizin, yaklaşık 8.000 token.")
+                phone = Words("The index read first, about 8,500 tokens.", "Önce okunan dizin, yaklaşık 8.500 token.")
             ),
             "pantrixui.com/llms.txt"
         ),
@@ -231,8 +231,8 @@ internal object AiSay {
             Words("Everything at once", "Her şey bir arada"),
             code = "llms-full.txt",
             end = Words(
-                ", about 1.2 million tokens: for a wide context or a document index",
-                ", yaklaşık 1,2 milyon token: geniş bir bağlam ya da bir belge dizini için"
+                ", about 1.3 million tokens: for a wide context or a document index",
+                ", yaklaşık 1,3 milyon token: geniş bir bağlam ya da bir belge dizini için"
             )
         ),
         GiveRow(

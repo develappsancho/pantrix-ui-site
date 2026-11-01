@@ -50,7 +50,7 @@ PantrixTheme(preset = Brand, colors = rememberPantrixColors(Brand, darkTheme = d
 *   **Desktop and web:** it does nothing.
 *   **Dark** is read from the theme's ground: the theme is dark where its `background` is nearer black than white.
 
-### 3.1. an app that sets its bars itself
+### 3.1. An app that sets its bars itself
 
 An app that paints its bars in colours of its own (and does not draw edge to edge), or chooses their icons itself, tells the theme to leave them:
 
@@ -64,7 +64,7 @@ Pantrix's own layers (a sheet, a dialog) still read their window's icons from th
 
 ## 4. Without Pantrix {#without}
 
-### 4.1. common code (`commonMain`)
+### 4.1. Common code (`commonMain`)
 
 ```kotlin
 /** Makes the parts the system draws follow the [dark] theme; called once, inside the outermost theme. */
@@ -81,7 +81,7 @@ MyTheme(dark = dark) {
 }
 ```
 
-### 4.2. the platforms' counterparts
+### 4.2. The platforms' counterparts
 
 ```kotlin
 // androidMain

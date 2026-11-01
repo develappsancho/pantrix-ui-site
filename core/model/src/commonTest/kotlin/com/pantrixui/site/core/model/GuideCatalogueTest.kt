@@ -7,7 +7,7 @@ import kotlin.test.assertNull
 class GuideCatalogueTest {
     @Test
     fun a_guide_leads_to_the_guides_listed_beside_it() {
-        assertEquals("system-bars", GuideCatalogue.previousOf("keyboard-dismissal")?.key)
+        assertEquals("modal", GuideCatalogue.previousOf("keyboard-dismissal")?.key)
         assertEquals("number-keyboard", GuideCatalogue.nextOf("keyboard-dismissal")?.key)
         assertNull(GuideCatalogue.previousOf(GuideCatalogue.entries.first().key))
         assertNull(GuideCatalogue.nextOf(GuideCatalogue.entries.last().key))

@@ -53,7 +53,7 @@ Raporlar her modülün `build/reports/detekt/` klasöründedir: HTML (okumak iç
 | `SizeOutsideStyle` | Bir bileşenin ölçüsü stilinde ya da adı konmuş bir sabittedir; kodun içinde `12.dp` yazılmaz. 0 ve 1 serbesttir | `ui/components` (stil dosyaları hariç) |
 | `ColorOutsideTokens` | Bir bileşenin rengi temadan ya da kendi renklerinden gelir; `Color(0xFF…)` yazılmaz | `ui/components` (stil dosyaları hariç) |
 | `ImageWithoutDescription` | Bir görsel ne gösterdiğini söyler ya da `contentDescription = null` ile süs olduğunu söyler; boş bir açıklama verilmez | Demo (bildirir) |
-| `UntaggedControl` | Bir kontrol `tagKey` taşır (ya da form alanına bağlıdır ya da etiketini `modifier`'ında kendisi koyar). `onClick = null` verilmiş, yalnızca bir sözcük gösteren bir chip kontrol sayılmaz | Demo (bildirir) |
+| `UntaggedControl` | Bir kontrol `tagKey` taşır (ya da form alanına bağlıdır ya da etiketini `modifier`'ında kendisi koyar). `onClick = null` verilmiş, yalnızca bir sözcük gösteren bir chip ve hiç `onClick` verilmemiş, yalnızca okunan bir liste satırı kontrol sayılmaz | Demo (bildirir) |
 :::
 
 Kuralların ayarlanabilen yerleri (`allowedPathPattern`, `includes`, `excludes`, ad listeleri) her kuralın KDoc'unda yazılıdır.

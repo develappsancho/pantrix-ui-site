@@ -399,7 +399,9 @@ private fun LanguageButton(
                 onClick = { onLanguage(choice) },
                 selected = choice == language,
                 tagKey = "language_${choice.code}",
-                supportingText = addressIn(choice)
+                supportingText = addressIn(choice),
+                // The design writes the address as code, smaller than the menu's footnote.
+                supportingTextStyle = SiteTheme.type.inlineCode.copy(fontSize = 11.5.sp)
             )
         }
         PantrixText(

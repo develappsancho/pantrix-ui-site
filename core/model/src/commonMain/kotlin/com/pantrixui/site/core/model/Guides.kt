@@ -171,6 +171,17 @@ object GuideCatalogue {
             withoutPantrix = true
         ),
         GuideEntry(
+            key = "modal",
+            topic = GuideTopic.Layout,
+            title = Words("A modal layer of the app’s own", "Uygulamanın kendi modal katmanı"),
+            summary = Words(
+                "A scrim over the whole window and content the app draws over it, the same on every platform.",
+                "Bütün pencerenin üstünde bir perde ve onun üstünde uygulamanın çizdiği içerik, her platformda aynı."
+            ),
+            everyApp = true,
+            withoutPantrix = true
+        ),
+        GuideEntry(
             key = "keyboard-dismissal",
             topic = GuideTopic.Text,
             title = Words("Putting the keyboard away", "Klavyeyi kapatma"),
@@ -275,10 +286,12 @@ object GuideCatalogue {
         GuideEntry(
             key = "files",
             topic = GuideTopic.Platform,
-            title = Words("Picking and dropping files", "Dosya seçmek ve bırakmak"),
+            title = Words("Picking, dropping and saving files", "Dosya seçmek, bırakmak ve kaydetmek"),
             summary = Words(
-                "A file the user picks or drops, read in common code.",
-                "Kullanıcının seçtiği ya da bıraktığı bir dosya, ortak kodda okunur."
+                "A file the user picks or drops, read in common code, and one the app makes, saved where the user " +
+                    "says.",
+                "Kullanıcının seçtiği ya da bıraktığı bir dosya ortak kodda okunur; uygulamanın yaptığı bir dosya da " +
+                    "kullanıcının dediği yere kaydedilir."
             ),
             everyApp = true,
             withoutPantrix = true

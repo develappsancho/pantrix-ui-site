@@ -75,7 +75,7 @@ private val DigitsOnly = InputTransformation {
 
 Bir `expect` fonksiyonu ve platform başına bir karşılık.
 
-### 4.1. ortak kod (`commonMain`)
+### 4.1. Ortak kod (`commonMain`)
 
 ```kotlin
 expect fun numberKeyboardOptions(
@@ -115,7 +115,7 @@ actual fun numberKeyboardOptions(
 
 `PlatformImeOptions` ve `keyboardType`: `androidx.compose.ui.text.input`; `UIKeyboardTypeNumbersAndPunctuation`: `platform.UIKit`.
 
-### 4.3. öteki platformlar (`androidMain`, `jvmMain`, web)
+### 4.3. Öteki platformlar (`androidMain`, `jvmMain`, web)
 
 ```kotlin
 actual fun numberKeyboardOptions(

@@ -62,13 +62,13 @@ fun OrdersScreen() {
 *   `LocalPantrixWindowTitleFormat`: how the screen's name is written as the window's. Unless given, `PantrixWindowTitleFormat.Plain`: the name as it is.
 *   `PantrixPageScaffold` does it itself: each page gives the window its own `title`. An app that builds its screens with it does not call `PantrixWindowTitle` besides.
 
-### 3.1. pages inside pages
+### 3.1. Pages inside pages
 
 A page inside another page's content, as a preview of a page or an example of one is, gives the window no name: it leaves the title to the page it stands in. Two pages side by side, a list and its detail, are not one inside the other; both give a name, and the one that came last wins.
 
 ## 4. Without Pantrix {#without}
 
-### 4.1. common code (`commonMain`)
+### 4.1. Common code (`commonMain`)
 
 ```kotlin
 /** A window's titles: the last one given first. */
@@ -115,7 +115,7 @@ fun WindowTitle(title: String) {
 }
 ```
 
-### 4.2. the platforms' counterparts
+### 4.2. The platforms' counterparts
 
 ```kotlin
 // webMain: the page has one title.

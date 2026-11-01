@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
@@ -205,7 +204,8 @@ private fun SiteShell(
             )
         }
     }
-    if (searching) SiteSearch(state.language, onAction, open) { searching = false }
+    // Always composed, so that the search leaves with its motion: closed, it composes nothing.
+    SiteSearch(searching, state.language, onAction, open) { searching = false }
     SiteMenu(
         visible = state.menuOpen && layout != SiteLayout.Desktop,
         onDismissRequest = { onAction(SiteAction.CloseMenu) },
@@ -221,12 +221,14 @@ private fun SiteShell(
  */
 @Composable
 private fun SiteSearch(
+    visible: Boolean,
     siteLanguage: Language,
     onAction: (SiteAction) -> Unit,
     open: (String) -> Unit,
     onClose: () -> Unit
 ) {
     SearchRoute(
+        visible = visible,
         onDismiss = onClose,
         onOpen = { entry, language ->
             onClose()

@@ -7,10 +7,10 @@ package com.pantrixui.site.core.model
  */
 object LibraryFacts {
     /** How many components the library has. */
-    const val COMPONENTS: Int = 98
+    const val COMPONENTS: Int = 100
 
     /** How many of its guides are for apps, in both languages. */
-    const val GUIDES: Int = 23
+    const val GUIDES: Int = 24
 
     /** The Compose Multiplatform the library was last checked with, which a guide's foot names. */
     const val COMPOSE_VERSION: String = "1.12.2"

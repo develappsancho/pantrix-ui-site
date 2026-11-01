@@ -51,7 +51,7 @@ Kütüphaneye bir tarih bağımlılığı eklenmedi. `PantrixDate` ve `PantrixTi
 
 ## 3. Pantrix ile {#with}
 
-### 3.1. bir gün seçtirmek
+### 3.1. Bir gün seçtirmek
 
 ```kotlin
 var due by remember { mutableStateOf<PantrixDate?>(null) }
@@ -67,7 +67,7 @@ Takvim seçimi tutmaz: `selected` uygulamanındır, basılan gün `onSelect`'e g
 
 Takvim kendi genişliğinde durur (yedi günün yeri; telefonda platformun dokunma hedefi kadar), bu yüzden bir popover'ı ve bir dialog'u gereksiz genişletmez. Bir sheet'te ya da bir sayfanın genişliğinde `Modifier.fillMaxWidth()` verin: takvim o genişliği doldurur, sütunları `DatePickerStyle.maxCellWidth`'e (hücrenin bir buçuk katı) kadar genişler, satırları ve günlerin daireleri boyunu korur; daha geniş bir yerde ortada durur.
 
-### 3.2. kendi tarih türüne çevirmek
+### 3.2. Kendi tarih türüne çevirmek
 
 `kotlinx-datetime` (0.7 ve sonrası; daha eski sürümlerde `month.number` yerine `monthNumber`, `day` yerine `dayOfMonth`):
 
@@ -87,7 +87,7 @@ Bir sunucuyla ya da bir JSON'la ISO 8601 metniyle: `PantrixDate.parse("2026-10-1
 
 Bir sayıyla (veritabanı, tercihler): `date.epochDays` ve `PantrixDate.ofEpochDays(days)`.
 
-### 3.3. bir günü yazmak
+### 3.3. Bir günü yazmak
 
 ```kotlin
 val strings = PantrixTheme.strings
@@ -99,7 +99,7 @@ strings.weekday(day.dayOfWeek)                   // "Saturday", "Cumartesi"
 
 Bir uygulamanın kendi paketi bu alanları kendi diliyle verir: `PantrixStrings(longMonthNames = …, weekdayNames = …)`. On iki ay ve yedi gün olmayan bir paket reddedilir. Haftanın başladığı gün bir sözcük değil, dilin bir alışkanlığıdır: `PantrixLocale.firstDayOfWeek`'tedir (Türkçede Pazartesi, Arapçada Cumartesi, İngilizcede ve öteki dillerde Pazar) ve bir yerel ayar onu kendi de verebilir: `PantrixLocale("de", LayoutDirection.Ltr, firstDayOfWeek = 1)`.
 
-### 3.4. bugün
+### 3.4. Bugün
 
 *   Bir ekranda **`rememberToday()`**: gece yarısı yeniden okunur ve onu okuyan yeniden çizilir. Saat elle değiştirilirse ya da cihaz başka bir saat dilimine geçerse, yeni gün ekran yeniden kurulunca ya da bir sonraki gece yarısında görünür.
 *   Bir kez: **`PantrixDate.today()`**.
@@ -113,7 +113,7 @@ Bir uygulamanın kendi paketi bu alanları kendi diliyle verir: `PantrixStrings(
     ```
 *   Bir anın günü: **`PantrixDate.of(instant)`** cihazın saatinde; **`PantrixDate.of(instant, 3.hours)`** UTC'den üç saat ileride bir saatte.
 
-### 3.5. bir aralık
+### 3.5. Bir aralık
 
 ```kotlin
 var stay by remember { mutableStateOf<PantrixDateRange?>(null) }
@@ -121,7 +121,7 @@ PantrixDatePicker(selectedRange = stay, onRangeSelect = { stay = it }, tagKey = 
 val nights = stay?.let { it.end.epochDays - it.start.epochDays }
 ```
 
-### 3.6. bir saat seçtirmek
+### 3.6. Bir saat seçtirmek
 
 ```kotlin
 var at by remember { mutableStateOf<PantrixTime?>(null) }
@@ -140,7 +140,7 @@ Seçici de seçimi tutmaz: bir değere basmak bütün bir saati `onSelect`'e ver
 
 `minTime` `maxTime`'dan sonraysa seçilebilen saatler gece yarısını geçer (22:00–06:00 bir gece). Sınırlar saat ve dakikalarıyla okunur, saniyeleri değil.
 
-### 3.7. gün ve saatten bir an
+### 3.7. Gün ve saatten bir an
 
 ```kotlin
 val moment: Instant = day.at(time)                  // cihazın saatinde
@@ -159,7 +159,7 @@ fun java.time.LocalTime.toPantrix(): PantrixTime = PantrixTime(hour, minute, sec
 fun PantrixTime.toJavaLocalTime(): java.time.LocalTime = java.time.LocalTime.of(hour, minute, second)
 ```
 
-### 3.8. saatle kayan bir aralık
+### 3.8. Saatle kayan bir aralık
 
 ```kotlin
 val lastQuarterHour = PantrixTimeRange(PantrixTimePoint.Relative(-15, PantrixTimeUnit.Minutes), PantrixTimePoint.Now)
@@ -209,7 +209,7 @@ PantrixElasticDatePicker(
 *   **Saat dilimi**: `utcOffset` anların okunup yazıldığı farktır (verilmezse cihazınki); `timeZoneName` uçların panellerinde dilimi adıyla ve farkıyla söyler ("Saat dilimi: Europe/Istanbul (UTC+03:00)"), bir şey değiştirmez.
 *   **Kapalı bir seçicinin yazısı**: `enabled = false` ile `disabledText = "Tüm zamanlar"` aralığın yerine o yazıyı gösterir.
 
-### 3.9. bir adreste tarih matematiği
+### 3.9. Bir adreste tarih matematiği
 
 ```kotlin
 val (from, to) = range.toDateMath()                         // "now-15m", "now"
@@ -222,7 +222,7 @@ val back = PantrixTimeRange(
 
 Okunanlar: `now`, ardından bir işlem (`now-15m`, `now+2h`; Kibana gibi sayısız `now-d`) ve bir yuvarlama (`now-1d/d`, `now/w`, Elasticsearch gibi `/1d`); birimler `y M w d h m s` ve saat için `H`. Bir an ISO 8601'in UTC farkıyla ya da `Z` ile yazdığı biçimdir; saniyenin kesri üçerli basamaklarla korunur (`14:15:00.250+03:00`). Başka her şey `null`'dır: iki işlem (`now-1d/d+8h`), `||`'li bir tarih, farksız ya da yalnız gün olan bir ISO metni.
 
-### 3.10. bir günü yazdırmak: tarih alanı
+### 3.10. Bir günü yazdırmak: tarih alanı
 
 Kullanıcının bildiği bir gün (doğum günü, bir sözleşmenin başlangıcı) takvimde aranmaktan çok yazılır. `PantrixDateTextField` bir metin alanıdır: gün rakamlarla yazılır, kutunun sonundaki düğme takvimi açar.
 
@@ -246,7 +246,7 @@ PantrixDateTextField(
 *   **Takvim.** Düğmeyle, Alt+↓ ile, salt okunur (`readOnly`) alanda kutuya basınca, Enter ya da Boşluk ile açılır. `presentation: DatePickerPresentation` (Elastic seçiciyle ortak): kutunun altında bir popover, bir sheet ya da bir dialog; her platformda aynı. Bir güne basmak günü alır ve takvimi kapatır. Klavyeyle açılınca odak seçili güne, yoksa bugüne gider; kapanınca alana döner.
 *   **Dolu kutu.** `PantrixDateFilledTextField` aynı alandır, `PantrixFilledTextField` gibi çizilir: etiket kutunun içinde, düzen etiket yukarı çıkınca görünür.
 
-### 3.11. bir saati yazdırmak: saat alanı
+### 3.11. Bir saati yazdırmak: saat alanı
 
 Kullanıcının bildiği bir saat (bir toplantının başlangıcı, bir alarm) sütunlarda kaydırılmaktan çok yazılır. `PantrixTimeTextField` tarih alanının saat için olanıdır: saat rakamlarla yazılır, kutunun sonundaki düğme `PantrixTimePicker`'ı açar.
 

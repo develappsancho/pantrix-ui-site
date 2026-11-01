@@ -50,7 +50,7 @@ PantrixTheme(preset = Brand, colors = rememberPantrixColors(Brand, darkTheme = d
 *   **Masaüstü ve web:** bir şey yapmaz.
 *   **Koyuluk** temanın zemininden okunur: `background` siyaha beyazdan yakınsa tema koyudur.
 
-### 3.1. çubukları kendisi ayarlayan uygulama
+### 3.1. Çubukları kendisi ayarlayan uygulama
 
 Çubuklarını kendi renkleriyle boyayan (kenardan kenara çizmeyen) ya da simgelerini kendisi seçen bir uygulama, temaya bunu bırakmasını söyler:
 
@@ -64,7 +64,7 @@ Pantrix'in kendi katmanları (sheet, dialog) kendi pencerelerinin simgelerini yi
 
 ## 4. Pantrix olmadan {#without}
 
-### 4.1. ortak kod (`commonMain`)
+### 4.1. Ortak kod (`commonMain`)
 
 ```kotlin
 /** Sistemin çizdiği parçaları [dark] temayı izletir; en dıştaki temanın içinde bir kez çağrılır. */
@@ -81,7 +81,7 @@ MyTheme(dark = dark) {
 }
 ```
 
-### 4.2. platform karşılıkları
+### 4.2. Platform karşılıkları
 
 ```kotlin
 // androidMain

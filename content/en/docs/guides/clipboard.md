@@ -78,7 +78,7 @@ The library gives all three pieces (`com.pantrixui.foundation.platform`):
 | `LocalClipboardTraits` | The traits `rememberPantrixClipboard()` looks at. If none are given, the platform's; a test gives another platform's from here |
 :::
 
-### 3.1. the copy button
+### 3.1. The copy button
 
 ```kotlin
 // commonMain
@@ -109,7 +109,7 @@ fun CopyLinkButton(link: String) {
 
 Not one line looks at the platform: the same button compiles on all five targets. `rememberCoroutineScope()` is the button's own scope; if the screen is left, a copy left halfway is cancelled too, and no answer comes.
 
-### 3.2. what the button says, and when it keeps quiet
+### 3.2. What the button says, and when it keeps quiet
 
 :::table
 | Case | `copyText` | Trait | The button |
@@ -124,7 +124,7 @@ Not one line looks at the platform: the same button compiles on all five targets
 *   **`writable` is known before the press.** Drawing the button disabled from the start, or not drawing it at all, is a choice too: `enabled = clipboard.traits.writable`. The sample app in this repository draws the button, and says "could not be copied" when it is pressed.
 *   **The rule is the app's.** The library says what happened; the app decides what to say. In the sample app this decision is one function, and is tested apart (`copyMessage`, `CopyMessageTest`).
 
-### 3.3. the label
+### 3.3. The label
 
 `label` says what was put on the clipboard: "Link", "Code". Only Android carries it; the documentation of `ClipData.newPlainText` calls it "User-visible label for the clip data", so it is given in the app's language. On the other platforms it is ignored. If it is not given, it is empty.
 
@@ -132,7 +132,7 @@ Not one line looks at the platform: the same button compiles on all five targets
 
 The same solution, with Compose Multiplatform's own API only. The code below can be copied into any project; it is a simplified form of its counterparts in the library.
 
-### 4.1. common code (`commonMain`)
+### 4.1. Common code (`commonMain`)
 
 ```kotlin
 /** [text], in the type this platform's clipboard takes. Only Android carries the label. */
@@ -170,7 +170,7 @@ suspend fun Clipboard.copyText(
 
 `CancellationException` here is `kotlin.coroutines.cancellation.CancellationException`.
 
-### 4.2. platform counterparts
+### 4.2. Platform counterparts
 
 ```kotlin
 // androidMain
@@ -217,7 +217,7 @@ private fun browserClipboardWrites(): Boolean =
 
 The question asked of the browser is written once, in `webMain`; `ClipEntry.withPlainText` cannot be, and stands apart on the two targets (see section 7, "A counterpart written in `webMain`"). In a project with only one web target, both are written in that target's source set.
 
-### 4.3. use
+### 4.3. Use
 
 ```kotlin
 // commonMain
@@ -268,7 +268,7 @@ If a project is to write the first two itself, the way again parts from platform
 
 ## 6. Testing {#testing}
 
-### 6.1. a fake clipboard
+### 6.1. A fake clipboard
 
 Compose gives a test the real clipboard (see section 7, "A clipboard given no fake"). Every test that copies gives its own clipboard with `LocalClipboard`:
 
@@ -288,7 +288,7 @@ class RecordingClipboard(private val refuses: Boolean = false) : Clipboard {
 
 `Clipboard` is in common code: this fake can be written in a common test too. What can be looked at there is how many times it was written to and what `copyText` says; the text inside the `ClipEntry` that comes cannot be read in common code.
 
-### 6.2. another platform's traits
+### 6.2. Another platform's traits
 
 The behaviour of Android 13, or of a page with no clipboard, is tested in a test that does not run on that platform too: the traits are given with `LocalClipboardTraits`.
 
@@ -324,7 +324,7 @@ class CopyLinkButtonTest {
 
 With `ClipboardTraits(writable = false)` the same test tries the page with no clipboard: nothing comes to the fake clipboard, and the button says "could not be copied". `RecordingClipboard(refuses = true)` is a browser that refuses.
 
-### 6.3. reading the text that came
+### 6.3. Reading the text that came
 
 Each platform's test looks at the text itself its own way:
 

@@ -32,6 +32,7 @@ import com.pantrixui.components.elements.button.ButtonSizeStyle
 import com.pantrixui.components.elements.button.ButtonStyle
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
+import com.pantrixui.components.elements.selection.ControlPosition
 import com.pantrixui.components.elements.switchbutton.PantrixSwitchButton
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.inputs.textarea.PantrixTextArea
@@ -167,12 +168,15 @@ private fun Form() {
             placeholder = SduiSay.NamePlaceholder.of(language),
             tagKey = "sduiName"
         )
+        // The design's switch stands at the row's end, its words before it.
         PantrixSwitchButton(
             checked = neighbour,
             onCheckedChange = { neighbour = it },
+            modifier = Modifier.fillMaxWidth(),
             label = SduiSay.Neighbour.of(language),
             supportingText = if (desktop) SduiSay.NobodyAnswers.of(language) else null,
-            tagKey = "sduiNeighbour"
+            tagKey = "sduiNeighbour",
+            controlPosition = ControlPosition.End
         )
         if (desktop) {
             PantrixTextArea(

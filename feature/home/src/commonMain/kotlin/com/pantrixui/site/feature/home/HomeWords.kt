@@ -19,21 +19,21 @@ internal object HomeSay {
         Words("Each one at home.", "Her biri kendi evinde.")
     )
     val Lead = Words(
-        "Pantrix UI is a design system for Compose Multiplatform: 98 components on Compose Foundation, with no " +
+        "Pantrix UI is a design system for Compose Multiplatform: 100 components on Compose Foundation, with no " +
             "Material dependency, and one theme that follows the conventions of Android, iOS, the desktop and the web.",
-        "Pantrix UI, Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde 98 bileşen, " +
+        "Pantrix UI, Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde 100 bileşen, " +
             "Material'a hiçbir bağımlılık olmadan, ve Android'in, iOS'un, masaüstünün ve web'in alışkanlıklarını " +
             "izleyen tek bir tema."
     )
     val NewsLineShort = Words("Text areas and forms", "Metin kutuları ve formlar")
     val LeadShort = Words(
-        "A design system for Compose Multiplatform: 98 components on Compose Foundation, no Material, and one theme " +
+        "A design system for Compose Multiplatform: 100 components on Compose Foundation, no Material, and one theme " +
             "that follows each platform's conventions.",
-        "Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde 98 bileşen, Material yok, ve her " +
-            "platformun alışkanlıklarını izleyen tek bir tema."
+        "Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde 100 bileşen, Material yok, ve " +
+            "her platformun alışkanlıklarını izleyen tek bir tema."
     )
     val GetStarted = Words("Get started", "Başla")
-    val Browse = Words("Browse 98 components", "98 bileşene göz at")
+    val Browse = Words("Browse 100 components", "100 bileşene göz at")
     const val INSTALL = "implementation(\"com.pantrixui:components:${LibraryFacts.VERSION}\")"
     val Copy = Words("Copy", "Kopyala")
     val Copied = Words("Copied", "Kopyalandı")
@@ -86,7 +86,7 @@ internal object HomeSay {
 
     // The numbers.
     val Stats = listOf(
-        "98" to Words("components", "bileşen"),
+        "100" to Words("components", "bileşen"),
         "6" to Words("Kotlin targets, from Android to Wasm", "Kotlin hedefi, Android'den Wasm'a"),
         "4" to Words("platform presets in one theme", "platform hazır ayarı, tek temada"),
         "3" to Words("languages, right-to-left included", "dil, sağdan sola dahil"),

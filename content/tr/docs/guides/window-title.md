@@ -62,13 +62,13 @@ fun OrdersScreen() {
 *   `LocalPantrixWindowTitleFormat`: ekranın adının pencereye nasıl yazılacağı. Verilmezse `PantrixWindowTitleFormat.Plain`: ad olduğu gibi.
 *   `PantrixPageScaffold` bunu kendisi yapar: her sayfa pencereye kendi `title`'ını verir. Bir uygulama ekranlarını onunla kuruyorsa `PantrixWindowTitle`'ı ayrıca çağırmaz.
 
-### 3.1. iç içe sayfalar
+### 3.1. İç içe sayfalar
 
 Bir sayfanın içeriğindeki başka bir sayfa, bir sayfanın önizlemesi ya da bir örneği gibi, pencereye ad vermez: başlığı içinde durduğu sayfaya bırakır. Yan yana duran iki sayfa, bir liste ve ayrıntısı, iç içe değildir; ikisi de ad verir ve en son gelen kazanır.
 
 ## 4. Pantrix olmadan {#without}
 
-### 4.1. ortak kod (`commonMain`)
+### 4.1. Ortak kod (`commonMain`)
 
 ```kotlin
 /** Bir pencerenin başlıkları: en son verilen önce. */
@@ -115,7 +115,7 @@ fun WindowTitle(title: String) {
 }
 ```
 
-### 4.2. platform karşılıkları
+### 4.2. Platform karşılıkları
 
 ```kotlin
 // webMain: sayfanın tek bir başlığı vardır.

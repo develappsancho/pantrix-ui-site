@@ -20,11 +20,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -37,6 +34,9 @@ import com.pantrixui.components.container.scaffold.ScaffoldNavigationPlacement
 import com.pantrixui.components.container.tabletop.PantrixTabletopLayout
 import com.pantrixui.components.container.tabletop.TabletopArrangement
 import com.pantrixui.components.container.tabletop.TabletopControls
+import com.pantrixui.components.data.listitem.ListItemDivider
+import com.pantrixui.components.data.listitem.ListItemStyle
+import com.pantrixui.components.data.listitem.PantrixListItem
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.icon.PantrixIcon
@@ -49,7 +49,7 @@ import com.pantrixui.components.navigation.sidebar.SidebarGroup
 import com.pantrixui.components.navigation.sidebar.SidebarItem
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
-import com.pantrixui.site.core.designsystem.siteClickable
+import com.pantrixui.foundation.token.shape.ShapeSpec
 import com.pantrixui.site.core.model.Language
 
 /**
@@ -133,51 +133,38 @@ internal fun InboxApp(
 @Composable
 private fun fontWeightBold() = PantrixTheme.typography.title.copy(fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
 
-/** The inbox's messages, each a row that opens it. */
+/** The inbox's messages, each a row that opens it, the newest one's sender heavier as an unread message's is. */
 @Composable
 private fun Messages(
     language: Language,
     onOpen: (String) -> Unit
 ) {
-    val line = PantrixTheme.colors.divider
+    val type = PantrixTheme.typography
     Column(Modifier.fillMaxWidth()) {
         AdaptiveSay.Mail.forEachIndexed { index, mail ->
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .siteClickable(tag = "mail$index", role = Role.Button, shape = RectangleShape) { onOpen("$index") }
-                    .drawBehind {
-                        drawLine(line, Offset(0f, size.height), Offset(size.width, size.height), 1.dp.toPx())
-                    }
-                    .padding(horizontal = 18.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Avatar(mail, 40.dp)
-                Column(Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        PantrixText(
-                            text = mail.from.of(language),
-                            style = PantrixTheme.typography.label.copy(
-                                fontWeight = if (index == 0) FontWeight.ExtraBold else FontWeight.SemiBold
-                            ),
-                            modifier = Modifier.weight(1f)
-                        )
-                        PantrixText(
-                            text = mail.time.of(language),
-                            style = PantrixTheme.typography.footnote,
-                            color = PantrixTheme.colors.textSecondary
-                        )
-                    }
-                    PantrixText(
-                        text = mail.subject.of(language),
-                        style = PantrixTheme.typography.label,
-                        color = PantrixTheme.colors.textSecondary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
+            PantrixListItem(
+                headline = mail.from.of(language),
+                supportingText = mail.subject.of(language),
+                trailingText = mail.time.of(language),
+                leading = { Avatar(mail, 40.dp) },
+                onClick = { onOpen("$index") },
+                divider = ListItemDivider.Full,
+                supportingMaxLines = 1,
+                // As tall as the avatar and the room round it, as the design's rows are, on every platform.
+                style = ListItemStyle(
+                    twoLineHeight = 0.dp,
+                    horizontalPadding = 18.dp,
+                    verticalPadding = 12.dp,
+                    gap = 12.dp,
+                    shape = ShapeSpec.Fixed(RectangleShape)
+                ),
+                tagKey = "mail$index",
+                headlineStyle = type.label.copy(
+                    fontWeight = if (index == 0) FontWeight.ExtraBold else FontWeight.SemiBold
+                ),
+                supportingTextStyle = type.label,
+                trailingTextStyle = type.footnote
+            )
         }
     }
 }

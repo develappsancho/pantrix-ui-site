@@ -11,6 +11,10 @@ internal object ThemeSay {
     val StartAgain = Words("Start again from Shopeers", "Shopeers'tan yeniden başla")
     val CopyKotlin = Words("Copy Kotlin", "Kotlin'i kopyala")
     val Copied = Words("Copied", "Kopyalandı")
+
+    /** What the button that hands the reader the Kotlin as [fileName] says. */
+    fun download(fileName: String) = Words("Download $fileName", "$fileName dosyasını indir")
+
     val SeeTheKotlin = Words("See the Kotlin", "Kotlin'i gör")
     val Close = Words("Close", "Kapat")
 

@@ -65,7 +65,7 @@ Where the library uses them:
 | The charts' navigator (`ChartZoom(navigator = true)`) | The two ends of the part in view, and while an end is dragged. `ResizeVertical` in a horizontal bar chart's upright navigator |
 :::
 
-### 3.1. a pointer that changes with the position
+### 3.1. A pointer that changes with the position
 
 The navigator is a single node: the pointer is not the same everywhere in it. Over an end of the part in view it is the resize pointer, in its middle and outside it the arrow. For that, the pointer's position is listened to and the pointer is read from a state:
 
@@ -88,13 +88,13 @@ Box(
 
 When the pointer changes while the pointer is over the node, Compose shows the new one at once (the setter of `HoverIconModifierNode.icon`). The end being dragged (`held`) is kept until the drag ends: even when the end stops at a limit and the pointer moves away from it, the pointer stays the resize pointer.
 
-### 3.2. keyboard and screen reader
+### 3.2. Keyboard and screen reader
 
 The pointer tells only whoever holds the mouse. A real handle is open to a keyboard and a screen reader too: it takes the focus, goes step by step with the arrow keys and to its ends with Home and End, and is told to a screen reader as a value that can be set (`progressBarRangeInfo` and `setProgress`). `PantrixListDetailScaffold`'s handle and `PantrixDataTable`'s column end are so; the example on the demo's "Platform and system" page, which shows the pointer alone, does not write them.
 
 ## 4. Without Pantrix {#without}
 
-### 4.1. common code (`commonMain`)
+### 4.1. Common code (`commonMain`)
 
 ```kotlin
 package com.example.pointer
@@ -110,7 +110,7 @@ internal expect val resizeHorizontal: PointerIcon
 internal expect val resizeVertical: PointerIcon
 ```
 
-### 4.2. the platforms' counterparts
+### 4.2. The platforms' counterparts
 
 `androidMain`:
 

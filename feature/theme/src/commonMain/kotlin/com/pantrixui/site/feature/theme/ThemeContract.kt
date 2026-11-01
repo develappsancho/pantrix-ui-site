@@ -131,6 +131,9 @@ sealed interface ThemeAction : UiAction {
     /** Tells the model whether the platform took the Kotlin: [done] when it did. */
     data class Copied(val done: Boolean) : ThemeAction
 
+    /** Hands the reader the Kotlin as a file, to keep where they choose. */
+    data object Download : ThemeAction
+
     /** Opens a phone's sheet of the Kotlin, or closes it. */
     data class ShowCode(val open: Boolean) : ThemeAction
 }
@@ -139,6 +142,12 @@ sealed interface ThemeAction : UiAction {
 sealed interface ThemeEffect : UiEffect {
     /** Puts [text] on the clipboard. */
     data class Copy(val text: String) : ThemeEffect
+
+    /** Gives the reader [text] as a file named [name], in the platform's window for saving a file. */
+    data class Save(
+        val name: String,
+        val text: String
+    ) : ThemeEffect
 }
 
 /** The preset the builder starts from: Shopeers, the site's own. */

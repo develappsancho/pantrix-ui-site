@@ -47,7 +47,7 @@ Without the first piece the others are brittle: every tag written by hand is a c
 
 The test module `ui/testing` is published as `com.pantrixui:testing`; its package is `com.pantrixui.testing`. It depends only on `:ui:foundation` and on compose ui-test: components are given by their names, as text. Three additions in foundation come with it: `pantrixTestTagOf`, `LocalPantrixClock` and `LocalFilePicker`.
 
-### 3.1. setting up
+### 3.1. Setting up
 
 ```kotlin
 kotlin {
@@ -66,7 +66,7 @@ kotlin {
 *   **Android's host tests.** If Android's host tests are in a separate source tree (`androidHostTest`), the module is added there too. Once it is depended on, the activity merges into the test's manifest, and the test's own `AndroidManifest.xml` is not needed (`TestingOnAndroidTest` is therefore without a manifest).
 *   **An experimental API.** `ComposeUiTest` and `runComposeUiTest` are `@ExperimentalTestApi` in compose ui-test. The helpers that take it (`onEachPlatform`, `assertNoFindings`) are too; the finding helpers are not.
 
-### 3.2. finding a component
+### 3.2. Finding a component
 
 :::table
 | API | What it does |
@@ -92,7 +92,7 @@ onPantrixNode("Segment", "newest", scope = "SegmentButton_sort") // a control's 
 *   **A part is inside the control's tag.** The part of a control with a key is `Control_key.Part_key`: `scope` is the control's tag. The part of a control with no key carries only its own tag.
 *   **`pantrixTags()`** shows what is looked for while a new screen's test or a Maestro flow is being written: `println(pantrixTags().joinToString("\n"))`. A tag of another form, like the app's own `Modifier.testTag("login")`, is not in the list. By default it looks at every node's own tree (`useUnmergedTree = true`): the contents a button merges show too.
 
-### 3.3. a fixed theme
+### 3.3. A fixed theme
 
 `PantrixTestTheme` shows a screen the same on every machine. The defaults:
 
@@ -135,7 +135,7 @@ onEachPlatform({ platform -> PantrixTestTheme(platform = platform) { SaveButton(
 }
 ```
 
-### 3.4. test doubles
+### 3.4. Test doubles
 
 :::table
 | Double | What it keeps, how it answers |
@@ -145,13 +145,17 @@ onEachPlatform({ platform -> PantrixTestTheme(platform = platform) { SaveButton(
 | `RecordingHaptics()` | The haptic feedback played, in order: `played` |
 | `TestFilePicker(files)` | Answers every pick with `files`: only with the types the picker shows, and with the first if a single file was asked for; if none fits, it does not answer, like a user who closes the picker. `requests` keeps what each pick asked for |
 | `TestClock(now, utcOffset)` | Shows the moment the test set up; it moves only when the test moves it (`advanceBy`, `now = …`). If `utcOffset` is not given, it is UTC's time |
+| `TestFileSaver(result)` | Keeps the files the screen saved, in order (`files`), and answers every save with `result`: saved, if it is not given. The theme always gives its own, and no window for saving opens; a test that reads what was saved gives its own inside the theme, through `LocalFileSaver` |
 :::
 
-The doubles listed are `PantrixTestTheme`'s parameters. They can be given without the theme too, from foundation's own places:
+The doubles listed, but `TestFileSaver`, are `PantrixTestTheme`'s parameters. They can be given without the theme too, from foundation's own places:
 
 ```kotlin
 // The whole screen's picker: rememberFilePicker() and PantrixFileDrop's default take this.
 CompositionLocalProvider(LocalFilePicker provides picker) { OfferScreen() }
+
+// The screen's saver: rememberFileSaver() gives this. It is given inside PantrixTestTheme.
+CompositionLocalProvider(LocalFileSaver provides saver) { ThemeBuilderScreen() }
 
 // The screen's clock: rememberToday(), the time field's picker, the elastic date picker and the charts' moments read this.
 CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hours }) { BookingScreen() }
@@ -160,7 +164,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 *   **`TestClock` is the time the screen reads, not the test's frames.** A screen that waits for midnight waits for the test's own clock too: `clock.advanceBy(1.minutes)` together with `mainClock.advanceTimeBy(60_000)`.
 *   **The screen's clock is not the device's.** `PantrixDate.today()` and `PantrixTime.now()` read the device's clock, not `LocalPantrixClock`; on a screen, `rememberToday()` or `LocalPantrixClock.current.today()` ([the date guide](/docs/guides/date-time)).
 
-### 3.5. assertions
+### 3.5. Assertions
 
 :::table
 | API | What it asserts |
@@ -174,7 +178,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 
 Pixel and colour helpers are not in the module: looking for a colour in pixels depends on the component's drawing, and stays only in Pantrix's own tests.
 
-### 3.6. screenshots
+### 3.6. Screenshots
 
 There is no helper in the module for screenshot tests, and the module is not bound to Roborazzi: on which platform, with which tool and where to record is the app's choice. Pantrix's own setup is in the [Roborazzi guide](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/roborazzi/ROBORAZZI_GUIDE.md) (in Turkish). Its summary for an app:
 
@@ -183,7 +187,7 @@ There is no helper in the module for screenshot tests, and the module is not bou
 *   **Each platform's own reference.** The desktop and iOS draw with Skiko, Android with its own renderer; the same component comes out a few pixels different.
 *   **The references depend on the versions of Compose and of the simulator.** The move from Compose Multiplatform 1.12.1 to 1.12.2 changed the shadows, together with Skiko; iOS references also depend on the simulator and the iOS version they were recorded on.
 
-### 3.7. device automation: Maestro
+### 3.7. Device automation: Maestro
 
 Pantrix's tags reach the device's accessibility tree: on Android as `resource-id` (the outermost theme, and the root of every modal or popup layer, turns `testTagsAsResourceId` on), on iOS as `accessibilityIdentifier` (Compose converts `testTag` itself). A [Maestro](https://maestro.dev) flow finds a component with `id:`, by the key in the screen's code; the flow does not break when the app opens in another language.
 
@@ -216,7 +220,7 @@ appId: ${APP_ID}
 **The demo's flows** are under `app/maestro/`; every page of the catalogue has a flow:
 
 *   **`flows/shell/`:** the app's shell: the overview, the catalogue (the category filter and the search), a component page (the tabs) and the settings (the language and the diagnostics). Tagged `shell`.
-*   **`flows/<section>/<page>.yaml`:** the catalogue's 114 pages, in their sections' folders (`flows/form/checkbox.yaml`). A flow opens its page by its link, `pantrixui://page/<key>`; brings each example's card into view in the page's order, switches it to its code and back to the example; then tries what the page's component is for: pressing, typing, choosing, opening and closing. Tagged `page` and with the section's name (`form`); a few `smoke`.
+*   **`flows/<section>/<page>.yaml`:** the catalogue's 118 pages, in their sections' folders (`flows/form/checkbox.yaml`). A flow opens its page by its link, `pantrixui://page/<key>`; brings each example's card into view in the page's order, switches it to its code and back to the example; then tries what the page's component is for: pressing, typing, choosing, opening and closing. Tagged `page` and with the section's name (`form`); a few `smoke`.
 *   **`flows/fold/`:** the pages looked at on a foldable's inner screen while it is held like a book: two panes that meet at the hinge, the side rail. Tagged `fold`. A flow checks the posture first; on the Pixel_9_Pro_Fold emulator the hinge is half opened with `adb emu sensor set hinge-angle0 90`.
 *   **`subflows/`:** the shared steps and the places where the two platforms part: opening a page by its link, an example's card, bringing an element to the middle of the screen, an option that is chosen or not, opening a section.
 
@@ -248,7 +252,7 @@ The demo's `MaestroFlowsTest` (JVM) checks that the flows keep up with the catal
 
 What follows are the shortest forms that can be copied into a project without the library; Pantrix's code (`ui/testing/src/`) does the same with tests and edge cases.
 
-### 4.1. building the tag in one place (`commonMain` and `commonTest`)
+### 4.1. Building the tag in one place (`commonMain` and `commonTest`)
 
 ```kotlin
 // commonMain: the component builds its tag with this.
@@ -262,7 +266,7 @@ fun SemanticsNodeInteractionsProvider.onComponent(component: String, key: String
     onNode(hasTestTag(testTagOf(component, key, scope)))
 ```
 
-### 4.2. a fixed theme and the test's clipboard (`commonTest`)
+### 4.2. A fixed theme and the test's clipboard (`commonTest`)
 
 ```kotlin
 class KeptClipboard : Clipboard {
@@ -285,7 +289,7 @@ fun FixedScreen(clipboard: Clipboard = remember { KeptClipboard() }, content: @C
 
 The theme's own defaults too (the language, dark mode, motion, the operating system) must be given openly in the same way; which they are is read in the theme's parameters.
 
-### 4.3. opening the tags to android's automation (`androidMain`)
+### 4.3. Opening the tags to android's automation (`androidMain`)
 
 ```kotlin
 // Once at the root; since a Dialog or a Popup is a separate window, at its root too.
@@ -386,7 +390,7 @@ Each behaviour was broken once, and the test was seen to turn red (section 8). T
 
 ## 9. Where it is in this repository {#repository toc="9. In the repository"}
 
-*   The test module: `ui/testing/src/commonMain/kotlin/com/pantrixui/testing/` (`PantrixTags.kt`, `PantrixTestTheme.kt`, `TestClipboard.kt` and each platform's reading and clipboard, `RecordingAnalytics.kt`, `RecordingHaptics.kt`, `TestFilePicker.kt`, `TestClock.kt`, `PantrixAssertions.kt`); the manifest is `ui/testing/src/androidMain/AndroidManifest.xml`.
+*   The test module: `ui/testing/src/commonMain/kotlin/com/pantrixui/testing/` (`PantrixTags.kt`, `PantrixTestTheme.kt`, `TestClipboard.kt` and each platform's reading and clipboard, `RecordingAnalytics.kt`, `RecordingHaptics.kt`, `TestFilePicker.kt`, `TestFileSaver.kt`, `TestClock.kt`, `PantrixAssertions.kt`); the manifest is `ui/testing/src/androidMain/AndroidManifest.xml`.
 *   Foundation's additions: `testing/TestTag.kt` (`pantrixTestTagOf`), `date/PantrixClock.kt`, `files/FilePicker.kt` (`LocalFilePicker`); the automation bridge is `testing/AutomationBridge.kt` (`pantrixAutomationRoot`).
 *   Maestro: the flows in `app/maestro/`; the tasks in `build-logic/src/main/kotlin/com/pantrixui/plugins/maestro/` (`pantrix.demo.maestro`, applied in `app/androidApp` and `app/shared`).
 *   The demo: `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/samples/TestTagsSamples.kt` ("The tag a test looks for"), `FilesSamples.kt` ("A screen with sample files"), `DatePickerSamples.kt` ("The screen's clock").

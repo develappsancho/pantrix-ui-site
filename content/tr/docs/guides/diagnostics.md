@@ -58,7 +58,7 @@ Kütüphane dört parçayı da verir (`com.pantrixui.foundation.diagnostics`; in
 | `contrastRatio(foreground, background)` | İki rengin WCAG 2.2 oranı |
 :::
 
-### 3.1. altı denetim
+### 3.1. Altı denetim
 
 :::table
 | Denetim | Ne zaman bildirilir | Nereden gelir | Nasıl düzelir |
@@ -75,7 +75,7 @@ Temanın 34 çifti: altı rolün (`primary`, `success`, `info`, `warning`, `dang
 
 **Dolgusuz zemin.** Dolgusu olmayan bir düğmenin zemini gibi, altındakini gösteren bir zemin, bileşen temanın kendi zeminlerinden birinde duruyorsa temanın `background`'u ve `surface`'ı üstünde ölçülür ve düşük olanı sayılır. Bileşenin durduğu yer kendi içerik rengini veren başka renkte bir dolguysa (`ProvidePantrixContentColor`, koyu bir kartın yaptığı gibi) böyle bir çift ölçülmez: altında ne olduğu bilinmez.
 
-### 3.2. yalnızca debug derlemesinde
+### 3.2. Yalnızca debug derlemesinde
 
 Pantrix hangi tür bir derlemede çalıştığını bilmez; bunu uygulama söyler. En sade yol, her platformun giriş noktasının ortak koda bir `debug` vermesidir:
 
@@ -103,7 +103,7 @@ Her platform debug derlemesini kendi yolundan bilir:
 | Web | Tarayıcıdaki kodun okuyabileceği bir derleme türü yoktur | Sayfanın adresi: `window.location.search.contains("debug")` (`kotlinx.browser`). Adresi bilen herkes açabilir; tanılama yalnızca konsola yazdığı için bu çoğu zaman yeter. Yetmezse derleme bir sabit yazar |
 :::
 
-### 3.3. bir testte
+### 3.3. Bir testte
 
 ```kotlin
 @Test
@@ -118,7 +118,7 @@ fun the_checkout_screen_has_no_findings() = runComposeUiTest {
 
 Bir bulgunun `message`'ı testin hata iletisinde yeter: neyin yanlış olduğunu ve nasıl düzeleceğini İngilizce söyler. `values` ölçüleni taşır (`LowContrast`'ta `ratio`, `needed`, `foreground`, `background` ve ölçüldüyse `ground`; `SmallTouchTarget`'ta `width`, `height`, `needed`).
 
-### 3.4. kendi bileşenin
+### 3.4. Kendi bileşenin
 
 Uygulamanın kendi bileşeni de denetimlere katılır. Adı ve renkleri bileşenin kendisi bilir:
 
@@ -139,7 +139,7 @@ fun Swatch(name: String, fill: Color, label: Color) {
 
 `checkContrast`'ın çiftleri yalnızca tanılama açıkken istenir; tanılama ya da temanın renkleri değişince yeniden. Devre dışı bir bileşen, kimsenin okuması beklenmediği için çift vermez.
 
-### 3.5. ayrı bir alıcısı olan bölüm
+### 3.5. Ayrı bir alıcısı olan bölüm
 
 İçteki bir tema kendi alıcısını alabilir: `PantrixTheme(diagnostics = own) { … }`. O bölümün bulguları yalnızca `own`'a gider, dıştakine gitmez. Bu depodaki demo, "Tanılama" sayfasının örneklerini böyle gösterir: her örneğin kusuru kendi alıcısında toplanır ve uygulamanın kendi inspector'ına düşmez.
 
@@ -147,7 +147,7 @@ fun Swatch(name: String, fill: Color, label: Color) {
 
 Bileşenin içinden yapılan denetimler (renk, ad, dokunma hedefi) bir kütüphane ya da uygulamanın kendi bileşen katmanı ister: dışarıdan bakan bir kod, bir düğmenin hangi rengi hangisinin üstüne çizdiğini bilmez. Aşağıdaki iki parça ise her projeye olduğu gibi kopyalanabilir.
 
-### 4.1. kontrast oranı (`commonMain`)
+### 4.1. Kontrast oranı (`commonMain`)
 
 ```kotlin
 import androidx.compose.ui.graphics.Color
@@ -167,7 +167,7 @@ fun contrastRatio(foreground: Color, background: Color): Float {
 
 Bu, kütüphanenin `contrastRatio`'sunun gövdesidir. Arkasını gösteren bir ön renk çizildiği gibi, zeminin üstüne konarak ölçülür; zemin verildiği gibi ölçülür.
 
-### 4.2. bir testte tekrar eden etiketler (`commonTest`)
+### 4.2. Bir testte tekrar eden etiketler (`commonTest`)
 
 ```kotlin
 import androidx.compose.ui.semantics.SemanticsProperties

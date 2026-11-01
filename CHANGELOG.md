@@ -12,6 +12,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+## [26.11.1] - 2026-11-01
+
+The site built with Pantrix UI 0.1.0, the library's first release, with the apps built with it, the home page's
+adaptive tour and the page that asks the server; the desktop app's second release.
+
 ### Added
 
 - **References:** `/references` shows the apps built with Pantrix UI, the site first: what it is, where it runs, the

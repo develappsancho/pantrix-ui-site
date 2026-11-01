@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+## [26.11.1] - 2026-11-01
+
+Site, kütüphanenin ilk sürümü Pantrix UI 0.1.0 ile yapıldı; onunla yapılmış uygulamalar, ana sayfanın uyarlanabilir turu ve sunucuya soran sayfa geldi. Masaüstü uygulamasının ikinci sürümü.
+
 ### Eklenenler
 
 *   **Referanslar:** `/references` Pantrix UI ile yapılmış uygulamaları gösterir, ilki site: ne olduğu, nerede çalıştığı, kendi ekranlarını çizen 34 kütüphane bileşeni ve nasıl yapıldığı; başka bir uygulamanın nasıl ekleneceği de, sitenin deposunda bir issue ile. Onun altında öbürlerini platforma göre süzerek listeler, ilki kütüphanenin demo kataloğu, web sürümü ve macOS uygulamasıyla. Header'ın ve menünün son bağlantısıdır; ana sayfanın altbilgisi ve ana sayfadaki bir bant da ona götürür. Masaüstünün header'ı ona yer açmak için parçalarını, en çok da aramayı, dili, GitHub'ı ve temayı birbirine daha yakın dizer.

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -30,27 +32,36 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pantrixui.components.elements.text.PantrixText
+import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
+import com.pantrixui.site.core.designsystem.SiteIcons
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.Hairline
 import com.pantrixui.site.core.designsystem.content.LandingBand
+import com.pantrixui.site.core.designsystem.content.LandingButton
+import com.pantrixui.site.core.designsystem.content.LandingButtonKind
 import com.pantrixui.site.core.designsystem.content.LandingHeading
 import com.pantrixui.site.core.designsystem.content.LandingLead
 import com.pantrixui.site.core.designsystem.content.landingBandPadding
 import com.pantrixui.site.core.designsystem.content.landingCard
+import com.pantrixui.site.core.designsystem.content.richText
 import com.pantrixui.site.core.designsystem.content.withCode
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.designsystem.sized
 import com.pantrixui.site.core.i18n.LocalLanguage
+import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.TokenKind
 
 /**
  * "Four ways in, one source": four cards and what to give when on a desktop, four smaller cards on a tablet, and a
- * list on a phone.
+ * list on a phone. Where a card names a file a browser can open, the name opens it with [onAction].
  */
 @Composable
-internal fun WaysIn(modifier: Modifier) {
+internal fun WaysIn(
+    onAction: (AiAction) -> Unit,
+    modifier: Modifier
+) {
     val language = LocalLanguage.current
     val layout = SiteTheme.layout
     val gap = when (layout) {
@@ -65,12 +76,12 @@ internal fun WaysIn(modifier: Modifier) {
         }
         when (layout) {
             SiteLayout.Desktop -> {
-                WayCards(columns = AiSay.Ways.size)
+                WayCards(columns = AiSay.Ways.size, onAction = onAction)
                 WhatToGive()
             }
 
             SiteLayout.Tablet -> {
-                WayCards(columns = 2)
+                WayCards(columns = 2, onAction = onAction)
             }
 
             SiteLayout.Phone -> {
@@ -80,9 +91,12 @@ internal fun WaysIn(modifier: Modifier) {
     }
 }
 
-/** The four ways in as cards, [columns] to a row: a desktop's with their marks. */
+/** The four ways in as cards, [columns] to a row: a desktop's with their marks; a file's name opens it. */
 @Composable
-private fun WayCards(columns: Int) {
+private fun WayCards(
+    columns: Int,
+    onAction: (AiAction) -> Unit
+) {
     val language = LocalLanguage.current
     val layout = SiteTheme.layout
     val desktop = layout == SiteLayout.Desktop
@@ -114,7 +128,18 @@ private fun WayCards(columns: Int) {
                             color = colors.textSecondary
                         )
                         if (desktop) Spacer(Modifier.weight(1f))
-                        PantrixText(text = way.where, style = mono(12.sp), color = SiteTheme.colors.muted)
+                        val link = way.link
+                        PantrixText(
+                            text = if (link == null) {
+                                AnnotatedString(way.where)
+                            } else {
+                                richText(listOf(Span.Link(listOf(Span.Code(way.where)), link)), onLink = {
+                                    onAction(AiAction.Open(it))
+                                }, codeSize = 12.sp)
+                            },
+                            style = mono(12.sp),
+                            color = SiteTheme.colors.muted
+                        )
                     }
                 }
             }
@@ -199,7 +224,7 @@ private fun WhatToGive() {
 
 /**
  * "Set it up in a minute": the steps beside each assistant's setup on a desktop; a tablet and a phone have the setup
- * under a line of their own.
+ * under a line of their own. The files the setup names stand under it, each with where it is downloaded or read.
  */
 @Composable
 internal fun Setup(
@@ -219,31 +244,54 @@ internal fun Setup(
                 color = PantrixTheme.colors.textSecondary
             )
             Clients(state, onAction, Modifier.fillMaxWidth())
+            Spacer(Modifier.height(if (phone) 12.dp else 16.dp))
+            Files(onAction)
         }
         return
     }
-    LandingBand(landingBandPadding(), modifier) {
+    LandingBand(landingBandPadding(), modifier, gap = 40.dp) {
         Row(horizontalArrangement = Arrangement.spacedBy(40.dp)) {
-            SetupSteps(Modifier.weight(SETUP_WORDS))
+            SetupSteps(onAction, Modifier.weight(SETUP_WORDS))
             Clients(state, onAction, Modifier.weight(SETUP_CODE))
         }
+        Files(onAction)
     }
 }
 
-/** A desktop's way to set it up: its heading, the steps and the note on fewer tools. */
+/**
+ * A desktop's way to set it up: its heading, the steps and the note on fewer tools. A step's file of the release
+ * downloads it, with [onAction].
+ */
 @Composable
-private fun SetupSteps(modifier: Modifier) {
+private fun SetupSteps(
+    onAction: (AiAction) -> Unit,
+    modifier: Modifier
+) {
     val language = LocalLanguage.current
     val colors = PantrixTheme.colors
     Column(modifier, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         LandingHeading(SetupSay.SetupTitle.desktop.of(language))
         LandingLead(SetupSay.SetupLead.desktop.of(language))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SetupSay.Steps.forEachIndexed { index, (words, code) ->
+            SetupSay.Steps.forEachIndexed { index, step ->
+                val code = step.code
+                val link = step.link
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     PantrixText(text = "${index + 1}.", style = SiteTheme.type.body, color = colors.textSecondary)
                     PantrixText(
-                        text = withCode(words.of(language), code, if (code != null) "." else "", 13.sp),
+                        text = if (code == null || link == null) {
+                            withCode(step.words.of(language), code, if (code != null) "." else "", 13.sp)
+                        } else {
+                            richText(
+                                listOf(
+                                    Span.Text(step.words.of(language)),
+                                    Span.Link(listOf(Span.Code(code)), link),
+                                    Span.Text(".")
+                                ),
+                                onLink = { onAction(AiAction.Open(it)) },
+                                codeSize = 13.sp
+                            )
+                        },
                         style = SiteTheme.type.body,
                         color = colors.textSecondary
                     )
@@ -377,7 +425,106 @@ private fun SetupCode(
     )
 }
 
+/**
+ * The files the setup names, under it: a table of each one's name, size and use, with a button that downloads the
+ * release's or opens the site's, with [onAction]. A desktop gives the use a column of its own; a tablet and a phone set
+ * it under the name.
+ */
+@Composable
+private fun Files(onAction: (AiAction) -> Unit) {
+    val language = LocalLanguage.current
+    val colors = PantrixTheme.colors
+    Column(Modifier.fillMaxWidth().landingCard(colors.surface, colors.border)) {
+        PantrixText(
+            text = FilesSay.Title.of(language),
+            style = strong(14.sp),
+            color = colors.textPrimary,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(SiteTheme.colors.surfaceAlt)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+        )
+        FilesSay.Files.forEachIndexed { index, file ->
+            // The caption stands over a line of the table's own; the rows have hairlines between them.
+            if (index == 0) Hairline(color = colors.border) else Hairline()
+            FileLine(file, tag = "file_$index") { onAction(AiAction.Open(file.url)) }
+        }
+    }
+}
+
+/**
+ * A row of the files: [file]'s title, name and size, what is done with it, and its button, [tag], that [onOpen]s it.
+ */
+@Composable
+private fun FileLine(
+    file: FileRow,
+    tag: String,
+    onOpen: () -> Unit
+) {
+    val language = LocalLanguage.current
+    val layout = SiteTheme.layout
+    val desktop = layout == SiteLayout.Desktop
+    val phone = layout == SiteLayout.Phone
+    val colors = PantrixTheme.colors
+    val use = withCode(file.how.of(language), file.code, "", if (phone) 12.sp else 13.sp)
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = if (phone) 12.dp else 11.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (phone) 12.dp else 20.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(if (desktop) FILE_NAME else 1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            PantrixText(
+                text = file.title.of(language),
+                style = strong(if (phone) 14.sp else 14.5.sp, FontWeight.Bold),
+                color = colors.textPrimary
+            )
+            PantrixText(
+                text = "${file.name} · ${file.size.of(language)}",
+                style = mono(if (phone) 11.5.sp else 12.sp),
+                color = SiteTheme.colors.muted
+            )
+            if (!desktop) PantrixText(text = use, style = small(13.sp), color = colors.textSecondary)
+        }
+        if (desktop) {
+            PantrixText(
+                text = use,
+                style = small(14.sp),
+                color = colors.textSecondary,
+                modifier = Modifier.weight(1f - FILE_NAME)
+            )
+        }
+        FileButton(file, tag, onOpen)
+    }
+}
+
+/** The button of [file]'s row, [tag]: "Download" for the release's files, "Open" for the site's, which [onOpen]s it. */
+@Composable
+private fun FileButton(
+    file: FileRow,
+    tag: String,
+    onOpen: () -> Unit
+) {
+    val phone = SiteTheme.layout == SiteLayout.Phone
+    LandingButton(
+        text = (if (file.download) FilesSay.Download else FilesSay.Open).of(LocalLanguage.current),
+        onClick = onOpen,
+        tag = tag,
+        // One width for both words, so the rows' columns stand under one another; a phone's has no mark, so that its
+        // words keep their room.
+        modifier = Modifier.width(if (phone) 104.dp else 136.dp),
+        kind = LandingButtonKind.Outline,
+        height = if (phone) 44.dp else 38.dp,
+        padding = 14.dp,
+        textSize = 13.5.sp,
+        leading = if (file.download && !phone) PantrixIcons.Download else null,
+        trailing = if (file.download) null else SiteIcons.ArrowUpRight
+    )
+}
+
 private const val GIVE_WHEN = 0.38f
+
+/** How much of a desktop's row of a file its title and name take: the rest is its use, then its button. */
+private const val FILE_NAME = 0.36f
 private const val SETUP_WORDS = 450f
 private const val SETUP_CODE = 750f
 

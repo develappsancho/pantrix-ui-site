@@ -6,11 +6,11 @@ import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.TokenKind
 import com.pantrixui.site.core.model.Words
 
-/** The version of the server's jar the setups name: the latest release's, attached to it. */
-private const val JAR_VERSION = LibraryFacts.RELEASE
+/** The server's jar by its name alone: the latest release's, attached to it. */
+private const val JAR = LibraryFacts.MCP_JAR
 
-/** The server's jar by its name alone. */
-private const val JAR = "mcp-$JAR_VERSION-all.jar"
+/** The skill's zip by its name alone, attached to the same release. */
+private const val SKILL_ZIP = LibraryFacts.SKILL_ZIP
 
 /** Where the site serves the server: at the address the site is opened at. */
 private val ADDRESS: String
@@ -25,10 +25,10 @@ internal object SetupSay {
     val SetupTitle = BySize(Words("Set it up in a minute", "Bir dakikada kur"), phone = Words("Set it up", "Kur"))
     val SetupLead = BySize(
         Words(
-            "The server answers at $SHORT_ADDRESS, so an assistant needs nothing but the address. Its jar runs it on " +
-                "your own machine instead, on JDK 17 or newer.",
-            "Sunucu $SHORT_ADDRESS adresinde cevap verir; bir asistana adresten başkası gerekmez. Jar'ı onu kendi " +
-                "makinende de çalıştırır, JDK 17 ya da üstünde."
+            "The server answers at $SHORT_ADDRESS, so an assistant needs nothing but the address. Its jar, among the " +
+                "files below, runs it on your own machine instead, on JDK 17 or newer.",
+            "Sunucu $SHORT_ADDRESS adresinde cevap verir; bir asistana adresten başkası gerekmez. Aşağıdaki " +
+                "dosyalardaki jar'ı onu kendi makinende de çalıştırır, JDK 17 ya da üstünde."
         ),
         tablet = Words(
             "An assistant needs only the address; the jar runs the server on your machine.",
@@ -40,18 +40,28 @@ internal object SetupSay {
         )
     )
 
-    /** The steps of the setup, a desktop's alone: words, then a name of the code where one ends them. */
+    /** The steps of the setup, a desktop's alone. */
     val Steps = listOf(
-        Words("Give your assistant the address, ", "Asistanına adresi ver: ") to SHORT_ADDRESS,
-        Words("Or take the jar from a release, ", "Ya da jar'ı bir sürümden al: ") to JAR,
-        Words(
-            "Write the skill into the project, so the team gets it through git.",
-            "Beceriyi projeye yaz, ekip git'ten alsın."
-        ) to null,
-        Words(
-            "Ask for a screen: the assistant loads the skill and calls the tools.",
-            "Bir ekran iste: asistan beceriyi yükler ve araçları çağırır."
-        ) to null
+        Step(Words("Give your assistant the address, ", "Asistanına adresi ver: "), SHORT_ADDRESS),
+        Step(
+            Words("Or download the jar from the release, ", "Ya da jar'ı sürümden indir: "),
+            JAR,
+            LibraryFacts.releaseFile(JAR)
+        ),
+        Step(
+            Words(
+                "Unzip the skill into the project's .claude/skills, so the team gets it through git: ",
+                "Beceriyi projenin .claude/skills klasörüne aç, ekip git'ten alsın: "
+            ),
+            SKILL_ZIP,
+            LibraryFacts.releaseFile(SKILL_ZIP)
+        ),
+        Step(
+            Words(
+                "Ask for a screen: the assistant loads the skill and calls the tools.",
+                "Bir ekran iste: asistan beceriyi yükler ve araçları çağırır."
+            )
+        )
     )
     val Fewer = Words("Fewer tools, fewer wrong turns. ", "Daha az araç, daha az yanlış dönüş. ")
     val FewerEnd = Words(
@@ -109,38 +119,46 @@ internal object SetupSay {
             ),
             BySize(
                 Words(
-                    "Any client that reads an mcpServers field runs the jar, attached to each release.",
-                    "mcpServers alanını okuyan her istemci, her sürüme ekli jar'ı çalıştırır."
+                    "A client that takes an address, as Cursor, needs nothing else; one that starts a command, as " +
+                        "Claude Desktop's file, runs the jar from the files below.",
+                    "Adres alan bir istemciye, Cursor gibi, başka bir şey gerekmez; komut başlatan bir istemci, " +
+                        "Claude Desktop'ın dosyası gibi, aşağıdaki dosyalardaki jar'ı çalıştırır."
                 ),
                 tablet = Words(
-                    "Any client with an mcpServers field; the jar is on each release.",
-                    "mcpServers alanı olan her istemci; jar her sürüme eklidir."
+                    "Cursor takes the address; a command runs the jar, among the files below.",
+                    "Cursor adresi alır; bir komut jar'ı çalıştırır, aşağıdaki dosyalarda."
                 ),
-                phone = Words("Any client with an mcpServers field.", "mcpServers alanı olan her istemci.")
+                phone = Words("Cursor takes the address; the jar is below.", "Cursor adresi alır; jar aşağıda.")
             ),
             BySize(
                 listOf(
-                    SetupLine("{"),
-                    SetupLine("  \"mcpServers\": {"),
-                    SetupLine("    \"pantrix-ui\": {", kind = TokenKind.StringLiteral),
-                    SetupLine("      \"command\": \"java\","),
-                    SetupLine("      \"args\": [\"-jar\", \"/path/$JAR\"]"),
-                    SetupLine("    }"),
-                    SetupLine("  }"),
-                    SetupLine("}")
+                    SetupLine(comment = Words("# The address, as Cursor takes it", "# Adres, Cursor'un aldığı gibi")),
+                    SetupLine("{ \"mcpServers\": { \"pantrix-ui\": {"),
+                    SetupLine("    \"url\": \"$ADDRESS\" } } }"),
+                    SetupLine(),
+                    SetupLine(
+                        comment = Words(
+                            "# Or the jar, as Claude Desktop starts it",
+                            "# Ya da jar, Claude Desktop'ın başlattığı gibi"
+                        )
+                    ),
+                    SetupLine("{ \"mcpServers\": { \"pantrix-ui\": {"),
+                    SetupLine("    \"command\": \"java\","),
+                    SetupLine("    \"args\": [\"-jar\", \"/path/$JAR\"] } } }")
                 ),
                 tablet = listOf(
-                    SetupLine("{ \"mcpServers\": {"),
-                    SetupLine("    \"pantrix-ui\": {", kind = TokenKind.StringLiteral),
-                    SetupLine("      \"command\": \"java\","),
-                    SetupLine("      \"args\": [\"-jar\", \"/path/$JAR\"] } } }")
+                    SetupLine(comment = Words("# The address", "# Adres")),
+                    SetupLine("{ \"mcpServers\": { \"pantrix-ui\": {"),
+                    SetupLine("    \"url\": \"$ADDRESS\" } } }"),
+                    SetupLine(comment = Words("# Or the jar", "# Ya da jar")),
+                    SetupLine("    \"command\": \"java\","),
+                    SetupLine("    \"args\": [\"-jar\", \"/path/$JAR\"]")
                 ),
                 phone = listOf(
                     SetupLine("{ \"mcpServers\": {"),
                     SetupLine("  \"pantrix-ui\": {", kind = TokenKind.StringLiteral),
-                    SetupLine("    \"command\": \"java\","),
-                    SetupLine("    \"args\": [\"-jar\","),
-                    SetupLine("      \"/path/$JAR\"]"),
+                    SetupLine("    \"url\":"),
+                    SetupLine("      \"$ADDRESS\""),
                     SetupLine("} } }")
                 )
             )
@@ -164,8 +182,8 @@ internal object SetupSay {
                     SetupLine("{ \"mcpServers\": { \"pantrix-ui\": {"),
                     SetupLine("    \"type\": \"http\", \"url\": \"$ADDRESS\" } } }"),
                     SetupLine(),
-                    SetupLine(comment = Words("# The skill, into the project", "# Beceri, projeye")),
-                    SetupLine("java -jar $JAR skill .claude/skills")
+                    SetupLine(comment = Words("# The skill, from the release's zip", "# Beceri, sürümün zip'inden")),
+                    SetupLine("unzip $SKILL_ZIP -d .claude/skills")
                 ),
                 tablet = listOf(
                     SetupLine(comment = Words("# .mcp.json at the app’s root", "# Uygulamanın kökünde .mcp.json")),

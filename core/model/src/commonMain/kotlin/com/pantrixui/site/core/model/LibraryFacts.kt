@@ -28,6 +28,18 @@ object LibraryFacts {
     /** The repository the library is distributed from: its packages, its releases and Claude Code's plugin for it. */
     const val PACKAGES_REPOSITORY: String = "develappsancho/pantrix-ui-cmp-package"
 
+    /** The page of the [RELEASE] in [PACKAGES_REPOSITORY]: every file attached to it, and its notes. */
+    const val RELEASE_PAGE: String = "https://github.com/$PACKAGES_REPOSITORY/releases/tag/v$RELEASE"
+
+    /** The library's MCP server as one jar that runs by itself, on JDK 17 or newer, attached to the [RELEASE]. */
+    const val MCP_JAR: String = "mcp-$RELEASE-all.jar"
+
+    /** The skill `pantrix-ui`, its folder in a zip, attached to the [RELEASE]. */
+    const val SKILL_ZIP: String = "pantrix-ui-skill-$RELEASE.zip"
+
+    /** Where [file], one attached to the [RELEASE] such as [MCP_JAR], is downloaded from. */
+    fun releaseFile(file: String): String = "https://github.com/$PACKAGES_REPOSITORY/releases/download/v$RELEASE/$file"
+
     /** The version the roadmap plans after the first, which the changelog's foot leads to. */
     const val PLANNED_VERSION: String = "0.2.0"
 

@@ -172,7 +172,8 @@ internal object AiSay {
                     "Kurallar ve bir ekranı yazmanın adımları."
                 )
             ),
-            "pantrix-ui@pantrix-ui"
+            "SKILL.md",
+            SiteAddress.skill
         ),
         Way(
             "txt",
@@ -189,7 +190,8 @@ internal object AiSay {
                 ),
                 phone = Words("The index read first, about 8,500 tokens.", "Önce okunan dizin, yaklaşık 8.500 token.")
             ),
-            SiteAddress.host + "/llms.txt"
+            SiteAddress.host + "/llms.txt",
+            SiteAddress.llms
         ),
         Way(
             "{ }",
@@ -205,7 +207,8 @@ internal object AiSay {
                 ),
                 phone = Words("The library as data, with its schema.", "Şemasıyla birlikte veri olarak kütüphane.")
             ),
-            "pantrix-ui.schema.json"
+            "pantrix-ui.json",
+            SiteAddress.json
         )
     )
 
@@ -223,7 +226,7 @@ internal object AiSay {
         GiveRow(
             Words("The work is with one component", "İş tek bir bileşenle"),
             start = Words("That component's page, ", "O bileşenin sayfası, "),
-            code = "pages/data-table.md",
+            code = "/components/data-table",
             end = Words(
                 ": its examples with their imports, every parameter",
                 ": importlarıyla örnekleri, her parametresi"
@@ -266,12 +269,28 @@ internal class ToolCall(
  * @property title what it is.
  * @property body what it does.
  * @property where where it is.
+ * @property link the address that [where] opens, where a browser can open it: none for the server, which only an
+ *   assistant reads.
  */
 internal class Way(
     val mark: String,
     val title: Words,
     val body: BySize<Words>,
-    val where: String
+    val where: String,
+    val link: String? = null
+)
+
+/**
+ * A step of the setup: words, then a name of the code where one ends them, which opens [link] where it has one.
+ *
+ * @property words what the step says.
+ * @property code the name of the code it ends with.
+ * @property link the address the code opens: a file of the release.
+ */
+internal class Step(
+    val words: Words,
+    val code: String? = null,
+    val link: String? = null
 )
 
 /**

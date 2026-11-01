@@ -19,11 +19,18 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
   too; its guides are the site's, with the new one, an app that opens in every browser, and its live sketch.
 - **The page for coding assistants:** Claude Code is set up with Pantrix UI's plugin alone, which brings the MCP server
   and the skill together, so the server is no longer added twice.
+- **The page for coding assistants, its files:** under the setup, every file it names opens or downloads from where it
+  is: the MCP server's jar and the skill's zip from the release on GitHub, with the line that uses each, and `SKILL.md`,
+  `llms.txt`, `llms-full.txt`, `pantrix-ui.json` and its schema from the site; the steps' and the cards' names of them
+  are links too. Cursor is set up with the server's address, and the jar is left to a client that starts a command.
 - **The home page between a tablet and a desktop:** in a window from 840 to about 1100dp wide, as a foldable open on its
   side, the home page's words fill the width in the tablet's single column, where they left the right side empty.
 
 ### Fixed
 
+- **The skill and the API's references in a browser:** the site's Markdown files are shown as text, where a browser used
+  to save them as files; what to give for one component names its page on the site, `/components/data-table`, in place
+  of a file the site does not have.
 - **Older browsers and phones:** a browser that cannot run the site's Wasm build, as Chrome before 119 and Safari
   before 18.2, or one that fails to start it, is given the same app built as JavaScript: it used to show the page's
   plain words, or a white page.

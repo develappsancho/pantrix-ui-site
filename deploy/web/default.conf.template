@@ -56,6 +56,14 @@ server {
     }
     error_page 404 /404.html;
 
+    # The documents for coding assistants in Markdown, the skill and the API's references, are text a browser shows:
+    # nginx knows no type for .md, and would send them as a file to save.
+    location ~* \.md$ {
+        default_type text/markdown;
+        charset_types text/markdown;
+        try_files $uri =404;
+    }
+
     # Pantrix UI's MCP server, which the site's server answers.
     location = /mcp {
         # The server's name is looked up at each request, through Docker's own DNS, so that nginx starts, and the site

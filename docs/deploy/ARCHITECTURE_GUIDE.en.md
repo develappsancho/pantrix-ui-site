@@ -167,6 +167,7 @@ Its settings are all in one file: [`deploy/web/default.conf.template`](../../dep
 | :--- | :--- | :--- |
 | Serving the files | `root /usr/share/nginx/html` | All of the site's files are in this folder of the image |
 | The address rules | `try_files $uri $uri/index.html =404`, `error_page 404 /404.html` | Section 2.3: each page is its folder's `index.html`, with no redirect; an address with no page is a 404 |
+| Markdown | `location ~* \.md$`, `default_type text/markdown` | nginx knows no type for `.md` and sends such a file to be saved; the documents for coding assistants (the skill, the API's references) go as text a browser shows, in UTF-8 |
 | Compression | `gzip_static on` | The files' `.gz` copies are made once, when the image is made; nginx sends the one ready instead of compressing again for each request |
 | Caching | `map $uri $site_cache` and `Cache-Control` | Section 8: a file named by a hash of what it holds is kept for a year, any other is asked for each time |
 | Passing `/mcp` | `location = /mcp`, `proxy_pass` | The server stays closed to the outside; nginx passes this one path to it |

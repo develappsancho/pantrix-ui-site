@@ -48,7 +48,7 @@ Değişikliğin dokunabileceği her şey koşturulur.
 *   **Sunucu:** `./gradlew :server:test` her tür MCP mesajını gerçek HTTP üzerinden sorar.
 *   **Ekran görüntüleri,** bir sayfanın görünüşü değişince: `./gradlew :app:shared:verifyRoborazziJvm`. İstenen bir değişiklik `recordRoborazziJvm` ile yeniden kaydedilir; koyu görüntülere de bakılır.
 *   **Yayına alma,** `deploy/`, sunucu ya da web derlemesi değişince: `deploy/deploy.sh local` iki imajı da yapar, yığını `http://localhost:4004`'te çalıştırır ve `deploy/check.sh` ile denetler.
-*   **Kütüphanenin sürümü:** `gradle/libs.versions.toml`'daki `pantrix`, yayınlanınca `LibraryFacts.RELEASE` ve yeni jar'la yeniden yazılan beceri.
+*   **Kütüphanenin sürümü:** `gradle/libs.versions.toml`'daki `pantrix`, yayınlanınca `LibraryFacts.RELEASE`, yeni jar'la yeniden yazılan beceri ve kodlama asistanları sayfasındaki dosyaların yaklaşık boyutları (`FilesSay`).
 *   **Kütüphanenin rehberleri:** `./gradlew :core:content:writeGuidePages`; değişiklik teslim edilmeden önce `content/*/docs/guides/`'ın farkı okunur.
 
 Pull request'te neyin doğrulandığı, hangi platformlarda ve neyin doğrulanmadığı söylenir.

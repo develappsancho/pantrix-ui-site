@@ -167,6 +167,7 @@ Ayarların hepsi tek bir dosyadadır: [`deploy/web/default.conf.template`](../..
 | :--- | :--- | :--- |
 | Dosyaları sunmak | `root /usr/share/nginx/html` | Sitenin bütün dosyaları imajda bu klasördedir |
 | Adres kuralları | `try_files $uri $uri/index.html =404`, `error_page 404 /404.html` | Bölüm 2.3: her sayfa kendi klasörünün `index.html`'idir, yönlendirmesiz; olmayan adres 404 |
+| Markdown | `location ~* \.md$`, `default_type text/markdown` | nginx `.md` için bir tür bilmez ve dosyayı kaydedilecek bir dosya olarak gönderir; kodlama asistanlarının belgeleri (beceri, API başvuruları) tarayıcıda okunan metin olarak, UTF-8'le gider |
 | Sıkıştırma | `gzip_static on` | Dosyaların `.gz` kopyaları imaj yapılırken bir kez hazırlanır; nginx her istekte yeniden sıkıştırmaz, hazırını gönderir |
 | Önbellek | `map $uri $site_cache` ve `Cache-Control` | Bölüm 8: adı içeriğinin karması olan dosya bir yıl, diğerleri her seferinde sorulur |
 | `/mcp`'yi geçirmek | `location = /mcp`, `proxy_pass` | Sunucu dışarıya kapalı kalır; nginx yalnızca bu yolu ona iletir |

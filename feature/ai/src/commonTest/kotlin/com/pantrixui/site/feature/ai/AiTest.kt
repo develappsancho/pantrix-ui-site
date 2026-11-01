@@ -104,6 +104,51 @@ class AiTest {
     }
 
     @Test
+    fun opening_a_file_opens_its_address() = runTest(dispatcher) {
+        val model = AiViewModel(Language.Turkish, FakeContentRepository(emptyList()))
+        model.onAction(AiAction.Open(SiteAddress.json))
+        assertEquals(AiEffect.OpenUrl("${SiteAddress.origin}/llms/pantrix-ui.json"), model.effects.first())
+    }
+
+    @Test
+    fun the_release_s_files_come_from_its_page_and_the_documents_from_the_site() {
+        val release = "https://github.com/${LibraryFacts.PACKAGES_REPOSITORY}/releases"
+        val files = FilesSay.Files.associateBy { it.name }
+        val jar = files.getValue("mcp-${LibraryFacts.RELEASE}-all.jar")
+        val skill = files.getValue("pantrix-ui-skill-${LibraryFacts.RELEASE}.zip")
+        assertEquals("$release/download/v${LibraryFacts.RELEASE}/${jar.name}", jar.url)
+        assertEquals("$release/download/v${LibraryFacts.RELEASE}/${skill.name}", skill.url)
+        assertEquals("$release/tag/v${LibraryFacts.RELEASE}", files.getValue("v${LibraryFacts.RELEASE}").url)
+        // The two the release has are downloaded, with the line that uses each; the site's are opened and read.
+        assertEquals(listOf(jar.name, skill.name), FilesSay.Files.filter { it.download }.map { it.name })
+        listOf(jar, skill).forEach { file -> assertTrue(file.name in file.code.orEmpty(), file.name) }
+        assertEquals("unzip ${skill.name} -d .claude/skills", skill.code)
+        val site = FilesSay.Files.filterNot { it.url.startsWith(release) }
+        assertEquals(
+            listOf(SiteAddress.skill, SiteAddress.llms, SiteAddress.llmsFull, SiteAddress.json, SiteAddress.schema),
+            site.map { it.url }
+        )
+        site.forEach { file -> assertTrue(file.url.endsWith("/${file.name}"), file.url) }
+    }
+
+    @Test
+    fun the_steps_download_the_release_s_files_and_the_cards_open_the_site_s() {
+        assertEquals(
+            listOf(LibraryFacts.releaseFile(LibraryFacts.MCP_JAR), LibraryFacts.releaseFile(LibraryFacts.SKILL_ZIP)),
+            SetupSay.Steps.mapNotNull { it.link }
+        )
+        SetupSay.Steps.filter { it.link != null }.forEach { step ->
+            assertTrue(step.link.orEmpty().endsWith("/${step.code}"), step.code)
+        }
+        // The server is for an assistant, which a browser cannot read: its card names it and leads nowhere.
+        assertEquals(
+            listOf(null, SiteAddress.skill, SiteAddress.llms, SiteAddress.json),
+            AiSay.Ways.map { it.link }
+        )
+        assertEquals("pantrix-ui.json", AiSay.Ways.last().where)
+    }
+
+    @Test
     fun picking_an_assistant_shows_its_setup() = runTest(dispatcher) {
         val model = AiViewModel(Language.Turkish, FakeContentRepository(emptyList()))
         model.onAction(AiAction.PickClient(2))
@@ -144,8 +189,10 @@ class AiTest {
             }
         val words: List<Words> = sized.flatMap { size -> SiteLayout.entries.map { size.of(it) } } +
             AiSay.Ways.map { it.title } + AiSay.Give.flatMap { listOfNotNull(it.case, it.start, it.end) } +
-            SetupSay.Steps.map { it.first } + ServerSay.PromptList.map { it.second } + ServerSay.Drift.desktop +
-            ServerSay.Drift.tablet + listOf(ServerSay.DriftPhoneStart, ServerSay.DriftPhone)
+            SetupSay.Steps.map { it.words } + ServerSay.PromptList.map { it.second } + ServerSay.Drift.desktop +
+            ServerSay.Drift.tablet + listOf(ServerSay.DriftPhoneStart, ServerSay.DriftPhone) +
+            FilesSay.Files.flatMap { listOf(it.title, it.size, it.how) } +
+            listOf(FilesSay.Title, FilesSay.Download, FilesSay.Open)
         words.forEach { assertTrue(it.english.isNotBlank() && it.turkish.isNotBlank(), it.english) }
     }
 

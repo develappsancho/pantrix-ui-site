@@ -13,10 +13,12 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 *   **Pantrix UI 0.1.0-alpha05:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir; rehberleri sitededir, yenisi, her tarayıcıda açılan uygulama, canlı çizimiyle birlikte.
 *   **Kodlama asistanları sayfası:** Claude Code yalnızca Pantrix UI'ın eklentisiyle kurulur; eklenti MCP sunucusunu ve beceriyi birlikte getirir, sunucu artık iki kez eklenmez.
+*   **Kodlama asistanları sayfası, dosyaları:** kurulumun altında, andığı her dosya bulunduğu yerden açılır ya da iner: MCP sunucusunun jar'ı ve becerinin zip'i GitHub'daki sürümden, her birini kullanan satırla; `SKILL.md`, `llms.txt`, `llms-full.txt`, `pantrix-ui.json` ve şeması siteden; adımlardaki ve kartlardaki adları da bağlantıdır. Cursor sunucunun adresiyle kurulur, jar komut başlatan bir istemciye kalır.
 *   **Tablet ile masaüstü arasında ana sayfa:** 840 ile yaklaşık 1100 dp arası genişlikte bir pencerede, yan yatırılmış açık bir katlanabilir cihazda olduğu gibi, ana sayfanın yazıları tabletin tek sütununda genişliği doldurur; önceden sağ tarafı boş bırakıyorlardı.
 
 ### Düzeltilenler
 
+*   **Beceri ve API başvuruları tarayıcıda:** sitenin Markdown dosyaları metin olarak gösterilir; önceden tarayıcı onları dosya olarak kaydediyordu. Tek bir bileşen için ne verileceği, sitede olmayan bir dosyanın yerine bileşenin sitedeki sayfasını, `/components/data-table`'ı anar.
 *   **Eski tarayıcılar ve telefonlar:** sitenin Wasm sürümünü çalıştıramayan bir tarayıcıya, 119'dan önceki Chrome ve 18.2'den önceki Safari gibi, ya da onu başlatamayan bir tarayıcıya aynı uygulamanın JavaScript ile derlenmiş sürümü verilir: önceden sayfanın düz metnini ya da beyaz bir sayfa gösteriyordu.
 
 ### Güvenlik

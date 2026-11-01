@@ -63,8 +63,8 @@ Run what the change can affect.
   recorded again with `recordRoborazziJvm`; look at the dark images too.
 - **Putting it up,** when `deploy/`, the server or the web build changes: `deploy/deploy.sh local` builds both images,
   runs the stack at `http://localhost:4004` and checks it with `deploy/check.sh`.
-- **The library's version:** `pantrix` in `gradle/libs.versions.toml`, `LibraryFacts.RELEASE` once it is released, and
-  the skill written again with the new jar.
+- **The library's version:** `pantrix` in `gradle/libs.versions.toml`, `LibraryFacts.RELEASE` once it is released, the
+  skill written again with the new jar, and the rough sizes of the AI page's files (`FilesSay`).
 - **The library's guides:** `./gradlew :core:content:writeGuidePages`, and the diff of `content/*/docs/guides/` read
   before the change is handed over.
 

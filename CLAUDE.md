@@ -107,7 +107,8 @@ are the owner's on top of them.
   leaves them out (`site.screenshots`). The system's theme and the screen's clock are fixed in the test, so a picture
   changes with neither the machine nor the day.
 - When the library's version changes: `pantrix` in `gradle/libs.versions.toml`, `LibraryFacts.RELEASE` once it is
-  released, and the skill written again with the new jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`).
+  released, and the skill written again with the new jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`), and
+  the rough sizes of the AI page's files (`FilesSay`): the release's jar and zip, and the site's documents.
 - When the library's guides change: take its new version (a release, or a `-SNAPSHOT` published to `mavenLocal`), run
   `./gradlew :core:content:writeGuidePages`
   and look at the diff of `content/*/docs/guides/` before handing it over. A new guide needs its line in

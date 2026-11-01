@@ -71,7 +71,7 @@ fun AiScreen(
     Column(modifier.fillMaxSize().pantrixVerticalScroll(scroll)) {
         Column(Modifier.fillMaxWidth().pageAnchorRoot(anchors)) {
             Hero(state, onAction, scrollTo)
-            WaysIn(Modifier.pageAnchor(anchors, DOCUMENTS))
+            WaysIn(onAction, Modifier.pageAnchor(anchors, DOCUMENTS))
             Setup(state, onAction, Modifier.pageAnchor(anchors, SETUP))
             ServerAnswers()
             RulesAndChecks()

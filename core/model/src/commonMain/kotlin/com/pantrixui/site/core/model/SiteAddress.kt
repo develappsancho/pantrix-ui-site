@@ -22,6 +22,22 @@ object SiteAddress {
     /** The index of the documents for coding assistants: the site's own `llms.txt`. */
     val llms: String
         get() = "$origin/llms.txt"
+
+    /** Every document for coding assistants in one file, `llms-full.txt`. */
+    val llmsFull: String
+        get() = "$origin/llms-full.txt"
+
+    /** The library as data, `pantrix-ui.json`, which `llms.txt` lists among its other documents under `/llms`. */
+    val json: String
+        get() = "$origin/llms/pantrix-ui.json"
+
+    /** The JSON Schema that says what [json] holds. */
+    val schema: String
+        get() = "$origin/llms/pantrix-ui.schema.json"
+
+    /** The skill `pantrix-ui` to read: its `SKILL.md`, which leads to its references beside it. */
+    val skill: String
+        get() = "$origin/llms/skills/pantrix-ui/SKILL.md"
 }
 
 /** The address the page the app runs in was opened at, in the browser; null in an app. */

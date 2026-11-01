@@ -40,6 +40,9 @@ sealed interface AiAction : UiAction {
 
     /** Opens the index of the documents for coding assistants, `llms.txt`, where the site serves it. */
     data object ReadLlms : AiAction
+
+    /** Opens [url]: a file for coding assistants, where the site serves it or the release has it, or the release. */
+    data class Open(val url: String) : AiAction
 }
 
 /** What the page asks of the platform. */
@@ -84,6 +87,10 @@ class AiViewModel(
 
             AiAction.ReadLlms -> {
                 sendEffect(AiEffect.OpenUrl(LLMS_ADDRESS))
+            }
+
+            is AiAction.Open -> {
+                sendEffect(AiEffect.OpenUrl(action.url))
             }
         }
     }

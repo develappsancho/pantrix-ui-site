@@ -81,6 +81,17 @@ check "an address with no page is 404.html, with a 404" \
 fetch GET /llms.txt
 check "/llms.txt is plain text in UTF-8, and leads to this address" \
     eval 'is "$(status)" 200 && contains "$(header Content-Type)" "text/plain; charset=utf-8" && has "# Pantrix UI" && has "]($BASE/"'
+fetch HEAD /llms-full.txt
+check "/llms-full.txt, every document in one file, is plain text in UTF-8" \
+    eval 'is "$(status)" 200 && contains "$(header Content-Type)" "text/plain; charset=utf-8"'
+fetch HEAD /llms/pantrix-ui.json
+check "the library as data, which the page for coding assistants opens, is JSON" \
+    eval 'is "$(status)" 200 && contains "$(header Content-Type)" application/json'
+fetch HEAD /llms/pantrix-ui.schema.json
+check "its JSON Schema is JSON" eval 'is "$(status)" 200 && contains "$(header Content-Type)" application/json'
+fetch GET /llms/skills/pantrix-ui/SKILL.md
+check "the skill is Markdown a browser shows, in UTF-8, and not a file to save" \
+    eval 'is "$(status)" 200 && is "$(header Content-Type)" "text/markdown; charset=utf-8" && has "name: pantrix-ui"'
 fetch GET /sitemap.xml
 check "/sitemap.xml lists the pages at this address" eval 'is "$(status)" 200 && has "<urlset" && has "<loc>$BASE/"'
 fetch GET /robots.txt

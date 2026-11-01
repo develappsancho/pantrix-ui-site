@@ -48,7 +48,7 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `core/model` | `Route`, `Language`, `Page` and its blocks, `ContentFiles`, `LibraryFacts` (the library's counts the frame says: 100 components, 24 guides); `GuideCatalogue` (each guide's topic, summary, tags and platforms, kept in the site), `Changelog`, `ComponentIndex` and `ComponentPage`, `FoundationSection`, `SearchIndex`, `DemoPages` (a component's key, where the demo's other pages stand), `ShareImage` |
 | `core/routing` | `SiteRoutes`: the one table of addresses (`/docs/installation`, `/tr/docs/installation`) |
 | `core/i18n` | `SiteStrings`: the frame's words in English and Turkish; `LandingHeads`: the landing pages' titles (their windows' too) and descriptions |
-| `core/designsystem` | `PantrixPreset`, `SiteTheme`, `SiteType`, `SiteColors`, `SiteTypefaces`, `SiteIcons`, `BySize`; `chrome/` (header, sidebar and its `NavList`, menu, foot), `content/` (blocks, a guide's pieces, code, article page, page header, "On this page", a page's foot, a landing page's bands, the live stage of an example, the frames of a sketch: `PhoneFrame`, `WindowFrame`, `SketchControls`) |
+| `core/designsystem` | `PantrixPreset`, `SiteTheme`, `SiteType`, `SiteColors`, `SiteTypefaces`, `SiteIcons`, `BySize`, `SitePreview` (what a preview is drawn in, and its sizes); `chrome/` (header, sidebar and its `NavList`, menu, foot), `content/` (blocks, a guide's pieces, code, article page, page header, "On this page", a page's foot, a landing page's bands, the live stage of an example, the frames of a sketch: `PhoneFrame`, `WindowFrame`, `SketchControls`) |
 | `core/content` | `ContentRepository`: the pages, components and search index the content tool wrote, read from the resources |
 | `core/testing` | Test doubles: `FakeContentRepository` |
 | `feature/docs` | A page of the documentation (`DocViewModel`, `DocScreen`, `DocRoute`), a guide (`GuideArticle`), the guides (`GuidesScreen`), the changelog (`ChangelogScreen`) and the page for an address with no page; `sketch/`: each guide's live sketch, Pantrix's own components running on the page (`GuideSketches` maps them to the guides' keys) |
@@ -70,6 +70,9 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 ## Checks
 
 - `./gradlew detekt lintKotlin` (`formatKotlin` fixes the layout).
+- Previews: every screen has four in a `…ScreenPreviews.kt` beside it, the desktop's page and the phone's in the light
+  and the dark theme, drawn from a sample state in `SitePreview`; a part of the design system has two, light and dark.
+  `SitePreviewsTest` (a plain `jvmTest` of `app/shared`) fails while a screen lacks one, and draws every preview.
 - Tests on every target: `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`. Common tests do not run in the
   Android host tree, as in the library.
 - The web: `./gradlew :app:webApp:wasmJsBrowserDevelopmentExecutableDistribution`, the output copied out of the tree and

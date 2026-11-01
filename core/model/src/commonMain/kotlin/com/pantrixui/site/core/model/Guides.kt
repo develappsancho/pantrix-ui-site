@@ -366,6 +366,19 @@ object GuideCatalogue {
                 "Pantrix'i Claude'a, Copilot'a ya da Cursor'a öğreten belgeler ve MCP sunucusu."
             ),
             everyApp = true
+        ),
+        GuideEntry(
+            key = "web-compatibility",
+            topic = GuideTopic.Quality,
+            title = Words("An app that opens in every browser", "Her tarayıcıda açılan uygulama"),
+            summary = Words(
+                "A web app that stays blank in an old browser or on a phone, and a JavaScript build that opens it.",
+                "Eski bir tarayıcıda ya da telefonda boş kalan web uygulaması, ve onu açan JavaScript sürümü."
+            ),
+            menuTitle = Words("Every browser", "Her tarayıcı"),
+            everyApp = true,
+            seenOn = setOf(GuidePlatform.Web),
+            withoutPantrix = true
         )
     )
 

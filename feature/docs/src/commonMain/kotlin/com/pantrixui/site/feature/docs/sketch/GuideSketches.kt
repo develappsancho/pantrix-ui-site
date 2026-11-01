@@ -23,6 +23,7 @@ internal val GuideSketches: Map<String, @Composable () -> Unit> = mapOf(
     "adaptive" to { AdaptiveSketch() },
     "adaptive-usage" to { AdaptiveUsageSketch() },
     "web-fonts" to { WebFontsSketch() },
+    "web-compatibility" to { WebCompatibilitySketch() },
     "ai" to { AiSketch() },
     "analytics" to { AnalyticsSketch() },
     "chart-export" to { ChartExportSketch() },

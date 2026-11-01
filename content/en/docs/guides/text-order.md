@@ -174,11 +174,11 @@ What was seen in the tests that run in this repository (2026-10-11, `TextOrderTe
 :::table
 | What | JVM | iOS simulator | JS (headless Chrome) | Wasm (headless Chrome) | Android (host) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| Eight Turkish words in the order of the alphabet | ✅ | ✅ | ✅ | ✅ | ✅ |
-| The Turkish alphabet's 29 letters in order | ✅ | ✅ | ✅ | ✅ | |
-| "ada" and "Ada" equal, the list stable | ✅ | ✅ | ✅ | ✅ | ✅ |
-| "resume" before "résumé" | ✅ | ✅ | ✅ | ✅ | ✅ |
-| A tag it does not know gives no error | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Eight Turkish words in the order of the alphabet | ✓ | ✓ | ✓ | ✓ | ✓ |
+| The Turkish alphabet's 29 letters in order | ✓ | ✓ | ✓ | ✓ | |
+| "ada" and "Ada" equal, the list stable | ✓ | ✓ | ✓ | ✓ | ✓ |
+| "resume" before "résumé" | ✓ | ✓ | ✓ | ✓ | ✓ |
+| A tag it does not know gives no error | ✓ | ✓ | ✓ | ✓ | ✓ |
 :::
 
 Not verified:

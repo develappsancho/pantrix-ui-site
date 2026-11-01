@@ -14,9 +14,9 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ### Changed
 
-- **Pantrix UI 0.1.0-alpha04:** the lines that install the library, on the home page and in Installation, and the files
+- **Pantrix UI 0.1.0-alpha05:** the lines that install the library, on the home page and in Installation, and the files
   for coding assistants name its new release, whose Claude Code plugin brings the MCP server at `pantrixui.com/mcp`
-  too.
+  too; its guides are the site's, with the new one, an app that opens in every browser, and its live sketch.
 - **The page for coding assistants:** Claude Code is set up with Pantrix UI's plugin alone, which brings the MCP server
   and the skill together, so the server is no longer added twice.
 - **The home page between a tablet and a desktop:** in a window from 840 to about 1100dp wide, as a foldable open on its
@@ -34,8 +34,7 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
   while to begin with, and reports what its pages load against a content security policy, which it does not enforce
   yet.
 - **No fonts from Google:** the site draws the marks of a Mac's keys, its own marks and its Arabic in fonts it carries,
-  built with Pantrix UI 0.1.0-alpha04, and a visitor's browser asks Google for no font any more, but on the guide to
-  text order, whose check marks come with the library's next release.
+  built with Pantrix UI 0.1.0-alpha04, and a visitor's browser asks Google for no font any more.
 - **No path of the build machine:** the site's scripts no longer hold the path of the machine they were built on, with
   its user name and folders, which Skia's code wrote into them.
 

@@ -53,7 +53,7 @@ Test modülü `ui/testing`, `com.pantrixui:testing` olarak yayınlanır; paketi 
 kotlin {
     sourceSets {
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.0-alpha04")
+            implementation("com.pantrixui:testing:0.1.0-alpha05")
             implementation(kotlin("test"))
         }
         // runComposeUiTest masaüstünde gerçekten çizer: test JVM'i bu makinenin Skiko'sunu ister.

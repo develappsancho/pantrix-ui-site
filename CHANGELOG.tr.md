@@ -11,7 +11,7 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ### Değişenler
 
-*   **Pantrix UI 0.1.0-alpha04:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir.
+*   **Pantrix UI 0.1.0-alpha05:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir; rehberleri sitededir, yenisi, her tarayıcıda açılan uygulama, canlı çizimiyle birlikte.
 *   **Kodlama asistanları sayfası:** Claude Code yalnızca Pantrix UI'ın eklentisiyle kurulur; eklenti MCP sunucusunu ve beceriyi birlikte getirir, sunucu artık iki kez eklenmez.
 *   **Tablet ile masaüstü arasında ana sayfa:** 840 ile yaklaşık 1100 dp arası genişlikte bir pencerede, yan yatırılmış açık bir katlanabilir cihazda olduğu gibi, ana sayfanın yazıları tabletin tek sütununda genişliği doldurur; önceden sağ tarafı boş bırakıyorlardı.
 
@@ -22,7 +22,7 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 ### Güvenlik
 
 *   **Yalnızca HTTPS:** site, tarayıcıdan ona yalnızca HTTPS'le dönmesini ister (`Strict-Transport-Security`), başta kısa bir süre için; sayfalarının yüklediğini bir içerik güvenliği politikasına göre raporlar, onu henüz uygulamaz.
-*   **Google'dan yazı tipi yok:** site, Mac tuşlarının işaretlerini, kendi işaretlerini ve Arapçasını kendi taşıdığı fontlarla çizer, Pantrix UI 0.1.0-alpha04 ile yapılır; bir ziyaretçinin tarayıcısı artık Google'dan yazı tipi istemez, yalnızca onay işaretleri kütüphanenin bir sonraki sürümüyle gelen metin sıralama rehberinde ister.
+*   **Google'dan yazı tipi yok:** site, Mac tuşlarının işaretlerini, kendi işaretlerini ve Arapçasını kendi taşıdığı fontlarla çizer, Pantrix UI 0.1.0-alpha04 ile yapılır; bir ziyaretçinin tarayıcısı artık Google'dan yazı tipi istemez.
 *   **Derleyen makinenin yolu yok:** sitenin betikleri artık derlendikleri makinenin yolunu, kullanıcı adı ve klasörleriyle, taşımıyor; Skia'nın kodu onu betiklere yazıyordu.
 
 ## [26.10.31] - 2026-10-31

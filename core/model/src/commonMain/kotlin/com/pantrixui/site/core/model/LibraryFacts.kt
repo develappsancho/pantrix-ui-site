@@ -10,7 +10,7 @@ object LibraryFacts {
     const val COMPONENTS: Int = 100
 
     /** How many of its guides are for apps, in both languages. */
-    const val GUIDES: Int = 24
+    const val GUIDES: Int = 25
 
     /** The Compose Multiplatform the library was last checked with, which a guide's foot names. */
     const val COMPOSE_VERSION: String = "1.12.2"
@@ -23,7 +23,7 @@ object LibraryFacts {
      * raised with each release. The site's server needs `PantrixMcp.http()`, which came in 0.1.0-alpha03, so the site
      * goes online with that release or a later one.
      */
-    const val RELEASE: String = "0.1.0-alpha04"
+    const val RELEASE: String = "0.1.0-alpha05"
 
     /** The repository the library is distributed from: its packages, its releases and Claude Code's plugin for it. */
     const val PACKAGES_REPOSITORY: String = "develappsancho/pantrix-ui-cmp-package"

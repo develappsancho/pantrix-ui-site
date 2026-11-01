@@ -174,11 +174,11 @@ Bu depoda koşan testlerde görülenler (2026-10-11, `TextOrderTest`, `TextOrder
 :::table
 | Ne | JVM | iOS simülatörü | JS (başsız Chrome) | Wasm (başsız Chrome) | Android (ana makine) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| Sekiz Türkçe sözcük alfabe sırasında | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Türk alfabesinin 29 harfi sırayla | ✅ | ✅ | ✅ | ✅ | |
-| "ada" ile "Ada" eşit, liste kararlı | ✅ | ✅ | ✅ | ✅ | ✅ |
-| "resume", "résumé"den önce | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Tanınmayan etiket hata vermiyor | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Sekiz Türkçe sözcük alfabe sırasında | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Türk alfabesinin 29 harfi sırayla | ✓ | ✓ | ✓ | ✓ | |
+| "ada" ile "Ada" eşit, liste kararlı | ✓ | ✓ | ✓ | ✓ | ✓ |
+| "resume", "résumé"den önce | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Tanınmayan etiket hata vermiyor | ✓ | ✓ | ✓ | ✓ | ✓ |
 :::
 
 Doğrulanmayanlar:

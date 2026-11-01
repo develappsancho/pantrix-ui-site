@@ -1,5 +1,7 @@
 # Pantrix UI site
 
+Türkçesi: [README.tr.md](./README.tr.md)
+
 The website of [Pantrix UI](https://github.com/develappsancho/pantrix-ui-cmp-package), built with Pantrix UI: one Compose
 Multiplatform app for the web (Wasm), Android, iOS and the desktop. Every page is in English and in Turkish, each at
 its own address: `/docs/installation` and `/tr/docs/installation`.
@@ -48,8 +50,9 @@ The site's address is written in one place: `site.url` in `gradle.properties`, w
 the content (as `{{site}}`), the share images and the apps. A running stack is served at `SITE_URL` instead, which the
 web container writes into the site's files as it starts, and the web app reads the address it was opened at.
 
-The guides are in Turkish: `docs/deploy/ARCHITECTURE_GUIDE.md` draws what runs where and why (nginx, the images, the
-stack, compression and caching), and `docs/deploy/DEPLOY_GUIDE.md` has the steps.
+The guides, in English and in Turkish: [ARCHITECTURE_GUIDE.en.md](./docs/deploy/ARCHITECTURE_GUIDE.en.md) draws what
+runs where and why (nginx, the images, the stack, compression and caching, the site's address), and
+[DEPLOY_GUIDE.en.md](./docs/deploy/DEPLOY_GUIDE.en.md) has the steps.
 
 ## The content
 
@@ -75,4 +78,18 @@ export PANTRIX_MCP_JAR=$HOME/.pantrix/mcp-<version>-all.jar
 export PANTRIX_MCP_JAR=$HOME/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar
 ```
 
-`CLAUDE.md` has the project's map and its rules.
+`CLAUDE.md` has the project's map for an assistant, and `.claude/skills/commit` proposes a change's commit in the
+repository's style.
+
+## Contributing
+
+How a change comes in, the site's rules and the checks before a pull request are in
+[CONTRIBUTING.md](./CONTRIBUTING.md), and what changed is in [CHANGELOG.md](./CHANGELOG.md). A vulnerability is reported
+as [SECURITY.md](./SECURITY.md) says, never in an issue. Everyone taking part follows the
+[code of conduct](./CODE_OF_CONDUCT.md).
+
+## Licence
+
+The site is licensed under the [Apache License 2.0](./LICENSE). JetBrains Mono, which its code is set in, comes under the
+SIL Open Font License, whose text the site carries:
+`core/designsystem/src/commonMain/composeResources/files/licenses/jetbrains_mono_ofl.txt`.

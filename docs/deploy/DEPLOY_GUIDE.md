@@ -1,5 +1,7 @@
 # 🚀 Yayın Rehberi
 
+English: [DEPLOY_GUIDE.en.md](./DEPLOY_GUIDE.en.md)
+
 Bu belge, Pantrix UI'ın sitesinin nasıl yayına alındığını adım adım verir: önce bu makinede, Docker Compose ile; sonra Coolify'da. Neyin nerede çalıştığı ve neden böyle kurulduğu [ARCHITECTURE_GUIDE.md](./ARCHITECTURE_GUIDE.md)'dedir.
 
 ## 1. Özet

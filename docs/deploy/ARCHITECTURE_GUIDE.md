@@ -1,5 +1,7 @@
 # 🏗️ Barındırma Mimarisi Rehberi
 
+English: [ARCHITECTURE_GUIDE.en.md](./ARCHITECTURE_GUIDE.en.md)
+
 Bu belge, Pantrix UI'ın sitesinin (`pantrixui.com`) bir sunucuda nasıl çalıştığını anlatır: hangi parçalardan oluştuğunu, bir isteğin hangi yoldan geçtiğini, nginx'in ne olduğunu ve burada neden kullanıldığını, imajların nasıl yapıldığını, lokal ile canlı arasındaki farkı. Şekiller sunumlarda olduğu gibi kullanılabilir: her birinin resmi [`images/`](./images) klasöründedir, altında da açılıp kapanan Mermaid kaynağı durur. Bir şeklin kaynağı değişince resimleri `node docs/deploy/draw-diagrams.mjs` yeniden çizer.
 
 Adım adım yayın [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)'dedir; bu belge, o adımların arkasındaki mantığı verir.

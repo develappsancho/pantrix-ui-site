@@ -12,10 +12,15 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 
 ## The owner's rules
 
-- **The owner commits.** Never a git command that writes; read-only git is fine. Each hand-over ends with one commit
-  message, one line `[TYPE][Summary]` as in the library (`pantrix-ui-cmp/CONTRIBUTING.md#commits`), and the files that
-  go in it, by path.
+The rules every change follows, for anyone who contributes, are in `CONTRIBUTING.md` (its Turkish copy beside it); these
+are the owner's on top of them.
+
+- **The owner commits.** Never a git command that writes, `git mv` included; read-only git is fine. Each hand-over ends
+  with one commit message, one line `[TYPE][Summary]` (`CONTRIBUTING.md#commits`), and the files that go in it, by
+  path: the commit skill, `.claude/skills/commit`, prepares it.
 - **Reports to the owner in Turkish.** Code, KDoc, the content's Markdown in English, and the Turkish pages in Turkish.
+  A guide in `docs/` is Turkish with its English beside it (`*.en.md`); a file at the root is English with its Turkish
+  beside it (`*.tr.md`); the two are changed together (`CONTRIBUTING.md#languages`).
 - **The design is matched one to one** (the design canvas: desktop 1440, tablet 834, phone 390 for each page). Where a
   Pantrix component cannot draw it, the library is revised, not worked around for good: a part the site draws for
   itself meanwhile says so in its KDoc.
@@ -33,6 +38,7 @@ something surprising — flag it, even if it is unrelated to the task at hand.
   on a VPS) comes at the end.
 - **Nothing of yours in `.claude/`**, but the library's skill `pantrix-ui` in `.claude/skills/` (owner, 2026-10-30):
   the site is the library's first app, and is built with the skill and the MCP server an app is given (`.mcp.json`).
+  The commit skill, `.claude/skills/commit`, is the site's own, adapted from the library's (owner, 2026-10-30).
   `local.properties` holds a token and is never copied or printed.
 - **The site's address is never written by hand** (owner, 2026-10-30): `site.url` in `gradle.properties` is the one
   place, which the build gives the static pages, the content (a page writes `{{site}}`), the share images and the apps
@@ -71,7 +77,8 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `.claude/skills/pantrix-ui`, `.mcp.json` | The library's skill and its MCP server, as an app of the library takes them: the skill written by the library's jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`), the server the same jar, which each machine names in `PANTRIX_MCP_JAR`: the jar attached to the library's release, or `~/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar` after a local publish |
 | `content` | The pages, in English and Turkish; `examples/<language>/<key>.md`: a component's examples the site writes itself, in place of the demo's (the data table's) |
 | `deploy` | Putting the site up: two images built on this machine from Gradle's outputs, the site's files behind nginx (`web/Dockerfile`, `web/default.conf`) and the server (`server/Dockerfile`), in one Compose stack (`compose.yaml`; `compose.local.yaml` builds them here, opens port 4004 and serves the site at `http://localhost:4004`); `SITE_URL`, the address a stack is served at, is written into the files as the web container starts (`web/05-site-address.envsh`, `web/40-site-address.sh`) and allowed by the server; `deploy.sh local` builds, runs and checks it, `check.sh` checks any address. Nothing is compiled on the host |
-| `docs/deploy` | The deploy's guides, in Turkish: `ARCHITECTURE_GUIDE.md` (what runs where and why: each diagram a picture in `images/`, its Mermaid source folded under it) and `DEPLOY_GUIDE.md` (the steps). A diagram's source changed, `node docs/deploy/draw-diagrams.mjs` draws the pictures again with Mermaid in headless Chrome |
+| `docs/deploy` | The deploy's guides, in Turkish with their English beside them (`*.en.md`): `ARCHITECTURE_GUIDE` (what runs where and why: each diagram a picture in `images/`, `name.png` and `name.en.png`, its Mermaid source folded under it) and `DEPLOY_GUIDE` (the steps). A diagram's source changed, `node docs/deploy/draw-diagrams.mjs` draws both languages' pictures again with Mermaid in headless Chrome |
+| The root | `README`, `CONTRIBUTING`, `CHANGELOG`, `SECURITY`, `CODE_OF_CONDUCT`, each in English with its Turkish (`*.tr.md`), and `LICENSE` (Apache 2.0, as the library's) |
 
 ## Checks
 

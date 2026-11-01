@@ -1,6 +1,6 @@
-// Draws the architecture guide's diagrams as pictures: each Mermaid source in ARCHITECTURE_GUIDE.md is drawn by Mermaid
-// itself in headless Chrome and saved as the PNG its picture link above names, at twice its size. Run it after a
-// diagram's source changes:
+// Draws the architecture guide's diagrams as pictures: each Mermaid source in ARCHITECTURE_GUIDE.md and its English,
+// ARCHITECTURE_GUIDE.en.md, is drawn by Mermaid itself in headless Chrome and saved as the PNG its picture link above
+// names, at twice its size. Run it after a diagram's source changes:
 //
 //   node docs/deploy/draw-diagrams.mjs
 //
@@ -14,19 +14,23 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const guide = readFileSync(join(here, 'ARCHITECTURE_GUIDE.md'), 'utf8');
+const GUIDES = ['ARCHITECTURE_GUIDE.md', 'ARCHITECTURE_GUIDE.en.md'];
 const chromePath = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const MERMAID = 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
 const SCALE = 2;
 const PADDING = 24;
 
 // Each picture link, the folded source under it: ![…](images/name.png) … ```mermaid … ```
-const diagrams = [...guide.matchAll(/!\[[^\]]*\]\((images\/[^)]+\.png)\)\s*<details>[\s\S]*?```mermaid\n([\s\S]*?)```/g)]
-  .map(([, file, source]) => ({ file, source }));
-const sources = guide.match(/```mermaid\n/g)?.length ?? 0;
-if (diagrams.length !== sources) {
-  throw new Error(`${sources} diagrams, ${diagrams.length} with a picture above them: each needs one`);
-}
+const diagrams = GUIDES.flatMap((name) => {
+  const guide = readFileSync(join(here, name), 'utf8');
+  const found = [...guide.matchAll(/!\[[^\]]*\]\((images\/[^)]+\.png)\)\s*<details>[\s\S]*?```mermaid\n([\s\S]*?)```/g)]
+    .map(([, file, source]) => ({ file, source }));
+  const sources = guide.match(/```mermaid\n/g)?.length ?? 0;
+  if (found.length !== sources) {
+    throw new Error(`${name}: ${sources} diagrams, ${found.length} with a picture above them: each needs one`);
+  }
+  return found;
+});
 
 // The site's colours, so that the pictures look like the site in a presentation.
 const theme = {

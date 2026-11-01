@@ -101,7 +101,9 @@ rules of these checks; where this skill and it part, CONTRIBUTING.md is right.
 - A screen's previews: a new screen has four in a `…ScreenPreviews.kt` beside it; `SitePreviewsTest`
   (`:app:shared:jvmTest`) fails while one is missing, and draws them all.
 - The server: `./gradlew :server:test` when `server/` changed.
-- The page's loader: `./gradlew :app:webApp:loaderTest` and `loaderBrowserTest` when `site.js` changed.
+- The page's loader and the web app in Chrome: `./gradlew :app:webApp:loaderTest` when `site.js` changed, and
+  `browserTest` when `site.js`, the web app or a path it leads along changed.
+- The desktop app's package: `./gradlew :app:desktopApp:smokeTest` when its packaging or runtime changed.
 - The main paths on a device: `./gradlew :app:androidApp:maestroTest` and `./gradlew :app:shared:maestroIosTest` when
   the shell, the header, the menu, the search or a page they lead to changed.
 - A page's look: `./gradlew :app:shared:verifyRoborazziJvm` (about six minutes). When the change is meant, record it

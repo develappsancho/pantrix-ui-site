@@ -1,6 +1,6 @@
 // The page's loader, site.js, run as it is in a browser made of stand-ins: which build it starts, and what it does when
-// a build fails. `./gradlew :app:webApp:loaderTest` runs it with Node's own test runner; browser.test.mjs runs the
-// same loader in Chrome.
+// a build fails. `./gradlew :app:webApp:loaderTest` runs it with Node's own test runner;
+// ../browserTest/loader.test.mjs runs the same loader in Chrome.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

@@ -58,14 +58,21 @@ Run what the change can affect.
   in the Android host tree.
 - **Previews:** `SitePreviewsTest`, a plain `jvmTest` of `app/shared`, fails while a screen lacks one, and draws them
   all.
+- **The frame pressed through:** `SiteAppTest`, a plain `jvmTest` of `app/shared` too, uses the menu, the header, the
+  language, the theme, the search and a component's page at a phone's, a tablet's and a desktop's size.
 - **The server:** `./gradlew :server:test` asks every kind of MCP message over real HTTP.
 - **The page's loader,** when `site.js` changes: `./gradlew :app:webApp:loaderTest`, part of `check`, runs it in a
-  browser made of stand-ins, and `./gradlew :app:webApp:loaderBrowserTest` builds the site and runs it in Chrome
-  (`CHROME` names one that is not at its usual place on a Mac): the Wasm build, the JavaScript build where Wasm's
-  garbage collection is missing or the Wasm build fails, and the page's static words where there is no Wasm.
+  browser made of stand-ins.
+- **In a browser,** when `site.js`, the web app or a path it leads along changes: `./gradlew :app:webApp:browserTest`
+  builds the site and opens it in Chrome (`CHROME` names one that is not at its usual place on a Mac). The loader
+  there: the Wasm build, the JavaScript build where Wasm's garbage collection is missing or the Wasm build fails, and
+  the page's static words where there is no Wasm. And the main paths, with the address and Back as a browser has them.
 - **The main paths on a device,** when the shell, the header, the menu, the search or a page they lead to changes:
   `./gradlew :app:androidApp:maestroTest` and `./gradlew :app:shared:maestroIosTest`, with `-Pmaestro.device=` and
   `-Pmaestro.flows=`. They run the flows in `app/maestro` on a phone.
+- **The desktop app's package,** when its packaging or its runtime changes: `./gradlew :app:desktopApp:smokeTest`
+  opens the app as `createDistributable` packages it, a window on the screen, and fails where it closes or writes an
+  error within fifteen seconds.
 - **Screenshots,** when a page's look changes: `./gradlew :app:shared:verifyRoborazziJvm`. A change that is meant is
   recorded again with `recordRoborazziJvm`; look at the dark images too.
 - **Putting it up,** when `deploy/`, the server or the web build changes: `deploy/deploy.sh local` builds both images,

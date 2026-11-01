@@ -45,6 +45,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(projects.core.testing)
+            implementation(libs.pantrix.testing)
         }
     }
 }

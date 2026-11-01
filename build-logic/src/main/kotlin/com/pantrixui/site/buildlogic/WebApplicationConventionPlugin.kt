@@ -40,7 +40,7 @@ import javax.inject.Inject
  * its address, with the `404.html`, `sitemap.xml` and `robots.txt`. `:tools:render` draws the app on the JVM for what
  * the static pages cannot read from the content: the landing pages' words, and each page's share image. Those two run
  * only when what they read has changed. `loaderTest`, part of `check`, tests `site.js` in a browser made of stand-ins;
- * `loaderBrowserTest`, run by hand, tests it in Chrome on the production build.
+ * `browserTest`, run by hand, opens the production build in Chrome: the loader there, and the app's main paths.
  */
 class WebApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -152,25 +152,24 @@ class WebApplicationConventionPlugin : Plugin<Project> {
 
         val node = NodeJsPlugin.apply(this)
         val nodeSetup = with(node) { project.nodeJsSetupTaskProvider }
-        val loaderTests = layout.projectDirectory.dir("src/loaderTest")
-        val loaderTest = tasks.register<LoaderTest>("loaderTest") {
+        val loaderTest = tasks.register<NodeTest>("loaderTest") {
             group = LifecycleBasePlugin.VERIFICATION_GROUP
             description = "Tests the page's loader, site.js, in a browser made of stand-ins."
             dependsOn(nodeSetup)
             this.node.set(node.executable)
-            tests.from(loaderTests.file("site.test.mjs"))
+            tests.from(layout.projectDirectory.file("src/loaderTest/site.test.mjs"))
             loader.from(layout.projectDirectory.file(LOADER))
             stamp.set(layout.buildDirectory.file("loaderTest/passed.txt"))
         }
         tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) { dependsOn(loaderTest) }
-        tasks.register<LoaderTest>("loaderBrowserTest") {
+        tasks.register<NodeTest>("browserTest") {
             group = LifecycleBasePlugin.VERIFICATION_GROUP
-            description = "Tests the page's loader in Chrome, on the site as its production build writes it."
+            description = "Opens the site's production build in Chrome: its loader, and the app's main paths."
             dependsOn(nodeSetup, PRODUCTION)
             // What the distribution's finalizers write beside it: the static pages and the JavaScript build.
             mustRunAfter(listOf("prerender", "copyShareImages", "copyJsApp").map { it + PRODUCTION.capitalized() })
             this.node.set(node.executable)
-            tests.from(loaderTests.file("browser.test.mjs"))
+            tests.from(BROWSER_TESTS.map { layout.projectDirectory.file("src/browserTest/$it") })
             site.set(layout.buildDirectory.dir("dist/wasmJs/productionExecutable"))
         }
     }
@@ -186,6 +185,9 @@ class WebApplicationConventionPlugin : Plugin<Project> {
 
         /** The page's own script, which starts the build the browser can run. */
         const val LOADER = "src/webMain/resources/site.js"
+
+        /** The tests that open the built site in Chrome, beside the `chrome.mjs` they drive it with. */
+        val BROWSER_TESTS = listOf("loader.test.mjs", "paths.test.mjs")
 
         /** The Wasm build's production distribution, the one the site deploys. */
         const val PRODUCTION = "wasmJsBrowserDistribution"
@@ -308,10 +310,10 @@ abstract class DrawShareImages : JavaExec() {
 }
 
 /**
- * Runs tests of the page's loader with Node's own test runner. With a [stamp] it runs again only when a test or the
- * loader has changed; without one, as for the tests that open the built [site] in Chrome, each time it is asked for.
+ * Runs tests with Node's own test runner. With a [stamp] it runs again only when a test or the [loader] has changed;
+ * without one, as for the tests that open the built [site] in Chrome, each time it is asked for.
  */
-abstract class LoaderTest : DefaultTask() {
+abstract class NodeTest : DefaultTask() {
     /** Node, as Kotlin's Gradle plugin installs it for the web builds. */
     @get:Input
     abstract val node: Property<String>
@@ -321,7 +323,7 @@ abstract class LoaderTest : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val tests: ConfigurableFileCollection
 
-    /** The loader the tests read, `site.js`. */
+    /** The loader the tests read, `site.js`, where they read it from the sources. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val loader: ConfigurableFileCollection

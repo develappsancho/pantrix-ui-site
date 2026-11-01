@@ -51,8 +51,8 @@ are the owner's on top of them.
 
 | Path | What it is |
 | :--- | :--- |
-| `app/shared` | The composition root: `SiteApp` (theme, header, sidebar, menu, `PageDisplay`: Navigation 3's `NavDisplay` with the demo's page transitions, `PageTransitions.kt`), `SiteViewModel`, the site's links (`SiteNavigation.kt`), Koin (`SiteKoin.kt`); `wasmJsMain/WebSite.kt` (address, browser history, typeface gate); `iosMain/MainViewController.kt`; `jvmTest/PageScreenshotTest.kt` and `screenshots/jvm/`: the pages' screenshots |
-| `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp`. The web one is built twice, as Wasm (`site-wasm.js`) and as JavaScript (`site-js.js`), and its own `site.js` starts the one the browser can run: the JavaScript build where Wasm's garbage collection is missing (Chrome before 119, Safari before 18.2) or the Wasm build fails before it has drawn; the static HTML where neither runs; `src/loaderTest` tests `site.js` with Node's test runner |
+| `app/shared` | The composition root: `SiteApp` (theme, header, sidebar, menu, `PageDisplay`: Navigation 3's `NavDisplay` with the demo's page transitions, `PageTransitions.kt`), `SiteViewModel`, the site's links (`SiteNavigation.kt`), Koin (`SiteKoin.kt`); `wasmJsMain/WebSite.kt` (address, browser history, typeface gate); `iosMain/MainViewController.kt`; `jvmTest/PageScreenshotTest.kt` and `screenshots/jvm/`: the pages' screenshots; `jvmTest/SiteAppTest.kt`: the frame pressed through, both drawn by `SiteUnderTest.kt` |
+| `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp`. The web one is built twice, as Wasm (`site-wasm.js`) and as JavaScript (`site-js.js`), and its own `site.js` starts the one the browser can run: the JavaScript build where Wasm's garbage collection is missing (Chrome before 119, Safari before 18.2) or the Wasm build fails before it has drawn; the static HTML where neither runs; `src/loaderTest` tests `site.js` with Node's test runner, `src/browserTest` the built site in Chrome |
 | `app/maestro` | The Maestro flows of the app's main paths on a phone, found by the components' tags: launch, the header, the menu, a component's page, the search, the language, the theme and the references (`site.maestro`: `maestroTest`, `maestroIosTest`) |
 | `core/base` | MVI: `UiState`, `UiAction`, `UiEffect`, `BaseViewModel`, `BaseScreen`, `LoadState` |
 | `core/navigation` | `Navigator`, `NavigationHistory`, `BrowserNavigationHistory` (History API: path addresses, each entry keeping the stack it was written with, so a reload and Back or Forward reopen it) |
@@ -89,6 +89,10 @@ are the owner's on top of them.
 - Previews: every screen has four in a `…ScreenPreviews.kt` beside it, the desktop's page and the phone's in the light
   and the dark theme, drawn from a sample state in `SitePreview`; a part of the design system has two, light and dark.
   `SitePreviewsTest` (a plain `jvmTest` of `app/shared`) fails while a screen lacks one, and draws every preview.
+- The frame pressed through: `SiteAppTest` (a plain `jvmTest` of `app/shared`) uses the menu, the header's links and
+  tools, the language, the theme, the search and a component's page at 390×844, 834×1194 and 1440×900, finding nodes
+  by their Pantrix tags; its clock is driven by hand, and it scrolls with its own `scrollTo`, as Compose's
+  `performScrollTo` never ends with such a clock.
 - Tests on every target: `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`. Common tests do not run in the
   Android host tree, as in the library.
 - The web: `./gradlew :app:webApp:wasmJsBrowserDevelopmentExecutableDistribution`, the output copied out of the tree and
@@ -97,12 +101,18 @@ are the owner's on top of them.
   browser with scripts off shows them.
 - The server: `./gradlew :server:test` asks every kind of MCP message over real HTTP.
 - The page's loader, when `site.js` changes: `./gradlew :app:webApp:loaderTest` (part of `check`) runs it in a browser
-  made of stand-ins, `./gradlew :app:webApp:loaderBrowserTest` builds the site and runs it in Chrome: which build
-  starts, the JavaScript build after a broken Wasm one, the static words without Wasm.
+  made of stand-ins.
+- In a browser: `./gradlew :app:webApp:browserTest` builds the site and opens it in Chrome over the DevTools protocol
+  (`src/browserTest/chrome.mjs`): the loader (which build starts, the JavaScript build after a broken Wasm one, the
+  static words without Wasm) and the main paths, found by the tags in Compose's hidden copy of the semantics. Compose
+  1.12.2 leaves that copy as a closed menu, sheet or dialog left it: after one, a test reads the address, the title
+  and `<html lang>`. Two `todo` tests hold that and the language the document keeps.
 - The main paths on a device, when the shell, the header, the menu, the search or a page they lead to changes:
   `./gradlew :app:androidApp:maestroTest` and `./gradlew :app:shared:maestroIosTest`, with `-Pmaestro.device=` and
   `-Pmaestro.flows=`; the flows in `app/maestro` run on a phone (the Pixel 7 Pro emulator, the iPhone 18 Pro Max
   simulator).
+- The desktop app's package, when its packaging or runtime changes: `./gradlew :app:desktopApp:smokeTest` opens the
+  app `createDistributable` packages (a window opens) and fails where it closes or writes an error in fifteen seconds.
 - The deploy, when `deploy/`, the server or the web build's output changes: `deploy/deploy.sh local` builds both images,
   runs the stack at `http://localhost:4004` and runs `deploy/check.sh` on it (pages, 404, compression, caching, `www`,
   `/mcp`, the build machine's paths in the Wasm); `deploy/deploy.sh stop` stops it. The owner's other containers run

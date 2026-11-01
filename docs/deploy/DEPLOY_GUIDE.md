@@ -168,6 +168,44 @@ Bir yayın, GitHub'daki bir commit'ten yapılır. Ağaçta commit'lenmemiş bir 
 | Site ve masaüstü uygulaması | `deploy/deploy.sh prepare`, iki değişiklik günlüğüne bakmak, commit ve push, sonra `deploy/deploy.sh release` |
 | Yalnızca masaüstü uygulaması | Değişiklik günlüğünde sürümün bölümü, commit ve push, sonra `deploy/deploy.sh desktop` |
 
+Komutlar, sitenin deposunun kökünde çalıştırılır. Sürüm verilmezse bugünün tarihidir; başka bir gün için sona yazılır: `deploy/deploy.sh release 26.11.2`.
+
+*   **Yalnızca site:**
+
+    ```bash
+    deploy/deploy.sh web
+    ```
+
+*   **Site ve masaüstü uygulaması:** önce değişiklik günlüklerinin bölümü adlandırılır:
+
+    ```bash
+    deploy/deploy.sh prepare
+    ```
+
+    İki değişiklik günlüğüne bakılır, commit'lenir ve push edilir; sonra:
+
+    ```bash
+    deploy/deploy.sh release
+    ```
+
+*   **Yalnızca masaüstü uygulaması:**
+
+    ```bash
+    deploy/deploy.sh desktop
+    ```
+
+*   **Önce denemek:** her şey derlenir, DMG imzalanır, hiçbir yere bir şey gönderilmez:
+
+    ```bash
+    deploy/deploy.sh release --dry-run
+    ```
+
+*   **Canlıyı yeniden denetlemek:**
+
+    ```bash
+    deploy/check.sh https://pantrixui.com
+    ```
+
 `web` şunları yapar:
 
 1.  Siteyi ve sunucuyu Gradle'la derler.

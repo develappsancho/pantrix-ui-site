@@ -168,6 +168,44 @@ A release is made from a commit that is on GitHub. With a change left out of a c
 | The site and the desktop app | `deploy/deploy.sh prepare`, a look at both changelogs, commit and push, then `deploy/deploy.sh release` |
 | The desktop app alone | The version's section in the changelog, commit and push, then `deploy/deploy.sh desktop` |
 
+The commands are run at the root of the site's repository. With no version given, it is today's date; another day's is written at the end: `deploy/deploy.sh release 26.11.2`.
+
+*   **The site alone:**
+
+    ```bash
+    deploy/deploy.sh web
+    ```
+
+*   **The site and the desktop app:** first the changelogs' section is named:
+
+    ```bash
+    deploy/deploy.sh prepare
+    ```
+
+    Both changelogs are looked at, committed and pushed; then:
+
+    ```bash
+    deploy/deploy.sh release
+    ```
+
+*   **The desktop app alone:**
+
+    ```bash
+    deploy/deploy.sh desktop
+    ```
+
+*   **A try first:** everything is built and the DMG signed, and nothing is sent anywhere:
+
+    ```bash
+    deploy/deploy.sh release --dry-run
+    ```
+
+*   **Checking the host again:**
+
+    ```bash
+    deploy/check.sh https://pantrixui.com
+    ```
+
 `web`:
 
 1.  Builds the site and the server with Gradle.

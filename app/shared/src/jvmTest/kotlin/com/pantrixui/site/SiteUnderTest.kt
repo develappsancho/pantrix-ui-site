@@ -402,6 +402,28 @@ internal class SiteScreen(
         onAllNodes(matcher, useUnmergedTree = true).fetchSemanticsNodes().firstOrNull()
             ?.config?.getOrNull(SemanticsProperties.ToggleableState) == ToggleableState.On
 
+    /**
+     * The words on the screen's tree, drawn in view or not, that are laid out one letter to a line: given no width
+     * at all, or far taller than wide. Pictures that say nothing to a screen reader are read too.
+     */
+    fun squeezed(): List<String> =
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .filter { it.layoutInfo.isPlaced }
+            .mapNotNull { node ->
+                val words = node.config[SemanticsProperties.Text].joinToString { it.text }
+                val (width, height) = node.size
+                words.takeIf {
+                    it.trim().length > 1 && ((width == 0 && height > 0) || (height > SQUEEZED * width && height > TALL))
+                }
+            }
+
+    /** The headings on the screen's tree, as a screen reader moves from one to the next, in their order. */
+    fun headings(): List<String> =
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)).fetchSemanticsNodes().map { node ->
+            node.config.getOrNull(SemanticsProperties.Text)?.joinToString { it.text }.orEmpty()
+        }
+
     /** Every word the screen says, in the order of its tree. */
     fun words(): List<String> =
         onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
@@ -439,6 +461,10 @@ internal class SiteScreen(
 
         /** How much of a pixel a node's clipped bounds may differ from its whole ones by, by rounding alone. */
         const val EDGE = 0.5f
+
+        /** How many times taller than wide a text stands when it is set one letter to a line, and how tall at least. */
+        const val SQUEEZED = 4
+        const val TALL = 150
     }
 }
 

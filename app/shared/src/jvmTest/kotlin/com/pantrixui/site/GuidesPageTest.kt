@@ -27,6 +27,11 @@ class GuidesPageTest {
     }
 
     @Test
+    fun each_topic_is_a_heading_for_a_screen_reader() = siteAt(Route.Guides) {
+        until("the topics' headings") { headings().containsAll(listOf("Layout and windows", "Platform services")) }
+    }
+
+    @Test
     fun a_card_opens_its_guide() = siteAt(Route.Guides) {
         press(guide("testing"))
         untilAt("/docs/guides/testing")

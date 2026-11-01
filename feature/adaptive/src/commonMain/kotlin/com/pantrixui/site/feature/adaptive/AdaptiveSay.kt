@@ -260,7 +260,8 @@ internal object AdaptiveSay {
                 Words("Bottom bar", "Alt çubuk"),
                 Words("Rail, from 600dp", "Ray, 600dp'den"),
                 Words("Sidebar, your choice", "Kenar çubuğu, senin seçimin")
-            )
+            ),
+            listOf(Words("Bar", "Çubuk"), Words("Rail", "Ray"))
         ),
         Pattern(
             "2 · PantrixListDetailScaffold",
@@ -278,7 +279,8 @@ internal object AdaptiveSay {
                 Words("One pane", "Tek bölme"),
                 Words("Two, from Expanded", "İki, Expanded'dan"),
                 Words("Three, from Large", "Üç, Large'dan")
-            )
+            ),
+            listOf(Words("One", "Bir"), Words("Two", "İki"))
         ),
         Pattern(
             "3 · PantrixSupportingPaneScaffold",
@@ -295,7 +297,8 @@ internal object AdaptiveSay {
             listOf(
                 Words("A sheet, when narrow", "Darken bir sayfa"),
                 Words("Beside, from Expanded", "Yanında, Expanded'dan")
-            )
+            ),
+            listOf(Words("Sheet", "Sayfa"), Words("Beside", "Yanında"))
         ),
         Pattern(
             "4 · PantrixTwoPane · PantrixTabletopLayout",
@@ -312,7 +315,8 @@ internal object AdaptiveSay {
             listOf(
                 Words("Book: panes meet at the fold", "Kitap: bölmeler katlanma yerinde buluşur"),
                 Words("Table: look above, touch below", "Masa: üstte bak, altta dokun")
-            )
+            ),
+            listOf(Words("Book", "Kitap"), Words("Table", "Masa"))
         ),
         Pattern(
             "5 · PantrixTheme.layout",
@@ -324,7 +328,8 @@ internal object AdaptiveSay {
                     "parça sütunlara yayılır; hiçbir şey elle seçilmez."
             ),
             "columns",
-            emptyList()
+            emptyList(),
+            listOf(Words("8 + 4 of 12", "12 sütundan 8 + 4"))
         ),
         Pattern(
             "6 · BoxWithPantrixWindow",
@@ -337,7 +342,8 @@ internal object AdaptiveSay {
                     "çizerdi: bunun yerine kendisine verilen kutuya, pencerenin sınırlarıyla sorar."
             ),
             "own-box",
-            emptyList()
+            emptyList(),
+            listOf(Words("Table, then list", "Tablo, sonra liste"))
         )
     )
     val ColumnsNote = Words("From Large the content keeps to 1040dp: ", "Large'dan itibaren içerik 1040dp'de kalır: ")
@@ -414,11 +420,13 @@ internal class Mail(
  * @property body how it does it.
  * @property code the anchor of its code in the page's content.
  * @property sketches what each of its sketches is called.
+ * @property minis what each of its sketches on a phone is called: fewer and smaller there, and named in a word.
  */
 internal class Pattern(
     val api: String,
     val title: Words,
     val body: Words,
     val code: String,
-    val sketches: List<Words>
+    val sketches: List<Words>,
+    val minis: List<Words>
 )

@@ -12,6 +12,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Changed
+
+- **The parts each step of the home page's tour uses:** chips in the code's face, as the design draws them; they were
+  plain links.
+
 ### Fixed
 
 - **The home page's tour on a desktop:** the button that pauses and plays the tour, and the step on show, stand at
@@ -20,6 +25,12 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
   stands still; it grew and shrank with each step's caption.
 - **A step that may be left out, on a phone:** its "optional" follows the step's title, on its last line or the next;
   beside a title that wrapped it stood one letter to a line down the page's edge, as on the coding assistants' page.
+- **The adaptive page's patterns on a phone:** each draws two small sketches, as the phone's design does; the
+  desktop's three stood side by side at their own sizes, and the last was squeezed to a sliver, its words one letter
+  to a line.
+- **Headings for a screen reader:** a page's title, its sections and its steps in the docs and the guides, the
+  guides' topics and a component's examples are read as headings, so a screen reader moves from one to the next; they
+  were read as plain text.
 
 ## [26.11.2] - 2026-11-02
 

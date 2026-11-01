@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.pantrixui.components.elements.button.ButtonColors
 import com.pantrixui.components.elements.button.ButtonSize
@@ -107,7 +109,12 @@ fun PageHeader(
             } else {
                 trail.lastOrNull()?.let { above -> StepAbove(above, onLink) }
             }
-            PantrixText(text = title, style = titleStyle, color = PantrixTheme.colors.textPrimary)
+            PantrixText(
+                text = title,
+                style = titleStyle,
+                color = PantrixTheme.colors.textPrimary,
+                modifier = Modifier.semantics { heading() }
+            )
             leadView?.invoke()
             if (tags.isNotEmpty()) PageTags(tags)
             CopyPageButton(copied, onCopy, Modifier.fillMaxWidth())
@@ -122,7 +129,7 @@ fun PageHeader(
                     text = title,
                     style = titleStyle,
                     color = PantrixTheme.colors.textPrimary,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f).semantics { heading() }
                 )
                 CopyPageButton(copied, onCopy)
             }

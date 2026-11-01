@@ -31,18 +31,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
+import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.i18n.LocalLanguage
 
 /**
  * A pattern's sketches: small pictures of the windows it is drawn in, each with what it shows under it. They are
  * pictures only, and a screen reader is told nothing of them: the pattern's words say it.
+ *
+ * A phone draws them as its design does, fewer and smaller ([PhoneSketches]): the larger ones, side by side at their
+ * own sizes, are wider than a phone, and the last of them was squeezed to a sliver with its words one letter to a line.
  */
 @Composable
 internal fun PatternSketches(
     pattern: Pattern,
     modifier: Modifier = Modifier
 ) {
+    if (SiteTheme.layout == SiteLayout.Phone) {
+        PhoneSketches(pattern, modifier)
+        return
+    }
     Row(
         modifier
             .background(SiteTheme.colors.canvas, RoundedCornerShape(14.dp))
@@ -85,6 +93,138 @@ internal fun PatternSketches(
             }
         }
     }
+}
+
+/**
+ * A pattern's sketches on a phone, as the phone's design draws them: each a window's outline with its panes side by
+ * side, two at most, sized so that a phone's width holds them, with its name in a word under it.
+ */
+@Composable
+private fun PhoneSketches(
+    pattern: Pattern,
+    modifier: Modifier
+) {
+    val language = LocalLanguage.current
+    Row(
+        modifier
+            .background(SiteTheme.colors.canvas, RoundedCornerShape(12.dp))
+            .padding(12.dp)
+            .clearAndSetSemantics { },
+        horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        phoneSketchesOf(pattern.code).forEachIndexed { index, sketch ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                PhoneSketch(sketch)
+                PantrixText(
+                    text = pattern.minis.getOrNull(index)?.of(language).orEmpty(),
+                    style = SiteTheme.type.bodySmall.copy(fontSize = 11.sp, fontWeight = FontWeight.Bold),
+                    color = SiteTheme.colors.muted
+                )
+            }
+        }
+    }
+}
+
+/** A window's outline on a phone, with its panes side by side in it. */
+@Composable
+private fun PhoneSketch(sketch: Mini) {
+    val shape = RoundedCornerShape(9.dp)
+    Row(
+        Modifier
+            .size(sketch.width, sketch.height)
+            .clip(shape)
+            .background(PantrixTheme.colors.surface)
+            .border(MINI_OUTLINE, OUTLINE, shape)
+            .padding(MINI_OUTLINE + 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        sketch.panes.forEach { pane ->
+            val width = if (pane.width != null) Modifier.width(pane.width) else Modifier.weight(pane.weight)
+            Box(width.fillMaxHeight().background(pane.tone.color(), RoundedCornerShape(4.dp)))
+        }
+    }
+}
+
+/** What a pattern's sketches on a phone are, from its [code]: the phone's design's. */
+private fun phoneSketchesOf(code: String): List<Mini> = when (code) {
+    "scaffold" -> listOf(
+        Mini(60.dp, 110.dp, listOf(MiniPane(MiniTone.Plain))),
+        Mini(150.dp, 100.dp, listOf(MiniPane(MiniTone.Accent, width = 14.dp), MiniPane(MiniTone.Plain)))
+    )
+
+    "list-detail" -> listOf(
+        Mini(60.dp, 110.dp, listOf(MiniPane(MiniTone.Accent))),
+        Mini(160.dp, 100.dp, listOf(MiniPane(MiniTone.Accent, width = 50.dp), MiniPane(MiniTone.Ground)))
+    )
+
+    "supporting" -> listOf(
+        Mini(60.dp, 110.dp, listOf(MiniPane(MiniTone.Plain))),
+        Mini(160.dp, 100.dp, listOf(MiniPane(MiniTone.Plain), MiniPane(MiniTone.Accent, width = 50.dp)))
+    )
+
+    "tabletop" -> listOf(
+        Mini(
+            160.dp,
+            100.dp,
+            listOf(MiniPane(MiniTone.Accent), MiniPane(MiniTone.Hinge, width = 5.dp), MiniPane(MiniTone.Ground))
+        ),
+        Mini(80.dp, 110.dp, listOf(MiniPane(MiniTone.Night)))
+    )
+
+    "columns" -> listOf(
+        Mini(220.dp, 70.dp, listOf(MiniPane(MiniTone.Accent, weight = 8f), MiniPane(MiniTone.Warm, weight = 4f)))
+    )
+
+    else -> listOf(Mini(220.dp, 90.dp, listOf(MiniPane(MiniTone.Ground, weight = 3f), MiniPane(MiniTone.Accent))))
+}
+
+/** A window on a phone's sketch: [width] by [height], with [panes] side by side. */
+private class Mini(
+    val width: Dp,
+    val height: Dp,
+    val panes: List<MiniPane>
+)
+
+/** A pane of a phone's sketch: [width] wide, or else a [weight] of the room the others leave, in [tone]. */
+private class MiniPane(
+    val tone: MiniTone,
+    val weight: Float = 1f,
+    val width: Dp? = null
+)
+
+/** The colours a phone's sketch draws its panes in, as its design names them. */
+private enum class MiniTone {
+    /** A pane of content: the design's hover. */
+    Plain,
+
+    /** The pane that leads, or is chosen: the design's soft accent. */
+    Accent,
+
+    /** A pane beside: the design's second surface. */
+    Ground,
+
+    /** A hinge between two panes. */
+    Hinge,
+
+    /** A screen set on a table, at night. */
+    Night,
+
+    /** A span of columns apart from the first. */
+    Warm
+}
+
+@Composable
+private fun MiniTone.color(): Color = when (this) {
+    MiniTone.Plain -> SiteTheme.colors.hover
+    MiniTone.Accent -> PantrixTheme.colors.primary.container
+    MiniTone.Ground -> SiteTheme.colors.surfaceAlt
+    MiniTone.Hinge -> PantrixTheme.colors.borderStrong
+    MiniTone.Night -> MINI_NIGHT
+    MiniTone.Warm -> MINI_WARM
 }
 
 /** A sketch with what it shows under it. */
@@ -424,6 +564,9 @@ private fun OwnBox() {
 }
 
 private val OUTLINE = Color(0xFF181D2B)
+private val MINI_OUTLINE = 3.dp
+private val MINI_NIGHT = Color(0xFF264795)
+private val MINI_WARM = Color(0x40E5761F)
 private val FOLD_SHADE = Color(0x4D05070A)
 private val TABLE_GROUND = Color(0xFF1D3362)
 private val TABLE_FACE = Color(0x995386FF)

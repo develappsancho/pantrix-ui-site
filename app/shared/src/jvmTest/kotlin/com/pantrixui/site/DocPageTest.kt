@@ -54,6 +54,13 @@ class DocPageTest {
         }
 
     @Test
+    fun its_title_its_sections_and_its_steps_are_headings_for_a_screen_reader() =
+        siteAt(Route.Doc("installation")) {
+            val titles = listOf("Installation", "What it needs", "Add the repository", "Give it your brand")
+            until("the page's headings") { headings().containsAll(titles) }
+        }
+
+    @Test
     fun the_page_is_copied_for_an_assistant() = siteAt(Route.Doc("installation")) {
         press(hasPantrixTag("Button", "copyPage"))
         until("the copy") { copied() != null }

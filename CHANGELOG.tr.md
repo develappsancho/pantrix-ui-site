@@ -9,11 +9,17 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Değişenler
+
+*   **Ana sayfanın turunda her adımın kullandığı parçalar:** tasarımdaki gibi, kodun yazısıyla yazılmış küçük kutucuklar; düz bağlantılardı.
+
 ### Düzeltilenler
 
 *   **Ana sayfanın masaüstündeki turu:** turu duraklatan ve oynatan düğme ile gösterilen adım, adımlar sütununun altında yeniden görünür; sütun turun kutusundan uzun olmuştu ve kutunun kenarı onları saklıyordu.
 *   **Ana sayfanın turu her pencerede:** adımdan adıma geçerken tek bir yükseklikte kalır, altındaki sayfa da yerinde durur; her adımın açıklamasıyla uzayıp kısalıyordu.
 *   **Telefonda atlanabilen bir adım:** "isteğe bağlı" sözü adımın başlığının ardından, son satırında ya da bir alttakinde gelir; satıra sığmayan bir başlığın yanında, kodlama asistanları sayfasında olduğu gibi, sayfanın kenarından aşağı harf harf diziliyordu.
+*   **Uyarlanabilir sayfanın kalıpları telefonda:** her biri, telefonun tasarımındaki gibi iki küçük çizim çizer; masaüstünün üç çizimi kendi boyutlarıyla yan yana duruyordu, sonuncusu ince bir şeride sıkışıyor, yazısı harf harf diziliyordu.
+*   **Ekran okuyucu için başlıklar:** belgelerde ve rehberlerde sayfanın başlığı, bölümleri ve adımları, rehberlerin konuları ve bir bileşenin örnekleri başlık olarak okunur; ekran okuyucu birinden ötekine geçebilir. Düz metin olarak okunuyorlardı.
 
 ## [26.11.2] - 2026-11-02
 

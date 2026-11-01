@@ -506,16 +506,40 @@ private fun Caption(
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
         )
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            step.apis.forEach { (name, route) ->
-                PantrixLink(
-                    text = name,
-                    onClick = { open(route) },
-                    style = SiteTheme.type.inlineCode.copy(fontSize = 12.5.sp),
-                    tagKey = "tourApi_${name.substringBefore('(').lowercase()}",
-                    underline = LinkUnderline.OnHover
-                )
-            }
+            step.apis.forEach { (name, route) -> ApiChip(name) { open(route) } }
         }
+    }
+}
+
+/**
+ * A part the step uses, by its name in code, that leads to its page: a chip, as the design draws it, in the code's
+ * face.
+ *
+ * The site draws it for itself: `PantrixChip` sets its label in the theme's label face, and its style has no text of
+ * its own to give the code's. It gives way to the library's chip once that one can.
+ */
+@Composable
+private fun ApiChip(
+    name: String,
+    onClick: () -> Unit
+) {
+    val shape = RoundedCornerShape(API_CHIP_CORNER)
+    Box(
+        Modifier
+            .height(API_CHIP_HEIGHT)
+            .siteClickable("tourApi_${name.substringBefore('(').lowercase()}", Role.Button, shape, onClick = onClick)
+            .background(SiteTheme.colors.surfaceAlt)
+            .border(1.dp, PantrixTheme.colors.border, shape)
+            .padding(horizontal = 10.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        PantrixText(
+            text = name,
+            style = SiteTheme.type.inlineCode.copy(fontSize = 12.5.sp),
+            color = PantrixTheme.colors.textPrimary,
+            maxLines = 1,
+            softWrap = false
+        )
     }
 }
 
@@ -608,6 +632,12 @@ private const val TOUR_INTERVAL = 4_500L
 
 /** How much of the band, or of a window it does not fit, shows before the tour turns. */
 private const val IN_VIEW = 1f / 3f
+
+/** How tall a chip of a part the step uses is. */
+private val API_CHIP_HEIGHT = 30.dp
+
+/** How round a chip of a part the step uses is. */
+private val API_CHIP_CORNER = 8.dp
 
 /** How tall a desktop's tour is: its stage's height, and the least its column beside it is. */
 private val TOUR_HEIGHT = 600.dp

@@ -72,6 +72,11 @@ class ComponentPageTest {
     }
 
     @Test
+    fun each_example_s_title_is_a_heading_for_a_screen_reader() = siteAt(Route.Component("button")) {
+        until("the examples' headings") { headings().containsAll(listOf("Variants", "Sizes", "Loading and disabled")) }
+    }
+
+    @Test
     fun the_page_is_copied_for_an_assistant() = siteAt(Route.Component("button")) {
         press(hasPantrixTag("Button", "copyPage"))
         until("the copy") { copied() != null }

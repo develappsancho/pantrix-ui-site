@@ -1,9 +1,11 @@
 package com.pantrixui.site
 
 import androidx.compose.ui.test.hasTestTag
+import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.testing.hasPantrixTag
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /** The window simulator: a device chosen, an app chosen, the app used inside it, and the way to the guides. */
 class AdaptivePageTest {
@@ -37,6 +39,16 @@ class AdaptivePageTest {
         until("the inbox chosen") { chosen(inbox) }
         press(MAIL)
         until("the simulator stays on its page") { address() == "/adaptive" }
+    }
+
+    @Test
+    fun no_word_of_it_stands_one_letter_to_a_line_on_a_phone_in_both_languages() = Language.entries.forEach {
+        siteAt(Route.Adaptive, SiteSize.Phone, it) {
+            // The patterns' sketches stood side by side at a desktop's sizes, and squeezed the last to a sliver.
+            until("the patterns") { words().any { word -> word.startsWith("6 · BoxWithPantrixWindow") } }
+            settle()
+            assertEquals(emptyList(), squeezed(), "in $it")
+        }
     }
 
     @Test

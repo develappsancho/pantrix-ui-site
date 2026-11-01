@@ -35,6 +35,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -158,7 +160,7 @@ private fun BlockView(
                 else -> SiteTheme.type.stepTitle
             },
             color = PantrixTheme.colors.textPrimary,
-            modifier = Modifier.pageAnchor(anchors, block.anchor)
+            modifier = Modifier.pageAnchor(anchors, block.anchor).semantics { heading() }
         )
 
         is Block.Paragraph -> RichText(block.text, onLink)
@@ -334,14 +336,22 @@ private fun StepTitle(
 ) {
     val style = SiteTheme.type.stepTitle
     val color = PantrixTheme.colors.textPrimary
+    // A screen reader goes from one step to the next as from one heading to the next, as the design's h2s are.
+    val asHeading = Modifier.semantics { heading() }
     if (!step.optional) {
-        PantrixText(text = step.title, modifier = modifier, style = style, color = color)
+        PantrixText(text = step.title, modifier = modifier.then(asHeading), style = style, color = color)
         return
     }
     val lines = remember { TitleLines() }
     Layout(
         content = {
-            PantrixText(text = step.title, style = style, color = color, onTextLayout = { lines.laid = it })
+            PantrixText(
+                text = step.title,
+                modifier = asHeading,
+                style = style,
+                color = color,
+                onTextLayout = { lines.laid = it }
+            )
             PantrixText(
                 text = LocalSiteStrings.current.optional,
                 style = SiteTheme.type.button,

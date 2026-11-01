@@ -87,7 +87,7 @@ class HomePageTest {
         // A step chosen by hand stops the tour there: the foldable held open, with a rail at its side.
         press(hasTestTag("Site_tour_book"))
         until("the tour paused on the foldable") { said(play) != "Pause the tour" }
-        press(hasPantrixTag("Link", "tourApi_pantrixnavigationrail"))
+        press(hasTestTag("Site_tourApi_pantrixnavigationrail"))
         untilAt("/components/navigation-rail")
     }
 

@@ -66,6 +66,8 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `server` | The site's server, Spring Boot on the JVM, which runs beside the site on its host: the library's MCP server over Streamable HTTP at `/mcp` (`McpEndpoint`, `PantrixMcp.http()`), its allowed origins in `application.properties` (`pantrix.mcp.origins`); `./gradlew :server:bootJar` makes the jar that runs by itself, on `PORT` or 8080 |
 | `.claude/skills/pantrix-ui`, `.mcp.json` | The library's skill and its MCP server, as an app of the library takes them: the skill written by the library's jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`), the server the same jar, which each machine names in `PANTRIX_MCP_JAR`: the jar attached to the library's release, or `~/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar` after a local publish |
 | `content` | The pages, in English and Turkish; `examples/<language>/<key>.md`: a component's examples the site writes itself, in place of the demo's (the data table's) |
+| `deploy` | Putting the site up: two images built on this machine from Gradle's outputs, the site's files behind nginx (`web/Dockerfile`, `web/default.conf`) and the server (`server/Dockerfile`), in one Compose stack (`compose.yaml`; `compose.local.yaml` builds them here and opens port 4004); `deploy.sh local` builds, runs and checks it, `check.sh` checks any address. Nothing is compiled on the host |
+| `docs/deploy` | The deploy's guides, in Turkish: `ARCHITECTURE_GUIDE.md` (what runs where and why, with diagrams) and `DEPLOY_GUIDE.md` (the steps) |
 
 ## Checks
 
@@ -80,6 +82,10 @@ something surprising — flag it, even if it is unrelated to the task at hand.
   other address `404.html` with a 404. The static pages are written into the same folder after the distribution; a
   browser with scripts off shows them.
 - The server: `./gradlew :server:test` asks every kind of MCP message over real HTTP.
+- The deploy, when `deploy/`, the server or the web build's output changes: `deploy/deploy.sh local` builds both images,
+  runs the stack at `http://localhost:4004` and runs `deploy/check.sh` on it (pages, 404, compression, caching, `www`,
+  `/mcp`); `deploy/deploy.sh stop` stops it. The owner's other containers run in the same Docker: touch only the
+  stack `pantrix-ui-site`.
 - The pages' screenshots, when a page's look changes: `./gradlew :app:shared:verifyRoborazziJvm` (about six minutes).
   `PageScreenshotTest` draws one page of each kind (14, and the home page and Installation in Turkish too) at 1440×900,
   834×1194 and 390×844, light and dark, on the desktop's Skia: 96 images in `app/shared/screenshots/jvm/`. A change

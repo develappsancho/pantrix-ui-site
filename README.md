@@ -1,6 +1,6 @@
 # Pantrix UI site
 
-The website of [Pantrix UI](https://github.com/develappsancho/pantrix-ui-cmp), built with Pantrix UI: one Compose
+The website of [Pantrix UI](https://github.com/develappsancho/pantrix-ui-cmp-package), built with Pantrix UI: one Compose
 Multiplatform app for the web (Wasm), Android, iOS and the desktop. Every page is in English and in Turkish, each at
 its own address: `/docs/installation` and `/tr/docs/installation`.
 
@@ -32,6 +32,20 @@ repository (`./gradlew publishToMavenLocal`).
 - `./gradlew :server:test`
 - `./gradlew :app:shared:verifyRoborazziJvm`: one page of each kind at a desktop's, a tablet's and a phone's size, light
   and dark, against the images in `app/shared/screenshots/jvm/` (`recordRoborazziJvm` writes them again)
+
+## Putting it up
+
+The site runs as two containers in one Docker Compose stack: its files behind nginx, and the server beside it, which
+nginx alone reaches, at `/mcp`. Both images are built on this machine from what Gradle makes; nothing is compiled on
+the host.
+
+- On this machine: `deploy/deploy.sh local` builds the site and the server, makes the two images, runs the stack at
+  `http://localhost:4004` and checks it with `deploy/check.sh`; `deploy/deploy.sh stop` stops it. It needs Docker, and
+  the token above for GitHub Packages.
+- On the host, `pantrixui.com`: Coolify, from the same images on GitHub's container registry (to come).
+
+The guides are in Turkish: `docs/deploy/ARCHITECTURE_GUIDE.md` draws what runs where and why (nginx, the images, the
+stack, compression and caching), and `docs/deploy/DEPLOY_GUIDE.md` has the steps.
 
 ## The content
 

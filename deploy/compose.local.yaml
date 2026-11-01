@@ -1,0 +1,20 @@
+# The stack on this machine: both images built from what Gradle made here, and the site at http://localhost:4004
+# (SITE_PORT changes it), open to this machine alone. deploy/deploy.sh local runs it.
+services:
+  web:
+    build:
+      context: web
+      additional_contexts:
+        site: ../app/webApp/build/dist/wasmJs/productionExecutable
+      args:
+        REVISION: ${SITE_TAG:-local}
+    ports:
+      - "127.0.0.1:${SITE_PORT:-4004}:80"
+
+  server:
+    build:
+      context: server
+      additional_contexts:
+        jar: ../server/build/libs
+      args:
+        REVISION: ${SITE_TAG:-local}

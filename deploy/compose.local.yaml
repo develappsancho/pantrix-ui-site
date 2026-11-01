@@ -5,6 +5,8 @@ services:
   web:
     environment:
       SITE_URL: http://localhost:${SITE_PORT:-4004}
+    # Built here from what Gradle made, never pulled from the registry.
+    pull_policy: build
     build:
       context: web
       additional_contexts:
@@ -17,6 +19,7 @@ services:
   server:
     environment:
       SITE_URL: http://localhost:${SITE_PORT:-4004}
+    pull_policy: build
     build:
       context: server
       additional_contexts:

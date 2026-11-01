@@ -6,6 +6,8 @@ name: pantrix-ui-site
 services:
   web:
     image: ghcr.io/develappsancho/pantrix-ui-site-web:${SITE_TAG:-latest}
+    # Pulled at each deploy: latest is the last release's, and SITE_TAG pins one (26.10.31, or a commit).
+    pull_policy: always
     restart: unless-stopped
     # The address the stack is served at: written into the site's files and nginx's settings as the container starts.
     # Empty, the site is served at the address it is built for, site.url in gradle.properties.
@@ -16,6 +18,7 @@ services:
 
   server:
     image: ghcr.io/develappsancho/pantrix-ui-site-server:${SITE_TAG:-latest}
+    pull_policy: always
     restart: unless-stopped
     # The same address: the pages of its host may call the MCP server from a browser.
     environment:

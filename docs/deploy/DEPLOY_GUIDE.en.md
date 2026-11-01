@@ -12,6 +12,12 @@ This document gives the steps of putting Pantrix UI's site up: first on this mac
 | `deploy/deploy.sh local --no-gradle` | The same with what Gradle made last: for a change to `deploy/` alone |
 | `deploy/deploy.sh stop` | Stops the stack and removes its containers; the images stay |
 | `deploy/check.sh [address]` | Runs the checks at an address: on this machine or on the host |
+| `deploy/deploy.sh web [version]` | Pushes the two images, for both architectures, to GHCR, has Coolify put them up and checks the live address |
+| `deploy/deploy.sh desktop [version]` | Makes the macOS app a signed DMG notarized by Apple, and puts it on the release's GitHub page |
+| `deploy/deploy.sh release [version]` | `web`, then `desktop`; it needs the version's section in the changelog |
+| `deploy/deploy.sh prepare [version]` | Gives the changelog's `Unreleased` section, and its Turkish copy's `Yayınlanmamış`, the version's name and date |
+
+A version is the release's date: `YY.M.D` (`26.10.31`), today's when none is given. `--dry-run` builds everything and sends nothing anywhere, to GHCR, Coolify, GitHub or Apple; `--no-gradle` takes what Gradle made last; `--no-coolify` pushes the images and leaves Coolify alone.
 
 ## 2. What It Needs
 

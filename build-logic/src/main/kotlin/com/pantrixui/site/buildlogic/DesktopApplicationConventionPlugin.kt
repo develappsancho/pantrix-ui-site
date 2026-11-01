@@ -13,7 +13,11 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
-/** The desktop app: a window that draws the site's app, packaged for macOS, Windows and Linux. */
+/**
+ * The desktop app: a window that draws the site's app, packaged for macOS, Windows and Linux. A release gives its
+ * version as `-Psite.version=26.10.31` (`deploy/deploy.sh desktop`): three numbers, the first above 0, as macOS and an
+ * MSI both take them. A build that is no release is `1.0.0`.
+ */
 class DesktopApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
         pluginManager.alias(libs.plugins.kotlinJvm)
@@ -38,9 +42,16 @@ class DesktopApplicationConventionPlugin : Plugin<Project> {
                     nativeDistributions {
                         targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
                         packageName = "Pantrix UI"
-                        packageVersion = "1.0.0"
+                        packageVersion = target.providers.gradleProperty(SITE_VERSION_PROPERTY).getOrElse("1.0.0")
+                        description = "Pantrix UI's website as a desktop app"
+                        vendor = "Pantrix UI"
                         // The site's logo, three layers, on each platform; Linux's is the window's icon too.
-                        macOS { iconFile.set(target.file("icons/PantrixUI.icns")) }
+                        macOS {
+                            iconFile.set(target.file("icons/PantrixUI.icns"))
+                            bundleID = SITE_APPLICATION_ID
+                            appCategory = "public.app-category.developer-tools"
+                            minimumSystemVersion = "13.0"
+                        }
                         windows { iconFile.set(target.file("icons/PantrixUI.ico")) }
                         linux { iconFile.set(target.file("src/main/resources/PantrixUI.png")) }
                     }
@@ -48,3 +59,6 @@ class DesktopApplicationConventionPlugin : Plugin<Project> {
             }
     }
 }
+
+/** The Gradle property a release gives the desktop app's version in. */
+private const val SITE_VERSION_PROPERTY = "site.version"

@@ -12,6 +12,12 @@ Bu belge, Pantrix UI'ın sitesinin nasıl yayına alındığını adım adım ve
 | `deploy/deploy.sh local --no-gradle` | Aynısını Gradle'ın son çıktısıyla yapar: yalnızca `deploy/` değiştiğinde |
 | `deploy/deploy.sh stop` | Yığını durdurur ve konteynerlerini kaldırır; imajlar kalır |
 | `deploy/check.sh [adres]` | Denetimleri bir adreste çalıştırır: lokalde ya da canlıda |
+| `deploy/deploy.sh web [sürüm]` | İki imajı iki mimari için GHCR'ye gönderir, Coolify'a yayını başlatır ve canlı adresi denetler |
+| `deploy/deploy.sh desktop [sürüm]` | macOS uygulamasını imzalı ve Apple'ın onayından (notarization) geçmiş bir DMG yapar, sürümün GitHub sayfasına koyar |
+| `deploy/deploy.sh release [sürüm]` | Önce `web`, sonra `desktop`; değişiklik günlüğünde sürümün bölümünü ister |
+| `deploy/deploy.sh prepare [sürüm]` | Değişiklik günlüğünün `Unreleased` bölümüne ve Türkçesinin `Yayınlanmamış` bölümüne sürümün adını ve tarihini verir |
+
+Bir sürüm, yayının tarihidir: `YY.A.G` (`26.10.31`); verilmezse bugününki. `--dry-run` her şeyi derler ve hiçbir yere, GHCR'ye, Coolify'a, GitHub'a ya da Apple'a, bir şey göndermez; `--no-gradle` Gradle'ın son çıktısını alır; `--no-coolify` imajları gönderir ve Coolify'a dokunmaz.
 
 ## 2. Gerekenler
 

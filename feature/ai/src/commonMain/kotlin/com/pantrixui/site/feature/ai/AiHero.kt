@@ -75,22 +75,25 @@ internal fun Hero(
                     Modifier.weight(WORDS_SHARE).padding(top = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(22.dp)
                 ) {
-                    HeroWords(onSection)
+                    HeroWords(onAction, onSection)
                     Stats(Modifier.padding(top = 6.dp))
                 }
                 Conversation(state, onAction, Modifier.weight(CONVERSATION_SHARE))
             }
         } else {
-            HeroWords(onSection)
+            HeroWords(onAction, onSection)
             if (layout == SiteLayout.Tablet) Stats()
             Conversation(state, onAction, Modifier.fillMaxWidth())
         }
     }
 }
 
-/** The kicker, the title, the lead and the ways in, as each size sets them. */
+/** The kicker, the title, the lead and the ways in, as each size sets them: the setup on the page, and the index. */
 @Composable
-private fun HeroWords(onSection: (String) -> Unit) {
+private fun HeroWords(
+    onAction: (AiAction) -> Unit,
+    onSection: (String) -> Unit
+) {
     val language = LocalLanguage.current
     val layout = SiteTheme.layout
     val colors = PantrixTheme.colors
@@ -138,7 +141,7 @@ private fun HeroWords(onSection: (String) -> Unit) {
                 LandingButton(text = AiSay.SetItUp.of(language), onClick = { onSection(SETUP) }, tag = "aiSetUp")
                 LandingButton(
                     text = AiSay.ReadLlms.of(language),
-                    onClick = { onSection(DOCUMENTS) },
+                    onClick = { onAction(AiAction.ReadLlms) },
                     tag = "aiReadLlms",
                     kind = LandingButtonKind.Outline
                 )

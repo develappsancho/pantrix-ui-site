@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -35,7 +36,15 @@ import org.koin.core.parameter.parametersOf
 fun AiRoute() {
     val language = LocalLanguage.current
     val viewModel = koinViewModel<AiViewModel>(key = "ai_${language.code}") { parametersOf(language) }
-    BaseScreen(viewModel) { state, onAction -> AiScreen(state, onAction) }
+    val uriHandler = LocalUriHandler.current
+    BaseScreen(
+        viewModel = viewModel,
+        onEffect = { effect ->
+            when (effect) {
+                is AiEffect.OpenUrl -> uriHandler.openUri(effect.url)
+            }
+        }
+    ) { state, onAction -> AiScreen(state, onAction) }
 }
 
 /**
@@ -93,8 +102,14 @@ internal fun mono(
 /** The part of the page "Set it up" leads to. */
 internal const val SETUP = "setup"
 
-/** The part of the page "Read llms.txt" leads to: the four ways in. */
+/** The part of the page the four ways in stand in. */
 internal const val DOCUMENTS = "documents"
+
+/**
+ * The index of the documents for coding assistants, which "Read llms.txt" opens and the setup without a server names:
+ * the site's own `llms.txt`, at its address on every platform.
+ */
+internal const val LLMS_ADDRESS = "https://pantrixui.com/llms.txt"
 
 /** How far apart the page's lines are, in their size. */
 private const val LINE = 1.5f

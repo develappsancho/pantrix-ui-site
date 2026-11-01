@@ -37,10 +37,16 @@ sealed interface AiAction : UiAction {
 
     /** Shows the setup of the assistant [index]. */
     data class PickClient(val index: Int) : AiAction
+
+    /** Opens the index of the documents for coding assistants, `llms.txt`, where the site serves it. */
+    data object ReadLlms : AiAction
 }
 
-/** The page asks nothing of the platform. */
-sealed interface AiEffect : UiEffect
+/** What the page asks of the platform. */
+sealed interface AiEffect : UiEffect {
+    /** Opens [url] outside the app: in a new tab on the web, in the browser elsewhere. */
+    data class OpenUrl(val url: String) : AiEffect
+}
 
 /**
  * The model of the page for coding assistants: the conversation's steps and the setup shown, and the code the
@@ -74,6 +80,10 @@ class AiViewModel(
 
             is AiAction.PickClient -> {
                 updateState { copy(client = action.index) }
+            }
+
+            AiAction.ReadLlms -> {
+                sendEffect(AiEffect.OpenUrl(LLMS_ADDRESS))
             }
         }
     }

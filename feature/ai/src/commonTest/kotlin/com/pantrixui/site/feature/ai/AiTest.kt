@@ -14,6 +14,7 @@ import com.pantrixui.site.core.model.Words
 import com.pantrixui.site.core.testing.FakeContentRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -92,6 +93,13 @@ class AiTest {
         assertEquals(4, model.state.value.step)
         advanceUntilIdle()
         assertEquals(4, model.state.value.step, "it stops at its last step")
+    }
+
+    @Test
+    fun reading_llms_txt_opens_the_file_where_the_site_serves_it() = runTest(dispatcher) {
+        val model = AiViewModel(Language.Turkish, FakeContentRepository(emptyList()))
+        model.onAction(AiAction.ReadLlms)
+        assertEquals(AiEffect.OpenUrl("https://pantrixui.com/llms.txt"), model.effects.first())
     }
 
     @Test

@@ -14,9 +14,6 @@ private const val JAR = "mcp-$JAR_VERSION-all.jar"
 /** Where the site serves the server. */
 private const val ADDRESS = LibraryFacts.MCP_ADDRESS
 
-/** The index of every document, where the site serves it. */
-private const val LLMS = "https://pantrixui.com/llms.txt"
-
 /** The address with no scheme, as a sentence names it. */
 private val SHORT_ADDRESS = ADDRESS.substringAfter("://")
 
@@ -205,7 +202,7 @@ internal object SetupSay {
                             "# Bütün belgeler, bağlantıları bu siteye giden"
                         )
                     ),
-                    SetupLine(LLMS, kind = TokenKind.Keyword),
+                    SetupLine(LLMS_ADDRESS, kind = TokenKind.Keyword),
                     SetupLine(),
                     SetupLine(
                         comment = Words("# Or on your machine, from the jar", "# Ya da kendi makinende, jar'dan")
@@ -213,7 +210,7 @@ internal object SetupSay {
                     SetupLine("java -jar $JAR docs ./pantrix-docs")
                 ),
                 tablet = listOf(
-                    SetupLine(LLMS, kind = TokenKind.Keyword),
+                    SetupLine(LLMS_ADDRESS, kind = TokenKind.Keyword),
                     SetupLine(
                         comment = Words(
                             "# or: java -jar … docs ./pantrix-docs",

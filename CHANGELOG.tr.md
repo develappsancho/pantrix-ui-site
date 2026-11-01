@@ -11,11 +11,12 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ### Eklenenler
 
+*   **Sunucuya soran sayfa:** `/ai/ask` Pantrix UI'ın MCP sunucusuna kendisi sorar, modelsiz ve anahtarsız: İngilizce ya da Türkçe bir soru, kodu ve ondan söz eden belgeleriyle bir bileşeni, kütüphanenin bildirimlerini, ikonlarını ya da belgelerini bulur; çağırdığı araçlar cevabın yanında durur. Okurun kendi asistanını da kurar ve okurun kendi anahtarıyla neyin geleceğini söyler. Kodlama asistanlarının sayfası ona başından ve konuşmasının sonundan götürür.
 *   **Sitenin kaynağı GitHub'da:** header'da tema düğmesinin yanında GitHub'ın işareti var ve sitenin deposunu açar; tasarımdan dar bir telefonda orada ona yer yoktur, menü de ona götürür.
 
 ### Değişenler
 
-*   **Pantrix UI 0.1.0-alpha05:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir; rehberleri sitededir, yenisi, her tarayıcıda açılan uygulama, canlı çizimiyle birlikte.
+*   **Pantrix UI 0.1.0-alpha06:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir, sunucusu Türkçe de arar ve cevaplarını veri olarak da verir; rehberleri sitededir, her tarayıcıda açılan uygulamanın rehberi canlı çizimiyle birlikte.
 *   **Kodlama asistanları sayfası:** Claude Code yalnızca Pantrix UI'ın eklentisiyle kurulur; eklenti MCP sunucusunu ve beceriyi birlikte getirir, sunucu artık iki kez eklenmez.
 *   **Kodlama asistanları sayfası, dosyaları:** kurulumun altında, andığı her dosya bulunduğu yerden açılır ya da iner: MCP sunucusunun jar'ı ve becerinin zip'i GitHub'daki sürümden, her birini kullanan satırla; `SKILL.md`, `llms.txt`, `llms-full.txt`, `pantrix-ui.json` ve şeması siteden; adımlardaki ve kartlardaki adları da bağlantıdır. Cursor sunucunun adresiyle kurulur, jar komut başlatan bir istemciye kalır.
 *   **Tablet ile masaüstü arasında ana sayfa:** 840 ile yaklaşık 1100 dp arası genişlikte bir pencerede, yan yatırılmış açık bir katlanabilir cihazda olduğu gibi, ana sayfanın yazıları tabletin tek sütununda genişliği doldurur; önceden sağ tarafı boş bırakıyorlardı.

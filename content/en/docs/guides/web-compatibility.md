@@ -5,7 +5,7 @@ description: Why a Compose Multiplatform web app does not open at all in some br
 
 ## 1. The problem {#problem}
 
-### What is seen
+### Symptom
 
 *   The page opens, but the app does not come. What shows depends on the page:
     *   A page that writes nothing but the app stays **blank and white**.
@@ -19,7 +19,10 @@ CompileError: WebAssembly.Module(): Unknown type code 0x5e, enable with --experi
 Please make sure that your runtime environment supports the latest version of Wasm GC and Exception-Handling proposals.
 ```
 
-### Why
+:::sketch web-compatibility
+:::
+
+### Cause
 
 *   Kotlin/Wasm's output rests on two Wasm proposals: **garbage collection** (GC) and **exceptions** (exception handling). The first versions that have them:
 
@@ -35,7 +38,7 @@ Please make sure that your runtime environment supports the latest version of Wa
 *   In a browser that has the features, the Wasm build can still fail to open. A phone's browser can go past the memory it sets aside for compiling a module. A Compose web app is two large modules (14.5 MB of app and 8.6 MB of Skia for us). A module the simulator compiles with the Mac's memory can be refused on a phone.
 *   `composeCompatibilityBrowserDistribution`, in Compose's own Gradle plugin, joins the JS and Wasm distributions and tests the browser once, as the page opens. Where the Wasm build passes the test and fails after, it does not go over to JS: it does nothing for the second case.
 
-### Finding it
+### Diagnosis
 
 *   **The version of Chrome in the Android emulator:**
 
@@ -56,9 +59,6 @@ adb forward tcp:9333 localabstract:chrome_devtools_remote
 ```bash
 node --no-experimental-wasm-legacy-eh -e "new WebAssembly.Module(require('fs').readFileSync('app.wasm'))"
 ```
-
-:::sketch web-compatibility
-:::
 
 ## 2. The solution: two builds and a loader {#fix}
 

@@ -89,6 +89,17 @@ object LandingHeads {
         )
     )
 
+    /** The page that asks the library's MCP server, `/ai/ask`. */
+    val Ask = LandingHead(
+        title = Words("Ask the server", "Sunucuya sor"),
+        description = Words(
+            "Ask Pantrix UI's MCP server yourself, with no model and no key: the component, the code of its example " +
+                "and its documents, in English or in Turkish.",
+            "Pantrix UI'ın MCP sunucusuna kendin sor, modelsiz ve anahtarsız: bileşeni, örneğinin kodunu ve " +
+                "belgelerini, İngilizce ya da Türkçe."
+        )
+    )
+
     /** The roadmap, `/roadmap`. */
     val Roadmap = LandingHead(
         title = Words("Roadmap", "Yol haritası"),
@@ -119,6 +130,7 @@ object LandingHeads {
         Route.Theme -> Theme
         Route.Adaptive -> Adaptive
         Route.Ai -> Ai
+        Route.Ask -> Ask
         Route.Roadmap -> Roadmap
         Route.Download -> Download
         else -> null

@@ -1,7 +1,5 @@
-package com.pantrixui.site.tools.content
+package com.pantrixui.site.core.model
 
-import com.pantrixui.site.core.model.Token
-import com.pantrixui.site.core.model.TokenKind
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

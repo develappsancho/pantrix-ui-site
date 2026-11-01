@@ -131,7 +131,8 @@ private fun codeStyle(
 /**
  * A small block of the site's code inside a box: the code alone, in its colours, [textSize] and its lines [line]
  * times that apart, [horizontalPadding] and [verticalPadding] from its edges and rounded [corner], as the box's design
- * has it.
+ * has it. Given a [title], or [onCopy], it has a header over the code with them: the title at its start and a button
+ * that copies at its end.
  *
  * @param code the code and its tokens.
  * @param modifier the block's modifier.
@@ -140,6 +141,8 @@ private fun codeStyle(
  * @param horizontalPadding the room at its sides.
  * @param verticalPadding the room over and under it.
  * @param corner how round its corners are.
+ * @param title what the header names, `Example · Undo an archive`, or null for none.
+ * @param onCopy what is told whether its button copied the code, or null for a block with no such button.
  */
 @Composable
 fun SmallCode(
@@ -149,14 +152,18 @@ fun SmallCode(
     line: Float = CODE_LINE,
     horizontalPadding: Dp = 16.dp,
     verticalPadding: Dp = 14.dp,
-    corner: Dp = 14.dp
+    corner: Dp = 14.dp,
+    title: String? = null,
+    onCopy: ((copied: Boolean) -> Unit)? = null
 ) {
     val (text, tokens) = remember(code) { code.lines.toCodeAndTokens() }
     PantrixCodeBlock(
         code = text,
         modifier = modifier.codeExample().fillMaxWidth(),
         tokens = tokens,
-        copyable = false,
+        title = title,
+        copyable = onCopy != null,
+        onCopy = onCopy,
         colors = SiteTheme.colors.code.forCodeBlock(),
         style = CodeBlockStyle(
             shape = ShapeSpec.Fixed(RoundedCornerShape(corner)),

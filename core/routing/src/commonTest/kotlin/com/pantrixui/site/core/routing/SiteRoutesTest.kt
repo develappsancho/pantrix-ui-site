@@ -17,6 +17,7 @@ class SiteRoutesTest {
         Route.Adaptive,
         Route.Theme,
         Route.Ai,
+        Route.Ask,
         Route.Roadmap,
         Route.Download,
         Route.Changelog

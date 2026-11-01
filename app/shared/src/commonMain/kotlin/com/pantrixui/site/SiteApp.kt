@@ -57,6 +57,7 @@ import com.pantrixui.site.core.navigation.rememberNavigator
 import com.pantrixui.site.core.routing.SiteRoutes
 import com.pantrixui.site.feature.adaptive.AdaptiveRoute
 import com.pantrixui.site.feature.ai.AiRoute
+import com.pantrixui.site.feature.ai.AskRoute
 import com.pantrixui.site.feature.components.ComponentRoute
 import com.pantrixui.site.feature.components.ComponentsRoute
 import com.pantrixui.site.feature.docs.ChangelogRoute
@@ -253,6 +254,7 @@ private fun Modifier.searchShortcut(onSearch: () -> Unit): Modifier =
     shortcutRoot().onShortcut(PantrixShortcut(Key.K, command = true), onTrigger = onSearch)
 
 /** The page [route] names. Each kind of page is a feature's; the pages of later stages are not built yet. */
+@Suppress("CyclomaticComplexMethod") // A branch for each kind of page, so that a route without its page does not build.
 @Composable
 private fun SitePage(
     route: Route,
@@ -301,7 +303,11 @@ private fun SitePage(
         }
 
         Route.Ai -> {
-            AiRoute()
+            AiRoute(onNavigate)
+        }
+
+        Route.Ask -> {
+            AskRoute(onNavigate)
         }
 
         Route.Roadmap -> {

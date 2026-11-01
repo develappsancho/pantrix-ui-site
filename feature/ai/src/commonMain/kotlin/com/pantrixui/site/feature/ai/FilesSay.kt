@@ -20,7 +20,7 @@ internal object FilesSay {
             FileRow(
                 title = Words("The MCP server's jar", "MCP sunucusunun jar'ı"),
                 name = LibraryFacts.MCP_JAR,
-                size = Words("about 18 MB", "yaklaşık 18 MB"),
+                size = Words("about 19 MB", "yaklaşık 19 MB"),
                 how = Words(
                     "A client that starts a command runs it, on JDK 17 or newer: ",
                     "Komut başlatan bir istemci onu çalıştırır, JDK 17 ya da üstünde: "

@@ -11,6 +11,7 @@ import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.model.codeByHeading
+import com.pantrixui.site.core.routing.SiteRoutes
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
@@ -43,12 +44,18 @@ sealed interface AiAction : UiAction {
 
     /** Opens [url]: a file for coding assistants, where the site serves it or the release has it, or the release. */
     data class Open(val url: String) : AiAction
+
+    /** Opens the page that asks the server. */
+    data object AskServer : AiAction
 }
 
 /** What the page asks of the platform. */
 sealed interface AiEffect : UiEffect {
     /** Opens [url] outside the app: in a new tab on the web, in the browser elsewhere. */
     data class OpenUrl(val url: String) : AiEffect
+
+    /** Opens [address], a page of the site. */
+    data class Navigate(val address: String) : AiEffect
 }
 
 /**
@@ -91,6 +98,10 @@ class AiViewModel(
 
             is AiAction.Open -> {
                 sendEffect(AiEffect.OpenUrl(action.url))
+            }
+
+            AiAction.AskServer -> {
+                sendEffect(AiEffect.Navigate(SiteRoutes.addressOf(Route.Ask, language)))
             }
         }
     }

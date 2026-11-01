@@ -1,7 +1,9 @@
 package com.pantrixui.site
 
+import com.pantrixui.site.core.content.AskRepository
 import com.pantrixui.site.core.content.ContentRepository
 import com.pantrixui.site.core.content.GitHubReleaseRepository
+import com.pantrixui.site.core.content.McpAskRepository
 import com.pantrixui.site.core.content.ReleaseRepository
 import com.pantrixui.site.core.content.ResourceContentRepository
 import com.pantrixui.site.core.model.Language
@@ -28,6 +30,7 @@ import org.koin.mp.KoinPlatform
 val siteModule: Module = module {
     single<ContentRepository> { ResourceContentRepository() }
     single<ReleaseRepository> { GitHubReleaseRepository() }
+    single<AskRepository> { McpAskRepository() }
     viewModel { (language: Language) -> SiteViewModel(language) }
 }
 

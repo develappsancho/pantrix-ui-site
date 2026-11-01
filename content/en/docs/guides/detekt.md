@@ -78,7 +78,7 @@ The rules are published as `com.pantrixui:detekt-rules`. An app gives them to de
 
 ```kotlin
 dependencies {
-    detektPlugins("com.pantrixui:detekt-rules:0.1.0-alpha05")
+    detektPlugins("com.pantrixui:detekt-rules:0.1.0-alpha06")
 }
 ```
 

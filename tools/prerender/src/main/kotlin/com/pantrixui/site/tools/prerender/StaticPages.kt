@@ -199,7 +199,7 @@ internal class StaticPages(
         Route.Foundations -> strings.foundations
         Route.Theme -> strings.theme
         Route.Adaptive -> strings.adaptive
-        Route.Ai -> strings.forAi
+        Route.Ai, Route.Ask -> strings.forAi
         Route.Download -> strings.download
         else -> strings.roadmap
     }
@@ -217,6 +217,7 @@ internal class StaticPages(
             Route.Theme,
             Route.Adaptive,
             Route.Ai,
+            Route.Ask,
             Route.Roadmap,
             Route.Download
         )

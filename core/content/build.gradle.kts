@@ -17,3 +17,11 @@ kotlin {
         }
     }
 }
+
+dependencies {
+    // The library's MCP server, run in the JVM's tests, which the page's calls are read against. It needs no Ktor, as
+    // the site's server's does not (server/build.gradle.kts).
+    "jvmTestImplementation"(libs.pantrix.mcp) {
+        exclude(group = "io.ktor")
+    }
+}

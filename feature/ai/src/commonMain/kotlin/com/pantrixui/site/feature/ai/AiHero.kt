@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +35,8 @@ import com.pantrixui.components.elements.button.ButtonStyle
 import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.icon.PantrixIcon
+import com.pantrixui.components.elements.link.LinkUnderline
+import com.pantrixui.components.elements.link.PantrixLink
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
@@ -48,6 +53,7 @@ import com.pantrixui.site.core.designsystem.content.SmallCode
 import com.pantrixui.site.core.designsystem.content.landingCard
 import com.pantrixui.site.core.designsystem.content.landingHeading
 import com.pantrixui.site.core.designsystem.content.withCode
+import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.designsystem.sized
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Words
@@ -136,14 +142,31 @@ private fun HeroWords(
                 height = 50.dp,
                 fill = true
             )
+            LandingButton(
+                text = AiSay.AskYourself.of(language),
+                onClick = { onAction(AiAction.AskServer) },
+                tag = "aiAsk",
+                kind = LandingButtonKind.Outline,
+                height = 50.dp,
+                fill = true
+            )
         } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 LandingButton(text = AiSay.SetItUp.of(language), onClick = { onSection(SETUP) }, tag = "aiSetUp")
                 LandingButton(
                     text = AiSay.ReadLlms.of(language),
                     onClick = { onAction(AiAction.ReadLlms) },
                     tag = "aiReadLlms",
                     kind = LandingButtonKind.Outline
+                )
+                PantrixLink(
+                    text = AiSay.AskYourself.of(language),
+                    onClick = { onAction(AiAction.AskServer) },
+                    style = SiteTheme.type.button.copy(fontWeight = FontWeight.Bold),
+                    color = colors.primary.onContainer,
+                    underline = LinkUnderline.OnHover,
+                    tagKey = "aiAsk",
+                    modifier = Modifier.heightIn(min = 48.dp).padding(horizontal = 12.dp).wrapContentHeight()
                 )
             }
         }
@@ -209,6 +232,38 @@ private fun Conversation(
             Step(state.step >= tools.size + 1) { Answer(state) }
             Step(state.step >= tools.size + 2) { Checks() }
         }
+        OwnQuestion { onAction(AiAction.AskServer) }
+    }
+}
+
+/** The way from the conversation to the page that asks the server, with the reader's own question. */
+@Composable
+private fun OwnQuestion(onClick: () -> Unit) {
+    val language = LocalLanguage.current
+    val colors = PantrixTheme.colors
+    val shape = RoundedCornerShape(14.dp)
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .landingCard(colors.surface, colors.borderHover, corner = 14.dp)
+            .siteClickable(tag = "aiOwnQuestion", role = Role.Button, shape = shape, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            PantrixText(
+                text = AiSay.OwnQuestion.of(language),
+                style = strong(14.sp, FontWeight.Bold),
+                color = colors.textPrimary
+            )
+            PantrixText(
+                text = AiSay.OwnQuestionLine.of(language).replace(MCP_HOST, mcpHost()),
+                style = small(13.sp),
+                color = colors.textSecondary
+            )
+        }
+        PantrixText(text = "→", style = strong(18.sp), color = colors.primary.onContainer)
     }
 }
 

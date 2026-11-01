@@ -11,6 +11,7 @@ import com.pantrixui.site.core.model.ComponentIndex
 import com.pantrixui.site.core.model.ComponentLink
 import com.pantrixui.site.core.model.ComponentPage
 import com.pantrixui.site.core.model.DemoPages
+import com.pantrixui.site.core.model.Highlighter
 import com.pantrixui.site.core.model.Language
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject

@@ -47,10 +47,10 @@ The shared module's `build.gradle.kts`:
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.pantrixui:components:0.1.0-alpha05")
+            implementation("com.pantrixui:components:0.1.0-alpha06")
         }
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.0-alpha05")
+            implementation("com.pantrixui:testing:0.1.0-alpha06")
             implementation(kotlin("test"))
         }
         // runComposeUiTest draws on the desktop: the test JVM needs this machine's Skiko.
@@ -174,7 +174,7 @@ The rules of [SKILL.md](../SKILL.md) that a machine can check are published as d
 
 ```kotlin
 dependencies {
-    detektPlugins("com.pantrixui:detekt-rules:0.1.0-alpha05")
+    detektPlugins("com.pantrixui:detekt-rules:0.1.0-alpha06")
 }
 ```
 

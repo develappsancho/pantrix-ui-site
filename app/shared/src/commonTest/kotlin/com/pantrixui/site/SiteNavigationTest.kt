@@ -18,6 +18,9 @@ class SiteNavigationTest {
         assertEquals(SitePart.Components, Route.Component("text-area").part)
         assertEquals(SitePart.Roadmap, Route.Roadmap.part)
         assertEquals(SitePart.Download, Route.Download.part)
+        // The page that asks the server stands under the page for coding assistants, which the header marks.
+        assertEquals(SitePart.Ai, Route.Ask.part)
+        assertEquals(listOf("ai"), headerLinks(SiteStrings.English, Route.Ask).filter { it.current }.map { it.key })
         assertNull(Route.Home.part)
         val links = headerLinks(SiteStrings.English, Route.Guide("testing"))
         assertEquals(listOf("docs"), links.filter { it.current }.map { it.key })

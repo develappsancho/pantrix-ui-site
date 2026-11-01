@@ -1,14 +1,14 @@
-package com.pantrixui.site.tools.content
-
-import com.pantrixui.site.core.model.Token
-import com.pantrixui.site.core.model.TokenKind
+package com.pantrixui.site.core.model
 
 /**
  * Splits code into coloured runs, line by line, as the site's design colours it: keywords, strings, numbers,
  * comments and annotations each in their colour, and the names a reader looks for, a composable or a type that is
  * called or declared, in theirs. Everything else is plain. A language it does not read is all plain.
+ *
+ * The content tool colours the site's own code with it at build time, and a page colours with it what it is given at
+ * run time, the code the library's MCP server answers with.
  */
-internal object Highlighter {
+object Highlighter {
     /** The lines of [code] in [language], each a run of tokens. */
     fun lines(
         code: String,

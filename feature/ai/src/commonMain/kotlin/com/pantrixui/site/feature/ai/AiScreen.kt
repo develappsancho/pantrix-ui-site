@@ -31,10 +31,11 @@ import org.koin.core.parameter.parametersOf
 
 /**
  * The page for coding assistants, with its model: how an assistant reads Pantrix, a conversation that shows it, the
- * four ways in, their setup, what the server answers, and the rules it keeps.
+ * four ways in, their setup, what the server answers, and the rules it keeps. [onNavigate] opens a page of the site:
+ * the one that asks the server.
  */
 @Composable
-fun AiRoute() {
+fun AiRoute(onNavigate: (String) -> Unit) {
     val language = LocalLanguage.current
     val viewModel = koinViewModel<AiViewModel>(key = "ai_${language.code}") { parametersOf(language) }
     val uriHandler = LocalUriHandler.current
@@ -43,6 +44,7 @@ fun AiRoute() {
         onEffect = { effect ->
             when (effect) {
                 is AiEffect.OpenUrl -> uriHandler.openUri(effect.url)
+                is AiEffect.Navigate -> onNavigate(effect.address)
             }
         }
     ) { state, onAction -> AiScreen(state, onAction) }

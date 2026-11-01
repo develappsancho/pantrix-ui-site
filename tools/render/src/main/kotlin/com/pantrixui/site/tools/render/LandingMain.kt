@@ -45,7 +45,16 @@ fun main(args: Array<String>) {
 
 /** The pages whose words are the app's code, not one of the site's content files. */
 internal val LANDING =
-    listOf(Route.Home, Route.Foundations, Route.Theme, Route.Adaptive, Route.Ai, Route.Roadmap, Route.Download)
+    listOf(
+        Route.Home,
+        Route.Foundations,
+        Route.Theme,
+        Route.Adaptive,
+        Route.Ai,
+        Route.Ask,
+        Route.Roadmap,
+        Route.Download
+    )
 
 /** The words of [route] in [language]: the app drawn in a window of a desktop's size, one window for each page. */
 @OptIn(ExperimentalTestApi::class)

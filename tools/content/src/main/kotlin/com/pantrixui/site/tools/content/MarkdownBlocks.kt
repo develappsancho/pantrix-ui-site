@@ -1,6 +1,7 @@
 package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Block
+import com.pantrixui.site.core.model.Highlighter
 import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.Tone
 import org.intellij.markdown.IElementType

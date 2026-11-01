@@ -55,19 +55,19 @@ are the owner's on top of them.
 | `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp`. The web one is built twice, as Wasm (`site-wasm.js`) and as JavaScript (`site-js.js`), and its own `site.js` starts the one the browser can run: the JavaScript build where Wasm's garbage collection is missing (Chrome before 119, Safari before 18.2) or the Wasm build fails before it has drawn; the static HTML where neither runs |
 | `core/base` | MVI: `UiState`, `UiAction`, `UiEffect`, `BaseViewModel`, `BaseScreen`, `LoadState` |
 | `core/navigation` | `Navigator`, `NavigationHistory`, `BrowserNavigationHistory` (History API: path addresses, each entry keeping the stack it was written with, so a reload and Back or Forward reopen it) |
-| `core/model` | `SiteAddress` (the site's address: on the web the page's own, in an app `site.url`, written by `site.address` as `BUILT_SITE_ADDRESS`), `Route`, `Language`, `Page` and its blocks, `ContentFiles`, `LibraryFacts` (the library's counts the frame says: 100 components, 24 guides); `GuideCatalogue` (each guide's topic, summary, tags and platforms, kept in the site), `Changelog`, `ComponentIndex` and `ComponentPage`, `FoundationSection`, `SearchIndex`, `DemoPages` (a component's key, where the demo's other pages stand), `ShareImage` |
+| `core/model` | `SiteAddress` (the site's address: on the web the page's own, in an app `site.url`, written by `site.address` as `BUILT_SITE_ADDRESS`), `Route`, `Language`, `Page` and its blocks, `ContentFiles`, `LibraryFacts` (the library's counts the frame says: 100 components, 25 guides); `GuideCatalogue` (each guide's topic, summary, tags and platforms, kept in the site), `Changelog`, `ComponentIndex` and `ComponentPage`, `FoundationSection`, `SearchIndex`, `DemoPages` (a component's key, where the demo's other pages stand), `ShareImage`; `Ask` (what the server's tools answer with) and `Highlighter`, which colours code at build time and at run time |
 | `core/routing` | `SiteRoutes`: the one table of addresses (`/docs/installation`, `/tr/docs/installation`) |
 | `core/i18n` | `SiteStrings`: the frame's words in English and Turkish; `LandingHeads`: the landing pages' titles (their windows' too) and descriptions |
 | `core/designsystem` | `PantrixPreset`, `SiteTheme`, `SiteType`, `SiteColors`, `SiteTypefaces`, `SiteIcons`, `BySize`, `SitePreview` (what a preview is drawn in, and its sizes); `chrome/` (header, sidebar and its `NavList`, menu, foot), `content/` (blocks, a guide's pieces, code, article page, page header, "On this page", a page's foot, a landing page's bands, the live stage of an example, the frames of a sketch: `PhoneFrame`, `WindowFrame`, `SketchControls`) |
-| `core/content` | `ContentRepository`: the pages, components and search index the content tool wrote, read from the resources; `ReleaseRepository`: the desktop app's latest release, from GitHub's API over each platform's own HTTP client (`fetchText`) |
-| `core/testing` | Test doubles: `FakeContentRepository` |
+| `core/content` | `ContentRepository`: the pages, components and search index the content tool wrote, read from the resources; `ReleaseRepository`: the desktop app's latest release, from GitHub's API over each platform's own HTTP client (`fetchText`); `AskRepository` (`McpAskRepository`): the library's MCP server at `SiteAddress.mcp`, a `tools/call` request over each platform's own client (`postJson`), its structured content read, read against the real server in the JVM's tests |
+| `core/testing` | Test doubles: `FakeContentRepository`, `FakeAskRepository` |
 | `feature/docs` | A page of the documentation (`DocViewModel`, `DocScreen`, `DocRoute`), a guide (`GuideArticle`), the guides (`GuidesScreen`), the changelog (`ChangelogScreen`) and the page for an address with no page; `sketch/`: each guide's live sketch, Pantrix's own components running on the page (`GuideSketches` maps them to the guides' keys) |
 | `feature/components` | The components' grid (`ComponentsScreen`) and a component's page (`ComponentScreen`): its examples live and as code (`ExamplePreview`, from the live examples the build writes), how it works, its API, its styles and colours on each platform (`StyleValues`), accessibility, tags and changes |
 | `feature/home` | The landing page: hero, live showcase, sections, its end (`HomeWords` holds its words) |
 | `feature/foundations` | Foundations: colours, type, spacing, shapes, elevation, motion and density, each read live from the theme |
 | `feature/theme` | The theme builder: controls, a live preview and the `DesignPreset` it writes as Kotlin, copied or downloaded (`ThemeBuilder`, `PresetCode`) |
 | `feature/adaptive` | Adaptive UI: the window simulator, which draws the library's real scaffolds in a `PantrixWindowFrame` (`Simulator`, `SimApps`) |
-| `feature/ai` | The page for coding assistants: setup, the MCP server and what it answers |
+| `feature/ai` | The page for coding assistants: setup, the MCP server and what it answers; and the page that asks the server (`/ai/ask`, `AskScreen`, `AskViewModel`): the server's tools called one by one, in the page's language, their answers read as data |
 | `feature/roadmap` | The roadmap: its board, the server-driven UI preview and the native libraries |
 | `feature/download` | The desktop app's page: the latest release's version, size and SHA-256, read from GitHub's API (`ReleaseRepository` in `core/content`), the platforms, the steps of installing it and checking the download, and a picture of the app's window |
 | `feature/search` | ⌘K search: a `PantrixModal` with its results (`SearchResults`, pure and tested) over the index the content tool writes |
@@ -100,9 +100,9 @@ are the owner's on top of them.
   `/mcp`); `deploy/deploy.sh stop` stops it. The owner's other containers run in the same Docker: touch only the
   stack `pantrix-ui-site`.
 - The pages' screenshots, when a page's look changes: `./gradlew :app:shared:verifyRoborazziJvm` (about six minutes).
-  `PageScreenshotTest` draws one page of each kind (14, and the home page and Installation in Turkish too) at 1440×900,
+  `PageScreenshotTest` draws one page of each kind (15, and the home page and Installation in Turkish too) at 1440×900,
   834×1194 and 390×844, and the home page at 951×669 too (a foldable open on its side), light and dark, on the
-  desktop's Skia: 98 images in `app/shared/screenshots/jvm/`. A change
+  desktop's Skia: 110 images in `app/shared/screenshots/jvm/`. A change
   that is meant is recorded again with `recordRoborazziJvm`, and the dark images are looked at too. A plain `jvmTest`
   leaves them out (`site.screenshots`). The system's theme and the screen's clock are fixed in the test, so a picture
   changes with neither the machine nor the day.

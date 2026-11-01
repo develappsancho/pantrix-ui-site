@@ -48,6 +48,10 @@ sealed interface Route {
     @Serializable
     data object Ai : Route
 
+    /** The page that asks the library's MCP server, under the page for coding assistants. */
+    @Serializable
+    data object Ask : Route
+
     /** The roadmap. */
     @Serializable
     data object Roadmap : Route

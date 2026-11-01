@@ -72,6 +72,9 @@ class PageScreenshotTest {
     fun ai() = capture("ai", Route.Ai)
 
     @Test
+    fun ask() = capture("ask", Route.Ask)
+
+    @Test
     fun roadmap() = capture("roadmap", Route.Roadmap)
 
     @Test

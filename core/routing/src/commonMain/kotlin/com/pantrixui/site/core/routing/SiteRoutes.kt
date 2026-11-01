@@ -21,6 +21,7 @@ object SiteRoutes {
         Route.Adaptive -> "/adaptive"
         Route.Theme -> "/theme"
         Route.Ai -> "/ai"
+        Route.Ask -> "/ai/ask"
         Route.Roadmap -> "/roadmap"
         Route.Download -> "/download"
         Route.Changelog -> "/changelog"
@@ -39,6 +40,7 @@ object SiteRoutes {
             guide != null -> Route.Guide(guide)
             doc != null -> Route.Doc(doc)
             parts == listOf("components") -> Route.Components
+            parts == listOf("ai", "ask") -> Route.Ask
             component != null -> Route.Component(component)
             parts.size == 1 -> SINGLE[parts[0]] ?: Route.NotFound(path)
             else -> Route.NotFound(path)

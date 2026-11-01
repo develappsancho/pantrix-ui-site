@@ -48,7 +48,7 @@ internal val Route.part: SitePart?
         Route.Foundations -> SitePart.Foundations
         Route.Adaptive -> SitePart.Adaptive
         Route.Theme -> SitePart.Theme
-        Route.Ai -> SitePart.Ai
+        Route.Ai, Route.Ask -> SitePart.Ai
         Route.Roadmap -> SitePart.Roadmap
         Route.Download -> SitePart.Download
     }

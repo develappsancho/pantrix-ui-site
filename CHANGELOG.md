@@ -14,14 +14,20 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ### Added
 
+- **The page that asks the server:** `/ai/ask` asks Pantrix UI's MCP server itself, with no model and no key: a question
+  in English or in Turkish finds a component with its code and the documents that speak of it, the library's
+  declarations, its icons or its documents, with the tools it called beside the answer. It sets the reader's own
+  assistant up too, and says what comes with the reader's own key. The page for coding assistants leads to it from its
+  top and from the end of its conversation.
 - **The site's source on GitHub:** the header has GitHub's mark beside the theme's button, which opens the site's
   repository; a phone narrower than the design has no room for it there, and the menu leads to it as well.
 
 ### Changed
 
-- **Pantrix UI 0.1.0-alpha05:** the lines that install the library, on the home page and in Installation, and the files
+- **Pantrix UI 0.1.0-alpha06:** the lines that install the library, on the home page and in Installation, and the files
   for coding assistants name its new release, whose Claude Code plugin brings the MCP server at `pantrixui.com/mcp`
-  too; its guides are the site's, with the new one, an app that opens in every browser, and its live sketch.
+  too, and whose server searches in Turkish as well and gives its answers as data; its guides are the site's, with the
+  one on an app that opens in every browser and its live sketch.
 - **The page for coding assistants:** Claude Code is set up with Pantrix UI's plugin alone, which brings the MCP server
   and the skill together, so the server is no longer added twice.
 - **The page for coding assistants, its files:** under the setup, every file it names opens or downloads from where it

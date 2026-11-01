@@ -36,6 +36,12 @@ internal object AiSay {
     )
     val SetItUp = Words("Set it up", "Kur")
     val ReadLlms = Words("Read llms.txt", "llms.txt'yi oku")
+    val AskYourself = Words("Ask the server yourself →", "Sunucuya kendin sor →")
+    val OwnQuestion = Words("Ask it your own question", "Kendi sorunu sor")
+
+    /** The line under it, [MCP_HOST] the server's address as the page writes it. */
+    val OwnQuestionLine =
+        Words("Live on $MCP_HOST, with no model and no key.", "$MCP_HOST üzerinde canlı, modelsiz ve anahtarsız.")
 
     /** The page's numbers; a phone shows none. */
     val Stats = listOf(
@@ -335,3 +341,6 @@ internal class GiveRow(
     val code: String,
     val end: Words
 )
+
+/** Where a line names the server's address, which the page writes as the site's own. */
+internal const val MCP_HOST = "{mcp}"

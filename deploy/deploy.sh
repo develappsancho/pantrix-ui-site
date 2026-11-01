@@ -129,6 +129,11 @@ coolify() {
     curl -fsS --max-time 30 -H "@$COOLIFY_HEADER" -H 'Accept: application/json' "$COOLIFY_URL/api/v1/$1"
 }
 
+# What changes something in Coolify is asked for by POST: a deploy has been one since Coolify 4.5.
+coolify_post() {
+    curl -fsS --max-time 30 -X POST -H "@$COOLIFY_HEADER" -H 'Accept: application/json' "$COOLIFY_URL/api/v1/$1"
+}
+
 json() {
     python3 -c "import json, sys; data = json.load(sys.stdin); print($1)"
 }
@@ -136,7 +141,7 @@ json() {
 # Asks Coolify to put the site's resource up again, with the images just pushed, and waits until it is done.
 coolify_deploy() {
     local answer deployment status last=""
-    answer="$(coolify "deploy?uuid=$COOLIFY_UUID&force=false")" || fail "Coolify did not start the deploy"
+    answer="$(coolify_post "deploy?uuid=$COOLIFY_UUID&force=false")" || fail "Coolify did not start the deploy"
     deployment="$(json "data['deployments'][0]['deployment_uuid']" <<< "$answer")"
     echo "Coolify's deployment $deployment"
     for _ in $(seq 1 120); do

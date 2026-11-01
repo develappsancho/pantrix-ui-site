@@ -42,8 +42,12 @@ import com.pantrixui.site.core.model.Words
  * An example the site has running: the component as the example's code draws it, on this page.
  *
  * @property content the example itself.
+ * @property wide whether it is as wide as its frame, or in a column of [CONTENT_WIDTH] at most.
  */
-internal class LiveExample(val content: @Composable () -> Unit)
+internal class LiveExample(
+    val content: @Composable () -> Unit,
+    val wide: Boolean = false
+)
 
 /**
  * A live example in its frame: a choice of the platform whose conventions it is drawn in, the dark theme and a
@@ -112,7 +116,8 @@ internal fun ExampleFrame(
                     .padding(24.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(Modifier.widthIn(max = CONTENT_WIDTH).fillMaxWidth()) { example.content() }
+                val width = if (example.wide) Modifier else Modifier.widthIn(max = CONTENT_WIDTH)
+                Column(width.fillMaxWidth()) { example.content() }
             }
         }
     }

@@ -54,10 +54,10 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `feature/ai` | The page for coding assistants: setup, the MCP server and what it answers |
 | `feature/roadmap` | The roadmap: its board, the server-driven UI preview and the native libraries |
 | `feature/search` | ⌘K search: a `PantrixModal` with its results (`SearchResults`, pure and tested) over the index the content tool writes |
-| `tools/content` | Programs that run at build time or by hand. `MainKt`: `content/<language>/**.md` with the site's pieces (`:::steps`, `:::facts`, `:::aside`, `:::sketch`, …) to JSON, with the changelog and the components read from the `com.pantrixui:mcp` jar, and the search index. `LiveMainKt`: the demo's examples the site runs, as Kotlin. `GuidesMainKt`: the guide pages in `content/<language>/docs/guides/` from the library's guides in the jar (`GuidePages`), run by hand with `./gradlew :core:content:writeGuidePages`; `keyboard-dismissal` is written by hand and left as it is |
+| `tools/content` | Programs that run at build time or by hand. `MainKt`: `content/<language>/**.md` with the site's pieces (`:::steps`, `:::facts`, `:::aside`, `:::sketch`, …) to JSON, with the changelog and the components read from the `com.pantrixui:mcp` jar, and the search index. `LiveMainKt`: the examples the site runs, as Kotlin: the demo's, or the site's own where it writes some (`SiteExamples`). `GuidesMainKt`: the guide pages in `content/<language>/docs/guides/` from the library's guides in the jar (`GuidePages`), run by hand with `./gradlew :core:content:writeGuidePages`; `keyboard-dismissal` is written by hand and left as it is |
 | `tools/prerender` | Run after each web distribution: every page's static `index.html` in the folder of its address (its head, its other language, what a shared link shows, and its words as plain HTML, hidden where the browser runs the app), the `404.html`, `sitemap.xml`, `robots.txt`, and `llms.txt` with its links led to the site's pages |
 | `tools/render` | Draws the app with Compose on the JVM at build time: the landing pages' words read from their semantics (`LandingMainKt`; parts marked `Modifier.live()` and the controls are left out) and each page's share image (`ShareMainKt`); both run only when what they read has changed |
-| `content` | The pages, in English and Turkish |
+| `content` | The pages, in English and Turkish; `examples/<language>/<key>.md`: a component's examples the site writes itself, in place of the demo's (the data table's) |
 
 ## Checks
 

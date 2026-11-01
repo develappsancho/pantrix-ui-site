@@ -110,6 +110,8 @@ data class ComponentFeature(
  * @property description what it says of itself, paragraph by paragraph.
  * @property code its code, without its imports, its words told apart.
  * @property imports what its code imports.
+ * @property wide whether it is drawn as wide as its frame: the site's own examples are laid out for the frame's width,
+ *   and the demo's in a column of their size.
  */
 @Serializable
 data class ComponentExample(
@@ -117,7 +119,8 @@ data class ComponentExample(
     val title: String,
     val description: List<List<Span>> = emptyList(),
     val code: Block.Code,
-    val imports: List<String> = emptyList()
+    val imports: List<String> = emptyList(),
+    val wide: Boolean = false
 )
 
 /**

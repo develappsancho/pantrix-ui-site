@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.OutputDirectory
@@ -15,8 +16,9 @@ import org.gradle.process.CommandLineArgumentProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
- * The demo's examples the module runs, written at build time by `:tools:content` from the library's documents as
- * Kotlin, and compiled with the module's own: the code a component's page shows under each one it draws.
+ * The examples the module runs, written at build time by `:tools:content` as Kotlin, from the library's documents and
+ * the site's own examples in `content/examples`, and compiled with the module's own: the code a component's page
+ * shows under each one it draws.
  */
 class LiveExamplesConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -34,10 +36,11 @@ class LiveExamplesConventionPlugin : Plugin<Project> {
 
         val generate = tasks.register<GenerateLiveExamples>("generateLiveExamples") {
             group = "site"
-            description = "Writes the demo's examples the site runs as Kotlin."
+            description = "Writes the examples the site runs as Kotlin."
             classpath = tool
             mainClass.set(TOOL_MAIN)
             libraryDocuments.from(documents)
+            examplesDirectory.set(rootProject.layout.projectDirectory.dir("content/examples"))
             outputDirectory.set(layout.buildDirectory.dir("generated/liveExamples"))
         }
 
@@ -58,6 +61,11 @@ abstract class GenerateLiveExamples : JavaExec() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val libraryDocuments: ConfigurableFileCollection
 
+    /** The site's own examples, `content/examples/<language>/<key>.md`. */
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val examplesDirectory: DirectoryProperty
+
     /** Where the Kotlin goes. */
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -68,6 +76,8 @@ abstract class GenerateLiveExamples : JavaExec() {
                 listOf(
                     "--docs",
                     libraryDocuments.singleFile.absolutePath,
+                    "--examples",
+                    examplesDirectory.get().asFile.absolutePath,
                     "--out",
                     outputDirectory.get().asFile.absolutePath
                 )

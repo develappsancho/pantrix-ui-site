@@ -27,4 +27,8 @@ The pages are Markdown in `content/<language>/`, with the site's own pieces (`::
 content tool (`tools/content`) turns them into JSON at build time; the app never reads Markdown. The guide pages are
 written from the library's guides: `./gradlew :core:content:writeGuidePages` after the library is published.
 
+A component's page shows the demo's examples, or the site's own where it has written some:
+`content/examples/<language>/<key>.md`, in the shape of the demo's pages, each example a title, what it says and its
+code. The build runs the code it shows, and draws the site's own examples as wide as their frame.
+
 `CLAUDE.md` has the project's map and its rules.

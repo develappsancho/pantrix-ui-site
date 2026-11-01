@@ -14,7 +14,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.MissingResourceException
 
 /** Where a screen gets the site's content: what the content tool wrote, in each language. */
@@ -57,7 +56,6 @@ class ResourceContentRepository : ContentRepository {
     private val components = mutableMapOf<String, ComponentPage?>()
     private val lock = Mutex()
 
-    @OptIn(ExperimentalResourceApi::class)
     override suspend fun page(
         language: Language,
         route: Route
@@ -80,7 +78,6 @@ class ResourceContentRepository : ContentRepository {
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     override suspend fun changelog(language: Language): Changelog = lock.withLock {
         changelogs.getOrPut(language) {
             val bytes = Res.readBytes(ContentFiles.changelogFile(language))
@@ -88,7 +85,6 @@ class ResourceContentRepository : ContentRepository {
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     override suspend fun componentIndex(language: Language): ComponentIndex = lock.withLock {
         indexes.getOrPut(language) {
             val bytes = Res.readBytes(ContentFiles.componentIndexFile(language))
@@ -96,7 +92,6 @@ class ResourceContentRepository : ContentRepository {
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     override suspend fun component(
         language: Language,
         key: String
@@ -118,7 +113,6 @@ class ResourceContentRepository : ContentRepository {
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     override suspend fun searchIndex(language: Language): SearchIndex = lock.withLock {
         searches.getOrPut(language) {
             val bytes = Res.readBytes(ContentFiles.searchFile(language))
@@ -126,7 +120,6 @@ class ResourceContentRepository : ContentRepository {
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     override suspend fun guideMinutes(): Map<String, Int> = lock.withLock {
         minutes ?: ContentFiles.json.decodeFromString(
             MapSerializer(String.serializer(), Int.serializer()),

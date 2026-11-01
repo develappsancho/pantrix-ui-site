@@ -1,8 +1,11 @@
 package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Language
+import java.io.File
+import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -187,4 +190,40 @@ class ComponentReaderTest {
         assertEquals("x2two", LiveExampleWriter.segment("2-two"), "a name that starts with a digit")
         assertEquals("inx", LiveExampleWriter.segment("in"))
     }
+
+    /** A component the site writes examples of its own for shows those, drawn wide, in place of the demo's. */
+    @Test
+    fun the_site_s_own_examples_stand_in_place_of_the_demo_s() {
+        val folder = createTempDirectory("examples").toFile()
+        siteExamples.forEach { (language, title) ->
+            File(folder, language).apply { mkdirs() }.resolve("text-area.md").writeText(
+                "# Text Area\n\n## Examples\n\n### $title\n\nA note.\n\n```kotlin\n" +
+                    "import com.pantrixui.components.inputs.textarea.PantrixTextArea\n\n" +
+                    "PantrixTextArea(state = note)\n```\n"
+            )
+        }
+        val own = ComponentReader(
+            json = json,
+            pages = mapOf(Language.English to mapOf("text-area" to LibraryPage.read(english))),
+            siteExamples = SiteExamples.read(folder)
+        )
+        val written = own.pages(Language.English).single().examples.single()
+        assertEquals("a-note", written.name)
+        assertTrue(written.wide, "the site's own example is drawn as wide as its frame")
+        val turkish = own.pages(Language.Turkish).single().examples.single()
+        assertEquals("a-note", turkish.name, "named by its English title in both languages")
+        assertEquals("Bir not", turkish.title)
+        assertEquals(listOf("a-note"), own.runnable(Language.Turkish).map { it.name })
+        assertFalse(reader.pages(Language.English).single().examples.any { it.wide }, "the demo's are not")
+    }
+
+    @Test
+    fun the_site_s_own_examples_are_written_in_both_languages() {
+        val folder = createTempDirectory("examples").toFile()
+        File(folder, "en").apply { mkdirs() }.resolve("text-area.md").writeText("# Text Area\n\n## Examples\n")
+        val failure = assertFailsWith<IllegalStateException> { SiteExamples.read(folder) }
+        assertTrue("examples/tr" in failure.message.orEmpty(), failure.message)
+    }
+
+    private val siteExamples = mapOf("en" to "A note", "tr" to "Bir not")
 }

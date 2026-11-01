@@ -24,16 +24,19 @@ import kotlinx.serialization.json.jsonPrimitive
  * `tr/pages/<key>.md`, with the changelog's lines about it.
  *
  * A component's page is its own even where it shares the demo's page with another: its examples are those of the
- * page whose code calls it, and its API is its own function's forms.
+ * page whose code calls it, and its API is its own function's forms. A component the site writes examples of its own
+ * for shows those in place of the demo's.
  *
  * @param json the text of `pantrix-ui.json`.
  * @param pages the demo's pages in each language, by their keys.
  * @param changelogs the changelog in each language.
+ * @param siteExamples the site's own examples in each language, by the key of the component's page ([SiteExamples]).
  */
 internal class ComponentReader(
     json: String,
     private val pages: Map<Language, Map<String, LibraryPage>>,
-    changelogs: Map<Language, Changelog> = emptyMap()
+    changelogs: Map<Language, Changelog> = emptyMap(),
+    private val siteExamples: Map<Language, Map<String, LibraryPage>> = emptyMap()
 ) {
     /** A component as `pantrix-ui.json` lists it. */
     private class Listed(
@@ -147,7 +150,8 @@ internal class ComponentReader(
                         .filterIsInstance<Block.Paragraph>()
                         .map { it.text },
                     code = Block.Code(language = KOTLIN, lines = Highlighter.lines(example.code, KOTLIN)),
-                    imports = example.imports
+                    imports = example.imports,
+                    wide = siteExamples[Language.English]?.containsKey(component.key) == true
                 )
             },
             forms = forms,
@@ -183,13 +187,18 @@ internal class ComponentReader(
         }
 
     /**
-     * The examples of [component]'s page in [language] whose code calls it, or all of them where the page is its
-     * alone, each by its name: its English title's key, the same in both languages.
+     * The site's own examples of [component] in [language] where it has written some, each by its name, and otherwise
+     * the examples of its page in the demo whose code calls it, or all of them where the page is its alone. A name is
+     * the example's English title's key, the same in both languages.
      */
     private fun examplesOf(
         component: Listed,
         language: Language
     ): List<Pair<String, LibraryExample>> {
+        siteExamples[Language.English]?.get(component.key)?.examples?.let { english ->
+            val written = siteExamples[language]?.get(component.key)?.examples ?: english
+            return written.mapIndexed { index, example -> keyOf(english[index].title) to example }
+        }
         val english = pageIn(component.page, Language.English).examples
         val calls = Regex("""\b${component.function}\s*[({]""")
         val own = listed.count { it.page == component.page } == 1

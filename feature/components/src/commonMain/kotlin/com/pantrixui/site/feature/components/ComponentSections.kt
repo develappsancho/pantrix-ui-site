@@ -80,7 +80,7 @@ internal fun ExamplesSection(
                 )
                 example.description.forEach { paragraph -> RichText(paragraph, onLink, codeSize = 13.sp) }
                 val live = remember(language, page.card.key, example.name) {
-                    liveExampleOf(language, page.card.key, example.name)?.let(::LiveExample)
+                    liveExampleOf(language, page.card.key, example.name)?.let { LiveExample(it, example.wide) }
                 }
                 if (live != null) ExampleFrame(live, Modifier.padding(top = 4.dp))
                 CodeView(example.code.copy(file = KOTLIN), Modifier.padding(top = if (live == null) 4.dp else 0.dp))

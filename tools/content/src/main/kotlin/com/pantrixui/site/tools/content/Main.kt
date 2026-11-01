@@ -17,7 +17,8 @@ import kotlin.math.ceil
 /**
  * Writes the site's content for the app under `--out`: each page of `--pages` (`<language>/<path>.md`), the guides
  * among them with how long each takes to read, and from the library's documents in `--docs`, the `com.pantrixui:mcp`
- * jar, the changelog and the components, their list and each one's page, in both languages. What `--out` held before
+ * jar, the changelog and the components, their list and each one's page, in both languages. A component the site
+ * writes examples of its own for, under `--pages`' `examples` ([SiteExamples]), shows those. What `--out` held before
  * is replaced, so that a page taken out of the site is gone from it too.
  */
 fun main(args: Array<String>) {
@@ -38,7 +39,8 @@ fun main(args: Array<String>) {
     val components = ComponentReader(
         json = library,
         pages = Language.entries.associateWith(documents::pages),
-        changelogs = mapOf(Language.English to english, Language.Turkish to turkish)
+        changelogs = mapOf(Language.English to english, Language.Turkish to turkish),
+        siteExamples = SiteExamples.read(File(folder, SiteExamples.FOLDER))
     )
     val indexes = Language.entries.associateWith(components::index)
     val componentPages = Language.entries.associateWith(components::pages)

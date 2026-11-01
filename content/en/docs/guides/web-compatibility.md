@@ -36,6 +36,7 @@ Please make sure that your runtime environment supports the latest version of Wa
 
 *   An older browser cannot compile the module, and the app never starts. The Chrome in the Android emulator's system images is often old (Chrome 113 in the Android 14 image); on iPhones that cannot move to iOS 18.2, Safari and Chrome are without Wasm GC.
 *   In a browser that has the features, the Wasm build can still fail to open. A phone's browser can go past the memory it sets aside for compiling a module. A Compose web app is two large modules (14.5 MB of app and 8.6 MB of Skia for us). A module the simulator compiles with the Mac's memory can be refused on a phone.
+*   **On WebKit 27.2 the Wasm build stays blank.** In the WebKit of Safari 27.2 and iOS 27.2, the Wasm compiler, once warm, compiles Compose's measuring of text wrong: the app draws its first frame, then stops on a `NullPointerException` in `SkiaParagraph.getBoundingBox` as it asks for the box of a text with a link (`LinkAnnotation`), and the page stays blank. The same app's JS build draws in the same browser; on iOS 27.0's WebKit the Wasm build draws too. The error comes after the first frame, as the app's own and not Wasm's, so the loader does not go over to JS (5.2).
 *   `composeCompatibilityBrowserDistribution`, in Compose's own Gradle plugin, joins the JS and Wasm distributions and tests the browser once, as the page opens. Where the Wasm build passes the test and fails after, it does not go over to JS: it does nothing for the second case.
 
 ### Diagnosis
@@ -201,6 +202,11 @@ The app takes `#loading` away once it has drawn its first frame (Compose's `Comp
             error instanceof WebAssembly.LinkError || error instanceof WebAssembly.RuntimeError);
     }
     function thrownBy(error, script) { return String(error && error.stack || "").indexOf(script) >= 0; }
+    // WebKit: Safari and every browser on iOS. Those built on Chrome name Chrome in their user agent as well.
+    function webKit() {
+        var agent = typeof navigator === "object" && navigator.userAgent || "";
+        return /AppleWebKit\//.test(agent) && !/Chrom(e|ium)\//.test(agent);
+    }
     function failed(error) {
         if (starting === null || drawn() || !wasmFailed(error)) return;
         if (starting === "wasm") startJavaScript();
@@ -212,12 +218,13 @@ The app takes `#loading` away once it has drawn its first frame (Compose's `Comp
 
     var collected = false;
     try { collected = typeof WebAssembly === "object" && WebAssembly.validate(FEATURES); } catch (e) {}
-    if (collected) { starting = "wasm"; load(WASM, startJavaScript); }
+    if (collected && !webKit()) { starting = "wasm"; load(WASM, startJavaScript); }
     else if (typeof WebAssembly === "object") startJavaScript();
     else showStaticWords();
 })();
 ```
 
+*   **WebKit is given the JS build,** though it has Wasm GC: WebKit 27.2's Wasm compiler leaves the Wasm build blank (section 1). The browsers on iOS do not say WebKit's version in their user agent (iOS 27's even writes the system as `18_7`), so the rule looks at the engine, not the version.
 *   Only **Wasm's own errors** (`CompileError`, `LinkError`, `RuntimeError`) and no memory left (`RangeError`) move to JS. Where one of the app's own requests fails (an API call, say), the build does not change.
 *   After the JS build has started, what is left of the Wasm build can throw too: Skia's Wasm, loaded on its own, throws its own error after the app's module has failed. An error whose stack runs through `site-wasm.js` is not counted as the JS build's; were it counted, a JS build that works would stay behind the static text.
 
@@ -245,6 +252,9 @@ map $uri $site_cache {
 | A finalizer in Gradle | "Unable to make progress running work" | The JS distribution is a dependency of the Wasm one, the copy only a finalizer (3.2) |
 | `JsException` | Catches the cancellation too in JS | The cancellation is sent up first (section 4) |
 | Webpack and `import.meta.url` | The `import.meta.url` in Skia's JavaScript is written as the file's path on the machine that builds the script (`file:///Users/…`): a user name and folders in a public file | The script reads it only for the folder it was loaded from, and does not use it here: a webpack plugin turns every `"file:///…"` string into an empty one, after the script is minified and before its map is written (`webpack.config.d/stripFilePaths.js`, section 9) |
+| The klibs' source paths | Kotlin writes into each module's klib the full path its source files have on the machine that builds it; they reach the Wasm (`/Users/…/src/commonMain/…`): a user name and folders in a public file. The library's klibs write the paths relative to the repository's root from 0.1.1 on | In each of the app's modules that builds for the web, `tasks.withType<Kotlin2JsCompile>().configureEach { compilerOptions.freeCompilerArgs.add("-Xklib-relative-path-base=${rootDir.absolutePath}") }`; `/Users/` is searched for in the Wasm with `strings` (section 8) |
+| WebKit 27.2's Wasm compiler | The app draws its first frame, then stops on a `NullPointerException` in `SkiaParagraph.getBoundingBox`; the page stays blank, and the loader does not go over to JS | WebKit is given the JS build (5.2). Any text with a link (`LinkAnnotation`, `PantrixLink`) can set it off; the JS build has none of it |
+| The page's language | Where the language changes inside the app, the page's `<html lang>` stays the one it was opened in: a screen reader reads Turkish words with English sounds, and the browser offers to translate from the wrong language | With the library: the outermost `PantrixTheme` writes its `locale`'s language and follows it. Without it: `document.documentElement.setAttribute("lang", tag)` as the language changes |
 | `adb screencap` | On an emulator with more than one screen (a foldable), it warns and takes the first | The screen is chosen with `-d <screen>` |
 :::
 
@@ -261,7 +271,9 @@ What was seen (2026-10-31, Pantrix UI's site, on the local stack: the emulator r
 | Desktop, headless Chrome, both Wasm files broken | Has Wasm GC | Neither build could open → the static text showed |
 | This repository's demo: the same three ways in the emulator's Chrome 113 and in headless Chrome | All | The Button page was drawn by the JS build; with a broken Wasm it went over to JS; with both Wasm files broken the note "this browser cannot run the demo" stayed |
 | iOS simulator, iOS 27.0 | Safari | The Wasm build drew |
+| iOS simulator, iOS 27.2 (2026-11-02) | Safari 27.2 | The Wasm build stopped after its first frame on a `NullPointerException` in `SkiaParagraph.getBoundingBox`, and the page stayed blank; the JS build, forced, drew. This repository's demo stayed blank too. With the loader giving WebKit the JS build, both drew |
 | Both ways, in report-only mode | Chrome | No violation of the content security policy |
+| The library's klibs, with relative paths (2026-11-02) | All | No absolute path is left in `foundation`'s Wasm, JS and iOS klibs, whose sources are written `ui/foundation/src/…`; 0.1.0's Wasm klib held 45 absolute paths |
 :::
 
 What was not seen:

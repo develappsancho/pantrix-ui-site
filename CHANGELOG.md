@@ -12,11 +12,25 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+## [26.11.2] - 2026-11-02
+
+The site built with Pantrix UI 0.1.1: it opens again in Safari 27.2 and on iOS 27.2, its page says the language it is
+read in, and its MCP server answers each visitor within a limit.
+
+### Changed
+
+- **Pantrix UI 0.1.1:** the lines that install the library, on the home page and in Installation, and the files for
+  coding assistants name the library's 0.1.1; the web compatibility guide says why Safari 27.2 leaves a Wasm build of
+  Compose blank, and how a page gives WebKit the JavaScript build instead.
+
 ### Fixed
 
 - **Safari 27.2 and every browser on iOS 27.2:** the site opens again; it stayed blank. WebKit 27.2's WebAssembly
   compiler gets the Wasm build's measuring of text wrong, so WebKit, Safari and every browser on iOS, is given the
   JavaScript build.
+- **The page's language:** once the language is changed on the site, the page says it is in that language as well, so
+  a screen reader reads it with that language's sounds and the browser offers no translation from the other; it said
+  the language the address was opened in.
 - **Tabs a screen reader can tell apart:** the clients of the page for coding assistants and the sections of the
   foundations' page say which one is chosen, as their look does.
 
@@ -26,7 +40,7 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
   site answers 429 (Too Many Requests), so that no one visitor can keep the server busy for everyone else.
 - **No paths of the build machine in the web app:** the site's Wasm names its own source files relative to the
   repository's root, where it named them by their full path on the machine that built it, with that user's name and
-  folders. The paths it carries from Pantrix UI go with the library's 0.1.1.
+  folders. Pantrix UI's 0.1.1 names the library's own files the same way.
 
 ## [26.11.1] - 2026-11-01
 

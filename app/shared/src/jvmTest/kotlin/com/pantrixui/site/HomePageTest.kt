@@ -58,7 +58,7 @@ class HomePageTest {
     fun the_install_line_is_copied() = siteAt(Route.Home) {
         press(hasPantrixTag("Button", "copyInstall"))
         until("the copy") { copied() != null }
-        assertEquals("implementation(\"com.pantrixui:components:0.1.0\")", copied())
+        assertEquals("implementation(\"com.pantrixui:components:0.1.1\")", copied())
     }
 
     @Test

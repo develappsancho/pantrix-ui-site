@@ -99,7 +99,7 @@ class HomeTest {
         val model = HomeViewModel(Language.English, FakeContentRepository(listOf(landing)))
         model.onAction(HomeAction.CopyInstall)
         assertEquals(
-            HomeEffect.Copy("implementation(\"com.pantrixui:components:0.1.0\")"),
+            HomeEffect.Copy("implementation(\"com.pantrixui:components:0.1.1\")"),
             model.effects.first()
         )
         model.onAction(HomeAction.Copied(done = false))

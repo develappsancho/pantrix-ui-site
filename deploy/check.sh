@@ -131,10 +131,7 @@ for file in $wasm; do
     # A klib keeps the paths of the files it was compiled from, and the Wasm the paths of every klib it was linked
     # from: the site's own modules write theirs relative to the repository's root, and Pantrix UI's do from 0.1.1 on.
     fetch GET "/$file"
-    found="$(paths)"
-    check "/$file holds no path of the machine that built the site" eval '! contains "$found" pantrix-ui-site'
-    note "/$file holds paths of the machine that built Pantrix UI, until the site takes a version that writes none" \
-        "$(grep -v pantrix-ui-site <<< "$found" | tr '\n' ' ' | sed 's/ $//')"
+    check "/$file holds no path of a machine that built it or Pantrix UI" eval '[ -z "$(paths)" ]'
     fetch HEAD "/$file" -H 'Accept-Encoding: gzip'
     check "/$file is WebAssembly, compressed, kept for a year" \
         eval 'is "$(status)" 200 && is "$(header Content-Type)" application/wasm && is "$(header Content-Encoding)" gzip && contains "$(header Cache-Control)" immutable'

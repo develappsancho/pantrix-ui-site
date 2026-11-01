@@ -36,6 +36,7 @@ Please make sure that your runtime environment supports the latest version of Wa
 
 *   Daha eski bir tarayıcı modülü derleyemez ve uygulama hiç başlamaz. Android emülatörünün sistem imajlarındaki Chrome çoğu zaman eskidir (Android 14 imajında Chrome 113); iOS 18.2'ye geçemeyen iPhone'larda Safari ve Chrome Wasm GC'siz kalır.
 *   Özellikleri destekleyen bir tarayıcıda da Wasm sürümü açılamayabilir. Bir telefonun tarayıcısı, bir modülü derlemek için ayırdığı belleği aşabilir. Compose'un web uygulaması iki büyük modülden oluşur (bizde 14,5 MB uygulama, 8,6 MB Skia). Mac'teki simülatörün belleğiyle derlenen bir modül telefonda reddedilebilir.
+*   **WebKit 27.2'de Wasm sürümü boş kalır.** Safari 27.2'nin ve iOS 27.2'nin WebKit'inde Wasm derleyicisi, ısındıktan sonra Compose'un metin ölçümünü yanlış derler: uygulama ilk karesini çizer, sonra bağlantılı bir metnin (`LinkAnnotation`) kutusunu sorarken `SkiaParagraph.getBoundingBox`'ta bir `NullPointerException` ile durur ve sayfa boş kalır. Aynı uygulamanın JS sürümü aynı tarayıcıda çizer; iOS 27.0'ın WebKit'inde Wasm sürümü de çizer. Hata Wasm'ın değil uygulamanın hatası gibi, ilk kareden sonra geldiği için yükleyici JS'e geçmez (5.2).
 *   Compose'un kendi Gradle eklentisindeki `composeCompatibilityBrowserDistribution`, JS ve Wasm dağıtımlarını birleştirir ve tarayıcıyı açılışta bir kez sınar. Wasm sürümü sınamadan geçip sonra çökerse JS'e geçmez: ikinci durum için bir şey yapmaz.
 
 ### Teşhis
@@ -201,6 +202,11 @@ Uygulama ilk karesini çizince `#loading`'i kaldırır (Compose'un `ComposeViewp
             error instanceof WebAssembly.LinkError || error instanceof WebAssembly.RuntimeError);
     }
     function thrownBy(error, script) { return String(error && error.stack || "").indexOf(script) >= 0; }
+    // WebKit: Safari ve iOS'taki her tarayıcı. Chrome'un üstüne kurulanlar kimlik dizgisinde Chrome'u da anar.
+    function webKit() {
+        var agent = typeof navigator === "object" && navigator.userAgent || "";
+        return /AppleWebKit\//.test(agent) && !/Chrom(e|ium)\//.test(agent);
+    }
     function failed(error) {
         if (starting === null || drawn() || !wasmFailed(error)) return;
         if (starting === "wasm") startJavaScript();
@@ -212,12 +218,13 @@ Uygulama ilk karesini çizince `#loading`'i kaldırır (Compose'un `ComposeViewp
 
     var collected = false;
     try { collected = typeof WebAssembly === "object" && WebAssembly.validate(FEATURES); } catch (e) {}
-    if (collected) { starting = "wasm"; load(WASM, startJavaScript); }
+    if (collected && !webKit()) { starting = "wasm"; load(WASM, startJavaScript); }
     else if (typeof WebAssembly === "object") startJavaScript();
     else showStaticWords();
 })();
 ```
 
+*   **WebKit'e JS sürümü verilir,** Wasm GC'si olsa da: WebKit 27.2'nin Wasm derleyicisi Wasm sürümünü boş bırakır (1. bölüm). iOS'taki tarayıcılar kimlik dizgisinde WebKit'in sürümünü söylemez (iOS 27'nin dizgisi işletim sistemini bile `18_7` diye yazar), bu yüzden kural sürüme değil motora bakar.
 *   Yalnızca **Wasm'ın kendi hataları** (`CompileError`, `LinkError`, `RuntimeError`) ve bellek yetmezliği (`RangeError`) JS'e geçirir. Uygulamanın kendi bir isteği düştüğünde (örneğin bir API çağrısı) sürüm değişmez.
 *   JS sürümü başladıktan sonra Wasm sürümünün geride kalan parçaları da hata atabilir: Skia'nın ayrı yüklenen Wasm'ı, uygulamanın modülü düştükten sonra kendi hatasını atar. Yığını `site-wasm.js`'ten geçen bir hata JS sürümünün hatası sayılmaz; sayılsaydı çalışan bir JS sürümü statik metnin arkasında kalırdı.
 
@@ -245,6 +252,9 @@ map $uri $site_cache {
 | Gradle'da sonlandırıcı | "Unable to make progress running work" | JS dağıtımı Wasm dağıtımının bağımlılığı olur, kopya yalnızca sonlandırıcı (3.2) |
 | `JsException` | JS'te iptali de yakalar | İptal önce yukarı gönderilir (4. bölüm) |
 | Webpack ve `import.meta.url` | Skia'nın JavaScript'indeki `import.meta.url`, pakete derleyen makinedeki dosya yolu olarak yazılır (`file:///Users/…`): herkese açık bir dosyada kullanıcı adı ve klasörler | Paket yalnızca yüklendiği klasörü bulmak için okur ve burada kullanmaz: bir webpack eklentisi, paket küçültüldükten sonra ve harita yazılmadan önce, her `"file:///…"` dizgisini boş dizgi yapar (`webpack.config.d/stripFilePaths.js`, 9. bölüm) |
+| Klib'lerin kaynak yolları | Kotlin her modülün klib'ine kaynak dosyalarının derleyen makinedeki tam yolunu yazar; Wasm'a girerler (`/Users/…/src/commonMain/…`): herkese açık bir dosyada kullanıcı adı ve klasörler. Kütüphanenin klib'leri 0.1.1'den beri yolları deponun köküne göre yazar | Uygulamanın web için derlenen her modülünde `tasks.withType<Kotlin2JsCompile>().configureEach { compilerOptions.freeCompilerArgs.add("-Xklib-relative-path-base=${rootDir.absolutePath}") }`; Wasm'da `strings` ile `/Users/` aranır (8. bölüm) |
+| WebKit 27.2'nin Wasm derleyicisi | Uygulama ilk karesini çizer, sonra `SkiaParagraph.getBoundingBox`'ta `NullPointerException` ile durur; sayfa boş kalır, yükleyici JS'e geçmez | WebKit'e JS sürümü verilir (5.2). Bağlantılı her metin (`LinkAnnotation`, `PantrixLink`) tetikleyebilir; JS sürümünde yoktur |
+| Sayfanın dili | Uygulama içinde dil değiştirilince sayfanın `<html lang>`'ı açıldığı dilde kalır: ekran okuyucu Türkçe metni İngilizce telaffuzla okur, tarayıcı yanlış dilden çeviri önerir | Kütüphaneyle: en dıştaki `PantrixTheme` `locale`'inin dilini yazar ve izler. Kütüphanesiz: dil değiştikçe `document.documentElement.setAttribute("lang", etiket)` |
 | `adb screencap` | Birden çok ekranı olan bir emülatörde (katlanabilir) uyarı verir ve ilk ekranı alır | `-d <ekran>` ile ekran seçilir |
 :::
 
@@ -261,7 +271,9 @@ Görülenler (2026-10-31, Pantrix UI'ın sitesi, yerel yığında: emülatör on
 | Masaüstü, başsız Chrome, iki Wasm da bozuk | Wasm GC var | İki sürüm de açılamadı → statik metin göründü |
 | Bu deponun demosu: emülatör, Chrome 113 ve başsız Chrome'da aynı üç yol | Hepsi | Button sayfası JS sürümüyle çizildi; bozuk Wasm'da JS'e geçti; iki Wasm da bozukken "bu tarayıcı demoyu çalıştıramıyor" yazısı kaldı |
 | iOS simülatörü, iOS 27.0 | Safari | Wasm sürümü çizildi |
+| iOS simülatörü, iOS 27.2 (2026-11-02) | Safari 27.2 | Wasm sürümü ilk kareden sonra `SkiaParagraph.getBoundingBox`'ta `NullPointerException` ile durdu, sayfa boş kaldı; zorla açılan JS sürümü çizdi. Bu deponun demosu da boş kaldı. Yükleyici WebKit'e JS sürümünü verince ikisi de çizdi |
 | İki yol da, rapor modunda | Chrome | İçerik güvenliği politikasına hiçbir ihlal yok |
+| Kütüphanenin klib'leri, göreli yollarla (2026-11-02) | Hepsi | `foundation`'ın Wasm, JS ve iOS klib'lerinde mutlak yol kalmadı, kaynaklar `ui/foundation/src/…` diye yazılı; 0.1.0'ın Wasm klib'inde 45 mutlak yol vardı |
 :::
 
 Görülmeyenler:

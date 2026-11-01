@@ -175,7 +175,7 @@ private val BLOCKS: List<Block> = listOf(
         )
     ),
     Block.Callout(Tone.Info, listOf(Block.Paragraph(previewSpans("The version is the one on the releases page.")))),
-    previewCode("implementation(\"com.pantrixui:components:0.1.0\")")
+    previewCode("implementation(\"com.pantrixui:components:0.1.1\")")
 )
 
 /** The code of a first screen. */

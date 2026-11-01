@@ -9,15 +9,24 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+## [26.11.2] - 2026-11-02
+
+Site, Pantrix UI 0.1.1 ile yapıldı: Safari 27.2'de ve iOS 27.2'de yeniden açılıyor, sayfası okunduğu dili söylüyor, MCP sunucusu da her ziyaretçiye bir sınır içinde cevap veriyor.
+
+### Değişenler
+
+*   **Pantrix UI 0.1.1:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar kütüphanenin 0.1.1'ini anar; web uyumluluğu rehberi Safari 27.2'nin Compose'un Wasm sürümünü neden boş bıraktığını ve bir sayfanın WebKit'e bunun yerine JavaScript sürümünü nasıl verdiğini anlatır.
+
 ### Düzeltilenler
 
 *   **Safari 27.2 ve iOS 27.2'deki her tarayıcı:** site yeniden açılıyor; boş kalıyordu. WebKit 27.2'nin WebAssembly derleyicisi Wasm sürümünün metin ölçümünü yanlış derliyor; bu yüzden WebKit'e, Safari'ye ve iOS'taki her tarayıcıya JavaScript sürümü verilir.
+*   **Sayfanın dili:** sitede dil değiştirilince sayfa da o dilde olduğunu söyler; böylece ekran okuyucu onu o dilin sesleriyle okur, tarayıcı da öbür dilden çeviri önermez. Adresin açıldığı dili söylüyordu.
 *   **Ekran okuyucunun ayırt edebildiği sekmeler:** kodlama asistanları sayfasının istemcileri ve temeller sayfasının bölümleri, görünüşlerinin söylediği gibi hangisinin seçili olduğunu da söyler.
 
 ### Güvenlik
 
 *   **MCP sunucusunda bir sınır:** bir adres `/mcp`'ye saniyede on kez, bir kerede yirmilik bir taşmayla sorabilir; ötesine site 429 (Too Many Requests) döner, böylece tek bir ziyaretçi sunucuyu herkes için meşgul edemez.
-*   **Web uygulamasında derleme makinesinin yolları yok:** sitenin Wasm'ı kendi kaynak dosyalarını deponun köküne göre adlandırır; önce onları derleyen makinedeki tam yollarıyla, o kullanıcının adı ve klasörleriyle anıyordu. Pantrix UI'dan taşıdığı yollar kütüphanenin 0.1.1'iyle gider.
+*   **Web uygulamasında derleme makinesinin yolları yok:** sitenin Wasm'ı kendi kaynak dosyalarını deponun köküne göre adlandırır; önce onları derleyen makinedeki tam yollarıyla, o kullanıcının adı ve klasörleriyle anıyordu. Pantrix UI'ın 0.1.1'i kütüphanenin kendi dosyalarını da aynı biçimde adlandırır.
 
 ## [26.11.1] - 2026-11-01
 

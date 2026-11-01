@@ -109,7 +109,7 @@ are the owner's on top of them.
   (`src/browserTest/chrome.mjs`): the loader (which build starts, the JavaScript build after a broken Wasm one, the
   static words without Wasm) and the main paths, found by the tags in Compose's hidden copy of the semantics. Compose
   1.12.2 leaves that copy as a closed menu, sheet or dialog left it: after one, a test reads the address, the title
-  and `<html lang>`. Two `todo` tests hold that and the language the document keeps.
+  and `<html lang>`. A `todo` test holds that, until Compose 1.13.0.
 - The main paths on a device, when the shell, the header, the menu, the search or a page they lead to changes:
   `./gradlew :app:androidApp:maestroTest` and `./gradlew :app:shared:maestroIosTest`, with `-Pmaestro.device=` and
   `-Pmaestro.flows=`; the flows in `app/maestro` run on a phone (the Pixel 7 Pro emulator, the iPhone 18 Pro Max

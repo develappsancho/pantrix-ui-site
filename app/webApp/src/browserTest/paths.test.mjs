@@ -78,16 +78,12 @@ test('the language menu turns the words and the address into Turkish and back', 
             (await page.path()) === '/docs/installation' && (await page.title()) === 'Installation · Pantrix UI');
     }));
 
-test('the page says the language the app has turned to', {
-    skip: SKIP,
-    todo: 'Pantrix UI 0.1.0 writes the window\'s title in the document but not its language: <html lang> stays the one ' +
-        'the address was opened in'
-}, () =>
+test('the page says the language the app has turned to', { skip: SKIP }, () =>
     onPage('/docs/installation', PHONE, async (page) => {
         await page.click('Button_language');
         await page.click('Menu_language.MenuItem_language_tr');
         await page.waitFor('the Turkish page', async () => (await page.path()) === '/tr/docs/installation');
-        await page.waitFor('the document in Turkish', async () => (await page.lang()) === 'tr', TODO_WAIT);
+        await page.waitFor('the document in Turkish', async () => (await page.lang()) === 'tr');
     }));
 
 test('the theme button turns the dark theme on and off', { skip: SKIP }, () =>

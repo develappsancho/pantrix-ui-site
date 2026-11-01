@@ -1,0 +1,40 @@
+# The search finds a component by its name, its filter keeps the components alone, and a result opens the component's
+# page. Cancel closes the search where it stands.
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch.yaml
+- tapOn:
+    id: "IconButton_search"
+- tapOn:
+    id: "TextField_search"
+- inputText: "date picker"
+- extendedWaitUntil:
+    visible:
+      id: "ListItem_searchresult_0"
+    timeout: 5000
+- tapOn:
+    id: "Site_searchFilter_component"
+- assertVisible:
+    id: "ListItem_searchresult_2"
+- assertNotVisible:
+    id: "ListItem_searchresult_3"
+- tapOn:
+    id: "ListItem_searchresult_0"
+- extendedWaitUntil:
+    visible:
+      id: "Breadcrumb_page.Item_current"
+      text: "Date Picker"
+    timeout: 10000
+- tapOn:
+    id: "IconButton_search"
+- assertVisible:
+    id: "Modal_search"
+- tapOn:
+    id: "Site_searchCancel"
+- extendedWaitUntil:
+    notVisible:
+      id: "Modal_search"
+    timeout: 5000
+- assertVisible:
+    id: "Breadcrumb_page.Item_current"
+    text: "Date Picker"

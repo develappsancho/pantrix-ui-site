@@ -100,5 +100,9 @@ gradlePlugin {
             id = "site.live-examples"
             implementationClass = "com.pantrixui.site.buildlogic.LiveExamplesConventionPlugin"
         }
+        register("siteMaestro") {
+            id = "site.maestro"
+            implementationClass = "com.pantrixui.site.buildlogic.MaestroConventionPlugin"
+        }
     }
 }

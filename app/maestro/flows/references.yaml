@@ -1,0 +1,18 @@
+# The references list the apps built with Pantrix UI: the site first, then the library's demo with its links, to visit
+# its web build and to download its macOS app.
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/open_from_menu.yaml
+    env:
+      ITEM: "references"
+- assertVisible: "Built with Pantrix UI|Pantrix UI ile yapıldı"
+- assertVisible: "Pantrix UI's site|Pantrix UI'ın sitesi"
+- scrollUntilVisible:
+    element:
+      id: "Link_visit_pantrix_ui_demo"
+    direction: DOWN
+- assertVisible: "Pantrix UI's demo|Pantrix UI'ın demosu"
+- assertVisible:
+    id: "Link_download_pantrix_ui_demo"

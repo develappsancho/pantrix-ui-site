@@ -16,6 +16,9 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 - **A limit on the MCP server:** an address may ask `/mcp` ten times a second, with a burst of twenty; past that the
   site answers 429 (Too Many Requests), so that no one visitor can keep the server busy for everyone else.
+- **No paths of the build machine in the web app:** the site's Wasm names its own source files relative to the
+  repository's root, where it named them by their full path on the machine that built it, with that user's name and
+  folders. The paths it carries from Pantrix UI go with the library's 0.1.1.
 
 ## [26.11.1] - 2026-11-01
 

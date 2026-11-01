@@ -1,0 +1,18 @@
+# Asserts that the control tagged ID is chosen: a segment, a radio button. Android tells a chosen control as checked,
+# and iOS as selected.
+appId: ${APP_ID}
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - assertVisible:
+          id: ${ID}
+          checked: true
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - assertVisible:
+          id: ${ID}
+          selected: true

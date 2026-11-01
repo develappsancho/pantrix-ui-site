@@ -52,7 +52,8 @@ are the owner's on top of them.
 | Path | What it is |
 | :--- | :--- |
 | `app/shared` | The composition root: `SiteApp` (theme, header, sidebar, menu, `PageDisplay`: Navigation 3's `NavDisplay` with the demo's page transitions, `PageTransitions.kt`), `SiteViewModel`, the site's links (`SiteNavigation.kt`), Koin (`SiteKoin.kt`); `wasmJsMain/WebSite.kt` (address, browser history, typeface gate); `iosMain/MainViewController.kt`; `jvmTest/PageScreenshotTest.kt` and `screenshots/jvm/`: the pages' screenshots |
-| `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp`. The web one is built twice, as Wasm (`site-wasm.js`) and as JavaScript (`site-js.js`), and its own `site.js` starts the one the browser can run: the JavaScript build where Wasm's garbage collection is missing (Chrome before 119, Safari before 18.2) or the Wasm build fails before it has drawn; the static HTML where neither runs |
+| `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp`. The web one is built twice, as Wasm (`site-wasm.js`) and as JavaScript (`site-js.js`), and its own `site.js` starts the one the browser can run: the JavaScript build where Wasm's garbage collection is missing (Chrome before 119, Safari before 18.2) or the Wasm build fails before it has drawn; the static HTML where neither runs; `src/loaderTest` tests `site.js` with Node's test runner |
+| `app/maestro` | The Maestro flows of the app's main paths on a phone, found by the components' tags: launch, the header, the menu, a component's page, the search, the language, the theme and the references (`site.maestro`: `maestroTest`, `maestroIosTest`) |
 | `core/base` | MVI: `UiState`, `UiAction`, `UiEffect`, `BaseViewModel`, `BaseScreen`, `LoadState` |
 | `core/navigation` | `Navigator`, `NavigationHistory`, `BrowserNavigationHistory` (History API: path addresses, each entry keeping the stack it was written with, so a reload and Back or Forward reopen it) |
 | `core/model` | `SiteAddress` (the site's address: on the web the page's own, in an app `site.url`, written by `site.address` as `BUILT_SITE_ADDRESS`), `Route`, `Language`, `Page` and its blocks, `ContentFiles`, `LibraryFacts` (the library's counts the frame says: 100 components, 25 guides); `GuideCatalogue` (each guide's topic, summary, tags and platforms, kept in the site), `Changelog`, `ComponentIndex` and `ComponentPage`, `FoundationSection`, `SearchIndex`, `DemoPages` (a component's key, where the demo's other pages stand), `ShareImage`; `Ask` (what the server's tools answer with) and `Highlighter`, which colours code at build time and at run time |
@@ -95,10 +96,17 @@ are the owner's on top of them.
   other address `404.html` with a 404. The static pages are written into the same folder after the distribution; a
   browser with scripts off shows them.
 - The server: `./gradlew :server:test` asks every kind of MCP message over real HTTP.
+- The page's loader, when `site.js` changes: `./gradlew :app:webApp:loaderTest` (part of `check`) runs it in a browser
+  made of stand-ins, `./gradlew :app:webApp:loaderBrowserTest` builds the site and runs it in Chrome: which build
+  starts, the JavaScript build after a broken Wasm one, the static words without Wasm.
+- The main paths on a device, when the shell, the header, the menu, the search or a page they lead to changes:
+  `./gradlew :app:androidApp:maestroTest` and `./gradlew :app:shared:maestroIosTest`, with `-Pmaestro.device=` and
+  `-Pmaestro.flows=`; the flows in `app/maestro` run on a phone (the Pixel 7 Pro emulator, the iPhone 18 Pro Max
+  simulator).
 - The deploy, when `deploy/`, the server or the web build's output changes: `deploy/deploy.sh local` builds both images,
   runs the stack at `http://localhost:4004` and runs `deploy/check.sh` on it (pages, 404, compression, caching, `www`,
-  `/mcp`); `deploy/deploy.sh stop` stops it. The owner's other containers run in the same Docker: touch only the
-  stack `pantrix-ui-site`.
+  `/mcp`, the build machine's paths in the Wasm); `deploy/deploy.sh stop` stops it. The owner's other containers run
+  in the same Docker: touch only the stack `pantrix-ui-site`.
 - The pages' screenshots, when a page's look changes: `./gradlew :app:shared:verifyRoborazziJvm` (about six minutes).
   `PageScreenshotTest` draws one page of each kind (16, and the home page and Installation in Turkish too) at 1440×900,
   834×1194 and 390×844, and the home page at 951×669 too (a foldable open on its side), light and dark, on the

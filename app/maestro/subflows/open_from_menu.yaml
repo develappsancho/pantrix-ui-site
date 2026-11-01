@@ -1,0 +1,16 @@
+# Opens the page the menu's item ITEM leads to, by the key its tag ends in (`installation`, `references`): the header's
+# button opens the menu, the item is brought into view and pressed, and the menu closes behind it.
+appId: ${APP_ID}
+---
+- tapOn:
+    id: "IconButton_openmenu"
+- scrollUntilVisible:
+    element:
+      id: "Site_nav_${ITEM}"
+    direction: DOWN
+- tapOn:
+    id: "Site_nav_${ITEM}"
+- extendedWaitUntil:
+    notVisible:
+      id: "Sheet_menu"
+    timeout: 5000

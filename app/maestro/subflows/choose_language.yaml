@@ -1,0 +1,12 @@
+# Chooses the language CODE (`en`, `tr`) in the header's language menu, and ends when the header's button names it.
+appId: ${APP_ID}
+---
+- tapOn:
+    id: "Button_language"
+- tapOn:
+    id: "Menu_language.MenuItem_language_${CODE}"
+- extendedWaitUntil:
+    visible:
+      id: "Button_language"
+      text: "(Language|Dil): ${CODE.toUpperCase()}, .*"
+    timeout: 5000

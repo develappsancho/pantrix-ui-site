@@ -1,0 +1,9 @@
+# Starts the app afresh, on its home page, and ends when its header is there.
+appId: ${APP_ID}
+---
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: "IconButton_openmenu"
+    timeout: 20000

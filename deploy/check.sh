@@ -2,7 +2,8 @@
 # Checks Pantrix UI's site where it runs, as a browser and an assistant reach it: its pages at their addresses and
 # leading to that address, the page for an address with none, what is compressed and how long a browser keeps it, the
 # security headers, the second name under www, and the MCP server at /mcp. Each check writes a line; the script fails
-# when one does.
+# when one does. A note writes a line of its own and fails nothing: something to put right that is not the site's to
+# put right yet.
 #
 #   deploy/check.sh                          the site on this machine, http://localhost:4004 (or SITE_PORT)
 #   deploy/check.sh https://pantrixui.com    the site on its host
@@ -19,6 +20,7 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 passed=0
 failed=0
+noted=0
 
 MCP_HEADERS=(-H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream')
 INITIALIZE='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"check","version":"1"}}}'
@@ -53,6 +55,16 @@ check() {
         printf '  ✗ %s (status %s, %s)\n' "$name" "$(status)" "$(header Content-Type)"
     fi
 }
+
+# Writes the line of the note named $1, with what was found, $2, when there is something: it fails nothing.
+note() {
+    [ -z "$2" ] && return 0
+    noted=$((noted + 1))
+    printf '  ! %s: %s\n' "$1" "$2"
+}
+
+# The machines' folders a build wrote into the body, each one once, its user's name left out: /Users/…/pantrix-ui-site.
+paths() { grep -aoE '/(Users|home)/[^/"]+/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+' "$WORK/body" | sed -E 's#^/(Users|home)/[^/]+#/\1/…#' | sort -u; }
 
 is() { [ "$1" = "$2" ]; }
 contains() { case "$1" in *"$2"*) return 0 ;; *) return 1 ;; esac; }
@@ -116,6 +128,13 @@ check "the JavaScript build is asked for again each time, and draws with the Was
     eval 'is "$(status)" 200 && is "$(header Cache-Control)" no-cache && [ -n "$skiko" ] && contains "$wasm" "$skiko"'
 check "the JavaScript build holds no path of the machine that built it" eval '! has "file:///"'
 for file in $wasm; do
+    # A klib keeps the paths of the files it was compiled from, and the Wasm the paths of every klib it was linked
+    # from: the site's own modules write theirs relative to the repository's root, and Pantrix UI's do from 0.1.1 on.
+    fetch GET "/$file"
+    found="$(paths)"
+    check "/$file holds no path of the machine that built the site" eval '! contains "$found" pantrix-ui-site'
+    note "/$file holds paths of the machine that built Pantrix UI, until the site takes a version that writes none" \
+        "$(grep -v pantrix-ui-site <<< "$found" | tr '\n' ' ' | sed 's/ $//')"
     fetch HEAD "/$file" -H 'Accept-Encoding: gzip'
     check "/$file is WebAssembly, compressed, kept for a year" \
         eval 'is "$(status)" 200 && is "$(header Content-Type)" application/wasm && is "$(header Content-Encoding)" gzip && contains "$(header Cache-Control)" immutable'
@@ -176,5 +195,5 @@ head -c 70000 /dev/zero | tr '\0' 'a' > "$WORK/large"
 fetch POST /mcp "${MCP_HEADERS[@]}" --data-binary "@$WORK/large"
 check "a message over 64 KB is refused" eval 'is "$(status)" 413'
 
-echo "$passed passed, $failed failed"
+echo "$passed passed, $failed failed$([ "$noted" -gt 0 ] && echo ", $noted noted")"
 [ "$failed" = 0 ]

@@ -1,5 +1,6 @@
 package com.pantrixui.site.buildlogic
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
@@ -18,12 +19,17 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.register
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.process.CommandLineArgumentProvider
+import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
+import javax.inject.Inject
 
 /**
  * The web app: the site's app in the browser, as Wasm, and as JavaScript for a browser that cannot run the Wasm build.
@@ -33,7 +39,8 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
  * the app: after each of the two distributions, `:tools:prerender` writes every page's `index.html` in the folder of
  * its address, with the `404.html`, `sitemap.xml` and `robots.txt`. `:tools:render` draws the app on the JVM for what
  * the static pages cannot read from the content: the landing pages' words, and each page's share image. Those two run
- * only when what they read has changed.
+ * only when what they read has changed. `loaderTest`, part of `check`, tests `site.js` in a browser made of stand-ins;
+ * `loaderBrowserTest`, run by hand, tests it in Chrome on the production build.
  */
 class WebApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -41,6 +48,7 @@ class WebApplicationConventionPlugin : Plugin<Project> {
         pluginManager.alias(libs.plugins.composeMultiplatform)
         pluginManager.alias(libs.plugins.composeCompiler)
         pluginManager.apply(QualityConventionPlugin::class)
+        pluginManager.apply(RelativeKlibPathsConventionPlugin::class)
 
         extensions.configure<KotlinMultiplatformExtension> {
             js {
@@ -101,7 +109,7 @@ class WebApplicationConventionPlugin : Plugin<Project> {
             outputDirectory.set(built.map { it.dir("share") })
         }
         DISTRIBUTIONS.forEach { (distribution, folder, jsDistribution) ->
-            val name = "prerender" + distribution.replaceFirstChar { it.uppercase() }
+            val name = "prerender" + distribution.capitalized()
             val prerender = tasks.register<PrerenderSite>(name) {
                 group = "site"
                 description = "Writes the site's static pages beside the web app of $distribution."
@@ -141,7 +149,33 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                 finalizedBy(prerender, copyJs)
             }
         }
+
+        val node = NodeJsPlugin.apply(this)
+        val nodeSetup = with(node) { project.nodeJsSetupTaskProvider }
+        val loaderTests = layout.projectDirectory.dir("src/loaderTest")
+        val loaderTest = tasks.register<LoaderTest>("loaderTest") {
+            group = LifecycleBasePlugin.VERIFICATION_GROUP
+            description = "Tests the page's loader, site.js, in a browser made of stand-ins."
+            dependsOn(nodeSetup)
+            this.node.set(node.executable)
+            tests.from(loaderTests.file("site.test.mjs"))
+            loader.from(layout.projectDirectory.file(LOADER))
+            stamp.set(layout.buildDirectory.file("loaderTest/passed.txt"))
+        }
+        tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) { dependsOn(loaderTest) }
+        tasks.register<LoaderTest>("loaderBrowserTest") {
+            group = LifecycleBasePlugin.VERIFICATION_GROUP
+            description = "Tests the page's loader in Chrome, on the site as its production build writes it."
+            dependsOn(nodeSetup, PRODUCTION)
+            // What the distribution's finalizers write beside it: the static pages and the JavaScript build.
+            mustRunAfter(listOf("prerender", "copyShareImages", "copyJsApp").map { it + PRODUCTION.capitalized() })
+            this.node.set(node.executable)
+            tests.from(loaderTests.file("browser.test.mjs"))
+            site.set(layout.buildDirectory.dir("dist/wasmJs/productionExecutable"))
+        }
     }
+
+    private fun String.capitalized(): String = replaceFirstChar { it.uppercase() }
 
     private companion object {
         /** The Wasm build's script, which `site.js`, the script `index.html` loads, starts where the browser runs it. */
@@ -149,6 +183,12 @@ class WebApplicationConventionPlugin : Plugin<Project> {
 
         /** The JavaScript build's script, which `site.js` starts where the browser cannot run the Wasm build. */
         const val JS_BUNDLE = "site-js.js"
+
+        /** The page's own script, which starts the build the browser can run. */
+        const val LOADER = "src/webMain/resources/site.js"
+
+        /** The Wasm build's production distribution, the one the site deploys. */
+        const val PRODUCTION = "wasmJsBrowserDistribution"
 
         const val PRERENDER_MAIN = "com.pantrixui.site.tools.prerender.MainKt"
         const val LANDING_MAIN = "com.pantrixui.site.tools.render.LandingMainKt"
@@ -162,7 +202,7 @@ class WebApplicationConventionPlugin : Plugin<Project> {
          * that is copied into it.
          */
         val DISTRIBUTIONS = listOf(
-            Triple("wasmJsBrowserDistribution", "productionExecutable", "jsBrowserDistribution"),
+            Triple(PRODUCTION, "productionExecutable", "jsBrowserDistribution"),
             Triple(
                 "wasmJsBrowserDevelopmentExecutableDistribution",
                 "developmentExecutable",
@@ -264,5 +304,47 @@ abstract class DrawShareImages : JavaExec() {
                 )
             }
         )
+    }
+}
+
+/**
+ * Runs tests of the page's loader with Node's own test runner. With a [stamp] it runs again only when a test or the
+ * loader has changed; without one, as for the tests that open the built [site] in Chrome, each time it is asked for.
+ */
+abstract class LoaderTest : DefaultTask() {
+    /** Node, as Kotlin's Gradle plugin installs it for the web builds. */
+    @get:Input
+    abstract val node: Property<String>
+
+    /** The test files, run together. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val tests: ConfigurableFileCollection
+
+    /** The loader the tests read, `site.js`. */
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val loader: ConfigurableFileCollection
+
+    /** The built site the tests in Chrome open, given to them as `SITE_DIST`. */
+    @get:Internal
+    abstract val site: DirectoryProperty
+
+    /** Written once the tests have passed. */
+    @get:OutputFile
+    @get:Optional
+    abstract val stamp: RegularFileProperty
+
+    @get:Inject
+    protected abstract val execOperations: ExecOperations
+
+    @TaskAction
+    fun run() {
+        execOperations.exec {
+            executable = node.get()
+            args(listOf("--test") + tests.files.map { it.absolutePath })
+            site.orNull?.let { environment("SITE_DIST", it.asFile.absolutePath) }
+        }
+        stamp.orNull?.asFile?.writeText("The loader's tests passed.\n")
     }
 }

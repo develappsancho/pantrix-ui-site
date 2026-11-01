@@ -1,0 +1,17 @@
+# The app's flows for Maestro, along its main paths: it opens, the header and the menu lead to the pages, a component's
+# page shows its examples and its API, the search finds a component, the language and the theme change, and the
+# references list the apps built with Pantrix UI. Each finds what it presses and what it checks by the automation tag
+# Pantrix UI gives a component, `Component_key`, which is the same in every language and reaches Android as a resource
+# id and iOS as an accessibility identifier; the words a flow checks are given in both languages. APP_ID names the app
+# under test, com.pantrixui.site on Android and its bundle identifier, com.pantrixui.site<TEAM_ID>, on iOS:
+#
+#   maestro test -e APP_ID=com.pantrixui.site app/maestro
+#
+# or ./gradlew :app:androidApp:maestroTest and ./gradlew :app:shared:maestroIosTest, which build and install the app
+# first. The flows run on a phone, whose header leads by its menu, and leave the app's language and theme as they
+# found them.
+#
+# - flows: a flow for each path.
+# - subflows: the steps the flows share, and the steps that differ between Android and iOS.
+flows:
+  - "flows/**"

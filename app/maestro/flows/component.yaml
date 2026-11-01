@@ -1,0 +1,47 @@
+# A component's page: Button's card opens it, its examples run live in the preset of the platform chosen above them,
+# and its contents lead to its API, whose forms are chosen one at a time.
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch.yaml
+- tapOn:
+    id: "Button_homebrowse"
+- tapOn:
+    id: "Card_featured_button"
+- extendedWaitUntil:
+    visible:
+      id: "Button_contents_examples"
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: "Button_variant_solid"
+    direction: DOWN
+- tapOn:
+    id: "SegmentButton_exampleplatform.Segment_ios"
+- runFlow:
+    file: ../subflows/assert_chosen.yaml
+    env:
+      ID: "SegmentButton_exampleplatform.Segment_ios"
+- assertVisible:
+    id: "Button_variant_solid"
+- tapOn:
+    id: "SegmentButton_exampleplatform.Segment_android"
+- runFlow:
+    file: ../subflows/assert_chosen.yaml
+    env:
+      ID: "SegmentButton_exampleplatform.Segment_android"
+- scrollUntilVisible:
+    element:
+      id: "Button_contents_api"
+    direction: UP
+- tapOn:
+    id: "Button_contents_api"
+- extendedWaitUntil:
+    visible:
+      id: "SegmentButton_forms"
+    timeout: 5000
+- tapOn:
+    id: "SegmentButton_forms.Segment_onclick"
+- runFlow:
+    file: ../subflows/assert_chosen.yaml
+    env:
+      ID: "SegmentButton_forms.Segment_onclick"

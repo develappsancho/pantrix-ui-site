@@ -12,6 +12,7 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 ### Güvenlik
 
 *   **MCP sunucusunda bir sınır:** bir adres `/mcp`'ye saniyede on kez, bir kerede yirmilik bir taşmayla sorabilir; ötesine site 429 (Too Many Requests) döner, böylece tek bir ziyaretçi sunucuyu herkes için meşgul edemez.
+*   **Web uygulamasında derleme makinesinin yolları yok:** sitenin Wasm'ı kendi kaynak dosyalarını deponun köküne göre adlandırır; önce onları derleyen makinedeki tam yollarıyla, o kullanıcının adı ve klasörleriyle anıyordu. Pantrix UI'dan taşıdığı yollar kütüphanenin 0.1.1'iyle gider.
 
 ## [26.11.1] - 2026-11-01
 

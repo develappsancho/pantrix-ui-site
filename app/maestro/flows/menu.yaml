@@ -1,0 +1,30 @@
+# The menu leads to every part of the site: a page of the docs, then the components. Its own button closes it without
+# leading anywhere.
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/open_from_menu.yaml
+    env:
+      ITEM: "installation"
+- assertVisible: "Installation|Kurulum"
+- assertVisible:
+    id: "Button_codetab0"
+- runFlow:
+    file: ../subflows/open_from_menu.yaml
+    env:
+      ITEM: "components"
+- assertVisible:
+    id: "TextField_componentfilter"
+- tapOn:
+    id: "IconButton_openmenu"
+- assertVisible:
+    id: "Sheet_menu"
+- tapOn:
+    id: "SheetClose_menu"
+- extendedWaitUntil:
+    notVisible:
+      id: "Sheet_menu"
+    timeout: 5000
+- assertVisible:
+    id: "TextField_componentfilter"

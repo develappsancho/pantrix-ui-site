@@ -1,0 +1,21 @@
+# The header's brand leads home from any page: the home page's button opens the components, and the brand brings the
+# home page back.
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch.yaml
+- tapOn:
+    id: "Button_homebrowse"
+- extendedWaitUntil:
+    visible:
+      id: "TextField_componentfilter"
+    timeout: 10000
+- assertNotVisible:
+    id: "Button_homebrowse"
+- tapOn:
+    id: "Site_home"
+- extendedWaitUntil:
+    visible:
+      id: "Button_homebrowse"
+    timeout: 10000
+- assertNotVisible:
+    id: "TextField_componentfilter"

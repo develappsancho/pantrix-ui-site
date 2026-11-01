@@ -32,6 +32,10 @@ repository (`./gradlew publishToMavenLocal`).
 - `./gradlew detekt lintKotlin`
 - `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`
 - `./gradlew :server:test`
+- `./gradlew :app:webApp:loaderBrowserTest`: the page's loader in Chrome, on the site's production build (`loaderTest`,
+  part of `check`, runs it without a browser)
+- `./gradlew :app:androidApp:maestroTest` and `./gradlew :app:shared:maestroIosTest`: the app's main paths on an
+  Android device and on an iOS simulator, the flows in `app/maestro`
 - `./gradlew :app:shared:verifyRoborazziJvm`: one page of each kind at a desktop's, a tablet's and a phone's size, light
   and dark, against the images in `app/shared/screenshots/jvm/` (`recordRoborazziJvm` writes them again)
 

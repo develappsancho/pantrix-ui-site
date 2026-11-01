@@ -59,6 +59,13 @@ Run what the change can affect.
 - **Previews:** `SitePreviewsTest`, a plain `jvmTest` of `app/shared`, fails while a screen lacks one, and draws them
   all.
 - **The server:** `./gradlew :server:test` asks every kind of MCP message over real HTTP.
+- **The page's loader,** when `site.js` changes: `./gradlew :app:webApp:loaderTest`, part of `check`, runs it in a
+  browser made of stand-ins, and `./gradlew :app:webApp:loaderBrowserTest` builds the site and runs it in Chrome
+  (`CHROME` names one that is not at its usual place on a Mac): the Wasm build, the JavaScript build where Wasm's
+  garbage collection is missing or the Wasm build fails, and the page's static words where there is no Wasm.
+- **The main paths on a device,** when the shell, the header, the menu, the search or a page they lead to changes:
+  `./gradlew :app:androidApp:maestroTest` and `./gradlew :app:shared:maestroIosTest`, with `-Pmaestro.device=` and
+  `-Pmaestro.flows=`. They run the flows in `app/maestro` on a phone.
 - **Screenshots,** when a page's look changes: `./gradlew :app:shared:verifyRoborazziJvm`. A change that is meant is
   recorded again with `recordRoborazziJvm`; look at the dark images too.
 - **Putting it up,** when `deploy/`, the server or the web build changes: `deploy/deploy.sh local` builds both images,

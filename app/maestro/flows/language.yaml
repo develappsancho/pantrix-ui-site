@@ -1,0 +1,28 @@
+# The language menu turns the app's words into Turkish and back: the header's own, the menu's and the page's.
+appId: ${APP_ID}
+---
+- runFlow: ../subflows/launch.yaml
+- runFlow:
+    file: ../subflows/choose_language.yaml
+    env:
+      CODE: "tr"
+- assertVisible:
+    id: "IconButton_search"
+    text: "Belgelerde ara"
+- tapOn:
+    id: "IconButton_openmenu"
+- assertVisible: "Kurulum"
+- tapOn:
+    id: "SheetClose_menu"
+- runFlow:
+    file: ../subflows/choose_language.yaml
+    env:
+      CODE: "en"
+- assertVisible:
+    id: "IconButton_search"
+    text: "Search the docs"
+- tapOn:
+    id: "IconButton_openmenu"
+- assertVisible: "Installation"
+- tapOn:
+    id: "SheetClose_menu"

@@ -22,6 +22,7 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
         pluginManager.alias(libs.plugins.kotlinMultiplatform)
         pluginManager.alias(libs.plugins.androidKmpLibrary)
         pluginManager.apply(QualityConventionPlugin::class)
+        pluginManager.apply(RelativeKlibPathsConventionPlugin::class)
 
         extensions.configure<KotlinMultiplatformExtension> {
             (this as ExtensionAware).extensions.configure<KotlinMultiplatformAndroidLibraryExtension> {

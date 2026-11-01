@@ -1,0 +1,18 @@
+# The app opens on the home page: the header with its brand and its tools, and the page's two ways in.
+appId: ${APP_ID}
+tags:
+  - smoke
+---
+- runFlow: ../subflows/launch.yaml
+- assertVisible:
+    id: "Site_home"
+- assertVisible:
+    id: "IconButton_search"
+- assertVisible:
+    id: "Button_language"
+- assertVisible:
+    id: "IconButton_theme"
+- assertVisible:
+    id: "Button_homegetstarted"
+- assertVisible:
+    id: "Button_homebrowse"

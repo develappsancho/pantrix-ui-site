@@ -20,6 +20,8 @@ Pantrix UI, `gradle/libs.versions.toml`'daki sürümün seçtiği iki depodan bi
 *   `./gradlew detekt lintKotlin`
 *   `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`
 *   `./gradlew :server:test`
+*   `./gradlew :app:webApp:loaderBrowserTest`: sayfanın yükleyicisi Chrome'da, sitenin production derlemesinde (`check`'in parçası olan `loaderTest` onu tarayıcısız koşturur)
+*   `./gradlew :app:androidApp:maestroTest` ve `./gradlew :app:shared:maestroIosTest`: uygulamanın ana yolları bir Android cihazında ve bir iOS simülatöründe, `app/maestro`'daki akışlar
 *   `./gradlew :app:shared:verifyRoborazziJvm`: her türden bir sayfa, masaüstü, tablet ve telefon boyutunda, açık ve koyu, `app/shared/screenshots/jvm/`'deki görüntülerle karşılaştırılır (`recordRoborazziJvm` onları yeniden yazar)
 
 ## Yayına Almak

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Every page's address is its own, /docs/installation, and the same page is served for each: what it loads is
+         found from the site's root, not from beside the address. -->
+    <base href="/">
+    <title>Pantrix UI</title>
+    <meta name="description" content="A Compose Multiplatform design system for Android, iOS, the desktop and the web.">
+    <link type="text/css" rel="stylesheet" href="styles.css">
+    <!-- The site's typefaces are fetched while its code is, so they are there when the app asks for them. The
+         addresses are the ones Compose's resource reader asks for; without `crossorigin` the browser does not count
+         these fetches as those requests. Pantrix's own typeface first, then the site's code typeface. -->
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/com.pantrixui.foundation.generated.resources/font/plus_jakarta_sans.ttf">
+    <link rel="preload" as="fetch" type="font/ttf" crossorigin
+          href="composeResources/com.pantrixui.site.core.designsystem.generated.resources/font/jetbrains_mono_medium.ttf">
+</head>
+<body>
+    <!-- The loading mark: it stays over the app until its first frame is drawn, then it is removed (main.kt). -->
+    <div id="loading" role="presentation">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="20" stroke="#e7e9ed" stroke-width="4" fill="none"/>
+            <circle cx="25" cy="25" r="20" stroke="#2264ff" stroke-width="4" fill="none" stroke-linecap="round"
+                    stroke-dasharray="90 125">
+                <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s"
+                                  repeatCount="indefinite"/>
+            </circle>
+        </svg>
+    </div>
+    <!-- The box the app is set in. -->
+    <div id="app"></div>
+    <script type="application/javascript" src="site.js"></script>
+</body>
+</html>

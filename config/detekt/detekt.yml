@@ -1,0 +1,68 @@
+# The site's detekt configuration, on top of detekt's defaults (buildUponDefaultConfig).
+
+naming:
+  MatchingDeclarationName:
+    # A file is named after its main declaration, and keeps the small types that declaration takes beside it.
+    active: false
+  FunctionNaming:
+    # A @Composable function is PascalCase by Compose's own convention.
+    ignoreAnnotated: [ 'Composable', 'Preview' ]
+  TopLevelPropertyNaming:
+    # A screen's constant is often a Compose value written as a named constant: `val GUTTER = 24.dp`.
+    constantPattern: '[A-Z][_A-Z0-9]*'
+
+complexity:
+  CyclomaticComplexMethod:
+    # `when (layout) { Desktop -> 40f; Tablet -> 38f; Phone -> 32f }` is one choice of a value, not three paths.
+    ignoreSimpleWhenEntries: true
+  LongParameterList:
+    # A composable's parameters are its API: a modifier, its state, what it reports, its colours.
+    ignoreAnnotated: [ 'Composable' ]
+    functionThreshold: 8
+    constructorThreshold: 9
+  LongMethod:
+    # A screen's layout is read top to bottom; splitting it to please a count hides its shape.
+    ignoreAnnotated: [ 'Composable' ]
+  TooManyFunctions:
+    ignoreAnnotatedFunctions: [ 'Composable', 'Preview' ]
+
+style:
+  MagicNumber:
+    # A test's numbers are what it asserts; a design's are named in its style or in a token.
+    excludes:
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/iosTest/**'
+      - '**/wasmJsTest/**'
+      - '**/test/**'
+      # The design system's own tokens, the sizes and colours of its type and its preset: the numbers are the table.
+      - '**/com/pantrixui/site/core/designsystem/SiteType.kt'
+      - '**/com/pantrixui/site/core/designsystem/SiteColors.kt'
+      - '**/com/pantrixui/site/core/designsystem/ShopeersPreset.kt'
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+  UnusedPrivateMember:
+    ignoreAnnotated: [ 'Preview' ]
+  MaxLineLength:
+    maxLineLength: 120
+  WildcardImport:
+    active: true
+
+# The rules Pantrix UI gives an app built on it (com.pantrixui:detekt-rules).
+PantrixUIRule:
+  active: true
+  NoMaterialImport:
+    active: true
+  FixedSideLayout:
+    active: true
+  ImageWithoutDescription:
+    active: true
+    excludes: &tests
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/iosTest/**'
+      - '**/wasmJsTest/**'
+      - '**/test/**'
+  UntaggedControl:
+    active: true
+    excludes: *tests

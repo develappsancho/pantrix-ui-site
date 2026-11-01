@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -568,6 +569,8 @@ internal fun HomeFoot(
                                 pair.forEach { link ->
                                     FootLinkText(link, go, Modifier.weight(1f).heightIn(min = 40.dp))
                                 }
+                                // A last link alone keeps the column it would share with another.
+                                if (pair.size == 1) Spacer(Modifier.weight(1f))
                             }
                         }
                     }
@@ -710,11 +713,11 @@ private fun footColumns(
     val groups = FOOT_GROUPS.map { key ->
         FootLink(ComponentGroups.title(key).of(language), "group_$key", Route.Components)
     }
-    val resources = listOf(
+    val resources = listOfNotNull(
         link(FootSay.Changelog, "changelog", Route.Changelog),
         link(FootSay.McpServer, "mcp", Route.Ai),
         link(FootSay.Roadmap, "roadmap", Route.Roadmap),
-        link(FootSay.GitHub, "github", null)
+        link(FootSay.GitHub, "github", null).takeIf { LibraryFacts.REPOSITORY_IS_OPEN }
     )
     return listOf(
         FootColumnOf(FootSay.Docs.of(language), if (tablet) docs.drop(1) else docs),
@@ -726,14 +729,14 @@ private fun footColumns(
     )
 }
 
-/** A phone's six links, two to a row. */
-private fun phoneLinks(language: Language): List<FootLink> = listOf(
+/** A phone's links, two to a row: six, the last GitHub, while the repository is open. */
+private fun phoneLinks(language: Language): List<FootLink> = listOfNotNull(
     FootLink(FootSay.Installation.of(language), "installation", Route.Doc("installation")),
     FootLink(FootSay.Components.of(language), "components", Route.Components),
     FootLink(FootSay.Theming.of(language), "theming", Route.Doc("theming")),
     FootLink(FootSay.Changelog.of(language), "changelog", Route.Changelog),
     FootLink(FootSay.McpServer.of(language), "mcp", Route.Ai),
-    FootLink(FootSay.GitHub.of(language), "github", null)
+    FootLink(FootSay.GitHub.of(language), "github", null).takeIf { LibraryFacts.REPOSITORY_IS_OPEN }
 )
 
 /** The foot's words. */

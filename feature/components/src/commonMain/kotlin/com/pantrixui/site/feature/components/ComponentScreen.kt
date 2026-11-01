@@ -154,8 +154,10 @@ private fun ComponentArticle(
         scrollState = scrollState,
         anchors = anchors,
         contentsFooter = {
-            Spacer(Modifier.height(16.dp))
-            FooterLink(strings.reportAProblem, "${LibraryFacts.REPOSITORY}/issues", "issues", onLink)
+            if (LibraryFacts.REPOSITORY_IS_OPEN) {
+                Spacer(Modifier.height(16.dp))
+                FooterLink(strings.reportAProblem, "${LibraryFacts.REPOSITORY}/issues", "issues", onLink)
+            }
         }
     ) {
         val components = SiteRoutes.addressOf(Route.Components, language)

@@ -85,7 +85,7 @@ internal fun GuideArticle(
         Spacer(Modifier.height(gap))
         PageFoot(
             editLabel = strings.editOnGitHub,
-            editHref = guide.source(language),
+            editHref = guide.source(language).takeIf { LibraryFacts.REPOSITORY_IS_OPEN },
             checkedWith = strings.checkedWith(LibraryFacts.COMPOSE_VERSION),
             previousLabel = strings.previous,
             previous = GuideCatalogue.previousOf(guide.key)?.neighbour(language),

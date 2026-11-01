@@ -2,6 +2,7 @@ package com.pantrixui.site
 
 import com.pantrixui.site.core.i18n.SiteStrings
 import com.pantrixui.site.core.model.Language
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Route
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -36,9 +37,8 @@ class SiteNavigationTest {
         assertEquals(listOf("Başlarken", "Rehberler", "Proje"), sections.map { it.title })
         assertEquals("/tr/docs/installation", items.single { it.current }.href)
         assertEquals("/tr/docs/guides/keyboard-dismissal", items.single { it.key == "guide_keyboard-dismissal" }.href)
-        // A web address stays one in every language.
-        val issues = items.single { it.key == "issues" }
-        assertEquals("https://github.com/developersancho/pantrix-ui-cmp/issues", issues.href)
+        // The repository is private: the sidebar leads no one to its issues.
+        assertEquals(LibraryFacts.REPOSITORY_IS_OPEN, items.any { it.key == "issues" })
     }
 
     @Test

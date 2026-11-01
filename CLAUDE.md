@@ -71,3 +71,12 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 - When the library's guides change: publish the library to `mavenLocal`, run `./gradlew :core:content:writeGuidePages`
   and look at the diff of `content/*/docs/guides/` before handing it over. A new guide needs its line in
   `GuideCatalogue` and its sketch in `GuideSketches` first.
+- The library's repository is private (owner, 2026-10-29): `LibraryFacts.REPOSITORY_IS_OPEN` is false, and the site
+  leads no link to it. "Report a problem", "Edit this page on GitHub", the changelog's feed and file, the roadmap's
+  suggestion and the foot's GitHub wait for it; a guide's link to one of its files is the file's name alone. When it
+  opens, the switch is set and `writeGuidePages` is run again.
+- Three of the repository's files have a copy on the site, which a guide's link to them leads to
+  (`GuidePages.SITE_COPIES`): `config/detekt/detekt.yml` and `demo.yml` in `content/*/docs/detekt-settings.md` (the
+  English with its comments translated), and `docs/guide/adaptive/adaptive-rules.md` in
+  `content/*/docs/adaptive-rules.md` (in English too, without its picture). When one changes in the library, its page
+  is written again by hand.

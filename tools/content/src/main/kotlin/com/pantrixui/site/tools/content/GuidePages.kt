@@ -1,13 +1,13 @@
 package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Language
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.tools.content.GuideText.CODE_SPAN
 import com.pantrixui.site.tools.content.GuideText.LINK
 import com.pantrixui.site.tools.content.GuideText.capitalised
 import com.pantrixui.site.tools.content.GuideText.collapsed
 import com.pantrixui.site.tools.content.GuideText.lower
 import com.pantrixui.site.tools.content.GuideText.nominal
-import com.pantrixui.site.tools.content.GuideText.outsideCode
 import com.pantrixui.site.tools.content.GuideText.pieces
 import com.pantrixui.site.tools.content.GuideText.plain
 import com.pantrixui.site.tools.content.GuideText.symptomOf
@@ -118,16 +118,30 @@ internal class GuidePages(private val guides: Set<String>) {
         return placed.joinToString("\n")
     }
 
-    /** [line] with its links led to the site: a guide's to its page, an address as it is, a section's to its text. */
-    private fun links(line: String): String = outsideCode(line) { part ->
-        LINK.replace(part) { found ->
-            val (words, target) = found.destructured
+    /**
+     * [line] with its links led to the site: a guide's to its page, an address as it is, a section's to its text. A
+     * link whose words are code is one too; a link written inside code is code, and stays as it is.
+     */
+    private fun links(line: String): String = pieces(line, LINK_OR_CODE).joinToString("") { (part, matched) ->
+        val link = if (matched) LINK.matchEntire(part) else null
+        if (link == null) {
+            part
+        } else {
+            val (words, target) = link.destructured
             targetOf(target)?.let { "[$words]($it)" } ?: words
         }
     }
 
-    /** Where a link of a guide leads on the site, or null where it leads within the guide and is left as its text. */
+    /**
+     * Where a link of a guide leads on the site, or null where it is left as its text: a link within the guide, and
+     * one to a file of the library's repository that the site holds no copy of while the repository is private.
+     */
     private fun targetOf(target: String): String? = when {
+        target.startsWith(REPOSITORY_FILE) -> {
+            val path = target.removePrefix(REPOSITORY_FILE)
+            SITE_COPIES[path.substringBefore('#')] ?: target.takeIf { LibraryFacts.REPOSITORY_IS_OPEN }
+        }
+
         "://" in target -> {
             target
         }
@@ -301,6 +315,23 @@ internal class GuidePages(private val guides: Set<String>) {
         private val SECTION = Regex("""## (\d+)\.\s+(.*)""")
         private val SUBHEADING = Regex("""(###+) (.*)""")
         private val GUIDE_LINK = Regex("""(?:^|/)guides/([a-z0-9-]+)\.md$""")
+
+        /** A link or a span of code, whichever starts first: a link inside code is the code's. */
+        private val LINK_OR_CODE = Regex("${LINK.pattern}|${CODE_SPAN.pattern}")
+
+        /** Where a link to a file of the library's repository starts: the file's path in it follows. */
+        private const val REPOSITORY_FILE = "${LibraryFacts.REPOSITORY}/blob/main/"
+
+        /**
+         * The repository's files the site holds a copy of, by their paths in it, and the page of the site that shows
+         * each: a guide's link to one of them leads there, whether the repository is open or not. The copies are taken
+         * by hand: when one of these files changes in the library, its page is written again.
+         */
+        val SITE_COPIES = mapOf(
+            "config/detekt/detekt.yml" to "/docs/detekt-settings#detekt-yml",
+            "config/detekt/demo.yml" to "/docs/detekt-settings#demo-yml",
+            "docs/guide/adaptive/adaptive-rules.md" to "/docs/adaptive-rules"
+        )
         private val SPACE = Regex("""(?U)\s+""")
         private val NUMBER = Regex("""\d+(\.\d+)*\.?""")
         private val CAMEL = Regex("[a-zçğıöşü][A-Z]")

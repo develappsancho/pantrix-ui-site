@@ -22,5 +22,12 @@ object LibraryFacts {
     const val PLANNED_VERSION: String = "0.2.0"
 
     /** The library's repository, where its sources and guides are read and its problems reported. */
-    const val REPOSITORY: String = "https://github.com/developersancho/pantrix-ui-cmp"
+    const val REPOSITORY: String = "https://github.com/develappsancho/pantrix-ui-cmp"
+
+    /**
+     * Whether anyone can read the [REPOSITORY]. While it is private, the site leads no link to it: no way to report a
+     * problem or to edit a page there, no feed of its releases, and a guide's link to one of its files is the file's
+     * name alone, unless the site holds a copy of the file.
+     */
+    const val REPOSITORY_IS_OPEN: Boolean = false
 }

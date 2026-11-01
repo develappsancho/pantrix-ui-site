@@ -251,21 +251,32 @@ private fun ChangelogFilter(
                 labelStyle = SiteTheme.type.bodySmall.sized(14.sp).copy(fontWeight = FontWeight.Bold)
             )
             Spacer(Modifier.weight(1f))
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            // The feed of the releases and the file itself are the repository's: they wait for it to open.
+            if (LibraryFacts.REPOSITORY_IS_OPEN) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    PantrixIcon(
-                        imageVector = SiteIcons.Feed,
-                        contentDescription = null,
-                        tint = PantrixTheme.colors.primary.onContainer,
-                        size = 15.dp
-                    )
-                    FootLink(strings.followTheReleases, "${LibraryFacts.REPOSITORY}/releases.atom", "releases", onLink)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        PantrixIcon(
+                            imageVector = SiteIcons.Feed,
+                            contentDescription = null,
+                            tint = PantrixTheme.colors.primary.onContainer,
+                            size = 15.dp
+                        )
+                        FootLink(
+                            strings.followTheReleases,
+                            "${LibraryFacts.REPOSITORY}/releases.atom",
+                            "releases",
+                            onLink
+                        )
+                    }
+                    val file = if (language == Language.English) "CHANGELOG.md" else "CHANGELOG.tr.md"
+                    FootLink(file, "${LibraryFacts.REPOSITORY}/blob/main/$file", "changelogFile", onLink)
                 }
-                val file = if (language == Language.English) "CHANGELOG.md" else "CHANGELOG.tr.md"
-                FootLink(file, "${LibraryFacts.REPOSITORY}/blob/main/$file", "changelogFile", onLink)
             }
         }
     }

@@ -18,8 +18,8 @@ Detekt is a static code analysis tool for Kotlin. Kotlinter looks at how code lo
 :::table
 | Where | Configuration | What runs |
 | :--- | :--- | :--- |
-| The library's modules (`ui/foundation`, `ui/components`, `ui/annotations`, `ui/testing`, `ui/material3`) | [`config/detekt/detekt.yml`](https://github.com/developersancho/pantrix-ui-cmp/blob/main/config/detekt/detekt.yml) | detekt's rules and the project's rules for the library. Every finding stops the build. |
-| The demo (`app/*`) | [`config/detekt/demo.yml`](https://github.com/developersancho/pantrix-ui-cmp/blob/main/config/detekt/demo.yml) | Only the four rules of the project that an app keeps too: `NoMaterialImport`, `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. The last two report but do not stop the build. |
+| The library's modules (`ui/foundation`, `ui/components`, `ui/annotations`, `ui/testing`, `ui/material3`) | [`config/detekt/detekt.yml`](/docs/detekt-settings#detekt-yml) | detekt's rules and the project's rules for the library. Every finding stops the build. |
+| The demo (`app/*`) | [`config/detekt/demo.yml`](/docs/detekt-settings#demo-yml) | Only the four rules of the project that an app keeps too: `NoMaterialImport`, `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. The last two report but do not stop the build. |
 :::
 
 Of detekt's own rules, `UndocumentedPublicClass`, `UndocumentedPublicFunction` and `UndocumentedPublicProperty` are on in the library: no class, function or property is left without KDoc. An enum's entry counts as a property too. Parameters are held by the project's `UndocumentedParameter` (section 3).

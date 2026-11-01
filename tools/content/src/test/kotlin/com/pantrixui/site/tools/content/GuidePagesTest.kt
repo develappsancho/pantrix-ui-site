@@ -1,6 +1,7 @@
 package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Language
+import com.pantrixui.site.core.model.LibraryFacts
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -113,6 +114,28 @@ class GuidePagesTest {
         assertTrue("See [the files guide](/docs/guides/files), the section below and " in page, page)
         assertTrue("[Chrome](https://example.com)." in page, page)
         assertTrue("`[not a link](../guides/nowhere.md)` stays code." in page, page)
+    }
+
+    /** The repository is private: a file the site holds a copy of is read there, any other is named alone. */
+    @Test
+    fun a_link_into_the_repository_leads_to_the_site_s_copy_or_is_left_as_its_words() {
+        val repository = "${LibraryFacts.REPOSITORY}/blob/main"
+        val linked = english.replace(
+            "*   A button says \"copied\" when nothing was.",
+            "*   A button says \"copied\" when nothing was. See " +
+                "[`detekt.yml`]($repository/config/detekt/detekt.yml), " +
+                "[the rules]($repository/docs/guide/adaptive/adaptive-rules.md) and " +
+                "[`Clipboard.kt`]($repository/ui/foundation/Clipboard.kt)."
+        )
+        val page = pages.page("clipboard", Language.English, linked, linked, "Copying")
+        assertTrue("See [`detekt.yml`](/docs/detekt-settings#detekt-yml), " in page, page)
+        assertTrue("[the rules](/docs/adaptive-rules) and " in page, page)
+        val source = if (LibraryFacts.REPOSITORY_IS_OPEN) {
+            "[`Clipboard.kt`]($repository/ui/foundation/Clipboard.kt)"
+        } else {
+            "`Clipboard.kt`"
+        }
+        assertTrue(" and $source." in page, page)
     }
 
     @Test

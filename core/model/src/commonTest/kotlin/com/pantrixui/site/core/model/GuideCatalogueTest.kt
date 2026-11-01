@@ -18,7 +18,7 @@ class GuideCatalogueTest {
     @Test
     fun a_guide_s_source_is_the_library_s_text_in_the_page_s_language() {
         val guide = GuideCatalogue.of("keyboard-dismissal")!!
-        val folder = "https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/keyboard-dismissal"
+        val folder = "https://github.com/develappsancho/pantrix-ui-cmp/blob/main/docs/guide/keyboard-dismissal"
         assertEquals("$folder/KEYBOARD_DISMISSAL_GUIDE.en.md", guide.source(Language.English))
         assertEquals("$folder/KEYBOARD_DISMISSAL_GUIDE.md", guide.source(Language.Turkish))
     }

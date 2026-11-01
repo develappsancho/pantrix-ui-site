@@ -185,10 +185,12 @@ internal fun docsSections(
         ),
         NavSection(
             strings.project,
-            listOf(
+            listOfNotNull(
                 item("changelog", strings.changelog, Route.Changelog),
                 item("roadmap", strings.roadmap, Route.Roadmap),
-                NavItem(key = "issues", label = strings.reportAProblem, href = ISSUES)
+                NavItem(key = "issues", label = strings.reportAProblem, href = ISSUES).takeIf {
+                    LibraryFacts.REPOSITORY_IS_OPEN
+                }
             )
         )
     )
@@ -251,4 +253,4 @@ private val FEATURED_GUIDES: List<Pair<String, (SiteStrings) -> String>> = listO
 private const val BRAND = "Pantrix UI"
 
 /** Where a problem with the library is reported. */
-private const val ISSUES = "https://github.com/developersancho/pantrix-ui-cmp/issues"
+private const val ISSUES = "${LibraryFacts.REPOSITORY}/issues"

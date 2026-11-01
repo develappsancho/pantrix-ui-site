@@ -148,7 +148,7 @@ Klavyenin gerçekten gittiği yalnızca bir cihazda ya da bir simülatörde gör
 ## 8. Depoda nerede {#repository toc="8. Depoda"}
 
 :::labels
-- Değiştirici: [`foundation/keyboard/ClearFocusOnTap.kt`](https://github.com/developersancho/pantrix-ui-cmp/blob/main/ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/keyboard/ClearFocusOnTap.kt)
+- Değiştirici: `foundation/keyboard/ClearFocusOnTap.kt`
 - Testler: `ClearFocusOnTapTest`, `commonTest` içinde
 - Kim kullanır: Demo uygulamasının kökü; `PantrixTextArea` ve `PantrixFilledTextArea` onu anar
 - Demo: Text Area sayfasındaki [**“Dışarıya dokunmak klavyeyi kapatır”**](/components/text-area) örneği

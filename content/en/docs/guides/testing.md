@@ -180,7 +180,7 @@ Pixel and colour helpers are not in the module: looking for a colour in pixels d
 
 ### 3.6. Screenshots
 
-There is no helper in the module for screenshot tests, and the module is not bound to Roborazzi: on which platform, with which tool and where to record is the app's choice. Pantrix's own setup is in the [Roborazzi guide](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/roborazzi/ROBORAZZI_GUIDE.md) (in Turkish). Its summary for an app:
+There is no helper in the module for screenshot tests, and the module is not bound to Roborazzi: on which platform, with which tool and where to record is the app's choice. Pantrix's own setup is in the Roborazzi guide (in Turkish). Its summary for an app:
 
 *   **Three platforms.** The desktop (`jvmTest`, `io.github.takahirom.roborazzi.captureRoboImage`), Android (`androidHostTest`, Robolectric, `@GraphicsMode(GraphicsMode.Mode.NATIVE)`, `com.github.takahirom.roborazzi.captureRoboImage`) and iOS (`iosTest`, `captureRoboImage(this, filePath = …)`). There is no Roborazzi on the web.
 *   **`PantrixTestTheme` sets up the scene.** If the theme, the platform, the language and the font scale are not fixed, the picture changes from machine to machine. A scene that shows a date should take a `TestClock`: if it does not, the picture changes every month.
@@ -304,7 +304,7 @@ It is not needed on iOS: Compose gives `testTag` as `accessibilityIdentifier`.
 *   **Pixel and colour helpers.** They stay in Pantrix's own tests.
 *   **Fixing the window and the clock by itself.** If `window` is not given, the screen is in the window the test draws (1024×768 on the desktop, 320dp wide in Robolectric); if `clock` is not given, it is the device's clock.
 *   **Device automation on the web.** Maestro 2.10's Chromium cannot see Compose's semantics tree (section 8); on the web the common tests run.
-*   **A text field's menu on Android.** On Android, when the field is right-clicked with a mouse or while the selection toolbar opens, Compose asks only its own clipboard (`AndroidClipboard`) whether there is something to paste. A test that right-clicks a text field with the test's clipboard fails with `IllegalArgumentException` (seen in Robolectric); focusing, typing and copying do not ask. The toolbar could not be opened in Robolectric: selection by touch fails in the magnifier, whatever the clipboard ([an open item](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/OPEN_ITEMS.md)).
+*   **A text field's menu on Android.** On Android, when the field is right-clicked with a mouse or while the selection toolbar opens, Compose asks only its own clipboard (`AndroidClipboard`) whether there is something to paste. A test that right-clicks a text field with the test's clipboard fails with `IllegalArgumentException` (seen in Robolectric); focusing, typing and copying do not ask. The toolbar could not be opened in Robolectric: selection by touch fails in the magnifier, whatever the clipboard (an open item).
 *   **Knowing a component's inside.** The module knows components by their names; the names of a component's parts (`Segment`, `Day_2026_10_24`) are in that component's KDoc.
 
 ## 6. Testing {#testing}

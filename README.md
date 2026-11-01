@@ -1,6 +1,6 @@
 # Pantrix UI site
 
-The website of [Pantrix UI](https://github.com/developersancho/pantrix-ui-cmp), built with Pantrix UI: one Compose
+The website of [Pantrix UI](https://github.com/develappsancho/pantrix-ui-cmp), built with Pantrix UI: one Compose
 Multiplatform app for the web (Wasm), Android, iOS and the desktop. Every page is in English and in Turkish, each at
 its own address: `/docs/installation` and `/tr/docs/installation`.
 

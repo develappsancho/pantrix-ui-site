@@ -127,6 +127,11 @@ internal class StaticDocument(
             " <a href=\"${Html.text(it.address)}\" hreflang=\"${it.language.code}\">" +
                 "${Html.text(StaticWords.of(language).otherLanguage)}</a>"
         }.orEmpty()
+        val repository = if (LibraryFacts.REPOSITORY_IS_OPEN) {
+            " · <a href=\"${LibraryFacts.REPOSITORY}\">GitHub</a>"
+        } else {
+            ""
+        }
         return """
     <div id="static">
         <header><a href="${Html.text(SiteRoutes.addressOf(Route.Home, language))}"><strong>$SITE_NAME</strong></a>
@@ -134,7 +139,7 @@ internal class StaticDocument(
         <main>
 $body
         </main>
-        <footer><p>$SITE_NAME · <a href="${LibraryFacts.REPOSITORY}">GitHub</a></p></footer>
+        <footer><p>$SITE_NAME$repository</p></footer>
     </div>"""
     }
 

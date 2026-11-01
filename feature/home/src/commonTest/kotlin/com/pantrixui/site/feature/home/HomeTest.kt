@@ -111,8 +111,8 @@ class HomeTest {
         val model = HomeViewModel(Language.English, FakeContentRepository())
         model.onAction(HomeAction.OpenLink("/tr/components"))
         assertEquals(HomeEffect.Navigate("/tr/components"), model.effects.first())
-        model.onAction(HomeAction.OpenLink("https://github.com/developersancho/pantrix-ui-cmp"))
-        assertEquals(HomeEffect.OpenUrl("https://github.com/developersancho/pantrix-ui-cmp"), model.effects.first())
+        model.onAction(HomeAction.OpenLink("https://github.com/develappsancho/pantrix-ui-cmp"))
+        assertEquals(HomeEffect.OpenUrl("https://github.com/develappsancho/pantrix-ui-cmp"), model.effects.first())
     }
 
     @Test

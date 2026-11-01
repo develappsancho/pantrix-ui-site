@@ -146,17 +146,20 @@ fun NotFoundScreen(
                     onOpen = { onNavigate(SiteRoutes.addressOf(it, language)) }
                 )
             }
-            // One paragraph, so that the sentence wraps as one around its link.
-            RichText(
-                spans = listOf(
-                    Span.Text("${strings.linkBroughtYou} "),
-                    Span.Link(listOf(Span.Text(strings.tellUs)), NEW_ISSUE),
-                    Span.Text(strings.withThePage)
-                ),
-                onLink = { uriHandler.openUri(it) },
-                style = SiteTheme.type.bodySmall.copy(fontSize = 14.sp),
-                color = SiteTheme.colors.muted
-            )
+            // One paragraph, so that the sentence wraps as one around its link. The link is to the repository's
+            // issues, and waits for it to open.
+            if (LibraryFacts.REPOSITORY_IS_OPEN) {
+                RichText(
+                    spans = listOf(
+                        Span.Text("${strings.linkBroughtYou} "),
+                        Span.Link(listOf(Span.Text(strings.tellUs)), NEW_ISSUE),
+                        Span.Text(strings.withThePage)
+                    ),
+                    onLink = { uriHandler.openUri(it) },
+                    style = SiteTheme.type.bodySmall.copy(fontSize = 14.sp),
+                    color = SiteTheme.colors.muted
+                )
+            }
         }
     }
 }
@@ -277,4 +280,4 @@ private fun StartCards(
 private const val SITE_HOST = "pantrixui.com"
 
 /** Where a broken link is reported: a new issue of the library's repository. */
-private const val NEW_ISSUE = "https://github.com/developersancho/pantrix-ui-cmp/issues/new"
+private const val NEW_ISSUE = "${LibraryFacts.REPOSITORY}/issues/new"

@@ -225,7 +225,7 @@ data class Neighbour(
 @Composable
 fun PageFoot(
     editLabel: String,
-    editHref: String,
+    editHref: String?,
     checkedWith: String,
     previousLabel: String,
     previous: Neighbour?,
@@ -260,7 +260,7 @@ fun PageFoot(
 @Composable
 private fun FootLine(
     editLabel: String,
-    editHref: String,
+    editHref: String?,
     checkedWith: String,
     onLink: (String) -> Unit
 ) {
@@ -270,13 +270,15 @@ private fun FootLine(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        PantrixLink(
-            text = editLabel,
-            onClick = { onLink(editHref) },
-            style = text.copy(fontWeight = FontWeight.Bold),
-            underline = LinkUnderline.OnHover,
-            tagKey = "editPage"
-        )
+        if (editHref != null) {
+            PantrixLink(
+                text = editLabel,
+                onClick = { onLink(editHref) },
+                style = text.copy(fontWeight = FontWeight.Bold),
+                underline = LinkUnderline.OnHover,
+                tagKey = "editPage"
+            )
+        }
         PantrixText(text = checkedWith, style = text, color = SiteTheme.colors.muted)
     }
 }

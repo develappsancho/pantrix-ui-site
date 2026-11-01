@@ -48,6 +48,7 @@ import com.pantrixui.site.core.designsystem.content.rememberScrollToAnchor
 import com.pantrixui.site.core.designsystem.sized
 import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.routing.SiteRoutes
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -93,7 +94,12 @@ fun RoadmapScreen(
     val scrollTo = rememberScrollToAnchor(anchors, scroll)
     FollowPageSection(anchors, scroll)
     PantrixWindowTitle(LandingHeads.Roadmap.title.of(language))
-    val suggest = { onAction(RoadmapAction.OpenLink(RoadmapSay.ISSUES)) }
+    // An item is suggested in the repository's issues: while it is private, there is no way to suggest one.
+    val suggest = if (LibraryFacts.REPOSITORY_IS_OPEN) {
+        { onAction(RoadmapAction.OpenLink(RoadmapSay.ISSUES)) }
+    } else {
+        null
+    }
     val open: (Link) -> Unit = { link ->
         when (link) {
             is Link.Page -> onAction(RoadmapAction.OpenLink(SiteRoutes.addressOf(link.route, language)))
@@ -113,9 +119,9 @@ fun RoadmapScreen(
     }
 }
 
-/** The page's words, and on a desktop and a tablet the way to suggest an item. */
+/** The page's words, and on a desktop and a tablet the way to suggest an item, where there is one ([onSuggest]). */
 @Composable
-private fun Hero(onSuggest: () -> Unit) {
+private fun Hero(onSuggest: (() -> Unit)?) {
     val language = LocalLanguage.current
     val layout = SiteTheme.layout
     val colors = PantrixTheme.colors
@@ -153,13 +159,15 @@ private fun Hero(onSuggest: () -> Unit) {
         }
     }
     val button = @Composable {
-        LandingButton(
-            text = RoadmapSay.Suggest.of(language),
-            onClick = onSuggest,
-            tag = "roadmapSuggest",
-            padding = 20.dp,
-            leading = PantrixIcons.Plus
-        )
+        if (onSuggest != null) {
+            LandingButton(
+                text = RoadmapSay.Suggest.of(language),
+                onClick = onSuggest,
+                tag = "roadmapSuggest",
+                padding = 20.dp,
+                leading = PantrixIcons.Plus
+            )
+        }
     }
     LandingBand(padding, gap = 14.dp) {
         when (layout) {

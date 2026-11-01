@@ -180,7 +180,7 @@ Piksel ve renk yardımcıları modülde yoktur: bir rengi pikselde aramak bileş
 
 ### 3.6. Ekran görüntüleri
 
-Ekran görüntüsü testleri için modülde bir yardımcı yoktur ve modül Roborazzi'ye bağlanmaz: hangi platformda, hangi araçla ve nereye kaydedileceği uygulamanın seçimidir. Pantrix'in kendi kurulumu [Roborazzi rehberindedir](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/roborazzi/ROBORAZZI_GUIDE.md). Bir uygulama için özeti:
+Ekran görüntüsü testleri için modülde bir yardımcı yoktur ve modül Roborazzi'ye bağlanmaz: hangi platformda, hangi araçla ve nereye kaydedileceği uygulamanın seçimidir. Pantrix'in kendi kurulumu Roborazzi rehberindedir. Bir uygulama için özeti:
 
 *   **Üç platform.** Masaüstü (`jvmTest`, `io.github.takahirom.roborazzi.captureRoboImage`), Android (`androidHostTest`, Robolectric, `@GraphicsMode(GraphicsMode.Mode.NATIVE)`, `com.github.takahirom.roborazzi.captureRoboImage`) ve iOS (`iosTest`, `captureRoboImage(this, filePath = …)`). Web'de Roborazzi yoktur.
 *   **Sahneyi `PantrixTestTheme` kurar.** Tema, platform, dil ve yazı ölçeği sabitlenmezse görüntü makineden makineye değişir. Tarih gösteren bir sahne bir `TestClock` almalıdır: yoksa görüntü her ay değişir.
@@ -304,7 +304,7 @@ iOS'ta gerek yoktur: Compose `testTag`'i `accessibilityIdentifier` olarak verir.
 *   **Piksel ve renk yardımcıları.** Pantrix'in kendi testlerinde kalır.
 *   **Pencereyi ve saati kendiliğinden sabitlemek.** `window` verilmezse ekran testin çizdiği pencerededir (masaüstünde 1024×768, Robolectric'te 320dp genişlik); `clock` verilmezse cihazın saatidir.
 *   **Web'de cihaz otomasyonu.** Maestro 2.10'un Chromium'u Compose'un anlam ağacını göremiyor (8. bölüm); web'de ortak testler koşar.
-*   **Android'de metin alanının menüsü.** Compose Android'de, fareyle sağ tıklanınca ya da seçim çubuğu açılırken, yapıştırılacak bir şey olup olmadığını yalnızca kendi panosuna (`AndroidClipboard`) sorar. Testin panosuyla bir metin alanına sağ tıklayan bir test `IllegalArgumentException` ile düşer (Robolectric'te görüldü); odaklanmak, yazmak ve kopyalamak sormaz. Çubuk Robolectric'te açılamadı: dokunarak seçim, pano ne olursa olsun, büyüteçte düşüyor ([açık madde](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/OPEN_ITEMS.md)).
+*   **Android'de metin alanının menüsü.** Compose Android'de, fareyle sağ tıklanınca ya da seçim çubuğu açılırken, yapıştırılacak bir şey olup olmadığını yalnızca kendi panosuna (`AndroidClipboard`) sorar. Testin panosuyla bir metin alanına sağ tıklayan bir test `IllegalArgumentException` ile düşer (Robolectric'te görüldü); odaklanmak, yazmak ve kopyalamak sormaz. Çubuk Robolectric'te açılamadı: dokunarak seçim, pano ne olursa olsun, büyüteçte düşüyor (açık madde).
 *   **Bir bileşenin içini bilmek.** Modül bileşenleri adlarıyla tanır; bir bileşenin parçalarının adı (`Segment`, `Day_2026_10_24`) o bileşenin KDoc'undadır.
 
 ## 6. Test etmek {#testing}

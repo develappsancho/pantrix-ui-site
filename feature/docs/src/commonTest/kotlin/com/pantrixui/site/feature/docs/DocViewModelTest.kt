@@ -119,7 +119,7 @@ class DocViewModelTest {
         val model = model()
         model.onAction(DocAction.OpenLink("/tr/docs/theming"))
         assertEquals(DocEffect.Navigate("/tr/docs/theming"), model.effects.first())
-        model.onAction(DocAction.OpenLink("https://github.com/developersancho/pantrix-ui-cmp"))
+        model.onAction(DocAction.OpenLink("https://github.com/develappsancho/pantrix-ui-cmp"))
         assertIs<DocEffect.OpenUrl>(model.effects.first())
     }
 }

@@ -66,7 +66,7 @@ Where the documents are to be served from a site, its address is given, and the 
 
 ### The MCP server
 
-An assistant reads the documents best from Pantrix's MCP server: it chooses what to ask, and takes only what it needs. The server is one jar that runs by itself, `mcp-<version>-all.jar`. It is published with the library, as `com.pantrixui:mcp` with the classifier `all`: after `./gradlew publishToMavenLocal` it is in `~/.m2/repository/com/pantrixui/mcp/<version>/` ([the publishing guide](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/publishing/PUBLISHING_GUIDE.md), in Turkish). In this repository it is made with:
+An assistant reads the documents best from Pantrix's MCP server: it chooses what to ask, and takes only what it needs. The server is one jar that runs by itself, `mcp-<version>-all.jar`. It is published with the library, as `com.pantrixui:mcp` with the classifier `all`: after `./gradlew publishToMavenLocal` it is in `~/.m2/repository/com/pantrixui/mcp/<version>/` (the publishing guide, in Turkish). In this repository it is made with:
 
 ```bash
 ./gradlew :ai:mcp:allJar
@@ -130,7 +130,7 @@ java -jar mcp-<version>-all.jar skill <folder>
 
 An app's repository that uses Pantrix takes the skill and the server so. The first step is taken in Pantrix's repository, the second on each machine, the others in the app's.
 
-1.  **The library and the server:** `./gradlew clean publishToMavenLocal` in Pantrix's repository publishes both. The app takes the library from `mavenLocal()`; the dependency lines are in the skill's `references/setup.md`, and the publishing in detail in the [publishing guide](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/publishing/PUBLISHING_GUIDE.md) (in Turkish).
+1.  **The library and the server:** `./gradlew clean publishToMavenLocal` in Pantrix's repository publishes both. The app takes the library from `mavenLocal()`; the dependency lines are in the skill's `references/setup.md`, and the publishing in detail in the publishing guide (in Turkish).
 2.  **The jar:** the server's jar now stands in the local Maven repository. Each machine keeps where it is in an environment variable of its own, in the shell's profile for example:
 
     ```bash
@@ -200,7 +200,7 @@ Where the documents would tell an assistant something false, or nothing at all, 
 | :--- | :--- | :--- |
 | A component no page documents | `ui/…/Gauge.kt:198: no page of the sample app documents PantrixGauge, …` | The component is named in the `api` of its page's `@DemoPage`. |
 | A named argument in a `@PantrixExample` that no form of the library has | ``PantrixButton, "Primary action": `tag` is given to PantrixButton, and no form of PantrixButton has a parameter of that name`` | The example's code is written with the component's signature as it is today. |
-| A text of the demo without its English | `These texts of the sample app have no English, …` with the list of the missing texts | `./gradlew :app:shared:generateDemoCatalog` is run, and the files under `app/shared/build/reports/demoCatalog/translations/en` are filled and copied to `translations/en` ([the demo catalogue](https://github.com/developersancho/pantrix-ui-cmp/blob/main/CONTRIBUTING.md#the-demo-catalogue)). |
+| A text of the demo without its English | `These texts of the sample app have no English, …` with the list of the missing texts | `./gradlew :app:shared:generateDemoCatalog` is run, and the files under `app/shared/build/reports/demoCatalog/translations/en` are filled and copied to `translations/en` (the demo catalogue). |
 | Two declarations that would get the same id in the documents | `… would share the id … in the documents for coding assistants` | One of the declarations is renamed. |
 | A component whose keywords are empty, not written in lower case, or give a word twice | `ui/…/Button.kt:144: the @PantrixComponent of Button gives no keywords. …` | The annotation's `keywords` are given the words someone looking for the component would use that its name does not say: what other design systems and platforms call it, and what it is used for (`toast` and `undo` for a snackbar). Three to eight, in English and in lower case. |
 | The skill, or the README's first example, names what the library does not have (`PantrixSlider`), or an entry or a member a type does not have (`ButtonVariant.Primary`) | ``ai/skills/pantrix-ui/SKILL.md:73: `ButtonVariant` has no `Primary` `` | The name is written as the library has it today. |

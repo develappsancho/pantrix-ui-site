@@ -27,7 +27,7 @@ dependencyResolutionManagement {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/developersancho/pantrix-ui-cmp")
+            url = uri("https://maven.pkg.github.com/develappsancho/pantrix-ui-cmp")
             credentials(PasswordCredentials::class)
         }
         google()

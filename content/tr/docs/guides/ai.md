@@ -66,7 +66,7 @@ Belgeler bir siteden sunulacaksa adresi verilir; bağlantılar o zaman mutlak ol
 
 ### MCP sunucusu
 
-Bir asistan belgeleri en iyi Pantrix'in MCP sunucusundan okur: neyi soracağını kendisi seçer ve yalnızca gerekeni alır. Sunucu kendi başına çalışan tek bir jar'dır: `mcp-<sürüm>-all.jar`. Kütüphaneyle birlikte, `all` sınıflandırıcılı `com.pantrixui:mcp` olarak yayınlanır: `./gradlew publishToMavenLocal`'dan sonra `~/.m2/repository/com/pantrixui/mcp/<sürüm>/`'dedir ([yayın rehberi](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/publishing/PUBLISHING_GUIDE.md)). Bu depoda şöyle üretilir:
+Bir asistan belgeleri en iyi Pantrix'in MCP sunucusundan okur: neyi soracağını kendisi seçer ve yalnızca gerekeni alır. Sunucu kendi başına çalışan tek bir jar'dır: `mcp-<sürüm>-all.jar`. Kütüphaneyle birlikte, `all` sınıflandırıcılı `com.pantrixui:mcp` olarak yayınlanır: `./gradlew publishToMavenLocal`'dan sonra `~/.m2/repository/com/pantrixui/mcp/<sürüm>/`'dedir (yayın rehberi). Bu depoda şöyle üretilir:
 
 ```bash
 ./gradlew :ai:mcp:allJar
@@ -130,7 +130,7 @@ java -jar mcp-<sürüm>-all.jar skill <klasör>
 
 Pantrix'i kullanan bir uygulamanın deposu skill'i ve sunucuyu şöyle alır. İlk adım Pantrix'in deposunda, ikincisi her makinede, ötekiler uygulamanın deposunda atılır.
 
-1.  **Kütüphane ve sunucu:** Pantrix'in deposunda `./gradlew clean publishToMavenLocal` ikisini de yayınlar. Uygulama kütüphaneyi `mavenLocal()`'dan alır; bağımlılık satırları skill'in `references/setup.md`'sinde, yayının ayrıntısı [yayın rehberindedir](https://github.com/developersancho/pantrix-ui-cmp/blob/main/docs/guide/publishing/PUBLISHING_GUIDE.md).
+1.  **Kütüphane ve sunucu:** Pantrix'in deposunda `./gradlew clean publishToMavenLocal` ikisini de yayınlar. Uygulama kütüphaneyi `mavenLocal()`'dan alır; bağımlılık satırları skill'in `references/setup.md`'sinde, yayının ayrıntısı yayın rehberindedir.
 2.  **Jar:** sunucunun jar'ı artık yerel Maven deposundadır. Her makine onun yerini kendi ortam değişkeninde tutar, ör. kabuğun profilinde:
 
     ```bash
@@ -200,7 +200,7 @@ Belgeler bir asistana yanlış bir şey söyleyecekse ya da hiçbir şey söylem
 | :--- | :--- | :--- |
 | Hiçbir sayfanın belgelemediği bir bileşen | `ui/…/Gauge.kt:198: no page of the sample app documents PantrixGauge, …` | Bileşen sayfasının `@DemoPage`'inde, `api`'de anılır. |
 | `@PantrixExample`'da kütüphanenin hiçbir biçiminde olmayan adlı bir argüman | ``PantrixButton, "Primary action": `tag` is given to PantrixButton, and no form of PantrixButton has a parameter of that name`` | Örneğin kodu bileşenin bugünkü imzasıyla yazılır. |
-| İngilizcesi olmayan bir demo metni | `These texts of the sample app have no English, …` ve eksik metinlerin listesi | `./gradlew :app:shared:generateDemoCatalog` çalıştırılır ve `app/shared/build/reports/demoCatalog/translations/en` altındaki dosyalar doldurulup `translations/en`'e kopyalanır ([demo kataloğu](https://github.com/developersancho/pantrix-ui-cmp/blob/main/CONTRIBUTING.tr.md#demo-kataloğu)). |
+| İngilizcesi olmayan bir demo metni | `These texts of the sample app have no English, …` ve eksik metinlerin listesi | `./gradlew :app:shared:generateDemoCatalog` çalıştırılır ve `app/shared/build/reports/demoCatalog/translations/en` altındaki dosyalar doldurulup `translations/en`'e kopyalanır (demo kataloğu). |
 | Belgelerde aynı kimliği alacak iki bildirim | `… would share the id … in the documents for coding assistants` | Bildirimlerden birinin adı değiştirilir. |
 | Anahtar sözcüğü boş, küçük harfle yazılmamış ya da bir sözcüğü iki kez veren bir bileşen | `ui/…/Button.kt:144: the @PantrixComponent of Button gives no keywords. …` | Anotasyonun `keywords`'üne, bileşeni arayan birinin kullanacağı ve adında geçmeyen sözcükler yazılır: başka tasarım sistemlerinin ve platformların ona dediği, ne için kullanıldığı (snackbar için `toast`, `undo`). Üç ile sekiz, İngilizce ve küçük harfle. |
 | Skill'in ya da README'nin ilk örneğinin, kütüphanede olmayan bir adı (`PantrixSlider`) ya da bir tipin olmayan bir girdisini veya üyesini (`ButtonVariant.Primary`) anması | ``ai/skills/pantrix-ui/SKILL.md:73: `ButtonVariant` has no `Primary` `` | Ad kütüphanenin bugünkü adıyla yazılır. |

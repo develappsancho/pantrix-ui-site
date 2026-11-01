@@ -148,7 +148,7 @@ That the keyboard really goes is only seen on a device or a simulator.
 ## 8. Where it is in the repository {#repository toc="8. In the repository"}
 
 :::labels
-- The modifier: [`foundation/keyboard/ClearFocusOnTap.kt`](https://github.com/developersancho/pantrix-ui-cmp/blob/main/ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/keyboard/ClearFocusOnTap.kt)
+- The modifier: `foundation/keyboard/ClearFocusOnTap.kt`
 - Tests: `ClearFocusOnTapTest`, in `commonTest`
 - Who uses it: The demo app’s root; `PantrixTextArea` and `PantrixFilledTextArea` name it
 - Demo: [**“A tap outside puts the keyboard away”**](/components/text-area) on the Text Area page

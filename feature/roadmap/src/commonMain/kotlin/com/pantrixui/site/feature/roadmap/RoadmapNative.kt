@@ -428,12 +428,12 @@ private fun Tokens() {
  * The versions: on a desktop side by side on a line, on a tablet side by side each with a stripe, and on a phone one
  * under another on a line down, with the way to suggest an item after them.
  *
- * @param onSuggest what suggesting an item does.
+ * @param onSuggest what suggesting an item does, or null where there is no way to suggest one.
  * @param lineUnder whether the band has its hairline under it: not over a desktop's foot, which has its own.
  */
 @Composable
 internal fun Versions(
-    onSuggest: () -> Unit,
+    onSuggest: (() -> Unit)?,
     lineUnder: Boolean
 ) {
     val language = LocalLanguage.current
@@ -468,14 +468,16 @@ internal fun Versions(
             Column {
                 RoadmapSay.Versions.forEach { PhoneVersion(it) }
             }
-            LandingButton(
-                text = RoadmapSay.Suggest.of(language),
-                onClick = onSuggest,
-                tag = "roadmapSuggest",
-                height = 50.dp,
-                fill = true,
-                modifier = Modifier.padding(top = 6.dp)
-            )
+            if (onSuggest != null) {
+                LandingButton(
+                    text = RoadmapSay.Suggest.of(language),
+                    onClick = onSuggest,
+                    tag = "roadmapSuggest",
+                    height = 50.dp,
+                    fill = true,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+            }
         } else {
             Row(
                 Modifier.height(IntrinsicSize.Min),

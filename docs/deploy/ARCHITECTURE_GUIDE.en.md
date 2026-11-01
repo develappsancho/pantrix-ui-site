@@ -10,7 +10,7 @@ The steps of putting the site up are in [DEPLOY_GUIDE.en.md](./DEPLOY_GUIDE.en.m
 
 The site is made of two parts, both built from this repository:
 
-*   **The site's files:** the web app Gradle builds (Compose with Kotlin/Wasm), each page's static HTML (284 pages and the 404 page), the share images, `sitemap.xml`, `robots.txt`, `llms.txt`. About 67 MB in all. They are files that do not change: whatever serves them only sends them, and has nothing to work out.
+*   **The site's files:** the web app Gradle builds (Compose with Kotlin/Wasm, and with Kotlin/JS for a browser that cannot run the Wasm build), each page's static HTML (284 pages and the 404 page), the share images, `sitemap.xml`, `robots.txt`, `llms.txt`. About 77 MB in all. They are files that do not change: whatever serves them only sends them, and has nothing to work out.
 *   **The site's server:** a small Spring Boot application that serves the library's MCP server over HTTP at `/mcp`. Coding assistants (Claude Code, Cursor…) ask it for the library's documents. This is code that runs.
 
 The two run in two containers, in one Docker Compose stack. Every request from outside reaches nginx first: nginx sends the files itself, and passes `/mcp` to the server behind it.
@@ -70,15 +70,18 @@ sequenceDiagram
     N-->>B: 200 · the page's HTML, gzipped
     Note over B: The page's text shows at once.<br/>Search engines read it too.
     B->>N: GET /site.js
+    N-->>B: 200 · no-cache · the loader
+    Note over B: Wasm with garbage collection?<br/>site-wasm.js, or else site-js.js
+    B->>N: GET /site-wasm.js
     N-->>B: 200 · no-cache
-    B->>N: GET /658820f72b4617efb380.wasm
+    B->>N: GET /4f3270175eff673b81ee.wasm, Skia's
     N-->>B: 200 · gzip · cached for a year
     Note over B: The app starts, hides the static text<br/>and draws the page with Compose.
 ```
 
 </details>
 
-The first answer is the page's static HTML, written at build time: its title, its description, its share image and its text are in it. Where the browser can run Wasm, the app loads, hides the static text and draws the page itself; where it cannot, the visitor reads that text. The later requests pass through Traefik too; the diagram leaves it out for clarity.
+The first answer is the page's static HTML, written at build time: its title, its description, its share image and its text are in it. The page's own `site.js` then chooses the app's build: the Wasm one where the browser runs Wasm with its garbage collection (Chrome 119, Safari 18.2, Firefox 120 and later), and the JavaScript one where it does not, or where the Wasm build fails before it has drawn, as a phone's browser that has no memory left for its code can. Either hides the static text and draws the page itself; where neither can run, or the browser runs no script, the visitor reads that text. The later requests pass through Traefik too; the diagram leaves it out for clarity.
 
 ### 2.2 An MCP Request
 
@@ -361,22 +364,24 @@ The files' `.gz` copies are made once, with `gzip -9`, when the image is made; n
 
 | File | Raw | gzip | Saved |
 | :--- | ---: | ---: | ---: |
-| The app's Wasm (`e87860ba….wasm`) | 14.4 MB | 3.8 MB | 74% |
-| Skia's Wasm (`658820f7….wasm`) | 8.6 MB | 3.3 MB | 61% |
-| `site.js` | 340 KB | 60 KB | 82% |
+| The app's Wasm (`4f327017….wasm`) | 14.5 MB | 3.8 MB | 74% |
+| Skia's Wasm (`658820f7….wasm`), which both builds draw with | 8.6 MB | 3.3 MB | 62% |
+| `site-wasm.js`, the Wasm build's script | 340 KB | 60 KB | 82% |
+| `site-js.js`, the JavaScript build | 12.4 MB | 3.4 MB | 73% |
+| `site.js`, the loader | 4.3 KB | 1.7 KB | 61% |
 | A page's HTML | 8.9 KB | 3.5 KB | 61% |
 | `llms-full.txt` | 4.7 MB | 0.95 MB | 80% |
 
-On a first visit, a visitor downloads about 7 MB for the app instead of 23 MB; on the next, the Wasm comes from the cache.
+On a first visit, a visitor downloads about 7 MB for the app instead of 23 MB, the JavaScript build about the same; on the next, the Wasm comes from the cache.
 
 ### 8.2 Caching
 
 | File | `Cache-Control` | Why |
 | :--- | :--- | :--- |
 | `<hash>.wasm` | `public, max-age=31536000, immutable` | Its name is a hash of what it holds: a new build gives a new name. The browser does not ask for this file again for a year |
-| Any other: HTML, `site.js`, `styles.css`, fonts, images, `llms.txt` | `no-cache` | Their names stay the same. The browser asks each time; where the file has not changed, nginx answers `304 Not Modified` with no body |
+| Any other: HTML, the scripts (`site.js`, `site-wasm.js`, `site-js.js`), `styles.css`, fonts, images, `llms.txt` | `no-cache` | Their names stay the same. The browser asks each time; where the file has not changed, nginx answers `304 Not Modified` with no body |
 
-`no-cache` does not mean "do not cache", but "ask before using it". The browser sends the `ETag` of the copy it has; where the file is the same, the answer is a few hundred bytes. So a new deploy is seen at once, and an old `site.js` never looks for a Wasm that is no longer there.
+`no-cache` does not mean "do not cache", but "ask before using it". The browser sends the `ETag` of the copy it has; where the file is the same, the answer is a few hundred bytes. So a new deploy is seen at once, and an old script never looks for a Wasm that is no longer there.
 
 ## 9. Security
 

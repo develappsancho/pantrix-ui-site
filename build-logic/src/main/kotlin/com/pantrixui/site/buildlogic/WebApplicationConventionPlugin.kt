@@ -26,11 +26,14 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /**
- * The web app: the site's app in the browser, as Wasm. A browser without Wasm is given each page's static HTML, which
- * the build writes beside the app: after each of the two distributions, `:tools:prerender` writes every page's
- * `index.html` in the folder of its address, with the `404.html`, `sitemap.xml` and `robots.txt`. `:tools:render`
- * draws the app on the JVM for what the static pages cannot read from the content: the landing pages' words, and each
- * page's share image. Those two run only when what they read has changed.
+ * The web app: the site's app in the browser, as Wasm, and as JavaScript for a browser that cannot run the Wasm build.
+ * The JavaScript build is copied beside the Wasm one, and the page's own `site.js` chooses: the Wasm build where the
+ * browser has Wasm's garbage collection, the JavaScript one where it has not, or where the Wasm build fails before it
+ * has drawn. A browser that runs neither, or no script, is given each page's static HTML, which the build writes beside
+ * the app: after each of the two distributions, `:tools:prerender` writes every page's `index.html` in the folder of
+ * its address, with the `404.html`, `sitemap.xml` and `robots.txt`. `:tools:render` draws the app on the JVM for what
+ * the static pages cannot read from the content: the landing pages' words, and each page's share image. Those two run
+ * only when what they read has changed.
  */
 class WebApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -40,11 +43,19 @@ class WebApplicationConventionPlugin : Plugin<Project> {
         pluginManager.apply(QualityConventionPlugin::class)
 
         extensions.configure<KotlinMultiplatformExtension> {
+            js {
+                browser {
+                    commonWebpackConfig {
+                        outputFileName = JS_BUNDLE
+                    }
+                }
+                binaries.executable()
+            }
             @OptIn(ExperimentalWasmDsl::class)
             wasmJs {
                 browser {
                     commonWebpackConfig {
-                        outputFileName = WEB_BUNDLE
+                        outputFileName = WASM_BUNDLE
                     }
                 }
                 binaries.executable()
@@ -89,7 +100,7 @@ class WebApplicationConventionPlugin : Plugin<Project> {
             manifest.set(shareManifest)
             outputDirectory.set(built.map { it.dir("share") })
         }
-        DISTRIBUTIONS.forEach { (distribution, folder) ->
+        DISTRIBUTIONS.forEach { (distribution, folder, jsDistribution) ->
             val name = "prerender" + distribution.replaceFirstChar { it.uppercase() }
             val prerender = tasks.register<PrerenderSite>(name) {
                 group = "site"
@@ -98,7 +109,7 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                 mainClass.set(PRERENDER_MAIN)
                 dependsOn(":core:content:generateSiteContent")
                 contentDirectory.set(rootProject.layout.projectDirectory.dir(CONTENT))
-                template.set(layout.projectDirectory.file("src/wasmJsMain/resources/index.html"))
+                template.set(layout.projectDirectory.file("src/webMain/resources/index.html"))
                 site.set(siteUrl)
                 landingWords.set(landing.flatMap { it.wordsFile })
                 libraryDocuments.from(documents)
@@ -109,15 +120,35 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                 from(share)
                 into(layout.buildDirectory.dir("dist/wasmJs/$folder"))
             }
+            // The JavaScript build beside the Wasm one: its script and the Wasm of Skiko it draws with. Its page, styles
+            // and resources are the Wasm build's own already. The JavaScript build is one the Wasm distribution depends
+            // on, not one this copy does: Gradle cannot run a finalizer that waits on tasks with finalizers of their own.
+            val copyJs = tasks.register<Copy>("copyJsApp${name.removePrefix("prerender")}") {
+                mustRunAfter(jsDistribution)
+                from(layout.buildDirectory.dir("dist/js/$folder")) {
+                    // Skiko's Wasm by the name of its hash, the one the script asks for; `skiko.wasm` it asks for only
+                    // where a page names its own place for it.
+                    include(JS_BUNDLE, "*.wasm")
+                    exclude("skiko.wasm")
+                }
+                into(layout.buildDirectory.dir("dist/wasmJs/$folder"))
+            }
             share.configure { mustRunAfter(prerender) }
             prerender.configure { finalizedBy(copyShare) }
-            tasks.matching { it.name == distribution }.configureEach { finalizedBy(prerender) }
+            copyJs.configure { mustRunAfter(prerender, copyShare) }
+            tasks.matching { it.name == distribution }.configureEach {
+                dependsOn(jsDistribution)
+                finalizedBy(prerender, copyJs)
+            }
         }
     }
 
     private companion object {
-        /** The script `index.html` loads. */
-        const val WEB_BUNDLE = "site.js"
+        /** The Wasm build's script, which `site.js`, the script `index.html` loads, starts where the browser runs it. */
+        const val WASM_BUNDLE = "site-wasm.js"
+
+        /** The JavaScript build's script, which `site.js` starts where the browser cannot run the Wasm build. */
+        const val JS_BUNDLE = "site-js.js"
 
         const val PRERENDER_MAIN = "com.pantrixui.site.tools.prerender.MainKt"
         const val LANDING_MAIN = "com.pantrixui.site.tools.render.LandingMainKt"
@@ -126,10 +157,17 @@ class WebApplicationConventionPlugin : Plugin<Project> {
         /** What `:core:content`'s content tool writes: the pages, the components and the changelog. */
         const val CONTENT = "core/content/build/generated/siteContent"
 
-        /** The web app's two distributions, each with the folder it is written to. */
+        /**
+         * The web app's two distributions: the Wasm build's, the folder each is written to, and the JavaScript build's
+         * that is copied into it.
+         */
         val DISTRIBUTIONS = listOf(
-            "wasmJsBrowserDistribution" to "productionExecutable",
-            "wasmJsBrowserDevelopmentExecutableDistribution" to "developmentExecutable"
+            Triple("wasmJsBrowserDistribution", "productionExecutable", "jsBrowserDistribution"),
+            Triple(
+                "wasmJsBrowserDevelopmentExecutableDistribution",
+                "developmentExecutable",
+                "jsBrowserDevelopmentExecutableDistribution"
+            )
         )
     }
 }

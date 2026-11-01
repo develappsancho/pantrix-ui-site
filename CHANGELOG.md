@@ -20,6 +20,12 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 - **The page for coding assistants:** Claude Code is set up with Pantrix UI's plugin alone, which brings the MCP server
   and the skill together, so the server is no longer added twice.
 
+### Fixed
+
+- **Older browsers and phones:** a browser that cannot run the site's Wasm build, as Chrome before 119 and Safari
+  before 18.2, or one that fails to start it, is given the same app built as JavaScript: it used to show the page's
+  plain words, or a white page.
+
 ### Security
 
 - **HTTPS alone:** the site asks a browser to come back over HTTPS alone (`Strict-Transport-Security`), for a short

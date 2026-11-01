@@ -23,3 +23,4 @@ node_modules/
 .build/
 .swiftpm/
 /kotlin-js-store/wasm/yarn.lock
+/kotlin-js-store/yarn.lock

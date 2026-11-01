@@ -35,7 +35,7 @@ deploy/deploy.sh local
 
 Komut dört şey yapar:
 
-1.  **Gradle:** `:app:webApp:wasmJsBrowserDistribution` sitenin üretim çıktısını ve her sayfanın statik HTML'ini yazar (`app/webApp/build/dist/wasmJs/productionExecutable`), `:server:bootJar` sunucunun jar'ını yapar (`server/build/libs/server.jar`). İlk derleme birkaç dakika sürer; Wasm'ın en iyilenmesi en uzun adımdır.
+1.  **Gradle:** `:app:webApp:wasmJsBrowserDistribution` sitenin üretim çıktısını, yanına JavaScript sürümünü (`site-js.js`, Wasm sürümünü çalıştıramayan bir tarayıcı için) ve her sayfanın statik HTML'ini yazar (`app/webApp/build/dist/wasmJs/productionExecutable`), `:server:bootJar` sunucunun jar'ını yapar (`server/build/libs/server.jar`). İlk derleme birkaç dakika sürer; Wasm'ın en iyilenmesi en uzun adımdır.
 2.  **Docker:** İki imajı yapar ve derlendikleri commit'in kısa karmasıyla adlandırır; ağaçta commit'lenmemiş değişiklik varsa adın sonuna `-dirty` eklenir: `ghcr.io/develappsancho/pantrix-ui-site-web:fbc4fe2-dirty`.
 3.  **Compose:** Yığını kaldırır ve iki konteyner de sağlıklı (`healthy`) olana kadar bekler.
 4.  **Denetim:** `check.sh`'i `http://localhost:4004`'te çalıştırır (Bölüm 4).
@@ -65,7 +65,7 @@ deploy/deploy.sh stop
 | Bölüm | Denenen |
 | :--- | :--- |
 | Sayfalar | Ana sayfa; `/docs/installation` yönlendirmesiz ve kendi adresi olarak denenen adresi veriyor; Türkçesi; bir bileşen sayfası; olmayan bir adres 404 sayfasıyla ve 404 durumuyla; `llms.txt` UTF-8 düz metin ve denenen adrese götürüyor; `sitemap.xml` denenen adresle; `robots.txt` |
-| Sıkıştırma ve önbellek | Bir sayfa gzip ile ve `no-cache`; `site.js` `no-cache`; her Wasm dosyası `application/wasm`, gzip ile ve bir yıl önbellekte; sunucunun sürümü yazmıyor, `nosniff` var |
+| Sıkıştırma ve önbellek | Bir sayfa gzip ile ve `no-cache`; yükleyici `site.js` `no-cache` ve iki sürümü de anıyor; `site-wasm.js` `no-cache` ve Wasm'ını anıyor; `site-js.js` `no-cache` ve Wasm sürümünün Skia'sıyla çiziyor; her Wasm dosyası `application/wasm`, gzip ile ve bir yıl önbellekte; sunucunun sürümü yazmıyor, `nosniff` var |
 | Güvenlik | HTTPS'te `Strict-Transport-Security` var, düz HTTP'de yok; içerik güvenliği politikası raporlanıyor ve sayfalardaki satır içi betiğin karmasını içeriyor |
 | İkinci ad | `www` altındaki ad kalıcı olarak denenen adrese gidiyor (lokalde bir `Host` başlığıyla). Adı olmayan bir deneme adresinde `CHECK_WWW=no` ile atlanır |
 | MCP sunucusu | `initialize` pantrix-ui'den yanıt alıyor; `tools/list`; bir araç çağrısı; GET'in reddi (405); sitenin kendi sayfasından gelenin yanıtlanması; başka bir sitenin sayfasından gelenin reddi (403); 64 KB'ı aşan mesajın reddi (413) |

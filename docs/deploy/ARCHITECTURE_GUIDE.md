@@ -10,7 +10,7 @@ Adım adım yayın [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)'dedir; bu belge, o adım
 
 Site iki parçadan oluşur, ikisi de bu depodan derlenir:
 
-*   **Sitenin dosyaları:** Gradle'ın derlediği web uygulaması (Kotlin/Wasm ile Compose), her sayfanın statik HTML'i (284 sayfa ve 404 sayfası), paylaşım görselleri, `sitemap.xml`, `robots.txt`, `llms.txt`. Toplam yaklaşık 67 MB. Bunlar değişmeyen dosyalardır: onları sunan şeyin yalnızca göndermesi gerekir, hesaplayacağı bir şey yoktur.
+*   **Sitenin dosyaları:** Gradle'ın derlediği web uygulaması (Kotlin/Wasm ile Compose; Wasm sürümünü çalıştıramayan bir tarayıcı için Kotlin/JS ile de), her sayfanın statik HTML'i (284 sayfa ve 404 sayfası), paylaşım görselleri, `sitemap.xml`, `robots.txt`, `llms.txt`. Toplam yaklaşık 77 MB. Bunlar değişmeyen dosyalardır: onları sunan şeyin yalnızca göndermesi gerekir, hesaplayacağı bir şey yoktur.
 *   **Sitenin sunucusu:** Spring Boot üzerinde, kütüphanenin MCP sunucusunu `/mcp` adresinde HTTP ile sunan küçük bir uygulama. Kodlama asistanları (Claude Code, Cursor…) kütüphanenin belgelerini buradan sorar. Bu, çalışan koddur.
 
 İkisi iki ayrı konteynerde, tek bir Docker Compose yığınında çalışır. Dışarıdan gelen her istek önce nginx'e uğrar: dosyaları nginx kendisi verir, `/mcp`'yi arkadaki sunucuya geçirir.
@@ -70,15 +70,18 @@ sequenceDiagram
     N-->>B: 200 · sayfanın HTML'i, gzip ile
     Note over B: Sayfanın metni hemen görünür.<br/>Arama motorları da bunu okur.
     B->>N: GET /site.js
+    N-->>B: 200 · no-cache · yükleyici
+    Note over B: Çöp toplamalı Wasm var mı?<br/>site-wasm.js, yoksa site-js.js
+    B->>N: GET /site-wasm.js
     N-->>B: 200 · no-cache
-    B->>N: GET /658820f72b4617efb380.wasm
+    B->>N: GET /4f3270175eff673b81ee.wasm, Skia'nınki
     N-->>B: 200 · gzip · bir yıl önbellekte
     Note over B: Uygulama açılır, statik metni gizler<br/>ve sayfayı Compose ile çizer.
 ```
 
 </details>
 
-İlk yanıt, o sayfanın derleme sırasında yazılmış statik HTML'idir: başlığı, açıklaması, paylaşım görseli ve metni içindedir. Tarayıcı Wasm çalıştırabiliyorsa uygulama yüklenir, statik metni gizler ve sayfayı kendisi çizer; çalıştıramıyorsa ziyaretçi o metni okur. Sonraki istekler de Traefik'ten geçer; şekilde sadelik için gösterilmedi.
+İlk yanıt, o sayfanın derleme sırasında yazılmış statik HTML'idir: başlığı, açıklaması, paylaşım görseli ve metni içindedir. Sonra sayfanın kendi `site.js`'i uygulamanın sürümünü seçer: tarayıcı Wasm'ı çöp toplamasıyla çalıştırıyorsa (Chrome 119, Safari 18.2, Firefox 120 ve sonrası) Wasm sürümünü, çalıştırmıyorsa ya da Wasm sürümü ilk karesini çizmeden çökerse, kodu için belleği kalmayan bir telefon tarayıcısında olabileceği gibi, JavaScript sürümünü. İkisi de statik metni gizler ve sayfayı kendisi çizer; hiçbiri çalışamıyorsa ya da tarayıcı betik çalıştırmıyorsa ziyaretçi o metni okur. Sonraki istekler de Traefik'ten geçer; şekilde sadelik için gösterilmedi.
 
 ### 2.2 Bir MCP İsteği
 
@@ -361,22 +364,24 @@ Dosyaların `.gz` kopyaları imaj yapılırken `gzip -9` ile bir kez hazırlanı
 
 | Dosya | Ham | gzip | Kazanç |
 | :--- | ---: | ---: | ---: |
-| Uygulamanın Wasm'ı (`e87860ba….wasm`) | 14,4 MB | 3,8 MB | %74 |
-| Skia'nın Wasm'ı (`658820f7….wasm`) | 8,6 MB | 3,3 MB | %61 |
-| `site.js` | 340 KB | 60 KB | %82 |
+| Uygulamanın Wasm'ı (`4f327017….wasm`) | 14,5 MB | 3,8 MB | %74 |
+| Skia'nın Wasm'ı (`658820f7….wasm`), iki sürümün de çizdiği | 8,6 MB | 3,3 MB | %62 |
+| `site-wasm.js`, Wasm sürümünün betiği | 340 KB | 60 KB | %82 |
+| `site-js.js`, JavaScript sürümü | 12,4 MB | 3,4 MB | %73 |
+| `site.js`, yükleyici | 4,3 KB | 1,7 KB | %61 |
 | Bir sayfanın HTML'i | 8,9 KB | 3,5 KB | %61 |
 | `llms-full.txt` | 4,7 MB | 0,95 MB | %80 |
 
-Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB indirir; ikinci açılışta Wasm'ı önbellekten okur.
+Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB indirir, JavaScript sürümü için de aşağı yukarı o kadar; ikinci açılışta Wasm'ı önbellekten okur.
 
 ### 8.2 Önbellek
 
 | Dosya | `Cache-Control` | Neden |
 | :--- | :--- | :--- |
 | `<karma>.wasm` | `public, max-age=31536000, immutable` | Adı, içeriğinin karmasıdır: yeni bir derleme yeni bir ad verir. Tarayıcı bu dosyayı bir yıl boyunca bir daha sormaz |
-| Diğerleri: HTML, `site.js`, `styles.css`, fontlar, görseller, `llms.txt` | `no-cache` | Adları sabittir. Tarayıcı her seferinde sorar; dosya değişmediyse nginx gövdesiz bir `304 Not Modified` döner |
+| Diğerleri: HTML, betikler (`site.js`, `site-wasm.js`, `site-js.js`), `styles.css`, fontlar, görseller, `llms.txt` | `no-cache` | Adları sabittir. Tarayıcı her seferinde sorar; dosya değişmediyse nginx gövdesiz bir `304 Not Modified` döner |
 
-`no-cache`, "önbelleğe alma" değil, "kullanmadan önce sor" demektir. Tarayıcı, elindeki kopyanın `ETag`'ini gönderir; dosya aynıysa yanıt birkaç yüz bayttır. Böylece yeni bir yayın anında görünür, eski bir `site.js` yeni olmayan bir Wasm'ı aramaz.
+`no-cache`, "önbelleğe alma" değil, "kullanmadan önce sor" demektir. Tarayıcı, elindeki kopyanın `ETag`'ini gönderir; dosya aynıysa yanıt birkaç yüz bayttır. Böylece yeni bir yayın anında görünür, eski bir betik artık olmayan bir Wasm'ı aramaz.
 
 ## 9. Güvenlik
 

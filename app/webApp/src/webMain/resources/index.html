@@ -14,18 +14,11 @@
     <link rel="icon" href="favicon.ico" sizes="32x32">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <!-- A browser that can run the app, one with Wasm's garbage collection, is marked `app`: it hides the page's static
-         words, the #static box the build writes for each page, and draws the app. One that cannot keeps the words. -->
+    <!-- A browser that can run the app, one with Wasm, is marked `app`: it hides the page's static words, the #static
+         box the build writes for each page, and draws the app, in its Wasm build or its JavaScript one (site.js). One
+         that cannot, or runs no script, keeps the words. -->
     <script>
-        (function () {
-            var app = false;
-            try {
-                app = WebAssembly.validate(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 3, 1, 95, 0]));
-            } catch (e) {
-                app = false;
-            }
-            if (app) document.documentElement.className = "app";
-        })();
+        if (typeof WebAssembly === "object") document.documentElement.className = "app";
     </script>
     <!-- The site's typefaces are fetched while its code is, so they are there when the app asks for them. The
          addresses are the ones Compose's resource reader asks for; without `crossorigin` the browser does not count
@@ -56,6 +49,7 @@
     </div>
     <!-- The box the app is set in. -->
     <div id="app"></div>
+    <!-- Starts the app in the build the browser can run: Wasm, or JavaScript where Wasm cannot run it. -->
     <script type="application/javascript" src="site.js"></script>
 </body>
 </html>

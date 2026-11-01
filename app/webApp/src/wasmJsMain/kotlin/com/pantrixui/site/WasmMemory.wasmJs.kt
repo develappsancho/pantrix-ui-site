@@ -15,7 +15,7 @@ import kotlin.wasm.unsafe.wasmMemory
  * `wasmExports` is deprecated". The supported way is `kotlin.wasm.unsafe.wasmMemory`. Compose fixed it on its side
  * (JetBrains/compose-multiplatform #5724); once the site is on a Compose with that fix, this goes, with its call.
  */
-internal fun shareWasmMemoryWithResources() = shareMemory(wasmMemory)
+internal actual fun shareWasmMemoryWithResources() = shareMemory(wasmMemory)
 
 /**
  * The compiler writes the bodies of `js(...)` into one module and hands them the memory through a variable called

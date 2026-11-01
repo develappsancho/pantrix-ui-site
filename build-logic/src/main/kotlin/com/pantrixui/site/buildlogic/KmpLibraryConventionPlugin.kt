@@ -14,8 +14,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 /**
  * A Kotlin Multiplatform module of the site, on every target the site runs on: Android, iOS on a device and in the
- * simulator, the desktop (JVM) and the web. The web is Wasm alone: a browser too old for it is given the page's static
- * HTML instead.
+ * simulator, the desktop (JVM) and the web. The web is Wasm, and JavaScript for a browser that cannot run the Wasm
+ * build (`WebApplicationConventionPlugin`); what the two share is in `webMain`.
  */
 class KmpLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit = with(target) {
@@ -37,6 +37,13 @@ class KmpLibraryConventionPlugin : Plugin<Project> {
             iosArm64()
             iosSimulatorArm64()
             jvm()
+            // The build a browser without Wasm's garbage collection runs. The common tests run in the browser on Wasm,
+            // and not a second time here: the JavaScript build is the same code, compiled for an older browser.
+            js {
+                browser {
+                    testTask { enabled = false }
+                }
+            }
             @OptIn(ExperimentalWasmDsl::class)
             wasmJs {
                 browser()

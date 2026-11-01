@@ -14,6 +14,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 *   **Pantrix UI 0.1.0-alpha04:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir.
 *   **Kodlama asistanları sayfası:** Claude Code yalnızca Pantrix UI'ın eklentisiyle kurulur; eklenti MCP sunucusunu ve beceriyi birlikte getirir, sunucu artık iki kez eklenmez.
 
+### Düzeltilenler
+
+*   **Eski tarayıcılar ve telefonlar:** sitenin Wasm sürümünü çalıştıramayan bir tarayıcıya, 119'dan önceki Chrome ve 18.2'den önceki Safari gibi, ya da onu başlatamayan bir tarayıcıya aynı uygulamanın JavaScript ile derlenmiş sürümü verilir: önceden sayfanın düz metnini ya da beyaz bir sayfa gösteriyordu.
+
 ### Güvenlik
 
 *   **Yalnızca HTTPS:** site, tarayıcıdan ona yalnızca HTTPS'le dönmesini ister (`Strict-Transport-Security`), başta kısa bir süre için; sayfalarının yüklediğini bir içerik güvenliği politikasına göre raporlar, onu henüz uygulamaz.

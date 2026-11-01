@@ -35,7 +35,7 @@ deploy/deploy.sh local
 
 The command does four things:
 
-1.  **Gradle:** `:app:webApp:wasmJsBrowserDistribution` writes the site's production build and each page's static HTML (`app/webApp/build/dist/wasmJs/productionExecutable`), and `:server:bootJar` makes the server's jar (`server/build/libs/server.jar`). The first build takes a few minutes; optimising the Wasm is the longest step.
+1.  **Gradle:** `:app:webApp:wasmJsBrowserDistribution` writes the site's production build, its JavaScript build beside it (`site-js.js`, for a browser that cannot run the Wasm one) and each page's static HTML (`app/webApp/build/dist/wasmJs/productionExecutable`), and `:server:bootJar` makes the server's jar (`server/build/libs/server.jar`). The first build takes a few minutes; optimising the Wasm is the longest step.
 2.  **Docker:** makes the two images and names them by the short hash of the commit they are built from; where the tree holds changes not yet committed, the name ends in `-dirty`: `ghcr.io/develappsancho/pantrix-ui-site-web:fbc4fe2-dirty`.
 3.  **Compose:** runs the stack and waits until both containers are `healthy`.
 4.  **The checks:** runs `check.sh` at `http://localhost:4004` (section 4).
@@ -65,7 +65,7 @@ deploy/deploy.sh stop
 | Part | What is tried |
 | :--- | :--- |
 | Pages | The home page; `/docs/installation` with no redirect, giving the address tried as its own; its Turkish; a component's page; an address with no page, as the 404 page with a 404 status; `llms.txt` as plain UTF-8 text that leads to the address tried; `sitemap.xml` at the address tried; `robots.txt` |
-| Compression and caching | A page gzipped and `no-cache`; `site.js` `no-cache`; each Wasm file as `application/wasm`, gzipped and cached for a year; no version of the server in the headers, and `nosniff` |
+| Compression and caching | A page gzipped and `no-cache`; the loader `site.js` `no-cache`, naming both builds; `site-wasm.js` `no-cache`, naming its Wasm; `site-js.js` `no-cache`, drawing with the Wasm build's Skia; each Wasm file as `application/wasm`, gzipped and cached for a year; no version of the server in the headers, and `nosniff` |
 | Security | `Strict-Transport-Security` over HTTPS, and none over plain HTTP; the content security policy reported, with the hash of the pages' inline script |
 | The second name | The name under `www` goes to the address tried for good (on this machine, with a `Host` header). On a test address that has no such name, `CHECK_WWW=no` leaves it out |
 | The MCP server | `initialize` answered by pantrix-ui; `tools/list`; a tool's call; a GET refused (405); a request from the site's own page answered; one from another site's page refused (403); a message over 64 KB refused (413) |

@@ -142,15 +142,6 @@ internal val Route.hasDocsSidebar: Boolean
     get() = this is Route.Doc || this == Route.Guides || this is Route.Guide || this == Route.Changelog ||
         this is Route.NotFound
 
-/**
- * Whether the route is one of the site's own pages, laid out in bands no wider than the design's page, under a header
- * as wide as they are: the landing page, the components, the adaptive page, the one for coding assistants and the
- * roadmap.
- */
-internal val Route.isLanding: Boolean
-    get() = this == Route.Home || this == Route.Components || this == Route.Adaptive || this == Route.Ai ||
-        this == Route.Roadmap
-
 /** The header's links, with the part [current] is in marked. */
 internal fun headerLinks(
     strings: SiteStrings,

@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -46,7 +45,6 @@ import com.pantrixui.site.core.designsystem.chrome.SidebarCard
 import com.pantrixui.site.core.designsystem.chrome.SiteHeader
 import com.pantrixui.site.core.designsystem.chrome.SiteMenu
 import com.pantrixui.site.core.designsystem.chrome.SiteSidebar
-import com.pantrixui.site.core.designsystem.content.LANDING_WIDTH
 import com.pantrixui.site.core.designsystem.content.LocalPageSection
 import com.pantrixui.site.core.designsystem.content.PageSection
 import com.pantrixui.site.core.i18n.LocalSiteStrings
@@ -160,8 +158,7 @@ private fun SiteShell(
             addressIn = { SiteRoutes.addressOf(route, it) },
             dark = state.dark ?: systemDark,
             onToggleTheme = { onAction(SiteAction.ToggleTheme(systemDark)) },
-            onOpenMenu = { onAction(SiteAction.OpenMenu) },
-            contentWidth = if (route.isLanding) LANDING_WIDTH else Dp.Unspecified
+            onOpenMenu = { onAction(SiteAction.OpenMenu) }
         )
         Row(Modifier.weight(1f)) {
             if (layout == SiteLayout.Desktop && route is Route.Component) {

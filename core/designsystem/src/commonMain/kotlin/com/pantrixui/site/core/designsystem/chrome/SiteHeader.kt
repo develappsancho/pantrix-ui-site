@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,9 +24,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -71,6 +72,8 @@ data class HeaderLink(
 /**
  * The site's header, across the window: the brand, the parts of the site, the search, the language and the
  * theme. On a desktop the parts are links in it; on a tablet and a phone they are in the menu its first button opens.
+ * It is laid out alike on every page, from the window's one edge to the other, so that nothing in it moves as the
+ * reader goes from one part of the site to another.
  *
  * @param links the parts of the site, in order.
  * @param onNavigate what choosing a part does, given its key; the brand is the key "home".
@@ -81,9 +84,6 @@ data class HeaderLink(
  * @param onToggleTheme what the theme button does.
  * @param onOpenMenu what the menu button of a tablet or a phone does.
  * @param modifier the header's modifier.
- * @param contentWidth the widest its content grows on a desktop, its sides' room left out, in the middle of a wider
- *   window: a landing page's width on the site's own pages, or unspecified for the whole window, as on the
- *   documentation's.
  */
 @Composable
 fun SiteHeader(
@@ -95,8 +95,7 @@ fun SiteHeader(
     dark: Boolean,
     onToggleTheme: () -> Unit,
     onOpenMenu: () -> Unit,
-    modifier: Modifier = Modifier,
-    contentWidth: Dp = Dp.Unspecified
+    modifier: Modifier = Modifier
 ) {
     val layout = SiteTheme.layout
     val strings = LocalSiteStrings.current
@@ -107,7 +106,6 @@ fun SiteHeader(
                 Modifier
                     .height(if (layout == SiteLayout.Phone) 56.dp else 64.dp)
                     .padding(layout.headerRoom)
-                    .widthIn(max = if (layout == SiteLayout.Desktop) contentWidth else Dp.Unspecified)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(
@@ -230,10 +228,19 @@ private fun HeaderLinkButton(
         },
         tagKey = "nav_${link.key}"
     ) {
-        PantrixText(
-            text = link.label,
-            style = SiteTheme.type.nav.copy(fontWeight = if (link.current) FontWeight.Bold else FontWeight.SemiBold)
-        )
+        // The label in the current link's weight, unseen, holds every link as wide as it is when it is the current one:
+        // marking another part of the site moves none of the links after it.
+        Box(contentAlignment = Alignment.Center) {
+            PantrixText(
+                text = link.label,
+                modifier = Modifier.alpha(0f).clearAndSetSemantics {},
+                style = SiteTheme.type.nav.copy(fontWeight = FontWeight.Bold)
+            )
+            PantrixText(
+                text = link.label,
+                style = SiteTheme.type.nav.copy(fontWeight = if (link.current) FontWeight.Bold else FontWeight.SemiBold)
+            )
+        }
     }
 }
 

@@ -22,11 +22,21 @@ class SiteNavigationTest {
         assertEquals(SitePart.Ai, Route.Ask.part)
         assertEquals(listOf("ai"), headerLinks(SiteStrings.English, Route.Ask).filter { it.current }.map { it.key })
         assertNull(Route.Home.part)
+        // The apps built with Pantrix UI are the header's last part, and the menu marks them as it does the others.
+        assertEquals(SitePart.References, Route.References.part)
+        assertEquals(
+            listOf("references"),
+            menuSections(SiteStrings.English, Language.English, Route.References)
+                .flatMap { it.items }.filter { it.current }.map { it.key }
+        )
         val links = headerLinks(SiteStrings.English, Route.Guide("testing"))
         assertEquals(listOf("docs"), links.filter { it.current }.map { it.key })
-        // The header's last link is the desktop app's page, which the header marks while it is on show.
-        val download = headerLinks(SiteStrings.Turkish, Route.Download).last()
-        assertEquals(Triple("download", "İndir", true), Triple(download.key, download.label, download.current))
+        // The header's last link is the apps built with Pantrix UI, which the header marks while they are on show.
+        val references = headerLinks(SiteStrings.Turkish, Route.References).last()
+        assertEquals(
+            Triple("references", "Referanslar", true),
+            Triple(references.key, references.label, references.current)
+        )
     }
 
     @Test
@@ -68,12 +78,15 @@ class SiteNavigationTest {
         val menu = menuSections(SiteStrings.English, Language.English, Route.Theme)
         assertEquals("Pantrix UI", menu.last().title)
         val parts = menu.last().items
-        assertEquals(headerLinks(SiteStrings.English, Route.Theme).map { it.key } + "repository", parts.map { it.key })
-        val names = "Docs, Components, Foundations, Adaptive UI, Theme builder, For AI, Roadmap, Download"
+        assertEquals(
+            headerLinks(SiteStrings.English, Route.Theme).map { it.key } + "repository",
+            parts.map { it.key }
+        )
+        val names = "Docs, Components, Foundations, Adaptive UI, Theme builder, For AI, Roadmap, Download, References"
         assertEquals(names, parts.dropLast(1).joinToString { it.label })
         assertEquals(
-            listOf("/docs/introduction", "/ai", "/roadmap", "/download"),
-            listOf("docs", "ai", "roadmap", "download").map { key -> parts.single { it.key == key }.href }
+            listOf("/docs/introduction", "/ai", "/roadmap", "/download", "/references"),
+            listOf("docs", "ai", "roadmap", "download", "references").map { key -> parts.single { it.key == key }.href }
         )
         // The site's source on GitHub, which the header leaves out on a phone narrower than the design.
         assertEquals("https://github.com/develappsancho/pantrix-ui-site", parts.last().href)

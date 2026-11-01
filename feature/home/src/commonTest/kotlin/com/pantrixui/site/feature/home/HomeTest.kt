@@ -99,7 +99,7 @@ class HomeTest {
         val model = HomeViewModel(Language.English, FakeContentRepository(listOf(landing)))
         model.onAction(HomeAction.CopyInstall)
         assertEquals(
-            HomeEffect.Copy("implementation(\"com.pantrixui:components:0.1.0-alpha06\")"),
+            HomeEffect.Copy("implementation(\"com.pantrixui:components:0.1.0\")"),
             model.effects.first()
         )
         model.onAction(HomeAction.Copied(done = false))
@@ -143,5 +143,37 @@ class HomeTest {
             assertTrue(feature.body.english != feature.body.turkish, feature.api)
         }
         assertEquals(HomeSay.Stats.size, HomeSay.StatsShort.size, "a short label for each number")
+    }
+
+    /**
+     * The tour turns from the phone to the last step and back to the phone while it plays; a step the reader picks
+     * stops it there, and its button starts it again.
+     */
+    @Test
+    fun the_tour_turns_while_it_plays_and_stops_where_the_reader_picks() = runTest(dispatcher) {
+        val model = HomeViewModel(Language.English, FakeContentRepository())
+        assertEquals(TourStep.Phone to true, model.state.value.tourStep to model.state.value.tourPlaying)
+        repeat(TourStep.entries.size - 1) { model.onAction(HomeAction.NextTourStep) }
+        assertEquals(TourStep.Web, model.state.value.tourStep)
+        model.onAction(HomeAction.NextTourStep)
+        assertEquals(TourStep.Phone, model.state.value.tourStep, "after the last, the first")
+        model.onAction(HomeAction.PickTourStep(TourStep.Table))
+        assertEquals(TourStep.Table to false, model.state.value.tourStep to model.state.value.tourPlaying)
+        model.onAction(HomeAction.NextTourStep)
+        assertEquals(TourStep.Table, model.state.value.tourStep, "a stopped tour does not turn")
+        model.onAction(HomeAction.ToggleTour)
+        model.onAction(HomeAction.NextTourStep)
+        assertEquals(TourStep.Tablet, model.state.value.tourStep)
+    }
+
+    /** Each step says itself in both languages, names the parts of the library that change it, and has its device. */
+    @Test
+    fun every_tour_step_says_itself_in_both_languages() {
+        assertEquals(6, TourStep.entries.size)
+        TourStep.entries.forEach { step ->
+            assertTrue(step.line.english != step.line.turkish, step.name)
+            assertTrue(step.apis.isNotEmpty(), step.name)
+        }
+        assertEquals(listOf(1680, 1280), listOf(TourStep.Desktop.device.width, TourStep.Web.device.width))
     }
 }

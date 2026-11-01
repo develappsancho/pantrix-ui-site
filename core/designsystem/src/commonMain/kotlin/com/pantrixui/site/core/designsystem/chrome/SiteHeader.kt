@@ -106,12 +106,15 @@ fun SiteHeader(
     val strings = LocalSiteStrings.current
     Column(modifier.fillMaxWidth().background(PantrixTheme.colors.background)) {
         val gap = when (layout) {
-            SiteLayout.Desktop -> 28.dp
+            SiteLayout.Desktop -> 20.dp
             SiteLayout.Tablet -> 12.dp
             SiteLayout.Phone -> 4.dp
         }
+        // A desktop's tools stand close together, so that the room they leave goes to the links.
+        val toolGap = if (layout == SiteLayout.Desktop) DESKTOP_TOOL_GAP else gap
         HeaderRow(
             gap = gap,
+            toolGap = toolGap,
             modifier = Modifier
                 .height(if (layout == SiteLayout.Phone) 56.dp else 64.dp)
                 .padding(layout.headerRoom)
@@ -129,7 +132,8 @@ fun SiteHeader(
             }
             Box(Modifier.layoutId(HeaderPart.Brand)) { Brand(onClick = { onNavigate("home") }) }
             if (layout == SiteLayout.Desktop) {
-                Row(Modifier.layoutId(HeaderPart.Links), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                // The links stand side by side: the room inside each keeps their words apart.
+                Row(Modifier.layoutId(HeaderPart.Links)) {
                     links.forEachIndexed { index, link ->
                         HeaderLinkButton(link, narrow = index >= WIDE_LINKS, onNavigate)
                     }
@@ -137,7 +141,7 @@ fun SiteHeader(
             }
             Row(
                 Modifier.layoutId(HeaderPart.Tools),
-                horizontalArrangement = Arrangement.spacedBy(gap),
+                horizontalArrangement = Arrangement.spacedBy(toolGap),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 when (layout) {
@@ -198,13 +202,15 @@ private enum class HeaderPart { Menu, Brand, Links, Tools, Repository, Theme }
  * the links or GitHub's button, is out of the reach of a screen reader and of the keyboard as well as out of sight:
  * Compose leaves a part that is not placed out of both.
  *
- * @param gap the room between the parts, and between the tools.
+ * @param gap the room between the parts: the brand, the links and the tools.
+ * @param toolGap the room between the tools, GitHub's button and the theme's.
  * @param modifier the row's modifier, which gives its height.
  * @param content the parts, each with its [HeaderPart] as its layout id.
  */
 @Composable
 private fun HeaderRow(
     gap: Dp,
+    toolGap: Dp,
     modifier: Modifier,
     content: @Composable () -> Unit
 ) {
@@ -218,7 +224,7 @@ private fun HeaderRow(
             tools = part(HeaderPart.Tools)?.measure(loose),
             repository = part(HeaderPart.Repository)?.measure(loose),
             theme = part(HeaderPart.Theme)?.measure(loose),
-            room = room
+            room = toolGap.roundToPx()
         )
         // The links as wide as they are, which no window's width limits: what decides whether they have room.
         val links = part(HeaderPart.Links)?.measure(loose.copy(maxWidth = Constraints.Infinity))
@@ -532,6 +538,9 @@ private val SiteLayout.headerRoom: PaddingValues
         SiteLayout.Tablet -> PaddingValues(start = 12.dp, end = 16.dp)
         SiteLayout.Phone -> PaddingValues(horizontal = 6.dp)
     }
+
+/** The room between a desktop's tools, GitHub's button and the theme's. */
+private val DESKTOP_TOOL_GAP = 4.dp
 
 /** The room after the menu button: a tablet's, on a desktop too, and a phone's own closer one on a phone. */
 private val MENU_GAP = 12.dp

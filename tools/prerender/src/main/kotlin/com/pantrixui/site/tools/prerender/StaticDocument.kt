@@ -122,6 +122,7 @@ internal class StaticDocument(
             strings.forAi to Route.Ai,
             strings.roadmap to Route.Roadmap,
             strings.download to Route.Download,
+            strings.references to Route.References,
             strings.changelog to Route.Changelog
         ).joinToString(" ") { (words, route) -> html.link(SiteRoutes.pathOf(route), Html.text(words)) }
         val switch = other?.let {

@@ -1,5 +1,6 @@
 package com.pantrixui.site.feature.adaptive
 
+import com.pantrixui.site.core.designsystem.device.SimDevice
 import com.pantrixui.site.core.model.Words
 
 /** The adaptive page's words, in each language. */

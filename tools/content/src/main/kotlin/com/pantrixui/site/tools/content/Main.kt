@@ -8,6 +8,7 @@ import com.pantrixui.site.core.model.GuideCatalogue
 import com.pantrixui.site.core.model.GuideTopic
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page
+import com.pantrixui.site.core.model.References
 import com.pantrixui.site.core.model.SearchIndex
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
@@ -18,7 +19,8 @@ import kotlin.math.ceil
  * Writes the site's content for the app under `--out`: each page of `--pages` (`<language>/<path>.md`), the guides
  * among them with how long each takes to read, and from the library's documents in `--docs`, the `com.pantrixui:mcp`
  * jar, the changelog and the components, their list and each one's page, in both languages. A component the site
- * writes examples of its own for, under `--pages`' `examples` ([SiteExamples]), shows those. A page names the site's
+ * writes examples of its own for, under `--pages`' `examples` ([SiteExamples]), shows those. The apps built with
+ * Pantrix UI come from `--pages`' `references.json` ([ReferencesReader]), one file a language. A page names the site's
  * own address as `{{site}}`, written as `--site` gives it. What `--out` held before is replaced, so that a page taken
  * out of the site is gone from it too.
  */
@@ -34,6 +36,7 @@ fun main(args: Array<String>) {
         .map(SiteGuides::withCatalogue)
     val written = writer.write(sitePages)
     writer.writeMinutes(guides.minutes)
+    Language.entries.forEach { writer.writeReferences(it, ReferencesReader.read(folder, it)) }
     val english = ChangelogReader(Language.English).read(documents.text(LibraryDocuments.ENGLISH_CHANGELOG))
     val turkish = ChangelogReader(Language.Turkish, english).read(documents.text(LibraryDocuments.TURKISH_CHANGELOG))
     val upcoming = documents.version()
@@ -187,6 +190,15 @@ internal class ContentWriter(private val out: File) {
     fun writeSearch(index: SearchIndex) {
         File(out, ContentFiles.searchFile(index.language)).apply { parentFile.mkdirs() }
             .writeText(ContentFiles.json.encodeToString(SearchIndex.serializer(), index))
+    }
+
+    /** Writes the apps built with Pantrix UI in [language]. */
+    fun writeReferences(
+        language: Language,
+        references: References
+    ) {
+        File(out, ContentFiles.referencesFile(language)).apply { parentFile.mkdirs() }
+            .writeText(ContentFiles.json.encodeToString(References.serializer(), references))
     }
 
     /** Writes each of [changelogs], one a language. */

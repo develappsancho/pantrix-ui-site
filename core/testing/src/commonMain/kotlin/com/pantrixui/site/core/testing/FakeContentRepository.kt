@@ -6,6 +6,7 @@ import com.pantrixui.site.core.model.ComponentIndex
 import com.pantrixui.site.core.model.ComponentPage
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page
+import com.pantrixui.site.core.model.References
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.model.SearchIndex
 import com.pantrixui.site.core.routing.SiteRoutes
@@ -20,6 +21,7 @@ import com.pantrixui.site.core.routing.SiteRoutes
  * @param indexes the lists of the components it knows, one a language.
  * @param components the components' pages it knows.
  * @param searches what its search finds, one index a language.
+ * @param references the apps built with Pantrix UI it knows, by language; none in a language it was not given.
  */
 class FakeContentRepository(
     private val pages: List<Page> = emptyList(),
@@ -27,7 +29,8 @@ class FakeContentRepository(
     private val minutes: Map<String, Int> = emptyMap(),
     private val indexes: List<ComponentIndex> = emptyList(),
     private val components: List<ComponentPage> = emptyList(),
-    private val searches: List<SearchIndex> = emptyList()
+    private val searches: List<SearchIndex> = emptyList(),
+    private val references: Map<Language, References> = emptyMap()
 ) : ContentRepository {
     /** Thrown by every read while it is set: a source that cannot be read. */
     var failure: Exception? = null
@@ -77,5 +80,11 @@ class FakeContentRepository(
         reads++
         failure?.let { throw it }
         return searches.first { it.language == language }
+    }
+
+    override suspend fun references(language: Language): References {
+        reads++
+        failure?.let { throw it }
+        return references[language] ?: References()
     }
 }

@@ -14,6 +14,7 @@ import com.pantrixui.site.feature.docs.docsModule
 import com.pantrixui.site.feature.download.downloadModule
 import com.pantrixui.site.feature.foundations.foundationsModule
 import com.pantrixui.site.feature.home.homeModule
+import com.pantrixui.site.feature.references.referencesModule
 import com.pantrixui.site.feature.roadmap.roadmapModule
 import com.pantrixui.site.feature.search.searchModule
 import com.pantrixui.site.feature.theme.themeModule
@@ -44,6 +45,7 @@ val siteModules: List<Module> = listOf(
     themeModule,
     adaptiveModule,
     aiModule,
+    referencesModule,
     roadmapModule,
     downloadModule,
     searchModule

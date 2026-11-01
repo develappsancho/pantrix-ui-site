@@ -6,7 +6,7 @@ depends on it, and the library itself has no Material.
 
 ```kotlin
 commonMain.dependencies {
-    implementation("com.pantrixui:material3:0.1.0-alpha06")
+    implementation("com.pantrixui:material3:0.1.0")
 }
 ```
 

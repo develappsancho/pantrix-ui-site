@@ -61,10 +61,10 @@ Ortak kaynak kümesinde tek bir satır. Gradle her hedefin derlemesini kendisi s
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.pantrixui:components:0.1.0-alpha06")
+            implementation("com.pantrixui:components:0.1.0")
         }
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.0-alpha06")
+            implementation("com.pantrixui:testing:0.1.0")
         }
     }
 }

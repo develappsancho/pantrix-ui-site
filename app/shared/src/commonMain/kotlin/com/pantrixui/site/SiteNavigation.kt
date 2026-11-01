@@ -31,7 +31,8 @@ internal enum class SitePart(
     Theme("theme", Route.Theme),
     Ai("ai", Route.Ai),
     Roadmap("roadmap", Route.Roadmap),
-    Download("download", Route.Download);
+    Download("download", Route.Download),
+    References("references", Route.References);
 
     companion object {
         /** The part [key] names, or null for the brand's "home". */
@@ -51,6 +52,7 @@ internal val Route.part: SitePart?
         Route.Ai, Route.Ask -> SitePart.Ai
         Route.Roadmap -> SitePart.Roadmap
         Route.Download -> SitePart.Download
+        Route.References -> SitePart.References
     }
 
 /**
@@ -254,6 +256,7 @@ private fun SitePart.label(strings: SiteStrings): String = when (this) {
     SitePart.Ai -> strings.forAi
     SitePart.Roadmap -> strings.roadmap
     SitePart.Download -> strings.download
+    SitePart.References -> strings.references
 }
 
 /** The guides the sidebar lists by name, by key, with what it calls each. */

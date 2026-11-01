@@ -7,6 +7,7 @@ import com.pantrixui.site.core.base.UiEffect
 import com.pantrixui.site.core.base.UiState
 import com.pantrixui.site.core.base.loadState
 import com.pantrixui.site.core.content.ContentRepository
+import com.pantrixui.site.core.designsystem.device.SimDevice
 import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page

@@ -25,6 +25,7 @@ object SiteRoutes {
         Route.Roadmap -> "/roadmap"
         Route.Download -> "/download"
         Route.Changelog -> "/changelog"
+        Route.References -> "/references"
         is Route.NotFound -> route.path
     }
 
@@ -79,7 +80,8 @@ object SiteRoutes {
         "ai" to Route.Ai,
         "roadmap" to Route.Roadmap,
         "download" to Route.Download,
-        "changelog" to Route.Changelog
+        "changelog" to Route.Changelog,
+        "references" to Route.References
     )
 
     /** The key of a path that is [prefix] and one key more, `docs/installation` under `docs`; null for any other. */

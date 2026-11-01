@@ -67,6 +67,7 @@ import com.pantrixui.site.feature.docs.NotFoundScreen
 import com.pantrixui.site.feature.download.DownloadRoute
 import com.pantrixui.site.feature.foundations.FoundationsRoute
 import com.pantrixui.site.feature.home.HomeRoute
+import com.pantrixui.site.feature.references.ReferencesRoute
 import com.pantrixui.site.feature.roadmap.RoadmapRoute
 import com.pantrixui.site.feature.search.SearchRoute
 import com.pantrixui.site.feature.theme.ThemeRoute
@@ -316,6 +317,10 @@ private fun SitePage(
 
         Route.Download -> {
             DownloadRoute()
+        }
+
+        Route.References -> {
+            ReferencesRoute(onNavigate)
         }
     }
 }

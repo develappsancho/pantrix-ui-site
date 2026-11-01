@@ -14,12 +14,16 @@ import com.pantrixui.site.core.model.Block
  * @property platform the platform whose conventions the live form at its top is drawn in.
  * @property codeTab which file the code of "Write it once" shows: the form's, or the preset's.
  * @property copied whether the line that installs the library was just copied: its button says so for a moment.
+ * @property tourStep the step of the adaptive tour on show: a device of [TourStep].
+ * @property tourPlaying whether the tour turns to its next step by itself.
  */
 data class HomeUiState(
     val code: LoadState<HomeCode> = LoadState.Loading,
     val platform: PlatformType = PlatformType.Ios,
     val codeTab: Int = 0,
-    val copied: Boolean = false
+    val copied: Boolean = false,
+    val tourStep: TourStep = TourStep.Phone,
+    val tourPlaying: Boolean = true
 ) : UiState
 
 /**
@@ -53,6 +57,15 @@ sealed interface HomeAction : UiAction {
 
     /** Opens what a link leads to: a page of the site, or a web address. */
     data class OpenLink(val href: String) : HomeAction
+
+    /** Shows the tour's [step], and stops it turning by itself: the reader has chosen. */
+    data class PickTourStep(val step: TourStep) : HomeAction
+
+    /** Starts the tour turning by itself, or stops it. */
+    data object ToggleTour : HomeAction
+
+    /** Turns the tour to its next step, the first after the last, while it turns by itself. */
+    data object NextTourStep : HomeAction
 }
 
 /** What the landing page asks of the platform: to open a page or an address, or to copy a text. */

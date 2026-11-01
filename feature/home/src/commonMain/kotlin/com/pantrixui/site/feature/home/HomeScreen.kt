@@ -80,11 +80,13 @@ fun HomeScreen(
     Column(modifier.fillMaxSize().pantrixVerticalScroll(rememberScrollState())) {
         Hero(state, onAction, open)
         Numbers()
+        AdaptiveTour(state, onAction, open)
         Platforms()
         WriteOnce(state, onAction)
         WhatComesWithIt(open)
         ForAssistants()
         YourBrand(open)
+        BuiltWithPantrix(open, onLink = { onAction(HomeAction.OpenLink(it)) })
         StartHere(open)
         HomeFoot(open, onLink = { onAction(HomeAction.OpenLink(it)) })
     }

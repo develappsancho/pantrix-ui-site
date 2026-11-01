@@ -1,0 +1,116 @@
+{
+  "projects": [
+    {
+      "key": "pantrix-ui-site",
+      "name": { "en": "Pantrix UI's site", "tr": "Pantrix UI'ın sitesi" },
+      "address": "pantrixui.com",
+      "line": {
+        "en": "The library's documentation site and its apps for Android, iOS and macOS, from one Kotlin codebase.",
+        "tr": "Kütüphanenin belge sitesi ve Android, iOS ve macOS uygulamaları, tek bir Kotlin kod tabanından."
+      },
+      "about": {
+        "en": "The library's own documentation site and its apps: the guides, a page for each of the 100 components with its examples running live, the theme builder, the window simulator and a page that asks the MCP server.",
+        "tr": "Kütüphanenin kendi belge sitesi ve uygulamaları: rehberler, 100 bileşenin her biri için örnekleri canlı çalışan bir sayfa, tema oluşturucu, pencere simülatörü ve MCP sunucusuna soran bir sayfa."
+      },
+      "url": "https://pantrixui.com",
+      "source": "https://github.com/develappsancho/pantrix-ui-site",
+      "download": "/download",
+      "platforms": [
+        { "kind": "Web", "name": "Web", "detail": { "en": "Wasm, and a JavaScript build for older browsers", "tr": "Wasm, eski tarayıcılar için de bir JavaScript sürümü" } },
+        { "kind": "Android", "name": "Android", "detail": { "en": "Phones, tablets and foldables", "tr": "Telefonlar, tabletler ve katlanabilir cihazlar" } },
+        { "kind": "Ios", "name": "iOS", "detail": { "en": "iPhone and iPad", "tr": "iPhone ve iPad" } },
+        { "kind": "Desktop", "name": "macOS", "detail": { "en": "A signed and notarized app", "tr": "İmzalı ve noterden geçmiş bir uygulama" } }
+      ],
+      "languages": ["en", "tr"],
+      "components": [
+        "PantrixAccordion", "PantrixAlert", "PantrixBarChart", "PantrixBreadcrumb", "PantrixButton", "PantrixCard",
+        "PantrixChip", "PantrixCodeBlock", "PantrixDatePicker", "PantrixFileDrop", "PantrixIcon", "PantrixIconButton",
+        "PantrixLink", "PantrixListDetailScaffold", "PantrixListItem", "PantrixMenu", "PantrixModal",
+        "PantrixNavigationBar", "PantrixNavigationRail", "PantrixPieChart", "PantrixScaffold", "PantrixSecureTextField",
+        "PantrixSegmentButton", "PantrixSheet", "PantrixSidebar", "PantrixSkeleton", "PantrixSpinner", "PantrixSurface",
+        "PantrixSwitchButton", "PantrixTabletopLayout", "PantrixTag", "PantrixText", "PantrixTextArea", "PantrixTextField"
+      ],
+      "made": [
+        {
+          "title": { "en": "Compose Multiplatform, with no Material", "tr": "Compose Multiplatform, Material'sız" },
+          "detail": { "en": "Pantrix's components on Compose Foundation alone.", "tr": "Pantrix'in bileşenleri, yalnızca Compose Foundation üstünde." }
+        },
+        {
+          "title": { "en": "A view model for each page", "tr": "Her sayfaya bir view model" },
+          "detail": { "en": "MVI: a page's state, the actions taken on it and its one-off effects.", "tr": "MVI: bir sayfanın durumu, onda yapılan eylemler ve bir kerelik etkileri." }
+        },
+        {
+          "title": { "en": "The library's MCP server beside it", "tr": "Yanında kütüphanenin MCP sunucusu" },
+          "detail": { "en": "Served on the same host at /mcp, for assistants and for the page that asks it.", "tr": "Aynı sunucuda /mcp adresinde; asistanlar ve ona soran sayfa için." }
+        },
+        {
+          "title": { "en": "Pages a browser without Wasm can read", "tr": "Wasm'sız bir tarayıcının okuyabildiği sayfalar" },
+          "detail": { "en": "Each address carries its page's text as HTML, for search engines and older browsers.", "tr": "Her adres sayfasının metnini HTML olarak taşır; arama motorları ve eski tarayıcılar için." }
+        }
+      ]
+    },
+    {
+      "key": "pantrix-ui-demo",
+      "name": { "en": "Pantrix UI's demo", "tr": "Pantrix UI'ın demosu" },
+      "address": "develappsancho.github.io/pantrix-ui-cmp-package",
+      "line": {
+        "en": "The library's catalogue: each of its 100 components on a page, with its examples, their code and its API.",
+        "tr": "Kütüphanenin kataloğu: 100 bileşeninin her biri bir sayfada, örnekleri, kodları ve API'siyle."
+      },
+      "about": {
+        "en": "The app the library is shown and checked with: each component on a page of its own, its examples running live with their code and its API from the library's KDoc, in English and Turkish. A Maestro flow walks every page on Android and iOS.",
+        "tr": "Kütüphanenin gösterildiği ve denendiği uygulama: her bileşen kendi sayfasında, örnekleri kodlarıyla canlı çalışır, API'si kütüphanenin KDoc'undan, İngilizce ve Türkçe. Her sayfayı bir Maestro akışı Android'de ve iOS'ta gezer."
+      },
+      "url": "https://develappsancho.github.io/pantrix-ui-cmp-package/",
+      "download": "https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.1.0/PantrixUI-0.1.0.dmg",
+      "platforms": [
+        { "kind": "Web", "name": "Web", "detail": { "en": "Wasm, and a JavaScript build for older browsers", "tr": "Wasm, eski tarayıcılar için de bir JavaScript sürümü" } },
+        { "kind": "Android", "name": "Android", "detail": { "en": "An APK on each release", "tr": "Her sürümde bir APK" } },
+        { "kind": "Ios", "name": "iOS", "detail": { "en": "A build for the iOS simulator", "tr": "iOS simülatörü için bir derleme" } },
+        { "kind": "Desktop", "name": "macOS", "detail": { "en": "A signed and notarized app", "tr": "İmzalı ve noterden geçmiş bir uygulama" } }
+      ],
+      "languages": ["en", "tr"],
+      "components": [
+        "PantrixAccordion", "PantrixAlert", "PantrixAreaChart", "PantrixAutoResizeTextField", "PantrixAutoText",
+        "PantrixAvatar", "PantrixBackButton", "PantrixBadge", "PantrixBadgedBox", "PantrixBarChart",
+        "PantrixBreadcrumb", "PantrixButton", "PantrixButtonGroup", "PantrixCandlestickChart", "PantrixCard",
+        "PantrixCardSkeleton", "PantrixCarousel", "PantrixChart", "PantrixCheckbox", "PantrixChip", "PantrixCodeBlock",
+        "PantrixCommandPalette", "PantrixDataTable", "PantrixDateFilledTextField", "PantrixDatePicker",
+        "PantrixDateTextField", "PantrixDiagnosticsInspector", "PantrixDialog", "PantrixDivider",
+        "PantrixElasticDatePicker", "PantrixFileDrop", "PantrixFileItem", "PantrixFilledAutoResizeTextField",
+        "PantrixFilledSecureTextField", "PantrixFilledTextArea", "PantrixFilledTextField", "PantrixFunnelChart",
+        "PantrixGanttChart", "PantrixGauge", "PantrixHeatmap", "PantrixIcon", "PantrixIconButton", "PantrixImage",
+        "PantrixJsonView", "PantrixLineChart", "PantrixLink", "PantrixListDetailScaffold", "PantrixListItem",
+        "PantrixMenu", "PantrixMeterGroup", "PantrixModal", "PantrixMultiSelect", "PantrixNavigationBar",
+        "PantrixNavigationRail", "PantrixPageJump", "PantrixPageScaffold", "PantrixPageSize", "PantrixPagination",
+        "PantrixPieChart", "PantrixPolarChart", "PantrixPopover", "PantrixProgressCircle", "PantrixRadarChart",
+        "PantrixRadioButton", "PantrixRadioGroup", "PantrixRangeChart", "PantrixSankeyChart", "PantrixScaffold",
+        "PantrixScatterChart", "PantrixSecureTextField", "PantrixSegmentButton", "PantrixSelect", "PantrixSheet",
+        "PantrixShowcaseScaffold", "PantrixSidebar", "PantrixSkeleton", "PantrixSkeletonText", "PantrixSnackbarHost",
+        "PantrixSparkline", "PantrixSpinner", "PantrixStatusTracker", "PantrixSupportingPaneScaffold",
+        "PantrixSurface", "PantrixSwitchButton", "PantrixTabletopLayout", "PantrixTabs", "PantrixTag", "PantrixText",
+        "PantrixTextArea", "PantrixTextField", "PantrixTimeFilledTextField", "PantrixTimePicker",
+        "PantrixTimeTextField", "PantrixTooltip", "PantrixTopBar", "PantrixTreeView", "PantrixTreemap",
+        "PantrixTriStateCheckbox", "PantrixTwoPane", "PantrixWaterfallChart"
+      ],
+      "made": [
+        {
+          "title": { "en": "Its pages written from annotations", "tr": "Sayfaları açıklamalardan yazılır" },
+          "detail": { "en": "@DemoPage on each page and @DemoExample on each example, and a Gradle task writes the pages.", "tr": "Her sayfadaki @DemoPage'den ve her örnekteki @DemoExample'dan sayfaları bir Gradle görevi yazar." }
+        },
+        {
+          "title": { "en": "The library's API in two languages", "tr": "Kütüphanenin API'si iki dilde" },
+          "detail": { "en": "Each page shows the KDoc of the names it is about, in English or in its Turkish.", "tr": "Her sayfa anlattığı adların KDoc'unu İngilizce ya da Türkçesiyle gösterir." }
+        },
+        {
+          "title": { "en": "A Maestro flow for each page", "tr": "Her sayfaya bir Maestro akışı" },
+          "detail": { "en": "Each flow opens its page by its link and walks its examples on Android and iOS.", "tr": "Her akış sayfasını bağlantısıyla açar ve örneklerini Android'de ve iOS'ta gezer." }
+        },
+        {
+          "title": { "en": "Published with each release", "tr": "Her sürümle yayımlanır" },
+          "detail": { "en": "Its web build on GitHub Pages, beside its APK, its DMG and its build for the iOS simulator.", "tr": "Web sürümü GitHub Pages'ta; yanında APK'sı, DMG'si ve iOS simülatörü derlemesi." }
+        }
+      ]
+    }
+  ]
+}

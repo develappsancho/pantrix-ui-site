@@ -20,7 +20,8 @@ class SiteRoutesTest {
         Route.Ask,
         Route.Roadmap,
         Route.Download,
-        Route.Changelog
+        Route.Changelog,
+        Route.References
     )
 
     @Test

@@ -53,7 +53,7 @@ The test module `ui/testing` is published as `com.pantrixui:testing`; its packag
 kotlin {
     sourceSets {
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.0-alpha06")
+            implementation("com.pantrixui:testing:0.1.0")
             implementation(kotlin("test"))
         }
         // runComposeUiTest really draws on the desktop: the test JVM needs this machine's Skiko.

@@ -18,7 +18,7 @@ The library itself stays free of Material: the bridge is the one module that use
 
 ```kotlin
 commonMain.dependencies {
-    implementation("com.pantrixui:material3:0.1.0-alpha06")
+    implementation("com.pantrixui:material3:0.1.0")
 }
 ```
 

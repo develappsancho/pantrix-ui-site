@@ -49,6 +49,7 @@ import com.pantrixui.site.core.designsystem.content.Hairline
 import com.pantrixui.site.core.designsystem.content.LandingBand
 import com.pantrixui.site.core.designsystem.content.landingBandPadding
 import com.pantrixui.site.core.designsystem.content.landingGutter
+import com.pantrixui.site.core.designsystem.device.SimDevice
 import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LandingHeads

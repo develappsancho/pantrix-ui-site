@@ -44,6 +44,14 @@ class HomeViewModel(
             is HomeAction.OpenLink -> sendEffect(
                 if (action.href.startsWith("/")) HomeEffect.Navigate(action.href) else HomeEffect.OpenUrl(action.href)
             )
+
+            is HomeAction.PickTourStep -> updateState { copy(tourStep = action.step, tourPlaying = false) }
+
+            HomeAction.ToggleTour -> updateState { copy(tourPlaying = !tourPlaying) }
+
+            HomeAction.NextTourStep -> if (currentState.tourPlaying) {
+                updateState { copy(tourStep = TourStep.entries[(tourStep.ordinal + 1) % TourStep.entries.size]) }
+            }
         }
     }
 

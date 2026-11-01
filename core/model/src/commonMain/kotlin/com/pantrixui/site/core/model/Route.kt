@@ -64,6 +64,10 @@ sealed interface Route {
     @Serializable
     data object Changelog : Route
 
+    /** The apps built with Pantrix UI, the site first. */
+    @Serializable
+    data object References : Route
+
     /** An address the site has no page for: [path] is what was asked for. */
     @Serializable
     data class NotFound(val path: String) : Route

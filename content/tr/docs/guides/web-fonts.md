@@ -359,6 +359,7 @@ Kapıya fontlarla birlikte verilir: `FontGate(loaded = areFontsLoaded(Brand) && 
 | **Tarayıcı testleri** | Karma kaynakları sunmaz: testlerde font hiç gelmez ve soru hep "okunmadı" der | Teste kendi okuyucunu ver (`LocalResourceReader`) |
 | **Her şeyi önden okumak** | Hiç kullanılmayacak yazı tipleri de her ziyaretçiye iner | Yalnızca ilk ekranın yazı tipini önden oku; ötekileri değişime bırak |
 | **`webMain`'de dizi** | `js` ile `wasmJs`'in ortak kaynak kümesinde editör bir dizinin uzantısını çözemez: `vararg` bir parametrede `flatMap`, "Cannot access 'kotlin.Cloneable' which is a supertype of 'Array'" uyarısı verir. Derleme geçer, uyarı yalnızca editördedir | `vararg`'ı ortak kodda listeye çevir; platform karşılığı liste alsın (4.1'deki `areFontsLoaded` gibi) |
+| **Eş aralıklı yazı tipi verilmemesi** | `FontFamily.Monospace` tarayıcıda bir yazı tipine çözülmez (Compose web'de sistemin yazı tiplerine ulaşmaz): `typography.code`, kod blokları ve JSON görünümü orantılı bir yedek yazıyla çizilir, sütunlar hizalanmaz | Eş aralıklı bir yazı tipini kaynaklara koy ve `rememberPantrixTypography(typeface, codeTypeface = …)` ile ver; onu da önden oku |
 | **Fontta olmayan bir karakter** | Compose onun için Google'dan bir Noto fontu indirir; sayfa çevrimdışıysa karakter boş kalır, CSP Google'a izin vermek zorunda kalır | Karakteri taşıyan fontu yedek olarak ver (3.5): `PantrixTypeface.Default.fallbacks` Mac tuşlarının işaretlerini taşır |
 :::
 

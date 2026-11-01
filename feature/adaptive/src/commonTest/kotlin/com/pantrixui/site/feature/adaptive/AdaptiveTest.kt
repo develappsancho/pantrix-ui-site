@@ -5,6 +5,9 @@ import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.paneCount
 import com.pantrixui.site.core.base.LoadState
 import com.pantrixui.site.core.base.valueOrNull
+import com.pantrixui.site.core.designsystem.device.SimDevice
+import com.pantrixui.site.core.designsystem.device.SimFold
+import com.pantrixui.site.core.designsystem.device.windowOf
 import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page

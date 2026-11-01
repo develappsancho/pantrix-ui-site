@@ -201,6 +201,7 @@ internal class StaticPages(
         Route.Adaptive -> strings.adaptive
         Route.Ai, Route.Ask -> strings.forAi
         Route.Download -> strings.download
+        Route.References -> strings.references
         else -> strings.roadmap
     }
 
@@ -219,7 +220,8 @@ internal class StaticPages(
             Route.Ai,
             Route.Ask,
             Route.Roadmap,
-            Route.Download
+            Route.Download,
+            Route.References
         )
 
         /** [spans] as the words they say, without their marks: what a page's description is written from. */

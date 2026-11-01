@@ -718,6 +718,7 @@ private fun footColumns(
         link(FootSay.Changelog, "changelog", Route.Changelog),
         link(FootSay.McpServer, "mcp", Route.Ai),
         link(FootSay.Roadmap, "roadmap", Route.Roadmap),
+        link(FootSay.References, "references", Route.References),
         link(FootSay.GitHub, "github", null).takeIf { LibraryFacts.REPOSITORY_IS_OPEN }
     )
     return listOf(
@@ -730,13 +731,14 @@ private fun footColumns(
     )
 }
 
-/** A phone's links, two to a row: six, the last GitHub, while the repository is open. */
+/** A phone's links, two to a row: seven, the last GitHub, while the repository is open. */
 private fun phoneLinks(language: Language): List<FootLink> = listOfNotNull(
     FootLink(FootSay.Installation.of(language), "installation", Route.Doc("installation")),
     FootLink(FootSay.Components.of(language), "components", Route.Components),
     FootLink(FootSay.Theming.of(language), "theming", Route.Doc("theming")),
     FootLink(FootSay.Changelog.of(language), "changelog", Route.Changelog),
     FootLink(FootSay.McpServer.of(language), "mcp", Route.Ai),
+    FootLink(FootSay.References.of(language), "references", Route.References),
     FootLink(FootSay.GitHub.of(language), "github", null).takeIf { LibraryFacts.REPOSITORY_IS_OPEN }
 )
 
@@ -753,6 +755,7 @@ private object FootSay {
     val Changelog = Words("Changelog", "Değişiklikler")
     val McpServer = Words("MCP server", "MCP sunucusu")
     val Roadmap = Words("Roadmap", "Yol haritası")
+    val References = Words("Built with Pantrix", "Pantrix ile yapıldı")
     const val GITHUB = "GitHub"
     val GitHub = Words(GITHUB, GITHUB)
 }

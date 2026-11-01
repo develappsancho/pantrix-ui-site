@@ -1,0 +1,67 @@
+name: Add your project
+description: An app built with Pantrix UI, for the site's references page (pantrixui.com/references).
+title: "[Reference] "
+labels: ["reference"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for building with Pantrix UI. The references page shows an app with its name, a line about it, the
+        platforms it runs on, a picture of it and the library's components it draws its screens with. It is added
+        once you say its name and logo may be shown.
+  - type: input
+    id: name
+    attributes:
+      label: Name
+      description: What the app is called.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: Where it is visited or installed from.
+      placeholder: https://
+    validations:
+      required: true
+  - type: textarea
+    id: about
+    attributes:
+      label: What it is
+      description: A line or two about it, in English, and in Turkish too if you can.
+    validations:
+      required: true
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: Where it runs
+      options:
+        - label: Android
+        - label: iOS
+        - label: Desktop
+        - label: Web
+  - type: textarea
+    id: components
+    attributes:
+      label: The components it uses
+      description: The Pantrix UI components its own screens draw with, by their names, if you know them.
+      placeholder: PantrixButton, PantrixTextField, PantrixSidebar
+  - type: input
+    id: source
+    attributes:
+      label: Its source
+      description: Where its source is, if it is open.
+  - type: textarea
+    id: picture
+    attributes:
+      label: A picture of it
+      description: Drop a screenshot here, 16:10 if you can.
+    validations:
+      required: true
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Permission
+      options:
+        - label: Its name, its logo and the picture may be shown on pantrixui.com.
+          required: true

@@ -122,6 +122,18 @@ object LandingHeads {
         )
     )
 
+    /** The apps built with Pantrix UI, `/references`. */
+    val References = LandingHead(
+        title = Words("Built with Pantrix UI", "Pantrix UI ile yapıldı"),
+        description = Words(
+            "Apps that draw their screens with Pantrix UI, the Compose Multiplatform design system: what each one " +
+                "is, where it runs and which of the library's components it uses, Pantrix UI's own site first.",
+            "Ekranlarını Compose Multiplatform tasarım sistemi Pantrix UI ile çizen uygulamalar: her birinin ne " +
+                "olduğu, nerede çalıştığı ve kütüphanenin hangi bileşenlerini kullandığı; ilki Pantrix UI'ın " +
+                "kendi sitesi."
+        )
+    )
+
     /** The head of [route], or null where the route's page is one of the site's `content` files or a component's. */
     fun of(route: Route): LandingHead? = when (route) {
         Route.Home -> Home
@@ -133,6 +145,7 @@ object LandingHeads {
         Route.Ask -> Ask
         Route.Roadmap -> Roadmap
         Route.Download -> Download
+        Route.References -> References
         else -> null
     }
 }

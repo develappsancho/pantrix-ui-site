@@ -359,6 +359,7 @@ It is given to the gate with the fonts: `FontGate(loaded = areFontsLoaded(Brand)
 | **Browser tests** | Karma does not serve the resources: in tests the font never arrives, and the question always says "not read" | Give the test your own reader (`LocalResourceReader`) |
 | **Reading everything ahead** | Typefaces that will never be used come down to every visitor too | Read ahead only the first screen's typeface; leave the others to the change |
 | **An array in `webMain`** | In the source set that `js` and `wasmJs` share, the editor cannot resolve an array's extension: `flatMap` on a `vararg` parameter gives the warning "Cannot access 'kotlin.Cloneable' which is a supertype of 'Array'". The build passes; the warning is only in the editor | Turn the `vararg` into a list in common code; let the platform counterpart take a list (like `areFontsLoaded` in 4.1) |
+| **No monospace typeface given** | `FontFamily.Monospace` resolves to no typeface in a browser (Compose on the web reaches no system font): `typography.code`, code blocks and the JSON view are drawn in a proportional fallback, and columns do not line up | Put a monospace typeface in the resources and give it with `rememberPantrixTypography(typeface, codeTypeface = …)`; read it ahead too |
 | **A character the font lacks** | Compose fetches a Noto font from Google for it; offline the character stays blank, and a CSP must let Google in | Give a font that has the character as a fallback (3.5): `PantrixTypeface.Default.fallbacks` carries the marks of a Mac's keys |
 :::
 

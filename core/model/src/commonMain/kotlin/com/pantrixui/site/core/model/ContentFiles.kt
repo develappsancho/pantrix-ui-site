@@ -41,6 +41,9 @@ object ContentFiles {
     /** The file of what the site's search finds in [language]: `files/content/en/search.json`. */
     fun searchFile(language: Language): String = "files/content/${language.code}/search.json"
 
+    /** The file of the apps built with Pantrix UI in [language]: `files/content/en/references.json`. */
+    fun referencesFile(language: Language): String = "files/content/${language.code}/references.json"
+
     /** The file of how long each guide takes to read, by its key, the same in every language. */
     const val GUIDE_MINUTES: String = "files/content/guide-minutes.json"
 }

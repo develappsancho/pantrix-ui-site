@@ -14,6 +14,18 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ### Added
 
+- **References:** `/references` shows the apps built with Pantrix UI, the site first: what it is, where it runs, the
+  34 of the library's components its own screens draw with and how it is made, and where another app is added, an
+  issue on the site's repository. Under it, by platform, it lists the others, the library's demo catalogue first, with
+  its web build and its macOS app. It is the header's last link, and the menu's, and the home page's foot and a band
+  on the home page lead to it; a desktop's header sets its parts, and its search, its language, GitHub and the theme
+  most of all, closer together to make room for it.
+- **The adaptive tour:** the home page walks a recipe app through six windows, a phone, a foldable open and on a
+  table, a tablet, a desktop and a browser tab, each drawn by Pantrix in its own platform's conventions: the
+  navigation moves from a bar to a rail and a sidebar, a recipe opens beside its list, the foldable cooks with its
+  buttons below the fold, and a large window shows the week's shopping beside the recipe. It turns by itself while it
+  is in view, stops where the reader picks a step, and never turns where the system asks for less motion. Its
+  dishes' photos are from Unsplash and Pexels, named under it.
 - **The page that asks the server:** `/ai/ask` asks Pantrix UI's MCP server itself, with no model and no key: a question
   in English or in Turkish finds a component with its code and the documents that speak of it, the library's
   declarations, its icons or its documents, with the tools it called beside the answer. It sets the reader's own
@@ -24,10 +36,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ### Changed
 
-- **Pantrix UI 0.1.0-alpha06:** the lines that install the library, on the home page and in Installation, and the files
-  for coding assistants name its new release, whose Claude Code plugin brings the MCP server at `pantrixui.com/mcp`
-  too, and whose server searches in Turkish as well and gives its answers as data; its guides are the site's, with the
-  one on an app that opens in every browser and its live sketch.
+- **Pantrix UI 0.1.0:** the lines that install the library, on the home page and in Installation, and the files for
+  coding assistants name its first version after six previews, whose Claude Code plugin brings the MCP server at
+  `pantrixui.com/mcp` too, and whose server searches in Turkish as well and gives its answers as data; its guides are
+  the site's, with the one on an app that opens in every browser and its live sketch, and the web fonts' guide says to
+  give the web a monospace typeface for code.
 - **The page for coding assistants:** Claude Code is set up with Pantrix UI's plugin alone, which brings the MCP server
   and the skill together, so the server is no longer added twice.
 - **The page for coding assistants, its files:** under the setup, every file it names opens or downloads from where it

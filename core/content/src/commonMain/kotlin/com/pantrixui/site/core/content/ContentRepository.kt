@@ -7,6 +7,7 @@ import com.pantrixui.site.core.model.ComponentPage
 import com.pantrixui.site.core.model.ContentFiles
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page
+import com.pantrixui.site.core.model.References
 import com.pantrixui.site.core.model.Route
 import com.pantrixui.site.core.model.SearchIndex
 import com.pantrixui.site.core.routing.SiteRoutes
@@ -41,6 +42,9 @@ interface ContentRepository {
 
     /** What the site's search finds in [language]. */
     suspend fun searchIndex(language: Language): SearchIndex
+
+    /** The apps built with Pantrix UI in [language], the site first. */
+    suspend fun references(language: Language): References
 }
 
 /**
@@ -54,6 +58,7 @@ class ResourceContentRepository : ContentRepository {
     private val indexes = mutableMapOf<Language, ComponentIndex>()
     private val searches = mutableMapOf<Language, SearchIndex>()
     private val components = mutableMapOf<String, ComponentPage?>()
+    private val references = mutableMapOf<Language, References>()
     private val lock = Mutex()
 
     override suspend fun page(
@@ -117,6 +122,13 @@ class ResourceContentRepository : ContentRepository {
         searches.getOrPut(language) {
             val bytes = Res.readBytes(ContentFiles.searchFile(language))
             ContentFiles.json.decodeFromString(SearchIndex.serializer(), bytes.decodeToString())
+        }
+    }
+
+    override suspend fun references(language: Language): References = lock.withLock {
+        references.getOrPut(language) {
+            val bytes = Res.readBytes(ContentFiles.referencesFile(language))
+            ContentFiles.json.decodeFromString(References.serializer(), bytes.decodeToString())
         }
     }
 

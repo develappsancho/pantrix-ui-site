@@ -23,6 +23,7 @@ kotlin {
             implementation(projects.feature.theme)
             implementation(projects.feature.adaptive)
             implementation(projects.feature.ai)
+            implementation(projects.feature.references)
             implementation(projects.feature.roadmap)
             implementation(projects.feature.download)
             implementation(projects.feature.search)

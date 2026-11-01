@@ -119,6 +119,9 @@ is `PantrixFileDrop`.
 - **Three overloads.** One takes a `TextFieldState` (`rememberTextFieldState()`), which holds the text, the selection
   and what the keyboard is composing: the keyboard is never handed a text that has moved on. One takes a `value` and
   an `onValueChange`, for code that keeps a `String`. One takes a form's `field`.
+- **A password's state is remembered, not saved.** Give `PantrixSecureTextField` and `PantrixFilledSecureTextField` a
+  `remember { TextFieldState() }`, or keep their state in a view model: `rememberTextFieldState()` puts what is typed
+  into the saved state, which the platform holds after the app's process has gone and may write to its disk.
 - **Label above.** `label` stays above the box and is the field's name for a screen reader; `placeholder` shows while
   it is empty. A field with no label gets its name from `contentDescription`.
 - **Help and error.** `supportingText` is written under the box. In the overloads that are not bound, `error = true`

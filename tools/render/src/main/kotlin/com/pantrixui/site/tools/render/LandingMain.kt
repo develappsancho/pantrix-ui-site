@@ -53,7 +53,8 @@ internal val LANDING =
         Route.Ai,
         Route.Ask,
         Route.Roadmap,
-        Route.Download
+        Route.Download,
+        Route.References
     )
 
 /** The words of [route] in [language]: the app drawn in a window of a desktop's size, one window for each page. */

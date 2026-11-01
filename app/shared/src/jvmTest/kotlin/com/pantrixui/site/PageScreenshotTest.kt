@@ -84,6 +84,9 @@ class PageScreenshotTest {
     fun changelog() = capture("changelog", Route.Changelog)
 
     @Test
+    fun references() = capture("references", Route.References)
+
+    @Test
     fun doc() = capture("installation", Route.Doc("installation"), turkishToo = true)
 
     @Test

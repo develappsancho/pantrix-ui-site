@@ -53,6 +53,12 @@ import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.dotted
 import com.pantrixui.site.core.designsystem.content.live
+import com.pantrixui.site.core.designsystem.device.DeviceChrome
+import com.pantrixui.site.core.designsystem.device.DeviceFrame
+import com.pantrixui.site.core.designsystem.device.SimDevice
+import com.pantrixui.site.core.designsystem.device.SimFold
+import com.pantrixui.site.core.designsystem.device.outerSize
+import com.pantrixui.site.core.designsystem.device.windowOf
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Words
@@ -142,8 +148,9 @@ internal fun Simulator(
                 .padding(if (phone) 12.dp else 20.dp),
             contentAlignment = Alignment.Center
         ) {
-            val outerWidth = state.device.width + FRAME * 2
-            val outerHeight = state.device.height + FRAME * 2
+            val outer = DeviceChrome.Device.outerSize(state.device)
+            val outerWidth = outer.width.value
+            val outerHeight = outer.height.value
             val scale = min(min(maxWidth.value / outerWidth, maxHeight.value / outerHeight), 1f)
             // A new window is a new app: the open message of one window is not carried to the next.
             key(state.device, state.app) {
@@ -202,64 +209,11 @@ private fun Scaled(
 ) {
     val language = LocalLanguage.current
     val device = state.device
-    val shape = RoundedCornerShape((device.corner + FRAME).dp)
-    Box(
-        Modifier
-            .layout { measurable, _ ->
-                val width = ((device.width + FRAME * 2).dp).roundToPx()
-                val height = ((device.height + FRAME * 2).dp).roundToPx()
-                val placeable = measurable.measure(Constraints.fixed(width, height))
-                layout((width * scale).roundToInt(), (height * scale).roundToInt()) {
-                    placeable.placeWithLayer(0, 0) {
-                        scaleX = scale
-                        scaleY = scale
-                        transformOrigin = TransformOrigin(0f, 0f)
-                    }
-                }
-            }
-            .clip(shape)
-            .background(DEVICE_FRAME)
-            .padding(FRAME.dp)
-    ) {
-        PantrixWindowFrame(
-            window,
-            Modifier
-                .live()
-                .size(device.width.dp, device.height.dp)
-                .clip(RoundedCornerShape(device.corner.dp))
-                .background(PantrixTheme.colors.background)
-                .then(if (device.fold == SimFold.Flat) Modifier else Modifier.hinge(device.fold == SimFold.Book))
-        ) {
-            when (state.app) {
-                SimApp.Inbox -> InboxApp(language, sidebar = navigationOf(device) == SimNavigation.Sidebar)
-                SimApp.VideoCall -> VideoApp(language)
-            }
+    DeviceFrame(device, window, scale) {
+        when (state.app) {
+            SimApp.Inbox -> InboxApp(language, sidebar = navigationOf(device) == SimNavigation.Sidebar)
+            SimApp.VideoCall -> VideoApp(language)
         }
-    }
-}
-
-/** The hinge's strip drawn over a half-open foldable's screen: a shade across its middle, dashed at its edges. */
-private fun Modifier.hinge(vertical: Boolean): Modifier = drawWithContent {
-    drawContent()
-    val half = HINGE.toPx() / 2
-    val shade = listOf(Color.Transparent, HINGE_SHADE, Color.Transparent)
-    if (vertical) {
-        val middle = size.width / 2
-        drawRect(
-            Brush.horizontalGradient(shade, middle - half, middle + half),
-            Offset(middle - half, 0f),
-            androidx.compose.ui.geometry.Size(half * 2, size.height)
-        )
-    } else {
-        val middle = size.height / 2
-        drawRect(
-            Brush.verticalGradient(shade, middle - half, middle + half),
-            Offset(0f, middle - half),
-            androidx.compose.ui.geometry.Size(
-                size.width,
-                half * 2
-            )
-        )
     }
 }
 
@@ -376,11 +330,6 @@ internal fun why(state: AdaptiveUiState): Words {
         }
     }
 }
-
-/** The device's frame around its screen, in dp, and its colour. */
-private const val FRAME = 10
-private val DEVICE_FRAME = Color(0xFF181D2B)
-private val HINGE_SHADE = Color(0x4705070A)
 
 /** How faint a window's size is beside its name. */
 private const val SIZE_ALPHA = 0.7f

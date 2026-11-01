@@ -2,7 +2,8 @@
 # /mcp, which only nginx reaches. docs/deploy/ARCHITECTURE_GUIDE.md says why each rule is here.
 #
 # A template: nginx's image writes it as conf.d/default.conf as it starts, with SITE_URL, the address the stack is
-# served at, and SITE_HOST, its host, which 05-site-address.envsh gives.
+# served at, SITE_HOST, its host, and SITE_HSTS, the Strict-Transport-Security it is served with, which
+# 05-site-address.envsh gives.
 
 # How long a browser keeps a file. A file named by a hash of what it holds never changes, since a new build gives it a
 # new name: it is kept for a year. Any other file is asked for again each time, and answered "not modified" while it
@@ -16,6 +17,7 @@ map $uri $site_cache {
 server {
     listen 80;
     server_name www.${SITE_HOST};
+    add_header Strict-Transport-Security "${SITE_HSTS}" always;
     return 301 ${SITE_URL}$request_uri;
 }
 
@@ -36,6 +38,15 @@ server {
     add_header X-Content-Type-Options nosniff always;
     add_header Referrer-Policy strict-origin-when-cross-origin always;
     add_header X-Frame-Options SAMEORIGIN always;
+    # Over HTTPS alone, for a while: empty over plain HTTP, and an empty header is not sent.
+    add_header Strict-Transport-Security "${SITE_HSTS}" always;
+    # What a page may load and run, reported and not yet enforced. Its scripts: the site's own, its WebAssembly, and
+    # the one script written into every page, by its hash, which check.sh holds to the pages'. Its styles: the site's
+    # own, and the one Compose writes into its canvas's shadow root as the app starts, which changes with Compose and
+    # is not held by a hash. What it fetches: the site's files, GitHub's API, which the download page reads the
+    # desktop app's release from, and Google's fonts, which Compose fetches a Noto font from for a character the site's
+    # fonts do not have. A browser writes what breaks it in its console.
+    add_header Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-TFCAy9jup0JF+XnX2hWWDY2D8Q+Wi+UnpkcA3EzGXwM='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com https://fonts.gstatic.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" always;
 
     # A file as it is; an address with a page, its folder's index.html, with no redirect; any other address, 404.html
     # with a 404.

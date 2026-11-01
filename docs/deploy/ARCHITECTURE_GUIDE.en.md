@@ -386,7 +386,14 @@ On a first visit, a visitor downloads about 7 MB for the app instead of 23 MB; o
 *   **The origin check:** an MCP request a browser sends from a page of another site is refused (403). An assistant's own process sends no origin, and is answered.
 *   **No secrets in the images:** the images hold only what was built. The key to GitHub Packages stays on the machine that builds, so the images can be public.
 *   **Headers:** `X-Content-Type-Options: nosniff` (the browser does not guess a file's type), `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN` (the site cannot be framed by another site), `server_tokens off` (nginx's version is not given).
-*   **HTTPS:** it ends at Traefik. `Strict-Transport-Security` and a content security policy (CSP) are not there yet: the first is added once the domain is checked over HTTPS, the second once what the Wasm and the pages' inline script need is worked out.
+*   **HTTPS:** it ends at Traefik. Where the stack is served over HTTPS, nginx sends `Strict-Transport-Security: max-age=300`: for five minutes a browser comes to the site over HTTPS alone. The short while is a try; once the domain's HTTPS has held for a while, it is raised to a week, then to a year. Over plain HTTP, on this machine, the header is not sent (`SITE_HSTS` in `05-site-address.envsh`).
+*   **Content security policy (CSP):** for now it is reported alone (`Content-Security-Policy-Report-Only`): it blocks nothing, and the browser writes what does not keep to it in its console. What a page may load:
+    *   **scripts:** the site's own, its WebAssembly (`'wasm-unsafe-eval'`), and the one inline script on every page, by its hash. `check.sh` holds the hash to the page's;
+    *   **styles:** the site's own, and the style Compose writes into its canvas's shadow root (`'unsafe-inline'`): it changes with Compose, so it is not held by a hash;
+    *   **connections:** the site's own, GitHub's API (the download page), and `fonts.gstatic.com`: for a character the site's fonts do not have, Compose for Web fetches a Noto font from there (Symbols 2, Math and Arabic were seen);
+    *   **frames:** the site alone may frame itself (`frame-ancestors 'self'`).
+
+    Twenty pages and the search reported nothing; once the host has reported nothing for a while, the policy is enforced as `Content-Security-Policy`.
 
 ## 10. Roads Not Taken
 

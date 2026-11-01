@@ -12,6 +12,12 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Security
+
+- **HTTPS alone:** the site asks a browser to come back over HTTPS alone (`Strict-Transport-Security`), for a short
+  while to begin with, and reports what its pages load against a content security policy, which it does not enforce
+  yet.
+
 ## [26.10.31] - 2026-10-31
 
 The site's first version, built with Pantrix UI 0.1.0-alpha03, online at `pantrixui.com`, and its desktop app's first

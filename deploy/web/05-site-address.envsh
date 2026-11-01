@@ -3,11 +3,18 @@
 # - SITE_FILES_URL, the address the site's files give now, from the home page's canonical link: the one they were
 #   built for, site.url, or the SITE_URL they were last written with;
 # - SITE_URL, the address the stack is served at, or SITE_FILES_URL where the stack gives none;
-# - SITE_HOST, SITE_URL's host, with no scheme and no port.
+# - SITE_HOST, SITE_URL's host, with no scheme and no port;
+# - SITE_HSTS, how long a browser goes to the site over HTTPS alone, where the stack is served over HTTPS: a while
+#   of minutes until the domain's HTTPS has been seen to hold, then raised. Over plain HTTP it is empty, and nginx
+#   sends no Strict-Transport-Security, which a browser would not take there anyway.
 SITE_FILES_URL=$(sed -n 's|.*<link rel="canonical" href="\(https\{0,1\}://[^/"]*\)/".*|\1|p' /usr/share/nginx/html/index.html \
     | head -n 1)
 SITE_URL=${SITE_URL:-$SITE_FILES_URL}
 SITE_URL=${SITE_URL%/}
 SITE_HOST=${SITE_URL#*://}
 SITE_HOST=${SITE_HOST%%[:/]*}
-export SITE_FILES_URL SITE_URL SITE_HOST
+case $SITE_URL in
+    https://*) SITE_HSTS="max-age=300" ;;
+    *) SITE_HSTS="" ;;
+esac
+export SITE_FILES_URL SITE_URL SITE_HOST SITE_HSTS

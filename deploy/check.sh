@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Checks Pantrix UI's site where it runs, as a browser and an assistant reach it: its pages at their addresses and
 # leading to that address, the page for an address with none, what is compressed and how long a browser keeps it, the
-# second name under www, and the MCP server at /mcp. Each check writes a line; the script fails when one does.
+# security headers, the second name under www, and the MCP server at /mcp. Each check writes a line; the script fails
+# when one does.
 #
 #   deploy/check.sh                          the site on this machine, http://localhost:4004 (or SITE_PORT)
 #   deploy/check.sh https://pantrixui.com    the site on its host
@@ -101,6 +102,27 @@ done
 fetch HEAD /
 check "the headers name no version of the server, and forbid guessing a file's type" \
     eval '! header Server | grep -q "[0-9]" && is "$(header X-Content-Type-Options)" nosniff'
+
+echo "Security"
+fetch GET /
+# The hash of the script written into every page, as a content security policy names it.
+script_hash="$(python3 -c '
+import base64, hashlib, re, sys
+page = open(sys.argv[1], encoding="utf-8").read()
+script = re.search(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", page, re.S).group(1)
+print("sha256-" + base64.b64encode(hashlib.sha256(script.encode()).digest()).decode())
+' "$WORK/body")"
+case "$BASE" in
+    https://*)
+        check "a browser is told to come back over HTTPS alone" \
+            eval 'contains "$(header Strict-Transport-Security)" "max-age="'
+        ;;
+    *)
+        check "over plain HTTP no browser is told to keep to HTTPS" eval '[ -z "$(header Strict-Transport-Security)" ]'
+        ;;
+esac
+check "the content security policy is reported, and allows the script every page holds" \
+    eval 'contains "$(header Content-Security-Policy-Report-Only)" "$script_hash" && contains "$(header Content-Security-Policy-Report-Only)" wasm-unsafe-eval'
 
 echo "Second name"
 if [ "${CHECK_WWW:-yes}" = no ]; then

@@ -66,6 +66,7 @@ deploy/deploy.sh stop
 | :--- | :--- |
 | Sayfalar | Ana sayfa; `/docs/installation` yönlendirmesiz ve kendi adresi olarak denenen adresi veriyor; Türkçesi; bir bileşen sayfası; olmayan bir adres 404 sayfasıyla ve 404 durumuyla; `llms.txt` UTF-8 düz metin ve denenen adrese götürüyor; `sitemap.xml` denenen adresle; `robots.txt` |
 | Sıkıştırma ve önbellek | Bir sayfa gzip ile ve `no-cache`; `site.js` `no-cache`; her Wasm dosyası `application/wasm`, gzip ile ve bir yıl önbellekte; sunucunun sürümü yazmıyor, `nosniff` var |
+| Güvenlik | HTTPS'te `Strict-Transport-Security` var, düz HTTP'de yok; içerik güvenliği politikası raporlanıyor ve sayfalardaki satır içi betiğin karmasını içeriyor |
 | İkinci ad | `www` altındaki ad kalıcı olarak denenen adrese gidiyor (lokalde bir `Host` başlığıyla). Adı olmayan bir deneme adresinde `CHECK_WWW=no` ile atlanır |
 | MCP sunucusu | `initialize` pantrix-ui'den yanıt alıyor; `tools/list`; bir araç çağrısı; GET'in reddi (405); sitenin kendi sayfasından gelenin yanıtlanması; başka bir sitenin sayfasından gelenin reddi (403); 64 KB'ı aşan mesajın reddi (413) |
 

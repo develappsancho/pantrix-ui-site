@@ -386,7 +386,14 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 *   **Kaynak denetimi:** Başka bir sitenin sayfasından, tarayıcıyla gelen bir MCP isteği reddedilir (403). Asistanların kendi süreçleri bir kaynak (Origin) göndermez ve yanıtlanır.
 *   **İmajlarda sır yok:** İmajlarda yalnızca derlenmiş çıktı vardır. GitHub Packages'ın anahtarı derleyen makinede kalır; imajlar bu yüzden herkese açık olabilir.
 *   **Başlıklar:** `X-Content-Type-Options: nosniff` (tarayıcı bir dosyanın türünü tahmin etmez), `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN` (site başka bir sitenin çerçevesine konamaz), `server_tokens off` (nginx'in sürümü söylenmez).
-*   **HTTPS:** Traefik'te sonlanır. `Strict-Transport-Security` ve bir içerik güvenliği politikası (CSP) şimdilik yok: ilki alan adı HTTPS'te doğrulandıktan sonra, ikincisi Wasm'ın ve sayfalardaki satır içi betiğin gerektirdikleri çıkarıldıktan sonra eklenir.
+*   **HTTPS:** Traefik'te sonlanır. nginx, yığın HTTPS'te sunuluyorsa `Strict-Transport-Security: max-age=300` gönderir: tarayıcı siteye beş dakika boyunca yalnızca HTTPS'le gelir. Kısa süre bir denemedir; alan adının HTTPS'i bir süre sorunsuz görülünce bir haftaya, sonra bir yıla çıkar. Düz HTTP'de, lokalde, başlık gönderilmez (`05-site-address.envsh`'in `SITE_HSTS`'i).
+*   **İçerik güvenliği politikası (CSP):** şimdilik yalnızca raporlanır (`Content-Security-Policy-Report-Only`): hiçbir şeyi engellemez, tarayıcı uymayanı konsoluna yazar. Sayfanın yükleyebildikleri:
+    *   **betik:** sitenin kendisi, WebAssembly'si (`'wasm-unsafe-eval'`) ve her sayfadaki tek satır içi betik, karmasıyla. `check.sh` karmanın sayfadakiyle aynı olduğunu denetler;
+    *   **stil:** sitenin kendisi ve Compose'un tuvalinin gölge köküne yazdığı stil (`'unsafe-inline'`): Compose'la değiştiği için karmayla tutulmaz;
+    *   **bağlantı:** sitenin kendisi, GitHub'ın API'si (indirme sayfası) ve `fonts.gstatic.com`: Compose for Web, sitenin yazı tiplerinde olmayan bir karakter için oradan bir Noto yazı tipi indirir (Symbols 2, Math, Arabic görüldü);
+    *   **çerçeve:** yalnızca site kendini çerçeveleyebilir (`frame-ancestors 'self'`).
+
+    Yirmi sayfada ve aramada hiç rapor çıkmadı; canlıda bir süre rapor çıkmazsa politika `Content-Security-Policy` olarak uygulanır.
 
 ## 10. Seçilmeyen Yollar
 

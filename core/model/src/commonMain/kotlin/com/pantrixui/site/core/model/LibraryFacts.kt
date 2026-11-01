@@ -18,6 +18,19 @@ object LibraryFacts {
     /** The library's first version, the one every component came in, as a component's page says. */
     const val VERSION: String = "0.1.0"
 
+    /**
+     * The library's latest release, which the site's lines install and the files for coding assistants come from:
+     * raised with each release. The site's server needs `PantrixMcp.http()`, which came in 0.1.0-alpha03, so the site
+     * goes online with that release or a later one.
+     */
+    const val RELEASE: String = "0.1.0-alpha03"
+
+    /** The repository the library is distributed from: its packages, its releases and Claude Code's plugin for it. */
+    const val PACKAGES_REPOSITORY: String = "develappsancho/pantrix-ui-cmp-package"
+
+    /** Where the site serves the library's MCP server over HTTP, which an assistant is given instead of the jar. */
+    const val MCP_ADDRESS: String = "https://pantrixui.com/mcp"
+
     /** The version the roadmap plans after the first, which the changelog's foot leads to. */
     const val PLANNED_VERSION: String = "0.2.0"
 

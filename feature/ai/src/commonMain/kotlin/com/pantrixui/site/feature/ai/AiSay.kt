@@ -1,6 +1,7 @@
 package com.pantrixui.site.feature.ai
 
 import com.pantrixui.site.core.designsystem.BySize
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.TokenKind
 import com.pantrixui.site.core.model.Words
 
@@ -136,19 +137,21 @@ internal object AiSay {
             Words("The MCP server", "MCP sunucusu"),
             BySize(
                 Words(
-                    "One jar that runs by itself. The assistant chooses what to ask and takes only what it needs.",
-                    "Kendi başına çalışan tek bir jar. Asistan ne soracağını seçer ve yalnızca gerekeni alır."
+                    "At this site's address, or in one jar that runs by itself. The assistant chooses what to ask " +
+                        "and takes only what it needs.",
+                    "Bu sitenin adresinde ya da kendi başına çalışan tek bir jar'da. Asistan ne soracağını seçer ve " +
+                        "yalnızca gerekeni alır."
                 ),
                 tablet = Words(
-                    "One jar that runs by itself; the assistant takes only what it needs.",
-                    "Kendi başına çalışan tek bir jar; asistan yalnızca gerekeni alır."
+                    "At an address or in one jar; the assistant takes only what it needs.",
+                    "Bir adreste ya da tek bir jar'da; asistan yalnızca gerekeni alır."
                 ),
                 phone = Words(
-                    "One jar; the assistant takes only what it needs.",
-                    "Tek bir jar; asistan yalnızca gerekeni alır."
+                    "An address or a jar; it takes only what it needs.",
+                    "Bir adres ya da jar; yalnızca gerekeni alır."
                 )
             ),
-            "com.pantrixui:mcp:all"
+            LibraryFacts.MCP_ADDRESS.substringAfter("://")
         ),
         Way(
             "SK",
@@ -169,7 +172,7 @@ internal object AiSay {
                     "Kurallar ve bir ekranı yazmanın adımları."
                 )
             ),
-            "skills/pantrix-ui/SKILL.md"
+            "pantrix-ui@pantrix-ui"
         ),
         Way(
             "txt",

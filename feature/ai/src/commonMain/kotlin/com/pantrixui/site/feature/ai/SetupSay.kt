@@ -5,39 +5,45 @@ import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.TokenKind
 import com.pantrixui.site.core.model.Words
 
-/** The version of the server's jar the setups name. */
-private const val JAR_VERSION = LibraryFacts.VERSION
+/** The version of the server's jar the setups name: the latest release's, attached to it. */
+private const val JAR_VERSION = LibraryFacts.RELEASE
 
 /** The server's jar by its name alone. */
 private const val JAR = "mcp-$JAR_VERSION-all.jar"
 
-/** The server's jar where Maven puts it on a machine. */
-private const val MAVEN_JAR = "~/.m2/repository/com/pantrixui/mcp/$JAR_VERSION/$JAR"
+/** Where the site serves the server. */
+private const val ADDRESS = LibraryFacts.MCP_ADDRESS
+
+/** The index of every document, where the site serves it. */
+private const val LLMS = "https://pantrixui.com/llms.txt"
+
+/** The address with no scheme, as a sentence names it. */
+private val SHORT_ADDRESS = ADDRESS.substringAfter("://")
 
 /** The words of the page's setup, in each language and each size: its steps and each assistant's lines. */
 internal object SetupSay {
     val SetupTitle = BySize(Words("Set it up in a minute", "Bir dakikada kur"), phone = Words("Set it up", "Kur"))
     val SetupLead = BySize(
         Words(
-            "The server runs on JDK 17 or newer, and the client starts it itself over stdio. The skill goes where " +
-                "the assistant reads its skills.",
-            "Sunucu JDK 17 ya da üstünde çalışır ve istemci onu stdio üzerinden kendisi başlatır. Beceri, " +
-                "asistanın becerilerini okuduğu yere gider."
+            "The server answers at $SHORT_ADDRESS, so an assistant needs nothing but the address. Its jar runs it on " +
+                "your own machine instead, on JDK 17 or newer.",
+            "Sunucu $SHORT_ADDRESS adresinde cevap verir; bir asistana adresten başkası gerekmez. Jar'ı onu kendi " +
+                "makinende de çalıştırır, JDK 17 ya da üstünde."
         ),
         tablet = Words(
-            "JDK 17 or newer; the client starts the server itself over stdio.",
-            "JDK 17 ya da üstü; istemci sunucuyu stdio üzerinden kendisi başlatır."
+            "An assistant needs only the address; the jar runs the server on your machine.",
+            "Asistana yalnızca adres gerekir; jar sunucuyu kendi makinende çalıştırır."
         ),
         phone = Words(
-            "JDK 17 or newer; the client starts the server over stdio.",
-            "JDK 17 ya da üstü; istemci sunucuyu stdio üzerinden başlatır."
+            "The address is all an assistant needs.",
+            "Bir asistana adres yeter."
         )
     )
 
     /** The steps of the setup, a desktop's alone: words, then a name of the code where one ends them. */
     val Steps = listOf(
-        Words("Take the jar, ", "Jar'ı al, ") to JAR,
-        Words("Name it in your assistant's settings.", "Asistanının ayarlarında ona yer ver.") to null,
+        Words("Give your assistant the address, ", "Asistanına adresi ver: ") to SHORT_ADDRESS,
+        Words("Or take the jar from a release, ", "Ya da jar'ı bir sürümden al: ") to JAR,
         Words(
             "Write the skill into the project, so the team gets it through git.",
             "Beceriyi projeye yaz, ekip git'ten alsın."
@@ -48,7 +54,10 @@ internal object SetupSay {
         ) to null
     )
     val Fewer = Words("Fewer tools, fewer wrong turns. ", "Daha az araç, daha az yanlış dönüş. ")
-    val FewerEnd = Words(" opens the server with those two alone.", " sunucuyu yalnızca o ikisiyle açar.")
+    val FewerEnd = Words(
+        " opens the jar's server with those two alone.",
+        " jar'ın sunucusunu yalnızca o ikisiyle açar."
+    )
 
     /** The assistants' setups; a phone leaves out the last. */
     val Clients = listOf(
@@ -56,8 +65,8 @@ internal object SetupSay {
             BySize(Words("Claude Code", "Claude Code")),
             BySize(
                 Words(
-                    "Then /mcp lists pantrix-ui as connected, and /skills lists the skill.",
-                    "Sonra /mcp pantrix-ui'yi bağlı gösterir, /skills de beceriyi."
+                    "Then /mcp lists pantrix-ui as connected, and /skills lists the plugin's skill.",
+                    "Sonra /mcp pantrix-ui'yi bağlı gösterir, /skills de eklentinin becerisini."
                 ),
                 tablet = Words(
                     "Then /mcp lists pantrix-ui, and /skills lists the skill.",
@@ -67,26 +76,33 @@ internal object SetupSay {
             ),
             BySize(
                 listOf(
-                    SetupLine(comment = Words("# The server", "# Sunucu")),
-                    SetupLine("claude mcp add pantrix-ui -- java -jar $MAVEN_JAR"),
+                    SetupLine(comment = Words("# The server, by its address", "# Sunucu, adresiyle")),
+                    SetupLine("claude mcp add -t http pantrix-ui $ADDRESS"),
                     SetupLine(),
-                    SetupLine(comment = Words("# The skill, into the project", "# Beceri, projeye")),
-                    SetupLine("java -jar $JAR skill .claude/skills")
+                    SetupLine(
+                        comment = Words("# The skill, with Pantrix UI's plugin", "# Beceri, Pantrix UI'ın eklentisiyle")
+                    ),
+                    SetupLine("claude plugin marketplace add ${LibraryFacts.PACKAGES_REPOSITORY}"),
+                    SetupLine("claude plugin install pantrix-ui@pantrix-ui")
                 ),
                 tablet = listOf(
                     SetupLine(comment = Words("# The server", "# Sunucu")),
-                    SetupLine("claude mcp add pantrix-ui -- java -jar $JAR"),
-                    SetupLine(),
-                    SetupLine(comment = Words("# The skill, into the project", "# Beceri, projeye")),
-                    SetupLine("java -jar $JAR skill .claude/skills")
+                    SetupLine("claude mcp add -t http pantrix-ui \\"),
+                    SetupLine("  $ADDRESS"),
+                    SetupLine(comment = Words("# The skill, with the plugin", "# Beceri, eklentiyle")),
+                    SetupLine("claude plugin marketplace add \\"),
+                    SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY}"),
+                    SetupLine("claude plugin install pantrix-ui@pantrix-ui")
                 ),
                 phone = listOf(
-                    SetupLine("claude mcp add pantrix-ui \\"),
-                    SetupLine("  -- java -jar $JAR"),
+                    SetupLine("claude mcp add -t http \\"),
+                    SetupLine("  pantrix-ui $ADDRESS"),
                     SetupLine(),
-                    SetupLine(comment = Words("# the skill, into the project", "# beceri, projeye")),
-                    SetupLine("java -jar $JAR \\"),
-                    SetupLine("  skill .claude/skills")
+                    SetupLine(comment = Words("# the skill, with the plugin", "# beceri, eklentiyle")),
+                    SetupLine("claude plugin marketplace add \\"),
+                    SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY}"),
+                    SetupLine("claude plugin install \\"),
+                    SetupLine("  pantrix-ui@pantrix-ui")
                 )
             )
         ),
@@ -97,10 +113,13 @@ internal object SetupSay {
             ),
             BySize(
                 Words(
-                    "Any client that reads an mcpServers field takes the same entry.",
-                    "mcpServers alanını okuyan her istemci aynı girdiyi alır."
+                    "Any client that reads an mcpServers field runs the jar, attached to each release.",
+                    "mcpServers alanını okuyan her istemci, her sürüme ekli jar'ı çalıştırır."
                 ),
-                tablet = Words("Any client that reads an mcpServers field.", "mcpServers alanını okuyan her istemci."),
+                tablet = Words(
+                    "Any client with an mcpServers field; the jar is on each release.",
+                    "mcpServers alanı olan her istemci; jar her sürüme eklidir."
+                ),
                 phone = Words("Any client with an mcpServers field.", "mcpServers alanı olan her istemci.")
             ),
             BySize(
@@ -134,34 +153,34 @@ internal object SetupSay {
             BySize(Words("A team’s repository", "Bir ekibin deposu"), tablet = Words("A team", "Bir ekip")),
             BySize(
                 Words(
-                    "The file goes into git, the jar’s path does not: each machine sets PANTRIX_MCP_JAR.",
-                    "Dosya git'e girer, jar'ın yolu girmez: her makine PANTRIX_MCP_JAR'ı kendisi tanımlar."
+                    "Both go into git, and no machine needs the jar to use the server.",
+                    "İkisi de git'e girer; sunucuyu kullanmak için hiçbir makineye jar gerekmez."
                 ),
                 tablet = Words(
-                    "The file goes into git; each machine sets PANTRIX_MCP_JAR.",
-                    "Dosya git'e girer; her makine PANTRIX_MCP_JAR'ı tanımlar."
+                    "Both go into git; no machine needs the jar.",
+                    "İkisi de git'e girer; hiçbir makineye jar gerekmez."
                 ),
-                phone = Words("Each machine sets PANTRIX_MCP_JAR.", "Her makine PANTRIX_MCP_JAR'ı tanımlar.")
+                phone = Words("The file goes into git.", "Dosya git'e girer.")
             ),
             BySize(
                 listOf(
                     SetupLine(comment = Words("# .mcp.json at the app’s root", "# Uygulamanın kökünde .mcp.json")),
                     SetupLine("{ \"mcpServers\": { \"pantrix-ui\": {"),
-                    SetupLine("    \"command\": \"java\", \"args\": [\"-jar\", \"\${PANTRIX_MCP_JAR}\"] } } }"),
+                    SetupLine("    \"type\": \"http\", \"url\": \"$ADDRESS\" } } }"),
                     SetupLine(),
-                    SetupLine(comment = Words("# in each machine’s shell profile", "# her makinenin kabuk profilinde")),
-                    SetupLine("export PANTRIX_MCP_JAR=\$HOME${MAVEN_JAR.removePrefix("~")}")
+                    SetupLine(comment = Words("# The skill, into the project", "# Beceri, projeye")),
+                    SetupLine("java -jar $JAR skill .claude/skills")
                 ),
                 tablet = listOf(
                     SetupLine(comment = Words("# .mcp.json at the app’s root", "# Uygulamanın kökünde .mcp.json")),
                     SetupLine("{ \"mcpServers\": { \"pantrix-ui\": {"),
-                    SetupLine("    \"command\": \"java\", \"args\": [\"-jar\", \"\${PANTRIX_MCP_JAR}\"] } } }")
+                    SetupLine("    \"type\": \"http\", \"url\": \"$ADDRESS\" } } }")
                 ),
                 phone = listOf(
                     SetupLine(comment = Words("# .mcp.json, in git", "# .mcp.json, git'te")),
                     SetupLine("{ \"mcpServers\": { \"pantrix-ui\": {"),
-                    SetupLine("  \"command\": \"java\","),
-                    SetupLine("  \"args\": [\"-jar\", \"\${PANTRIX_MCP_JAR}\"]"),
+                    SetupLine("  \"type\": \"http\","),
+                    SetupLine("  \"url\": \"$ADDRESS\""),
                     SetupLine("} } }")
                 )
             )
@@ -182,18 +201,25 @@ internal object SetupSay {
                 listOf(
                     SetupLine(
                         comment = Words(
-                            "# Every document, as a site serves them",
-                            "# Bir sitenin sunduğu gibi bütün belgeler"
+                            "# Every document, its links leading to this site",
+                            "# Bütün belgeler, bağlantıları bu siteye giden"
                         )
                     ),
-                    SetupLine("java -jar $JAR docs ./pantrix-docs"),
+                    SetupLine(LLMS, kind = TokenKind.Keyword),
                     SetupLine(),
-                    SetupLine(comment = Words("# Then give the assistant", "# Sonra asistana ver")),
-                    SetupLine("pantrix-docs/llms.txt", kind = TokenKind.Keyword)
+                    SetupLine(
+                        comment = Words("# Or on your machine, from the jar", "# Ya da kendi makinende, jar'dan")
+                    ),
+                    SetupLine("java -jar $JAR docs ./pantrix-docs")
                 ),
                 tablet = listOf(
-                    SetupLine("java -jar $JAR docs ./pantrix-docs"),
-                    SetupLine(comment = Words("# then: pantrix-docs/llms.txt", "# sonra: pantrix-docs/llms.txt"))
+                    SetupLine(LLMS, kind = TokenKind.Keyword),
+                    SetupLine(
+                        comment = Words(
+                            "# or: java -jar … docs ./pantrix-docs",
+                            "# ya da: java -jar … docs ./pantrix-docs"
+                        )
+                    )
                 )
             ),
             onPhone = false

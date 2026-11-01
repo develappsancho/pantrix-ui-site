@@ -7,30 +7,25 @@ section: Getting started
 ## What an assistant is given {#documents}
 
 :::table The documents
-- `com.pantrixui:mcp`: The MCP server: one jar that runs by itself and answers an assistant's questions over stdio
+- `pantrixui.com/mcp`: The MCP server, which this site serves over HTTP: an assistant is given its address alone
+- `mcp-0.1.0-alpha03-all.jar`: The same server as one jar that runs by itself, attached to each release, for a machine of your own
 - `pantrix-ui` skill: The rules code written with Pantrix keeps, Material's names and Pantrix's, and how the parts fit
-- `llms.txt`, `llms-full.txt`: The index of the documents, and all of them in one file
+- `llms.txt`, `llms-full.txt`: The index of the documents, and all of them in one file, at this site's root
 - `pantrix-ui.json`: The library as data: every component, its parameters, its examples and its tags
 :::
 
 ## Set it up {#setup}
 
 :::steps
-## Publish the library and the server {#publish toc="The server"}
+## Give the assistant the server {#server toc="The server"}
 
-The server's jar is published with the library, as `com.pantrixui:mcp` with the classifier `all`. Each machine keeps where it stands in a variable of its own:
-
-```bash ~/.zshrc
-export PANTRIX_MCP_JAR=$HOME/.m2/repository/com/pantrixui/mcp/0.1.0/mcp-0.1.0-all.jar
-```
-
-## Give the server to the assistant {#server toc="The assistant"}
+The server answers at `https://pantrixui.com/mcp`, so the assistant needs nothing but its address.
 
 :::tabs
 ### Claude Code
 
 ```bash
-claude mcp add pantrix-ui -- java -jar "$PANTRIX_MCP_JAR"
+claude mcp add -t http pantrix-ui https://pantrixui.com/mcp
 ```
 
 ### A project's .mcp.json
@@ -39,8 +34,8 @@ claude mcp add pantrix-ui -- java -jar "$PANTRIX_MCP_JAR"
 {
   "mcpServers": {
     "pantrix-ui": {
-      "command": "java",
-      "args": ["-jar", "${PANTRIX_MCP_JAR}"]
+      "type": "http",
+      "url": "https://pantrixui.com/mcp"
     }
   }
 }
@@ -49,11 +44,33 @@ claude mcp add pantrix-ui -- java -jar "$PANTRIX_MCP_JAR"
 
 ## Install the skill {#skill toc="The skill" optional}
 
-The skill says what to do; the server says what the library is today. The two together are best.
+The skill says what to do; the server says what the library is today. The two together are best. In Claude Code, Pantrix UI's plugin brings the skill, from the repository the library is distributed from:
 
 ```bash
-java -jar "$PANTRIX_MCP_JAR" skill .claude/skills
+claude plugin marketplace add develappsancho/pantrix-ui-cmp-package
+claude plugin install pantrix-ui@pantrix-ui
 ```
+
+## Or run the server on your machine {#jar toc="The jar" optional}
+
+The jar is attached to [each release](https://github.com/develappsancho/pantrix-ui-cmp-package/releases), and after `./gradlew publishToMavenLocal` in the library's repository it stands in the local Maven repository too: `~/.m2/repository/com/pantrixui/mcp/<version>/`. It runs on JDK 17 or newer. It writes the skill into a project too, which the team then gets through git, and which any assistant that reads skills takes:
+
+```bash
+curl -fL --create-dirs -o ~/.pantrix/mcp-0.1.0-alpha03-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.1.0-alpha03/mcp-0.1.0-alpha03-all.jar
+claude mcp add pantrix-ui -- java -jar ~/.pantrix/mcp-0.1.0-alpha03-all.jar
+java -jar ~/.pantrix/mcp-0.1.0-alpha03-all.jar skill .claude/skills
+```
+:::
+
+## Where the files are {#files}
+
+:::table Where to find them
+| What | Where |
+| :--- | :--- |
+| The MCP server | `https://pantrixui.com/mcp`, `mcp-0.1.0-alpha03-all.jar` on [the release](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.1.0-alpha03), or the local Maven repository after a local publish |
+| The skill | Claude Code's plugin `pantrix-ui@pantrix-ui`, `pantrix-ui-skill-0.1.0-alpha03.zip` on the release, or the jar's `skill` command |
+| `llms.txt` | [pantrixui.com/llms.txt](https://pantrixui.com/llms.txt): its links lead to this site's pages, and what has no page is under `/llms/` |
+| Every document, on your machine | `java -jar mcp-0.1.0-alpha03-all.jar docs <folder>` |
 :::
 
 ## What it can ask {#tools}
@@ -69,7 +86,7 @@ java -jar "$PANTRIX_MCP_JAR" skill .claude/skills
 :::
 
 :::callout
-**The server needs a JDK 17 or newer.** The client starts the jar itself and speaks to it over stdio: nothing but the protocol is written to its standard output.
+**The jar needs a JDK 17 or newer; the address needs nothing.** A client starts the jar itself and speaks to it over stdio, and nothing but the protocol is written to its standard output. Over HTTP each request is answered on its own, with no session.
 :::
 
 ## Where next {#next}

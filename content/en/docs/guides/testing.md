@@ -14,7 +14,7 @@ Everything said about Compose was read in the sources of Compose Multiplatform 1
 *   The same screen test passes on the developer's Mac and fails on CI: the machine's language, dark mode, font scale, operating system (does a shortcut start with ⌘ or with Ctrl) and time zone differ.
 *   A test that presses "Copy" writes over the text on the clipboard of the person running the test. On the desktop, a test that presses "Choose a file" opens the system's file window and waits there.
 *   A date picker's test fails on the first day of the month, or at midnight. A chart's time axis tells other hours on CI (UTC) than on the developer's machine (UTC+3).
-*   A test that checks accessibility passes, but there is a button with no name on the screen: the diagnostics report it half a second later, and by then the test has long ended.
+*   A test that checks accessibility passes, but there is a button with no name on the screen: the diagnostics report it on the next frame, and by then the test has long ended.
 *   On Android `runComposeUiTest` says "Unable to resolve activity for Intent … ComponentActivity": Robolectric does not start an activity a manifest does not declare.
 *   A Maestro flow never finds the tag on Android; on iOS it does. On the web it finds neither the tag nor the text.
 :::
@@ -25,7 +25,7 @@ Everything said about Compose was read in the sources of Compose Multiplatform 1
 *   **The theme reads its defaults from the device.** That is right for an app: the system's language, dark mode, font scale, reduce-motion setting and operating system. For a test, each is an input bound to the machine.
 *   **Compose's test clipboard is the system's.** `LocalClipboard` gives the machine's clipboard in a test too; `rememberFilePicker()` opens the platform's picker.
 *   **The clock is the device's.** Today is read from `Clock.System` and from the device's UTC offset (`systemUtcOffset`).
-*   **Some findings come late.** The diagnostics report what layout finds (the same tag on two nodes, a squeezed touch target) once it has lasted half a second: a transition shows two pages together for a few frames.
+*   **Some findings come late.** The diagnostics report a squeezed touch target once it has lasted half a second, the same tag on two nodes once it has lasted a second and a half: a page transition shows two pages together for as long as it lasts (700 ms on Android).
 *   **Robolectric starts only an activity a manifest declares.** androidx's `ui-test-manifest` declares this activity, but it comes with androidx Compose's version, not with Compose Multiplatform's.
 *   **Device automation reads the platform's accessibility tree.** On Android a tag becomes a `resource-id` only while `testTagsAsResourceId` is on; on iOS Compose makes `testTag` an `accessibilityIdentifier` itself. On the web Compose draws on a canvas; the semantics tree has a hidden DOM mirror, but it is inside a shadow root (section 8).
 
@@ -53,7 +53,7 @@ The test module `ui/testing` is published as `com.pantrixui:testing`; its packag
 kotlin {
     sourceSets {
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.0-SNAPSHOT")
+            implementation("com.pantrixui:testing:0.1.0-alpha03-SNAPSHOT")
             implementation(kotlin("test"))
         }
         // runComposeUiTest really draws on the desktop: the test JVM needs this machine's Skiko.
@@ -87,7 +87,7 @@ onPantrixNode("Segment", "newest", scope = "SegmentButton_sort") // a control's 
 
 *   **The key is written the same as in the screen's code.** `pantrixTestTagOf` builds the tag; `rememberPantrixTestTag` builds a keyed tag with it too. `"Save draft"` and `"save_draft"` are the same tag.
 *   **If no scope is given, the tag has no scope.** A component in a `TestScope` is found by writing its scope; the scope is the whole chain (`Checkout.Payment`, not `Checkout`).
-*   **A page is a scope.** A `PantrixPageScaffold` given a `tagKey` puts what the app gives it inside `TestScope(tagKey)`: a button tagged `save` on the page `orders` is found as `orders.Button_save`. The page's own parts are not inside it: its bar is `TopBar_orders`, an action `PageScaffold_orders.Action_export`. While one page gives way to another, and while a back gesture is held on iOS, the two pages stand together: the same button on every page's bar is found twice, and when that lasts over half a second the diagnostics report it as `DuplicateTestTag`. Give each page a `tagKey`, or put the buttons every page carries in a `TestScope` named after the page they stand on: the demo says `overview.Button_language`.
+*   **A page is a scope.** A `PantrixPageScaffold` given a `tagKey` puts what the app gives it inside `TestScope(tagKey)`: a button tagged `save` on the page `orders` is found as `orders.Button_save`. The page's own parts are not inside it: its bar is `TopBar_orders`, an action `PageScaffold_orders.Action_export`. While one page gives way to another, and while a back gesture is held on iOS, the two pages stand together: the same button on every page's bar is found twice, and when that lasts over a second and a half, as a back gesture held still can, the diagnostics report it as `DuplicateTestTag`. Give each page a `tagKey`, or put the buttons every page carries in a `TestScope` named after the page they stand on: the demo says `overview.Button_language`.
 *   **If no key is given**, all the component's nodes in that scope are found, the one built without a key too (`Button#1k3z9`). A component with a longer name (`ButtonGroup`) and a part inside a control are not counted.
 *   **A part is inside the control's tag.** The part of a control with a key is `Control_key.Part_key`: `scope` is the control's tag. The part of a control with no key carries only its own tag.
 *   **`pantrixTags()`** shows what is looked for while a new screen's test or a Maestro flow is being written: `println(pantrixTags().joinToString("\n"))`. A tag of another form, like the app's own `Modifier.testTag("login")`, is not in the list. By default it looks at every node's own tree (`useUnmergedTree = true`): the contents a button merges show too.
@@ -169,7 +169,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 :::table
 | API | What it asserts |
 | :--- | :--- |
-| `assertNoFindings(findings)` | The diagnostics found nothing: a control with no name, an unreadable colour, a squeezed touch target, one tag on two nodes. It first moves the test's clock past half a second, then looks; if it fails, it names each finding |
+| `assertNoFindings(findings)` | The diagnostics found nothing: a control with no name, an unreadable colour, a squeezed touch target, one tag on two nodes. It first moves the test's clock past a second and a half, then looks; if it fails, it names each finding |
 | `assertHasName(name)` | The name the screen reader gives the node: its content description, or else its text |
 | `assertTouchTargetOf(platform)` | The area a finger can press is as large as the platform asks: 48dp on Android, 44pt on iOS, 32dp with a mouse on the desktop and the web. What is measured is the region that takes the press, not what is drawn |
 | `performShortcut(shortcut, system)` | Presses the shortcut as that system's keyboard does: with Command on Apple's systems, with Control on the others. That the screen too is written for that system is said by `PantrixTestTheme(system = …)` |
@@ -229,7 +229,7 @@ The demo's `MaestroFlowsTest` (JVM) checks that the flows keep up with the catal
 :::table
 | How | Command |
 | :--- | :--- |
-| By hand | `maestro test -e APP_ID=com.pantrixui.cmp.demo --exclude-tags fold app/maestro` (on iOS the bundle identifier carries the team identifier: `com.pantrixui.cmp.demo.PantrixUI<TEAM_ID>`) |
+| By hand | On Android's debug build `maestro test -e APP_ID=com.pantrixui.cmp.demo.debug -e LINK_SCHEME=pantrixui-debug --exclude-tags fold app/maestro`; on iOS the bundle identifier, which carries the team identifier (`com.pantrixui.cmp.demo.PantrixUI<TEAM_ID>`), and no `LINK_SCHEME` |
 | Android, Gradle | `./gradlew :app:androidApp:maestroTest`: installs the debug build on that device alone and runs the flows |
 | iOS, Gradle | `./gradlew :app:shared:maestroIosTest`: builds the app with Xcode for the open simulator, installs it and runs the flows |
 | One section | `./gradlew :app:androidApp:maestroTest -Pmaestro.flows=flows/form` |
@@ -317,7 +317,7 @@ Each behaviour was broken once, and the test was seen to turn red (section 8). T
 
 ## 7. Pitfalls {#pitfalls}
 
-*   **`waitForIdle` advances the test's clock.** While the clock advances by itself (`mainClock.autoAdvance`, the default), a half-second finding comes in `waitForIdle`. In a test that drives the clock by hand it does not come: `assertNoFindings` advances the clock itself, a look written by hand does not.
+*   **`waitForIdle` advances the test's clock.** While the clock advances by itself (`mainClock.autoAdvance`, the default), a finding that waits comes in `waitForIdle`. In a test that drives the clock by hand it does not come: `assertNoFindings` advances the clock itself, a look written by hand does not.
 *   **A clock test that uses the same offset as the device's shows nothing.** On a machine at UTC+3, a test written with `{ 3.hours }` passes on a chart that does not read the screen's clock too. Reading with two offsets (Istanbul and New York) prevents this.
 *   **A local given from outside the theme loses to the theme's.** `PantrixTestTheme` gives the clipboard and its traits, the operating system, the font scale and the file picker itself; a test that gives these from outside the theme does not get its value to the screen (`CompositionLocalProvider(LocalClipboard provides …) { PantrixTestTheme { … } }`). They are given by parameter, or from inside the theme. A screen density and a clock given from outside do get through: the theme changes only the font scale, and the clock only when `clock` is given.
 *   **Compose's text field looks at the platform's clipboard.** It asks the clipboard's `nativeClipboard` whether there is something to paste: on the desktop while the right-click menu opens, on iOS at every focus. A clipboard that does not give it fails with `NotImplementedError`, by the interface's default; on iOS every text field that takes the focus fails. `TestClipboard` gives its own AWT clipboard on the desktop and its own named pasteboard on iOS; a clipboard a test writes itself must give one too.
@@ -349,7 +349,7 @@ Each behaviour was broken once, and the test was seen to turn red (section 8). T
 | What | Where |
 | :--- | :--- |
 | Finding: the key and its cutting, the scope chain, finding with no key, the parts, the screen's tags and the merged tree | `ui/testing/src/commonTest/.../PantrixTagsTest.kt` (JVM, iOS, JS, Wasm) |
-| The theme: the defaults, what is given, Windows on the desktop and the web, the window and keeping the state, the clipboard and a text field that takes the focus over it, the picker, the clock, the diagnostics, the half-second finding, every platform | `PantrixTestThemeTest` |
+| The theme: the defaults, what is given, Windows on the desktop and the web, the window and keeping the state, the clipboard and a text field that takes the focus over it, the picker, the clock, the diagnostics, the finding that waits, every platform | `PantrixTestThemeTest` |
 | The doubles: analytics, haptic feedback, the picker's answers, the clock, the clipboard (hard texts included) and an unwritable clipboard | `TestDoublesTest` |
 | The assertions: the name, the text, the touch target, the shortcut | `PantrixAssertionsTest` |
 | The platform's clipboard on the desktop: it keeps the last copy, empties when cleared, and every test's clipboard is its own | `ui/testing/src/jvmTest/.../TestClipboardOnTheDesktopTest.kt` |

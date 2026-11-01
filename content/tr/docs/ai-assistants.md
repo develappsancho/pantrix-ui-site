@@ -7,30 +7,25 @@ section: Başlarken
 ## Bir asistana verilenler {#documents}
 
 :::table Belgeler
-- `com.pantrixui:mcp`: MCP sunucusu: kendi başına çalışan ve bir asistanın sorularını stdio üzerinden yanıtlayan tek bir jar
+- `pantrixui.com/mcp`: Bu sitenin HTTP üzerinden sunduğu MCP sunucusu: bir asistana yalnızca adresi verilir
+- `mcp-0.1.0-alpha03-all.jar`: Aynı sunucu, kendi başına çalışan tek bir jar olarak; her sürüme ekli, kendi makinen için
 - `pantrix-ui` becerisi: Pantrix ile yazılan kodun uyduğu kurallar, Material'ın adları ve Pantrix'inkiler, parçaların birbirine nasıl oturduğu
-- `llms.txt`, `llms-full.txt`: Belgelerin dizini ve hepsi tek bir dosyada
+- `llms.txt`, `llms-full.txt`: Belgelerin dizini ve hepsi tek bir dosyada, bu sitenin kökünde
 - `pantrix-ui.json`: Veri olarak kütüphane: her bileşen, parametreleri, örnekleri ve etiketleri
 :::
 
 ## Kurmak {#setup}
 
 :::steps
-## Kütüphaneyi ve sunucuyu yayımla {#publish toc="Sunucu"}
+## Sunucuyu asistana ver {#server toc="Sunucu"}
 
-Sunucunun jar'ı kütüphaneyle birlikte, `all` sınıflandırıcısıyla `com.pantrixui:mcp` olarak yayımlanır. Her makine onun yerini kendi değişkeninde tutar:
-
-```bash ~/.zshrc
-export PANTRIX_MCP_JAR=$HOME/.m2/repository/com/pantrixui/mcp/0.1.0/mcp-0.1.0-all.jar
-```
-
-## Sunucuyu asistana ver {#server toc="Asistan"}
+Sunucu `https://pantrixui.com/mcp` adresinde cevap verir; asistana adresinden başkası gerekmez.
 
 :::tabs
 ### Claude Code
 
 ```bash
-claude mcp add pantrix-ui -- java -jar "$PANTRIX_MCP_JAR"
+claude mcp add -t http pantrix-ui https://pantrixui.com/mcp
 ```
 
 ### Bir projenin .mcp.json'u
@@ -39,8 +34,8 @@ claude mcp add pantrix-ui -- java -jar "$PANTRIX_MCP_JAR"
 {
   "mcpServers": {
     "pantrix-ui": {
-      "command": "java",
-      "args": ["-jar", "${PANTRIX_MCP_JAR}"]
+      "type": "http",
+      "url": "https://pantrixui.com/mcp"
     }
   }
 }
@@ -49,11 +44,33 @@ claude mcp add pantrix-ui -- java -jar "$PANTRIX_MCP_JAR"
 
 ## Beceriyi kur {#skill toc="Beceri" optional}
 
-Beceri ne yapılacağını söyler; sunucu kütüphanenin bugün ne olduğunu söyler. İkisi birlikte en iyisidir.
+Beceri ne yapılacağını söyler; sunucu kütüphanenin bugün ne olduğunu söyler. İkisi birlikte en iyisidir. Claude Code'da beceriyi Pantrix UI'ın eklentisi getirir, kütüphanenin dağıtıldığı depodan:
 
 ```bash
-java -jar "$PANTRIX_MCP_JAR" skill .claude/skills
+claude plugin marketplace add develappsancho/pantrix-ui-cmp-package
+claude plugin install pantrix-ui@pantrix-ui
 ```
+
+## Ya da sunucuyu kendi makinende çalıştır {#jar toc="Jar" optional}
+
+Jar [her sürüme](https://github.com/develappsancho/pantrix-ui-cmp-package/releases) eklidir; kütüphanenin deposunda `./gradlew publishToMavenLocal`'dan sonra yerel Maven deposunda da durur: `~/.m2/repository/com/pantrixui/mcp/<sürüm>/`. JDK 17 ya da üstünde çalışır. Beceriyi bir projeye de yazar; ekip onu git'ten alır, becerileri okuyan her asistan da kullanır:
+
+```bash
+curl -fL --create-dirs -o ~/.pantrix/mcp-0.1.0-alpha03-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.1.0-alpha03/mcp-0.1.0-alpha03-all.jar
+claude mcp add pantrix-ui -- java -jar ~/.pantrix/mcp-0.1.0-alpha03-all.jar
+java -jar ~/.pantrix/mcp-0.1.0-alpha03-all.jar skill .claude/skills
+```
+:::
+
+## Dosyalar nerede {#files}
+
+:::table Nerede bulunur
+| Ne | Nerede |
+| :--- | :--- |
+| MCP sunucusu | `https://pantrixui.com/mcp`, [sürüme](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.1.0-alpha03) ekli `mcp-0.1.0-alpha03-all.jar` ya da yerel yayından sonra yerel Maven deposu |
+| Beceri | Claude Code'un `pantrix-ui@pantrix-ui` eklentisi, sürüme ekli `pantrix-ui-skill-0.1.0-alpha03.zip` ya da jar'ın `skill` komutu |
+| `llms.txt` | [pantrixui.com/llms.txt](https://pantrixui.com/llms.txt): bağlantıları bu sitenin sayfalarına gider, sayfası olmayanlar `/llms/` altındadır |
+| Bütün belgeler, kendi makinende | `java -jar mcp-0.1.0-alpha03-all.jar docs <klasör>` |
 :::
 
 ## Neleri sorabilir {#tools}
@@ -69,7 +86,7 @@ java -jar "$PANTRIX_MCP_JAR" skill .claude/skills
 :::
 
 :::callout
-**Sunucu JDK 17 ya da üstünü ister.** İstemci jar'ı kendisi başlatır ve onunla stdio üzerinden konuşur: standart çıktısına protokolden başka bir şey yazılmaz.
+**Jar JDK 17 ya da üstünü ister; adres hiçbir şey istemez.** İstemci jar'ı kendisi başlatır ve onunla stdio üzerinden konuşur; standart çıktısına protokolden başka bir şey yazılmaz. HTTP üzerinden her istek kendi başına, oturumsuz cevaplanır.
 :::
 
 ## Sırada ne var {#next}

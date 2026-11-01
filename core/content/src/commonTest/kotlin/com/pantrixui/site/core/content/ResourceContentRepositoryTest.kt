@@ -37,7 +37,8 @@ class ResourceContentRepositoryTest {
     fun the_changelog_and_the_guides_minutes_are_read_as_the_content_tool_wrote_them() = runTest {
         val english = repository.changelog(Language.English)
         val turkish = repository.changelog(Language.Turkish)
-        assertEquals("0.1.0", english.upcoming)
+        // The version of the library the site is built on, without -SNAPSHOT: it rises with the catalogue's.
+        assertEquals("0.1.0-alpha03", english.upcoming)
         assertEquals(english.releases.size, turkish.releases.size)
         assertTrue(english.releases.first().sections.isNotEmpty())
         assertTrue("keyboard-dismissal" in repository.guideMinutes())

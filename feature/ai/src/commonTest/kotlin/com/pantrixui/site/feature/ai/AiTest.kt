@@ -102,8 +102,8 @@ class AiTest {
     }
 
     @Test
-    fun each_setup_line_is_a_comment_or_code_and_every_setup_names_the_jar() {
-        val jar = "mcp-${LibraryFacts.VERSION}-all.jar"
+    fun each_setup_line_is_a_comment_or_code_and_every_setup_names_the_server_or_its_documents() {
+        val names = listOf("mcp-${LibraryFacts.RELEASE}-all.jar", LibraryFacts.MCP_ADDRESS, "/llms.txt")
         SiteLayout.entries.forEach { layout ->
             val clients = SetupSay.Clients.filter { layout != SiteLayout.Phone || it.onPhone }
             clients.forEach { client ->
@@ -112,9 +112,9 @@ class AiTest {
                     assertTrue(line.comment == null || line.code.isEmpty(), client.name.desktop.english)
                     line.comment?.let { assertTrue(it.english.startsWith("# ") && it.turkish.startsWith("# ")) }
                 }
-                // A team's setup names the jar by a variable each machine sets.
+                // The server by its address or its jar, or the documents without one.
                 assertTrue(
-                    lines.any { jar in it.code || "PANTRIX_MCP_JAR" in it.code },
+                    lines.any { line -> names.any { it in line.code } },
                     "$layout ${client.name.desktop.english}"
                 )
             }

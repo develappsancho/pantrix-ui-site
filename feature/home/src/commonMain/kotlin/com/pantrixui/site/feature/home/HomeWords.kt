@@ -33,7 +33,7 @@ internal object HomeSay {
     )
     val GetStarted = Words("Get started", "Başla")
     val Browse = Words("Browse 100 components", "100 bileşene göz at")
-    const val INSTALL = "implementation(\"com.pantrixui:components:${LibraryFacts.VERSION}\")"
+    const val INSTALL = "implementation(\"com.pantrixui:components:${LibraryFacts.RELEASE}\")"
     val Copy = Words("Copy", "Kopyala")
     val Copied = Words("Copied", "Kopyalandı")
     val CopyInstall = Words("Copy the dependency", "Bağımlılığı kopyala")

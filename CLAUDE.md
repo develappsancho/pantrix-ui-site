@@ -28,8 +28,11 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 - **Web fonts**: the library's fix for a typeface that arrives late (preloads in `index.html`, `PantrixTypefaceGate`).
 - **Local until done.** Pantrix comes from `mavenLocal`; publishing to GitHub Packages and the deploy (Coolify on a VPS)
   come at the end.
-- **A backend, if one is ever needed, is Spring Boot**, not Ktor.
-- **Nothing of yours in `.claude/`**; `local.properties` holds a token and is never copied or printed.
+- **Nothing of yours in `.claude/`**, but the library's skill `pantrix-ui` in `.claude/skills/` (owner, 2026-10-30):
+  the site is the library's first app, and is built with the skill and the MCP server an app is given (`.mcp.json`).
+  `local.properties` holds a token and is never copied or printed.
+- **A backend is Spring Boot**: `:server`, which serves the library's MCP server at `/mcp` (`PantrixMcp.http()`),
+  without the Ktor the MCP SDK brings.
 
 ## Project map
 
@@ -57,6 +60,8 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `tools/content` | Programs that run at build time or by hand. `MainKt`: `content/<language>/**.md` with the site's pieces (`:::steps`, `:::facts`, `:::aside`, `:::sketch`, …) to JSON, with the changelog and the components read from the `com.pantrixui:mcp` jar, and the search index. `LiveMainKt`: the examples the site runs, as Kotlin: the demo's, or the site's own where it writes some (`SiteExamples`). `GuidesMainKt`: the guide pages in `content/<language>/docs/guides/` from the library's guides in the jar (`GuidePages`), run by hand with `./gradlew :core:content:writeGuidePages`; `keyboard-dismissal` is written by hand and left as it is |
 | `tools/prerender` | Run after each web distribution: every page's static `index.html` in the folder of its address (its head, its other language, what a shared link shows, and its words as plain HTML, hidden where the browser runs the app), the `404.html`, `sitemap.xml`, `robots.txt`, and `llms.txt` with its links led to the site's pages |
 | `tools/render` | Draws the app with Compose on the JVM at build time: the landing pages' words read from their semantics (`LandingMainKt`; parts marked `Modifier.live()` and the controls are left out) and each page's share image (`ShareMainKt`); both run only when what they read has changed |
+| `server` | The site's server, Spring Boot on the JVM, which runs beside the site on its host: the library's MCP server over Streamable HTTP at `/mcp` (`McpEndpoint`, `PantrixMcp.http()`), its allowed origins in `application.properties` (`pantrix.mcp.origins`); `./gradlew :server:bootJar` makes the jar that runs by itself, on `PORT` or 8080 |
+| `.claude/skills/pantrix-ui`, `.mcp.json` | The library's skill and its MCP server, as an app of the library takes them: the skill written by the library's jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`), the server the same jar, which each machine names in `PANTRIX_MCP_JAR` (`~/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar`) |
 | `content` | The pages, in English and Turkish; `examples/<language>/<key>.md`: a component's examples the site writes itself, in place of the demo's (the data table's) |
 
 ## Checks
@@ -68,6 +73,9 @@ something surprising — flag it, even if it is unrelated to the task at hand.
   served as the host will: a file as it is, an address with a page its folder's `index.html` with no redirect, any
   other address `404.html` with a 404. The static pages are written into the same folder after the distribution; a
   browser with scripts off shows them.
+- The server: `./gradlew :server:test` asks every kind of MCP message over real HTTP.
+- When the library's version changes: `pantrix` in `gradle/libs.versions.toml`, `LibraryFacts.RELEASE` once it is
+  released, and the skill written again with the new jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`).
 - When the library's guides change: publish the library to `mavenLocal`, run `./gradlew :core:content:writeGuidePages`
   and look at the diff of `content/*/docs/guides/` before handing it over. A new guide needs its line in
   `GuideCatalogue` and its sketch in `GuideSketches` first.

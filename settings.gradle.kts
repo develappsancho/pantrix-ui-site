@@ -67,6 +67,9 @@ include(":feature:ai")
 include(":feature:roadmap")
 include(":feature:search")
 
+// The site's server, which runs beside it on its host: Pantrix UI's MCP server over HTTP, at /mcp.
+include(":server")
+
 // Programs that run at build time only.
 include(":tools:content")
 include(":tools:prerender")

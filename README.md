@@ -18,11 +18,15 @@ Pantrix UI comes from `mavenLocal`: publish it from the library's repository fir
 - Desktop: `./gradlew :app:desktopApp:run`
 - Android: `./gradlew :app:androidApp:installDebug`
 - iOS: open `app/iosApp` in Xcode and run the `app.iosApp` scheme.
+- The server, which serves Pantrix UI's MCP server at `/mcp`: `./gradlew :server:bootJar`, then
+  `PORT=8080 java -jar server/build/libs/server.jar`. An assistant is given its address:
+  `claude mcp add -t http pantrix-ui http://localhost:8080/mcp`.
 
 ## Checking it
 
 - `./gradlew detekt lintKotlin`
 - `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`
+- `./gradlew :server:test`
 
 ## The content
 
@@ -33,5 +37,15 @@ written from the library's guides: `./gradlew :core:content:writeGuidePages` aft
 A component's page shows the demo's examples, or the site's own where it has written some:
 `content/examples/<language>/<key>.md`, in the shape of the demo's pages, each example a title, what it says and its
 code. The build runs the code it shows, and draws the site's own examples as wide as their frame.
+
+## Coding assistants
+
+The site is built with what Pantrix UI gives an app's assistant: its skill in `.claude/skills/pantrix-ui`, and its MCP
+server in `.mcp.json`, which runs the library's jar from `PANTRIX_MCP_JAR`. Each machine sets it, in the shell's
+profile for example:
+
+```bash
+export PANTRIX_MCP_JAR=$HOME/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar
+```
 
 `CLAUDE.md` has the project's map and its rules.

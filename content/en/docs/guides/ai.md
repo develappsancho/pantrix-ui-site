@@ -66,13 +66,17 @@ Where the documents are to be served from a site, its address is given, and the 
 
 ### The MCP server
 
-An assistant reads the documents best from Pantrix's MCP server: it chooses what to ask, and takes only what it needs. The server is one jar that runs by itself, `mcp-<version>-all.jar`. It is published with the library, as `com.pantrixui:mcp` with the classifier `all`: after `./gradlew publishToMavenLocal` it is in `~/.m2/repository/com/pantrixui/mcp/<version>/` (the publishing guide, in Turkish). In this repository it is made with:
+An assistant reads the documents best from Pantrix's MCP server: it chooses what to ask, and takes only what it needs. The server is one jar that runs by itself, `mcp-<version>-all.jar`, and it is taken from one of three places:
 
-```bash
-./gradlew :ai:mcp:allJar
-```
+:::table
+| Where from | How |
+| :--- | :--- |
+| A release | A file attached to [each release](https://github.com/develappsancho/pantrix-ui-cmp-package/releases) of the package repository, which asks for no token: `https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v<version>/mcp-<version>-all.jar`. |
+| GitHub Packages | Published with the library, as `com.pantrixui:mcp` with the classifier `all`; reading it asks for a token that may read packages (`read:packages`) (the publishing guide, in Turkish). |
+| This repository | `./gradlew :ai:mcp:allJar` writes it to `ai/mcp/build/libs/mcp-<version>-all.jar`; after `./gradlew publishToMavenLocal` it is in `~/.m2/repository/com/pantrixui/mcp/<version>/`. |
+:::
 
-The jar is written to `ai/mcp/build/libs/mcp-<version>-all.jar`. An assistant's settings name the command that runs it. In Claude Code:
+An assistant's settings name the command that runs it. In Claude Code:
 
 ```bash
 claude mcp add pantrix-ui -- java -jar /path/mcp-<version>-all.jar
@@ -110,8 +114,57 @@ In a client that reads its settings from an `mcpServers` field (Claude Desktop, 
 *   **The tool filter:** `java -jar mcp-<version>-all.jar --tools search_components,get_component` opens the server with those tools alone. The fewer tools an assistant chooses between, the less often it chooses wrong.
 *   **Commands:** `java -jar mcp-<version>-all.jar docs <folder>` writes every document into the folder as a site would serve them; `skill <folder>` writes the skill into `<folder>/pantrix-ui` (`~/.claude/skills`, for example).
 *   **Standard output is the protocol's alone:** while the server runs, nothing but the protocol is written to its standard output, or a client fails on a line it cannot read. The SDK's logger (kotlin-logging) prints a line to the standard output at its first logger; the server turns that off and sends whatever writes to the standard output to the standard error. The protocol's test measures it (section 8).
-*   **As a library:** `com.pantrixui:mcp` without the classifier is the server's code and the documents, with its dependencies in its POM. A site that serves the same tools over HTTP takes it, and makes its server with `PantrixMcp.server()`.
+*   **As a library:** `com.pantrixui:mcp` without the classifier is the server's code and the documents, with its dependencies in its POM, MCP's Kotlin SDK among them. `PantrixMcp.server()` gives the SDK's server; a site that serves the same tools over HTTP uses `PantrixMcp.http()` (below).
 *   **The licences:** the jar carries the code of the libraries it runs on. `META-INF/LICENSE` is Pantrix's licence; `META-INF/THIRD-PARTY.md` names each library it bundles with its licence, and at its end each module with its version; the libraries' own licence files are under `META-INF/licenses/`. The build stops where the notice and what the jar bundles part (section 6).
+
+### Over HTTP
+
+A site serves the server too, at an address of its own (such as `https://pantrixui.com/mcp`). An assistant is then given the address alone, and the user's machine needs neither Java nor the jar:
+
+```bash
+claude mcp add --transport http pantrix-ui https://site-address/mcp
+```
+
+In a `.mcp.json`, or an `mcpServers` field, the entry takes `"type": "http"` and a `"url"`.
+
+On the site, `PantrixMcp.http()` gives the server: MCP's Streamable HTTP transport, bound to no web framework. The site's own server, Spring Boot, Ktor or a servlet, hands each request made to the address to `answer(method, headers, body)` and writes back the `Response` it gets (its status, headers and body) as it is. In Spring Boot (WebFlux, with `kotlinx-coroutines-reactor`):
+
+```kotlin
+@RestController
+class McpEndpoint {
+    private val mcp = PantrixMcp.http(origins = setOf("site-address"))
+
+    @RequestMapping("/mcp")
+    suspend fun answer(
+        request: ServerHttpRequest,
+        @RequestBody(required = false) body: String?
+    ): ResponseEntity<String> {
+        val answer = mcp.answer(request.method.name(), request.headers.toSingleValueMap(), body.orEmpty())
+        val response = ResponseEntity.status(answer.status)
+            .headers { headers -> answer.headers.forEach { (name, value) -> headers.set(name, value) } }
+        return if (answer.body.isEmpty()) response.build() else response.body(answer.body)
+    }
+}
+```
+
+*   **Stateless:** each POST is answered on its own, in a session of its own, which closes once it is answered. The answer is always JSON; there is no stream (SSE) and no `Mcp-Session-Id`. That is all a server that only answers needs, and two clients that ask at once with the same id never get each other's answer.
+*   **What is refused:** a GET and a DELETE with `405` and `Allow: POST` (the protocol allows it); an `Accept` that takes no JSON with `406`; a body that is not `application/json` with `415`; an `MCP-Protocol-Version` it does not support with `400`; a body it cannot read with `400` and `-32700`; a body over 64 KB with `413`. A refusal is a message of the protocol too (`JSONRPCError`).
+*   **Origins:** the protocol asks a server to refuse an origin it does not trust, so that a web page cannot reach it through the browser of someone who reads the page. A request whose `Origin` header names a host not in `origins` gets `403`; its scheme and port are not looked at. An assistant's own process sends no origin, and is answered.
+*   **Time:** a request waits 30 seconds for the server's answer; where none comes, it is answered with `-32001`.
+*   **Without Ktor:** MCP's SDK brings Ktor too, for transports of its own. A site on Spring Boot can leave it out with `exclude(group = "io.ktor")`: on the server's path, the SDK reaches Ktor only to match a resource template, and Pantrix's server has none. The site's test asks every kind of message without Ktor.
+
+### The Claude code plugin
+
+The package repository is also a marketplace of Claude Code's plugins. Its one plugin, `pantrix-ui`, brings the release's skill; once a site serves the MCP server, the plugin carries its address too (`MCP_URL` in `release.sh`):
+
+```bash
+claude plugin marketplace add develappsancho/pantrix-ui-cmp-package
+claude plugin install pantrix-ui@pantrix-ui
+```
+
+*   **The skill's name:** a plugin's skills take the plugin's name before theirs: `pantrix-ui:pantrix-ui`.
+*   **Keeping it current:** the plugin's version is the library's. When the marketplace is updated (`claude plugin marketplace update pantrix-ui`), the new version comes.
+*   **What writes it:** at each release, `release.sh publish` writes the marketplace (`.claude-plugin/marketplace.json`) and the plugin (`plugins/pantrix-ui/`) again with the skill the release's jar writes, and checks them with `claude plugin validate` (the distribution guide, in Turkish).
 
 ### The skill
 
@@ -123,17 +176,21 @@ java -jar mcp-<version>-all.jar skill <folder>
 
 *   **Where to:** Claude Code reads the skills in a project's `.claude/skills/` folder and in the user's `~/.claude/skills/`. A skill written into the app's repository reaches the team through git; one written into the user's folder opens in every project. Other assistants read skills from folders of their own; the assistant's documentation names the folder.
 *   **With the server or without it:** the skill says to use the server's tools where there is one (`search_components`, `get_component_metadata`…), and the documents the command `docs` writes where there is none. The two together are best: the skill says what to do, the server says what the library is today.
-*   **The repository's copy is not installed:** `ai/skills/pantrix-ui/` has no `references/components.md`, which the build writes. What is installed is the jar's, or `ai/generated/skills/pantrix-ui/`.
+*   **The repository's copy is not installed:** `ai/skills/pantrix-ui/` has no `references/components.md`, which the build writes. What is installed is the jar's, `pantrix-ui-skill-<version>.zip` attached to the release (the folder `pantrix-ui` once unzipped), or `ai/generated/skills/pantrix-ui/`.
 *   **The version:** a skill belongs to a version of the library. When the library is updated, the skill is written again.
 
 ### In another project, from start to end
 
-An app's repository that uses Pantrix takes the skill and the server so. The first step is taken in Pantrix's repository, the second on each machine, the others in the app's.
+An app's repository that uses Pantrix takes the skill and the server so. The first two steps are taken on each machine, the others in the app's repository. In Claude Code the plugin is the shortest way (above); this recipe puts the skill into the repository, and works with any assistant.
 
-1.  **The library and the server:** `./gradlew clean publishToMavenLocal` in Pantrix's repository publishes both. The app takes the library from `mavenLocal()`; the dependency lines are in the skill's `references/setup.md`, and the publishing in detail in the publishing guide (in Turkish).
-2.  **The jar:** the server's jar now stands in the local Maven repository. Each machine keeps where it is in an environment variable of its own, in the shell's profile for example:
+1.  **The library:** the app takes the packages from the local Maven repository (`mavenLocal()`, after `./gradlew clean publishToMavenLocal` in Pantrix's repository) or from GitHub Packages (with a token); both repositories' lines and the dependency lines are in the skill's `references/setup.md`, and the publishing in detail in the publishing guide (in Turkish).
+2.  **The jar:** the server's jar is downloaded from the release, or stands in the local Maven repository after the local publishing. Each machine keeps where it is in an environment variable of its own, in the shell's profile for example:
 
     ```bash
+    # From a release
+    curl -fL --create-dirs -o ~/.pantrix/mcp-<version>-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v<version>/mcp-<version>-all.jar
+    export PANTRIX_MCP_JAR=$HOME/.pantrix/mcp-<version>-all.jar
+    # Or after publishToMavenLocal in Pantrix's repository
     export PANTRIX_MCP_JAR=$HOME/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar
     ```
 3.  **The skill:** `java -jar "$PANTRIX_MCP_JAR" skill .claude/skills` at the app's root. `.claude/skills/pantrix-ui/` goes into git; the team takes the skill with the repository.
@@ -150,7 +207,7 @@ An app's repository that uses Pantrix takes the skill and the server so. The fir
     }
     ```
 
-    Claude Code expands `${PANTRIX_MCP_JAR}` with each machine's own variable: the file goes into git, the jar's path does not. An interactive session asks for approval of the repository's server the first time it opens; `claude -p` loads it without asking.
+    Claude Code expands `${PANTRIX_MCP_JAR}` with each machine's own variable: the file goes into git, the jar's path does not. An interactive session asks for approval of the repository's server the first time it opens; `claude -p` loads it without asking. Where a site serves the server, the entry carries its address alone (`"type": "http"`, `"url"`), and step 2 is not needed.
 5.  **Trying it:** `claude` is opened in the app's folder. `/skills` lists `pantrix-ui`, and `/mcp` lists `pantrix-ui` as connected. Asked for something like "write a sign-up screen", the assistant loads the skill, calls the server's tools and writes with Pantrix's components (the trial in section 9).
 6.  **Keeping it current:** when Pantrix is updated, steps 1–3 are taken again: the library, the jar and the skill come from one version. The skill command writes the folder anew; the change is a commit in the app's repository.
 7.  **Other assistants:** clients that read their settings from a `mcpServers` field take the same entry in their own settings file. An assistant that reads skills reads the folder `pantrix-ui` from its own folder of skills. An assistant that reads neither is given `llms.txt` (below).
@@ -167,7 +224,7 @@ An app's repository that uses Pantrix takes the skill and the server so. The fir
 :::
 
 *   **Giving a file:** the file is added to the conversation, or named in the assistant's project rules. In Claude Code a file is named `@ai/generated/llms.txt`, and a `CLAUDE.md` takes a file in with a line `@path`.
-*   **In an app's repository:** there is no site yet, so the files come from the server's jar, which holds those of its version: its command `docs` copies them into the app's repository, and they are named from there.
+*   **On the web:** each release's documents stand on the web demo's pages, beside the demo: `https://develappsancho.github.io/pantrix-ui-cmp-package/llms.txt`. Their links lead to the files there; `release.sh` writes them with that address. In an app's repository the files come from the server's jar as well: its command `docs` copies the documents of its version into the app's repository, and they are named from there.
 
 ## 5. Where the documents come from {#where-the-documents-come-from}
 
@@ -252,6 +309,7 @@ The schema (`ai/schema/pantrix-ui.schema.json`) describes every field of `pantri
 *   Every page and every module has its Markdown in the jar.
 *   `llms.txt` is in the format of llmstxt.org. Every page is named once under its own group, every link points to a file in the jar, and the index stays under 50,000 characters. `llms-full.txt` holds the Markdown of every page and every declaration with no page.
 *   **The server:** every tool is tried against the jar's documents (`toast` finds `Snackbar`, `Buton` offers `Button`). The jar is run as an assistant runs it, as a process of its own, and spoken to in JSON-RPC: the lists, a tool, a resource and a prompt. That its standard output holds nothing but the protocol, and that it exits with nought when its input closes, is measured. `get_rules` gives the skill itself and `get_documentation_page` its references, by their keys and by the skill's links; the search finds the references too; `pantrix://skill` is the skill whole. The tool filter, and the refusal of a tool it does not have, are tried too. What the commands `docs` and `skill` write is tried as well; the skill keeps to the Agent Skills format (its name its folder's, a description under 1,024 characters, `SKILL.md` under 500 lines).
+*   **HTTP:** `PantrixMcp.http()` is called as a site's server calls it: each POST is answered in a session of its own, which then closes; a list of messages is answered with a list in its order; eight clients that ask at once with the same id each get their own answer; a GET, another origin, a wrong content type and `Accept`, a protocol version it does not support, a body it cannot read and one over 64 KB are refused; a tool that does not answer is answered with `-32001`.
 *   **The skill:** the command `skill` writes the references too, and every link of the skill leads to one of its files; `references/components.md` names every component. `llms.txt` tells the rules as `SKILL.md` writes them, and links the skill.
 *   **The guides:** the jar has the 24 guides for apps in English, each under its key and without the line to its Turkish; the search finds them, and `get_documentation_page` gives them by their keys, their paths and their titles; their links lead to the documents or to the repository's files.
 *   **The jar's licences:** `META-INF/LICENSE` is Pantrix's, and no bundled jar's licence stands at the jar's root or in its `META-INF`; the notice lists every module the jar bundles with its version, and every text it names is in the jar.
@@ -280,7 +338,7 @@ claude -p "$(cat task.txt)" --mcp-config .mcp.json --strict-mcp-config \
 
 ### Verified
 
-*   **Tests:** the 28 tests of `:ai:mcp` and the 163 of `build-logic` pass.
+*   **Tests:** the 34 tests of `:ai:mcp` and the 201 of `build-logic` pass.
 *   **The server's times:** the process starts and answers `initialize` in some 0.35 seconds; a first call to a tool takes 0.03 to 0.07 seconds, and a search of the documentation that reads every page for the first time some half a second.
 *   **Guards:** each was tried by breaking real sources (an example's argument, a page's `api`, an English text); each stopped the build with its message in section 6.
 *   **The guides' check:** the guard was broken in twelve ways (a table's lines, a list item's kind, an image, the Kotlin read with its comments, the English's link to a Turkish, a heading a link leads to, the line to the other language, a repository guide given an English, links in code, the line to the Turkish kept, links in blocks, the Turkish of a guide not led to its English); each turned a test red. Every guide's English was read against its Turkish by the guard before the guard was written into the build.
@@ -293,13 +351,17 @@ claude -p "$(cat task.txt)" --mcp-config .mcp.json --strict-mcp-config \
 *   **The skill's code:** its 17 blocks of Kotlin and the README's example were put among a module's JVM tests and compiled against the library, with no warning. The three entry points of a platform of their own (Android, iOS, the web) and the Gradle blocks cannot be compiled that way; they are the samples' own code.
 *   **The demo catalogue:** after the code it shares with the generator was moved out, the old and the new code gave it byte for byte the same: 226 files and the translation reports.
 *   **A site's address:** tried with a trailing `/`, without one, and with none given.
+*   **GitHub Packages (2026-10-29, 2026-10-30):** in `0.1.0-alpha01` and `0.1.0-alpha02`, `com.pantrixui:mcp:<version>:all` was taken from GitHub Packages and answered over stdio (the distribution guide, in Turkish).
+*   **HTTP (2026-10-30):** the site's Spring Boot server (the module `:server` of `pantrix-ui-site`, without Ktor) was run from its jar on this machine and started in 1.2 seconds. Claude Code 2.1.294 connected to it with `--transport http`: the server showed as connected, and all 12 tools were listed. The site's tests asked every kind of message over real HTTP.
+*   **The plugin (2026-10-30):** the marketplace and the plugin passed `claude plugin validate --strict`. In a Claude Code settings folder of their own (`CLAUDE_CONFIG_DIR`), the marketplace was added and the plugin installed; `claude plugin details` counted one skill and one MCP server, and `claude mcp list` showed the plugin's server as connected at a local address.
+*   **The documents on Pages (2026-10-30):** the documents were written with the Pages address, laid into a copy of the Pages folder of `0.1.0-alpha02`, and served on this machine under the Pages path: all 152 links of `llms.txt` opened, `SKILL.md` came as it is, and the demo still opened.
 *   **The folder and the cache:** `clean` removes the folder; the task comes from the cache when the sources did not change.
 
 ### Not verified
 
 *   The trial in a real assistant is one task and one model (Opus 5.5); other tasks, models and assistants were not tried. The screen written was compiled, not drawn.
 *   How particular tools (Cursor, Copilot…) read `llms.txt` was not tried.
-*   There is no site yet; absolute links were only seen in the files.
+*   The documents have not yet gone to Pages with a release; the Pages address was tried on this machine, under the same path. The site (`pantrixui.com`) is not online yet.
 *   The guides' English was written by the assistant that wrote these documents; the build reads its shape and its links against the Turkish, and no second reader has read it.
-*   The server was run in Claude Code (above); other clients (Cursor, Claude Desktop…) were not tried.
-*   The server was not published to the local Maven repository or to GitHub Packages, nor taken from there by a client. The licences' texts were put into the jar as they ask; no lawyer read them.
+*   The server was run in Claude Code (above); other clients (Cursor, Claude Desktop…) were not tried. No model's turn ran with an assistant connected over HTTP: Claude Code's sign-in had expired; the connection and the list of tools were seen.
+*   The jar and the skill's zip attached to a release, the marketplace and the plugin have not yet gone out with a release. The licences' texts were put into the jar as they ask; no lawyer read them.

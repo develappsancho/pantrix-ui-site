@@ -42,6 +42,8 @@ dependencies {
     implementation(marker(libs.plugins.roborazzi))
     implementation(marker(libs.plugins.detekt))
     implementation(marker(libs.plugins.kotlinter))
+    implementation(marker(libs.plugins.springBoot))
+    implementation(marker(libs.plugins.kotlinSpring))
 }
 
 gradlePlugin {
@@ -77,6 +79,10 @@ gradlePlugin {
         register("siteJvmTool") {
             id = "site.jvm.tool"
             implementationClass = "com.pantrixui.site.buildlogic.JvmToolConventionPlugin"
+        }
+        register("siteServer") {
+            id = "site.server"
+            implementationClass = "com.pantrixui.site.buildlogic.ServerConventionPlugin"
         }
         register("siteContent") {
             id = "site.content"

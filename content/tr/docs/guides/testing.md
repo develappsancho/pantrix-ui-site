@@ -14,7 +14,7 @@ Compose hakkında söylenen her şey Compose Multiplatform 1.12.2'nin ve compose
 *   Aynı ekran testi geliştiricinin Mac'inde geçer, CI'da düşer: makinenin dili, karanlık modu, yazı ölçeği, işletim sistemi (kısayol ⌘ ile mi Ctrl ile mi başlar) ve saat dilimi farklıdır.
 *   "Kopyala"ya basan bir test, testi koşan kişinin panosundaki metnin üstüne yazar. Masaüstünde "Dosya seç"e basan bir test sistemin dosya penceresini açar ve orada bekler.
 *   Bir tarih seçicinin testi ayın ilk günü ya da gece yarısı düşer. Bir grafiğin zaman ekseni CI'da (UTC) başka saatler söyler, geliştiricinin makinesinde (UTC+3) başka.
-*   Erişilebilirliği sınayan bir test geçer, ama ekranda adı olmayan bir düğme vardır: tanılama onu yarım saniye sonra bildirir, test o an çoktan bitmiştir.
+*   Erişilebilirliği sınayan bir test geçer, ama ekranda adı olmayan bir düğme vardır: tanılama onu bir sonraki karede bildirir, test o an çoktan bitmiştir.
 *   Android'de `runComposeUiTest` "Unable to resolve activity for Intent … ComponentActivity" der: Robolectric bir manifest'in bildirmediği etkinliği başlatmaz.
 *   Maestro'nun bir akışı Android'de etiketi hiç bulamaz; iOS'ta bulur. Web'de ne etiketi ne yazıyı bulur.
 :::
@@ -25,7 +25,7 @@ Compose hakkında söylenen her şey Compose Multiplatform 1.12.2'nin ve compose
 *   **Tema varsayılanlarını cihazdan okur.** Bir uygulama için doğru olan budur: sistemin dili, karanlık modu, yazı ölçeği, hareketi azaltma ayarı, işletim sistemi. Bir test için her biri makineye bağlı bir girdidir.
 *   **Compose'un test panosu sistemindir.** `LocalClipboard` testte de makinenin panosunu verir; `rememberFilePicker()` platformun seçicisini açar.
 *   **Saat cihazındır.** Bugün `Clock.System`'dan ve cihazın UTC farkından (`systemUtcOffset`) okunur.
-*   **Bazı bulgular geç gelir.** Tanılama, bir yerleşimin bulduğunu (iki düğümde aynı etiket, sıkışmış dokunma hedefi) yarım saniye sürünce bildirir: bir geçiş birkaç kare boyunca iki sayfayı birlikte gösterir.
+*   **Bazı bulgular geç gelir.** Tanılama, sıkışmış bir dokunma hedefini yarım saniye, iki düğümde aynı etiketi bir buçuk saniye sürünce bildirir: bir sayfa geçişi, sürdüğü boyunca, iki sayfayı birlikte gösterir (Android'de 700 ms).
 *   **Robolectric yalnızca bir manifest'in bildirdiği etkinliği başlatır.** androidx'in `ui-test-manifest`'i bu etkinliği bildirir ama androidx Compose'un sürümüyle gelir, Compose Multiplatform'unkiyle değil.
 *   **Cihaz otomasyonu platformun erişilebilirlik ağacını okur.** Android'de etiket ancak `testTagsAsResourceId` açıkken `resource-id` olur; iOS'ta Compose `testTag`'i kendisi `accessibilityIdentifier` yapar. Web'de Compose bir tuvale çizer; anlam ağacının gizli bir DOM aynası vardır, ama bir shadow root'un içindedir (8. bölüm).
 
@@ -53,7 +53,7 @@ Test modülü `ui/testing`, `com.pantrixui:testing` olarak yayınlanır; paketi 
 kotlin {
     sourceSets {
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.0-SNAPSHOT")
+            implementation("com.pantrixui:testing:0.1.0-alpha03-SNAPSHOT")
             implementation(kotlin("test"))
         }
         // runComposeUiTest masaüstünde gerçekten çizer: test JVM'i bu makinenin Skiko'sunu ister.
@@ -87,7 +87,7 @@ onPantrixNode("Segment", "newest", scope = "SegmentButton_sort") // bir kontrol�
 
 *   **Anahtar ekrandaki kodla aynı yazılır.** Etiketi `pantrixTestTagOf` kurar; `rememberPantrixTestTag` da anahtarlı bir etiketi onunla kurar. `"Save draft"` ile `"save_draft"` aynı etikettir.
 *   **Bölüm verilmezse etiketin bölümü yoktur.** Bir `TestScope`'taki bileşen, bölümü yazılarak bulunur; bölüm zincirin tamamıdır (`Checkout.Payment`, `Checkout` değil).
-*   **Bir sayfa bir bölümdür.** `tagKey`'i verilen bir `PantrixPageScaffold` uygulamanın ona verdiklerini `TestScope(tagKey)` içine koyar: `orders` sayfasındaki `save` etiketli bir düğme `orders.Button_save` diye bulunur. Sayfanın kendi parçaları onun içinde değildir: bar'ı `TopBar_orders`, bir eylemi `PageScaffold_orders.Action_export`'tur. Bir sayfa yerini ötekine bırakırken, iOS'ta geri hareketi parmakla tutulurken de, iki sayfa birlikte durur: her sayfanın bar'ında duran aynı düğme iki kez bulunur, ve bu yarım saniyeden uzun sürerse tanılama onu `DuplicateTestTag` diye söyler. Sayfalara birer `tagKey` verilir, ya da her sayfada duran düğmeler durdukları sayfanın adıyla bir `TestScope`'a konur: demo `overview.Button_language` der.
+*   **Bir sayfa bir bölümdür.** `tagKey`'i verilen bir `PantrixPageScaffold` uygulamanın ona verdiklerini `TestScope(tagKey)` içine koyar: `orders` sayfasındaki `save` etiketli bir düğme `orders.Button_save` diye bulunur. Sayfanın kendi parçaları onun içinde değildir: bar'ı `TopBar_orders`, bir eylemi `PageScaffold_orders.Action_export`'tur. Bir sayfa yerini ötekine bırakırken, iOS'ta geri hareketi parmakla tutulurken de, iki sayfa birlikte durur: her sayfanın bar'ında duran aynı düğme iki kez bulunur, ve bu bir buçuk saniyeden uzun sürerse, parmakla tutulan bir geri hareketi gibi, tanılama onu `DuplicateTestTag` diye söyler. Sayfalara birer `tagKey` verilir, ya da her sayfada duran düğmeler durdukları sayfanın adıyla bir `TestScope`'a konur: demo `overview.Button_language` der.
 *   **Anahtar verilmezse** bileşenin o bölümdeki bütün düğümleri bulunur; anahtarsız kurulmuş olanı da (`Button#1k3z9`). Adı daha uzun bir bileşen (`ButtonGroup`) ve bir kontrolün içindeki parça sayılmaz.
 *   **Parça kontrolün etiketinin içindedir.** Anahtarı olan bir kontrolün parçası `Kontrol_anahtar.Parça_anahtar`'dır: `scope` kontrolün etiketidir. Anahtarı olmayan bir kontrolün parçası yalnızca kendi etiketini taşır.
 *   **`pantrixTags()`** yeni bir ekranın testini ya da bir Maestro akışını yazarken neyin arandığını gösterir: `println(pantrixTags().joinToString("\n"))`. Uygulamanın kendi `Modifier.testTag("login")` gibi başka biçimde bir etiketi listede yoktur. Varsayılan olarak her düğümün ağacına bakar (`useUnmergedTree = true`): bir düğmenin birleştirdiği içindekiler de görünür.
@@ -169,7 +169,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 :::table
 | API | Ne doğrular |
 | :--- | :--- |
-| `assertNoFindings(findings)` | Tanılama hiçbir şey bulmadı: adsız kontrol, okunmayan renk, sıkışmış dokunma hedefi, iki düğümde bir etiket. Önce testin saatini yarım saniyenin ötesine ilerletir, sonra bakar; düşerse her bulguyu adıyla söyler |
+| `assertNoFindings(findings)` | Tanılama hiçbir şey bulmadı: adsız kontrol, okunmayan renk, sıkışmış dokunma hedefi, iki düğümde bir etiket. Önce testin saatini bir buçuk saniyenin ötesine ilerletir, sonra bakar; düşerse her bulguyu adıyla söyler |
 | `assertHasName(name)` | Ekran okuyucunun düğüme verdiği ad: içerik açıklaması, yoksa yazısı |
 | `assertTouchTargetOf(platform)` | Parmağın basabileceği alan platformun istediği kadar: Android'de 48dp, iOS'ta 44pt, masaüstünde ve web'de fareyle 32dp. Ölçülen, basışı alan bölgedir, çizilen değil |
 | `performShortcut(shortcut, system)` | Kısayola o sistemin klavyesi gibi basar: Apple'ın sistemlerinde Command, ötekilerde Control ile. Ekranın da o sistemde yazıldığını `PantrixTestTheme(system = …)` söyler |
@@ -229,7 +229,7 @@ Demo'nun `MaestroFlowsTest`'i (JVM) akışların kataloğun gerisinde kalmadığ
 :::table
 | Nasıl | Komut |
 | :--- | :--- |
-| Elle | `maestro test -e APP_ID=com.pantrixui.cmp.demo --exclude-tags fold app/maestro` (iOS'ta bundle kimliği takım kimliğiyle: `com.pantrixui.cmp.demo.PantrixUI<TEAM_ID>`) |
+| Elle | Android'in hata ayıklama derlemesinde `maestro test -e APP_ID=com.pantrixui.cmp.demo.debug -e LINK_SCHEME=pantrixui-debug --exclude-tags fold app/maestro`; iOS'ta bundle kimliği takım kimliğiyle (`com.pantrixui.cmp.demo.PantrixUI<TEAM_ID>`) ve `LINK_SCHEME`'siz |
 | Android, Gradle | `./gradlew :app:androidApp:maestroTest`: debug derlemesini yalnızca o cihaza kurar, akışları koşar |
 | iOS, Gradle | `./gradlew :app:shared:maestroIosTest`: uygulamayı Xcode ile açık simülatöre derler, kurar, akışları koşar |
 | Bir bölüm | `./gradlew :app:androidApp:maestroTest -Pmaestro.flows=flows/form` |
@@ -317,7 +317,7 @@ Her davranış bir kez bozulup testin kırmızıya döndüğü görüldü (8. b�
 
 ## 7. Tuzaklar {#pitfalls}
 
-*   **`waitForIdle` testin saatini ilerletir.** Saat kendiliğinden ilerlerken (`mainClock.autoAdvance`, varsayılan) yarım saniyelik bir bulgu `waitForIdle`'da gelir. Saati elle süren bir testte gelmez: `assertNoFindings` saati kendisi ilerletir, elle yazılan bir bakış ilerletmez.
+*   **`waitForIdle` testin saatini ilerletir.** Saat kendiliğinden ilerlerken (`mainClock.autoAdvance`, varsayılan) bekleyen bir bulgu `waitForIdle`'da gelir. Saati elle süren bir testte gelmez: `assertNoFindings` saati kendisi ilerletir, elle yazılan bir bakış ilerletmez.
 *   **Cihazınkiyle aynı farkı kullanan bir saat testi bir şey göstermez.** UTC+3'teki bir makinede `{ 3.hours }` ile yazılmış bir test, ekranın saatini okumayan bir grafikte de geçer. İki farkla okumak (İstanbul ve New York) bunu önler.
 *   **Temanın dışından verilen bir yerel temanınkine yenilir.** `PantrixTestTheme` panoyu ve huylarını, işletim sistemini, yazı ölçeğini ve dosya seçiciyi kendisi verir; bunları temanın dışından veren bir testin değeri ekrana ulaşmaz (`CompositionLocalProvider(LocalClipboard provides …) { PantrixTestTheme { … } }`). Parametreyle ya da temanın içinden verilir. Dışarıdan verilen ekran yoğunluğu ve saat geçer: tema yalnızca yazı ölçeğini değiştirir, saati de yalnızca `clock` verildiğinde.
 *   **Compose'un metin alanı platformun panosuna bakar.** Yapıştırılacak bir şey olup olmadığını panonun `nativeClipboard`'ına sorar: masaüstünde sağ tık menüsü açılırken, iOS'ta her odaklanışta. Onu vermeyen bir pano, arayüzün varsayılanıyla, `NotImplementedError` ile düşer; iOS'ta odaklanan her metin alanı düşer. `TestClipboard` masaüstünde kendi AWT panosunu, iOS'ta kendi adlı pasteboard'unu verir; bir testin kendi yazdığı pano da vermelidir.
@@ -349,7 +349,7 @@ Her davranış bir kez bozulup testin kırmızıya döndüğü görüldü (8. b�
 | Ne | Nerede |
 | :--- | :--- |
 | Bulmak: anahtar ve kesilmesi, bölüm zinciri, anahtarsız bulmak, parçalar, ekranın etiketleri ve birleştirilmiş ağaç | `ui/testing/src/commonTest/.../PantrixTagsTest.kt` (JVM, iOS, JS, Wasm) |
-| Tema: varsayılanlar, verilenler, masaüstünde ve web'de Windows, pencere ve durumun korunması, pano ve onun üstünde odaklanan bir metin alanı, seçici, saat, tanılama, yarım saniyelik bulgu, her platform | `PantrixTestThemeTest` |
+| Tema: varsayılanlar, verilenler, masaüstünde ve web'de Windows, pencere ve durumun korunması, pano ve onun üstünde odaklanan bir metin alanı, seçici, saat, tanılama, bekleyen bulgu, her platform | `PantrixTestThemeTest` |
 | Çiftler: analitik, dokunsal geri bildirim, seçicinin cevapları, saat, pano (zor metinler dahil) ve yazılamayan pano | `TestDoublesTest` |
 | Doğrulamalar: ad, yazı, dokunma hedefi, kısayol | `PantrixAssertionsTest` |
 | Masaüstünde platformun panosu: son kopyayı tutar, temizlenince boşalır, her testin panosu kendinin | `ui/testing/src/jvmTest/.../TestClipboardOnTheDesktopTest.kt` |

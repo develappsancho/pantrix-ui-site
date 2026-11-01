@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "pantrix-ui": {
+      "command": "java",
+      "args": ["-jar", "${PANTRIX_MCP_JAR}"]
+    }
+  }
+}

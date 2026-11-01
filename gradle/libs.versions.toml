@@ -7,7 +7,7 @@ kotlin = "2.4.21"
 composeMultiplatform = "1.12.2"
 # The Pantrix UI library, from the local Maven repository while the site is built (./gradlew publishToMavenLocal in
 # pantrix-ui-cmp), from GitHub Packages when the site is deployed.
-pantrix = "0.1.0-SNAPSHOT"
+pantrix = "0.1.0-alpha03-SNAPSHOT"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.11.0"
 navigation3 = "1.2.0"
@@ -16,12 +16,14 @@ kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.12.0"
 # The Markdown parser the content tool reads the site's pages and the library's documents with, at build time only,
 # on the JVM.
-markdown = "0.7.14"
+markdown = "0.7.18"
 junit = "4.13.2"
 roborazzi = "1.77.0"
 detekt = "1.23.8"
 kotlinter = "5.7.0"
 kover = "0.9.11"
+# The site's server, which serves Pantrix UI's MCP server over HTTP: Spring Boot, on the JVM.
+spring-boot = "4.1.2"
 
 [libraries]
 pantrix-components = { module = "com.pantrixui:components", version.ref = "pantrix" }
@@ -54,8 +56,14 @@ kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 markdown = { module = "org.jetbrains:markdown-jvm", version.ref = "markdown" }
+kotlinx-coroutines-reactor = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-reactor", version.ref = "kotlinx-coroutines" }
+
+spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
 
 [plugins]
@@ -70,3 +78,5 @@ roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kotlinter = { id = "org.jmailen.kotlinter", version.ref = "kotlinter" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+springBoot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+kotlinSpring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotlin" }

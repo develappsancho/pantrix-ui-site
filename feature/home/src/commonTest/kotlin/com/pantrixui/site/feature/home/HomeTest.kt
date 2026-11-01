@@ -97,7 +97,10 @@ class HomeTest {
     fun copying_hands_the_install_line_to_the_screen_and_says_so_for_a_moment() = runTest(dispatcher) {
         val model = HomeViewModel(Language.English, FakeContentRepository(listOf(landing)))
         model.onAction(HomeAction.CopyInstall)
-        assertEquals(HomeEffect.Copy("implementation(\"com.pantrixui:components:0.1.0\")"), model.effects.first())
+        assertEquals(
+            HomeEffect.Copy("implementation(\"com.pantrixui:components:0.1.0-alpha03\")"),
+            model.effects.first()
+        )
         model.onAction(HomeAction.Copied(done = false))
         assertFalse(model.state.value.copied, "a clipboard that did not take it")
         model.onAction(HomeAction.Copied(done = true))
@@ -122,10 +125,10 @@ class HomeTest {
 
         fun List<Token>.text() = joinToString("") { it.text }
         assertEquals("> Her siparişin altına en çok 280 karakterlik bir yorum kutusu", desktop[2].text())
-        assertEquals("$ claude mcp add pantrix-ui -- java -jar mcp-0.1.0-all.jar", desktop.first().text())
+        assertEquals("$ claude mcp add -t http pantrix-ui https://pantrixui.com/mcp", desktop.first().text())
         assertEquals(TokenKind.Number, desktop.last().single { it.text == "280" }.kind)
         assertEquals(
-            listOf("$ claude mcp add pantrix-ui \\", "    -- java -jar mcp-0.1.0-all.jar"),
+            listOf("$ claude mcp add -t http \\", "    pantrix-ui https://pantrixui.com/mcp"),
             phone.take(2).map { it.text() }
         )
         assertEquals(5, phone.size)

@@ -66,13 +66,17 @@ Belgeler bir siteden sunulacaksa adresi verilir; bağlantılar o zaman mutlak ol
 
 ### MCP sunucusu
 
-Bir asistan belgeleri en iyi Pantrix'in MCP sunucusundan okur: neyi soracağını kendisi seçer ve yalnızca gerekeni alır. Sunucu kendi başına çalışan tek bir jar'dır: `mcp-<sürüm>-all.jar`. Kütüphaneyle birlikte, `all` sınıflandırıcılı `com.pantrixui:mcp` olarak yayınlanır: `./gradlew publishToMavenLocal`'dan sonra `~/.m2/repository/com/pantrixui/mcp/<sürüm>/`'dedir (yayın rehberi). Bu depoda şöyle üretilir:
+Bir asistan belgeleri en iyi Pantrix'in MCP sunucusundan okur: neyi soracağını kendisi seçer ve yalnızca gerekeni alır. Sunucu kendi başına çalışan tek bir jar'dır, `mcp-<sürüm>-all.jar`, ve üç yerden alınır:
 
-```bash
-./gradlew :ai:mcp:allJar
-```
+:::table
+| Nereden | Nasıl |
+| :--- | :--- |
+| Sürüm | Paket deposunun [her sürümüne](https://github.com/develappsancho/pantrix-ui-cmp-package/releases) ekli bir dosyadır ve token istemez: `https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v<sürüm>/mcp-<sürüm>-all.jar`. |
+| GitHub Packages | Kütüphaneyle birlikte, `all` sınıflandırıcılı `com.pantrixui:mcp` olarak yayınlanır; okumak `read:packages` izinli bir token ister (yayın rehberi). |
+| Bu depo | `./gradlew :ai:mcp:allJar` onu `ai/mcp/build/libs/mcp-<sürüm>-all.jar`'a yazar; `./gradlew publishToMavenLocal`'dan sonra `~/.m2/repository/com/pantrixui/mcp/<sürüm>/`'dedir. |
+:::
 
-Jar `ai/mcp/build/libs/mcp-<sürüm>-all.jar`'a yazılır. Bir asistanın ayarlarında onu çalıştıran komut anılır. Claude Code'da:
+Bir asistanın ayarlarında onu çalıştıran komut anılır. Claude Code'da:
 
 ```bash
 claude mcp add pantrix-ui -- java -jar /yol/mcp-<sürüm>-all.jar
@@ -110,8 +114,57 @@ Ayarlarını bir `mcpServers` alanından okuyan istemcilerde (Claude Desktop, Cu
 *   **Araç süzgeci:** `java -jar mcp-<sürüm>-all.jar --tools search_components,get_component` sunucuyu yalnızca o araçlarla açar. Arasından seçeceği araç azaldıkça asistan daha az yanılır.
 *   **Komutlar:** `java -jar mcp-<sürüm>-all.jar docs <klasör>` bütün belgeleri bir sitenin sunacağı gibi o klasöre yazar; `skill <klasör>` skill'i `<klasör>/pantrix-ui`'ye yazar (ör. `~/.claude/skills`).
 *   **stdout yalnızca protokole aittir:** sunucu çalışırken standart çıktısına protokolden başka hiçbir şey yazılmaz, yoksa istemci okuyamadığı satırda düşer. SDK'nın günlükçüsü (kotlin-logging) ilk kaydedicide stdout'a bir satır basar; sunucu bunu kapatır ve standart çıktıya yazan her şeyi standart hataya yönlendirir. Protokol testi bunu ölçer (8. bölüm).
-*   **Kütüphane olarak:** sınıflandırıcısız `com.pantrixui:mcp` sunucunun kodu ve belgeleridir; bağımlılıkları POM'undadır. Aynı araçları HTTP üzerinden sunacak bir site onu alır ve sunucusunu `PantrixMcp.server()` ile kurar.
+*   **Kütüphane olarak:** sınıflandırıcısız `com.pantrixui:mcp` sunucunun kodu ve belgeleridir; bağımlılıkları, MCP'nin Kotlin SDK'sı da, POM'undadır. `PantrixMcp.server()` SDK'nın sunucusunu verir; aynı araçları HTTP üzerinden sunacak bir site `PantrixMcp.http()`'yi kullanır (aşağıda).
 *   **Lisanslar:** jar çalıştığı kütüphanelerin kodunu da taşır. `META-INF/LICENSE` Pantrix'in lisansıdır; `META-INF/THIRD-PARTY.md` paketlediği her kütüphaneyi lisansıyla, sonunda da her modülü sürümüyle sayar; kütüphanelerin kendi lisans dosyaları `META-INF/licenses/` altındadır. Bildirimle jar'ın paketledikleri ayrıldığında derleme durur (6. bölüm).
+
+### HTTP üzerinden
+
+Sunucu bir siteden, kendi adresinde de sunulur (`https://pantrixui.com/mcp` gibi). Asistana o zaman yalnızca adres verilir; kullanıcının makinesinde ne Java ne jar gerekir:
+
+```bash
+claude mcp add --transport http pantrix-ui https://site-adresi/mcp
+```
+
+Bir `.mcp.json`'da ya da `mcpServers` alanında girdi `"type": "http"` ve `"url"` alır.
+
+Sitede sunucuyu `PantrixMcp.http()` verir: MCP'nin Streamable HTTP taşıması, bir web çatısına bağlı olmadan. Sitenin kendi sunucusu, Spring Boot, Ktor ya da bir servlet, adrese gelen her isteği `answer(method, headers, body)`'ye verir ve dönen `Response`'u (durum, başlıklar, gövde) olduğu gibi yazar. Spring Boot'ta (WebFlux, `kotlinx-coroutines-reactor` ile):
+
+```kotlin
+@RestController
+class McpEndpoint {
+    private val mcp = PantrixMcp.http(origins = setOf("site-adresi"))
+
+    @RequestMapping("/mcp")
+    suspend fun answer(
+        request: ServerHttpRequest,
+        @RequestBody(required = false) body: String?
+    ): ResponseEntity<String> {
+        val answer = mcp.answer(request.method.name(), request.headers.toSingleValueMap(), body.orEmpty())
+        val response = ResponseEntity.status(answer.status)
+            .headers { headers -> answer.headers.forEach { (name, value) -> headers.set(name, value) } }
+        return if (answer.body.isEmpty()) response.build() else response.body(answer.body)
+    }
+}
+```
+
+*   **Durumsuz:** her POST kendi başına, kendi oturumunda cevaplanır ve oturum cevaptan sonra kapanır. Cevap her zaman JSON'dur; akış (SSE) ve `Mcp-Session-Id` yoktur. Yalnızca cevap veren bir sunucunun gereksinimi budur; aynı kimlikle aynı anda soran iki istemci birbirinin cevabını almaz.
+*   **Reddedilenler:** GET ve DELETE `405`, `Allow: POST` ile (protokol buna izin verir); JSON'u kabul etmeyen bir `Accept` `406`; `application/json` olmayan bir gövde `415`; desteklenmeyen bir `MCP-Protocol-Version` `400`; okunamayan bir gövde `400` ve `-32700`; 64 KB'tan büyük bir gövde `413`. Ret de protokolün bir mesajıdır (`JSONRPCError`).
+*   **Kökenler:** protokol, bir web sayfasının okuyanın tarayıcısı üzerinden sunucuya ulaşmaması için güvenilmeyen bir kökeni reddetmeyi ister. `Origin` başlığı `origins`'te olmayan bir host adı taşıyan istek `403` alır; şema ve kapı bakılmaz. Bir asistanın kendi süreci köken göndermez ve cevaplanır.
+*   **Süre:** bir istek sunucunun cevabını 30 saniye bekler; cevap gelmezse istek `-32001` ile cevaplanır.
+*   **Ktor'suz:** MCP'nin SDK'sı kendi taşımaları için Ktor'u da getirir. Spring Boot'taki bir site onu `exclude(group = "io.ktor")` ile dışarıda bırakabilir: SDK, sunucunun yolunda Ktor'a yalnızca bir kaynak şablonunu eşlerken uzanır, Pantrix'in sunucusunun da şablonu yoktur. Sitenin testi her mesaj türünü Ktor'suz sorar.
+
+### Claude code eklentisi
+
+Paket deposu Claude Code'un bir eklenti pazarıdır da. Tek eklentisi `pantrix-ui`, sürümün skill'ini getirir; MCP sunucusu bir siteden sunulduğunda eklenti onun adresini de taşır (`release.sh`'deki `MCP_URL`):
+
+```bash
+claude plugin marketplace add develappsancho/pantrix-ui-cmp-package
+claude plugin install pantrix-ui@pantrix-ui
+```
+
+*   **Skill'in adı:** eklentinin skill'leri eklentinin adını önek alır: `pantrix-ui:pantrix-ui`.
+*   **Güncel tutmak:** eklentinin sürümü kütüphaneninkidir. Pazar güncellenince (`claude plugin marketplace update pantrix-ui`) yeni sürüm gelir.
+*   **Yazan:** `release.sh publish`, pazarı (`.claude-plugin/marketplace.json`) ve eklentiyi (`plugins/pantrix-ui/`) her sürümde sürümün jar'ının yazdığı skill'le yeniden yazar ve `claude plugin validate` ile denetler (dağıtım rehberi).
 
 ### Skill
 
@@ -123,17 +176,21 @@ java -jar mcp-<sürüm>-all.jar skill <klasör>
 
 *   **Nereye:** Claude Code bir projenin `.claude/skills/` klasöründeki ve kullanıcının `~/.claude/skills/` klasöründeki skill'leri okur. Uygulamanın deposuna yazılan skill git'le ekibe geçer; kullanıcının klasörüne yazılan her projede açılır. Öteki asistanlar skill'leri kendi klasörlerinden okur; klasörü asistanın belgesi söyler.
 *   **Sunucuyla ya da onsuz:** skill, sunucu varsa araçlarını (`search_components`, `get_component_metadata`…), yoksa `docs` komutunun yazdığı belgeleri kullanmayı söyler. İkisi birlikte en iyisidir: skill ne yapılacağını, sunucu kütüphanenin bugünkü hâlini söyler.
-*   **Depodaki kopyası kurulmaz:** `ai/skills/pantrix-ui/`'de `references/components.md` yoktur, derlemede yazılır. Kurulacak hâli jar'dakidir ya da `ai/generated/skills/pantrix-ui/`.
+*   **Depodaki kopyası kurulmaz:** `ai/skills/pantrix-ui/`'de `references/components.md` yoktur, derlemede yazılır. Kurulacak hâli jar'dakidir, sürüme ekli `pantrix-ui-skill-<sürüm>.zip`'tir (açılınca `pantrix-ui` klasörü) ya da `ai/generated/skills/pantrix-ui/`.
 *   **Sürüm:** skill kütüphanenin bir sürümüne aittir. Kütüphane güncellenince skill de yeniden yazılır.
 
 ### Başka bir projede, baştan sona
 
-Pantrix'i kullanan bir uygulamanın deposu skill'i ve sunucuyu şöyle alır. İlk adım Pantrix'in deposunda, ikincisi her makinede, ötekiler uygulamanın deposunda atılır.
+Pantrix'i kullanan bir uygulamanın deposu skill'i ve sunucuyu şöyle alır. İlk iki adım her makinede, ötekiler uygulamanın deposunda atılır. Claude Code'da en kısa yol eklentidir (yukarıda); bu tarif skill'i depoya koyar ve her asistanda çalışır.
 
-1.  **Kütüphane ve sunucu:** Pantrix'in deposunda `./gradlew clean publishToMavenLocal` ikisini de yayınlar. Uygulama kütüphaneyi `mavenLocal()`'dan alır; bağımlılık satırları skill'in `references/setup.md`'sinde, yayının ayrıntısı yayın rehberindedir.
-2.  **Jar:** sunucunun jar'ı artık yerel Maven deposundadır. Her makine onun yerini kendi ortam değişkeninde tutar, ör. kabuğun profilinde:
+1.  **Kütüphane:** uygulama paketleri yerel Maven deposundan (Pantrix'in deposunda `./gradlew clean publishToMavenLocal`'dan sonra `mavenLocal()`) ya da GitHub Packages'tan (token'la) alır; iki deponun satırları ve bağımlılıklar skill'in `references/setup.md`'sinde, yayının ayrıntısı yayın rehberindedir.
+2.  **Jar:** sunucunun jar'ı sürümden indirilir ya da yerel yayından sonra yerel Maven deposundadır. Her makine onun yerini kendi ortam değişkeninde tutar, ör. kabuğun profilinde:
 
     ```bash
+    # Sürümden
+    curl -fL --create-dirs -o ~/.pantrix/mcp-<sürüm>-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v<sürüm>/mcp-<sürüm>-all.jar
+    export PANTRIX_MCP_JAR=$HOME/.pantrix/mcp-<sürüm>-all.jar
+    # Ya da Pantrix'in deposunda publishToMavenLocal'dan sonra
     export PANTRIX_MCP_JAR=$HOME/.m2/repository/com/pantrixui/mcp/<sürüm>/mcp-<sürüm>-all.jar
     ```
 3.  **Skill:** uygulamanın kökünde `java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`. `.claude/skills/pantrix-ui/` git'e girer; ekip skill'i depoyla alır.
@@ -150,7 +207,7 @@ Pantrix'i kullanan bir uygulamanın deposu skill'i ve sunucuyu şöyle alır. İ
     }
     ```
 
-    Claude Code `${PANTRIX_MCP_JAR}`'ı her makinenin kendi değişkeniyle açar: dosya git'e girer, jar'ın yolu girmez. Etkileşimli bir oturum depodaki sunucuyu ilk açılışta onaya sorar; `claude -p` sormadan yükler.
+    Claude Code `${PANTRIX_MCP_JAR}`'ı her makinenin kendi değişkeniyle açar: dosya git'e girer, jar'ın yolu girmez. Etkileşimli bir oturum depodaki sunucuyu ilk açılışta onaya sorar; `claude -p` sormadan yükler. Sunucu bir siteden sunuluyorsa girdi yalnızca adresi taşır (`"type": "http"`, `"url"`) ve 2. adıma gerek kalmaz.
 5.  **Denemek:** uygulamanın klasöründe `claude` açılır. `/skills` listesinde `pantrix-ui`, `/mcp` listesinde bağlı `pantrix-ui` görünür. "Bir kayıt ekranı yaz" gibi bir istekte asistan skill'i yükler, sunucunun araçlarını çağırır ve Pantrix'in bileşenleriyle yazar (9. bölümdeki deneme).
 6.  **Güncel tutmak:** Pantrix güncellenince 1–3 yeniden atılır: kütüphane, jar ve skill aynı sürümden olur. Skill komutu klasörü baştan yazar; değişiklik uygulamanın deposunda bir commit'tir.
 7.  **Öteki asistanlar:** ayarlarını bir `mcpServers` alanından okuyan istemciler aynı girdiyi kendi ayar dosyalarında alır. Skill'leri okuyan bir asistan `pantrix-ui` klasörünü kendi skill klasöründen okur. İkisini de okumayan bir asistana `llms.txt` verilir (aşağıda).
@@ -167,7 +224,7 @@ Pantrix'i kullanan bir uygulamanın deposu skill'i ve sunucuyu şöyle alır. İ
 :::
 
 *   **Dosyayı vermek:** dosya konuşmaya eklenir ya da asistanın proje kurallarında anılır. Claude Code'da bir dosya `@ai/generated/llms.txt` diye anılır; bir `CLAUDE.md` bir dosyayı `@yol` satırıyla içine alır.
-*   **Bir uygulamanın deposunda:** henüz bir site yoktur, bu yüzden dosyalar kendi sürümünün belgelerini taşıyan sunucu jar'ından gelir: `docs` komutu onları uygulamanın deposuna kopyalar, oradan anılırlar.
+*   **Web'de:** her sürümün belgeleri web demosunun sayfalarında, demonun yanında durur: `https://develappsancho.github.io/pantrix-ui-cmp-package/llms.txt`. Bağlantıları oradaki dosyalara gider; `release.sh` onları o adresle yazar. Bir uygulamanın deposunda dosyalar sunucu jar'ından da gelir: `docs` komutu kendi sürümünün belgelerini uygulamanın deposuna kopyalar, oradan anılırlar.
 
 ## 5. Belgelerin kaynağı {#where-the-documents-come-from}
 
@@ -252,6 +309,7 @@ Belgeler bir asistana yanlış bir şey söyleyecekse ya da hiçbir şey söylem
 *   Her sayfanın ve her modülün Markdown'ı jar'dadır.
 *   `llms.txt` llmstxt.org'un biçimindedir. Her sayfa kendi bölümünün altında bir kez anılır, her bağlantının hedefi jar'dadır ve dizin 50.000 karakterin altında kalır. `llms-full.txt` her sayfanın Markdown'ını ve sayfası olmayan her bildirimi tutar.
 *   **Sunucu:** her araç jar'ın belgelerine karşı sınanır (`toast` `Snackbar`'ı bulur, `Buton` `Button`'ı önerir). Jar bir asistanın çalıştırdığı gibi ayrı bir süreçte çalıştırılır ve onunla JSON-RPC konuşulur: listeler, bir araç, bir kaynak ve bir prompt. Standart çıktısında protokolden başka satır olmadığı ve girişi kapanınca sıfırla çıktığı ölçülür. `get_rules` skill'in kendisini, `get_documentation_page` referanslarını anahtarlarıyla ve skill'in bağlantılarıyla verir; arama referansları da bulur; `pantrix://skill` skill'in bütünüdür. Araç süzgeci ve olmayan bir aracın reddi de sınanır. `docs` ve `skill` komutlarının yazdıkları da sınanır; skill Agent Skills biçimine uyar (adı klasörünün adı, açıklaması 1.024 karakterden kısa, `SKILL.md` 500 satırın altında).
+*   **HTTP:** `PantrixMcp.http()` bir sitenin sunucusunun çağıracağı gibi çağrılır: her POST kendi oturumunda cevaplanır ve oturum kapanır; bir mesaj listesi kendi sırasıyla bir listeyle cevaplanır; aynı kimlikle aynı anda soran sekiz istemcinin her biri kendi cevabını alır; GET, başka bir köken, yanlış bir içerik türü ve `Accept`, desteklenmeyen bir protokol sürümü, okunamayan ve 64 KB'tan büyük bir gövde reddedilir; cevap vermeyen bir araç `-32001`'le cevaplanır.
 *   **Skill:** `skill` komutu referansları da yazar ve skill'in her bağlantısı onun bir dosyasına gider; `references/components.md` her bileşeni anar. `llms.txt` kuralları `SKILL.md`'nin yazdığı gibi söyler ve skill'e bağlanır.
 *   **Rehberler:** jar uygulamalara dönük 24 rehberi İngilizce taşır, her birini anahtarıyla ve Türkçesine giden satırı olmadan; arama onları bulur, `get_documentation_page` onları anahtarlarıyla, yollarıyla ve başlıklarıyla verir; bağlantıları belgelere ya da deponun dosyalarına gider.
 *   **Jar'ın lisansları:** `META-INF/LICENSE` Pantrix'inkidir ve paketlenen hiçbir jar'ın lisansı jar'ın kökünde ya da `META-INF`'inde durmaz; bildirim jar'ın paketlediği her modülü sürümüyle listeler ve andığı her metin jar'dadır.
@@ -280,7 +338,7 @@ claude -p "$(cat gorev.txt)" --mcp-config .mcp.json --strict-mcp-config \
 
 ### Doğrulananlar
 
-*   **Testler:** `:ai:mcp`'nin 28 ve `build-logic`'in 163 testi geçiyor.
+*   **Testler:** `:ai:mcp`'nin 34 ve `build-logic`'in 201 testi geçiyor.
 *   **Sunucunun süresi:** süreç başlayıp `initialize`'ı 0,35 saniye kadarda yanıtlıyor; ilk araç çağrısı 0,03–0,07 saniye, sayfaların hepsini ilk kez tarayan belge araması yarım saniye kadar sürüyor.
 *   **Korumalar:** her biri gerçek kaynaklar bozularak denendi (bir örneğin argümanı, bir sayfanın `api`'si, bir İngilizce metin); her biri 6. bölümdeki mesajıyla durdu.
 *   **Rehberlerin denetimi:** koruma on iki yoldan bozuldu (bir tablonun satırları, bir liste maddesinin türü, bir görsel, yorumlarıyla okunan Kotlin, İngilizcenin bir Türkçeye bağlantısı, bir bağlantının gittiği başlık, öteki dile giden satır, İngilizcesi verilen bir depo rehberi, koddaki bağlantılar, Türkçeye giden satırın kalması, bloklardaki bağlantılar, bir rehberin Türkçesinin İngilizcesine gitmemesi); her biri bir testi kırmızıya çevirdi. Koruma derlemeye yazılmadan önce her rehberin İngilizcesi onunla Türkçesine karşı okundu.
@@ -293,13 +351,17 @@ claude -p "$(cat gorev.txt)" --mcp-config .mcp.json --strict-mcp-config \
 *   **Skill'in kodu:** 17 Kotlin bloğu ve README'nin örneği bir modülün JVM testlerine konup kütüphaneye karşı derlendi, uyarısız. Platforma özgü üç giriş noktası (Android, iOS, web) ve Gradle blokları bu yolla derlenemez; onlar örnek uygulamaların kendi kodudur.
 *   **Demo kataloğu:** üreticiyle paylaştığı kod ayrıldıktan sonra eski ve yeni kodla bayt bayt aynı çıktı: 226 dosya ve çeviri raporları.
 *   **Site adresi:** sonunda `/` olan, olmayan ve hiç verilmeyen adresle denendi.
+*   **GitHub Packages (2026-10-29, 2026-10-30):** `0.1.0-alpha01`'de ve `0.1.0-alpha02`'de `com.pantrixui:mcp:<sürüm>:all` GitHub Packages'tan çekildi ve stdio'dan cevap verdi (dağıtım rehberi).
+*   **HTTP (2026-10-30):** sitenin Spring Boot sunucusu (`pantrix-ui-site`'ın `:server` modülü, Ktor'suz) yerelde jar'ıyla çalıştırıldı ve 1,2 saniyede açıldı. Claude Code 2.1.294 onu `--transport http` ile bağladı: sunucu bağlı göründü ve 12 aracın hepsi listelendi. Sitenin testleri her mesaj türünü gerçek HTTP üzerinden sordu.
+*   **Eklenti (2026-10-30):** pazar ve eklenti `claude plugin validate --strict`'ten geçti. Ayrı bir Claude Code ayar klasöründe (`CLAUDE_CONFIG_DIR`) pazar eklendi, eklenti kuruldu; `claude plugin details` bir skill ve bir MCP sunucusu saydı, `claude mcp list` eklentinin sunucusunu yerel adreste bağlı gösterdi.
+*   **Pages'teki belgeler (2026-10-30):** belgeler Pages'in adresiyle yazılıp `0.1.0-alpha02`'nin Pages klasörünün bir kopyasına kondu ve yerelde Pages'in alt yolunda sunuldu: `llms.txt`'nin 152 bağlantısının hepsi açıldı, `SKILL.md` olduğu gibi geldi, demo açılmaya devam etti.
 *   **Klasör ve önbellek:** `clean` klasörü siliyor; görev değişmeyen kaynaklarda önbellekten geliyor.
 
 ### Doğrulanmayanlar
 
 *   Gerçek asistan denemesi tek bir görev ve tek bir model (Opus 5.5); başka görevler, modeller ve asistanlar denenmedi. Yazılan ekran derlendi, çizilmedi.
 *   `llms.txt`'nin belli araçlarca (Cursor, Copilot…) okunuşu denenmedi.
-*   Bir site henüz yok; mutlak bağlantılar yalnızca dosyalarda görüldü.
+*   Belgeler Pages'e henüz bir sürümle gitmedi; Pages'in adresi yerelde, aynı alt yolda denendi. Site (`pantrixui.com`) henüz yayında değil.
 *   Rehberlerin İngilizcesini bu belgeleri yazan asistan yazdı; derleme onun yapısını ve bağlantılarını Türkçesine karşı okur, ikinci bir okuyucu okumadı.
-*   Sunucu Claude Code'da çalıştırıldı (yukarıda); öteki istemcilerde (Cursor, Claude Desktop…) denenmedi.
-*   Sunucu yerel Maven deposuna ya da GitHub Packages'a yayınlanmadı, bir istemci de onu oradan almadı. Lisansların metinleri istedikleri gibi jar'a kondu; bir hukukçu okumadı.
+*   Sunucu Claude Code'da çalıştırıldı (yukarıda); öteki istemcilerde (Cursor, Claude Desktop…) denenmedi. HTTP üzerinden bağlanan bir asistanla bir modelin turu koşmadı: Claude Code'un girişinin süresi dolmuştu; bağlantı ve araçların listesi görüldü.
+*   Sürüme ekli jar ve skill'in zip'i, pazar ve eklenti henüz bir sürümle yayınlanmadı. Lisansların metinleri istedikleri gibi jar'a kondu; bir hukukçu okumadı.

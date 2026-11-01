@@ -314,7 +314,7 @@ private fun InstallLine(
     val line = buildAnnotatedString {
         withStyle(SpanStyle(color = code.annotation)) { append("implementation") }
         append("(")
-        withStyle(SpanStyle(color = code.literal)) { append("\"com.pantrixui:components:${LibraryFacts.VERSION}\"") }
+        withStyle(SpanStyle(color = code.literal)) { append("\"com.pantrixui:components:${LibraryFacts.RELEASE}\"") }
         append(")")
     }
     Row(

@@ -165,28 +165,28 @@ private fun Sources(names: List<String>) {
 }
 
 /**
- * The terminal's lines: the server added to an assistant, what the reader asks of it in [language], and what it looks
- * up and writes. A phone's are fewer and its command is broken over two lines.
+ * The terminal's lines: the server added to an assistant by the site's address, what the reader asks of it in
+ * [language], and what it looks up and writes. A phone's are fewer and its command is broken over two lines.
  */
 internal fun terminalLines(
     language: Language,
     short: Boolean
 ): List<List<Token>> {
-    val jar = "java -jar mcp-${LibraryFacts.VERSION}-all.jar"
+    val address = LibraryFacts.MCP_ADDRESS
     val asked = if (short) HomeSay.AskedShort else HomeSay.Asked
     val prompt = listOf(Token(">", TokenKind.Keyword), Token(" " + asked.of(language)))
     val component = listOf(Token("  get_component(\"PantrixTextArea\")", TokenKind.Comment))
     return if (short) {
         listOf(
-            listOf(Token("$", TokenKind.Keyword), Token(" claude mcp add pantrix-ui \\")),
-            listOf(Token("    -- $jar")),
+            listOf(Token("$", TokenKind.Keyword), Token(" claude mcp add -t http \\")),
+            listOf(Token("    pantrix-ui $address")),
             emptyList(),
             prompt,
             component
         )
     } else {
         listOf(
-            listOf(Token("$", TokenKind.Keyword), Token(" claude mcp add pantrix-ui -- $jar")),
+            listOf(Token("$", TokenKind.Keyword), Token(" claude mcp add -t http pantrix-ui $address")),
             emptyList(),
             prompt,
             listOf(Token("  search_components(\"comment, several lines\")", TokenKind.Comment)),

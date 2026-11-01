@@ -32,6 +32,7 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.content.OnPlatform
 import com.pantrixui.site.core.designsystem.content.PhoneFrame
 import com.pantrixui.site.core.designsystem.content.SketchControls
 import com.pantrixui.site.core.designsystem.content.SketchFigure
@@ -56,7 +57,7 @@ internal fun SystemBarsSketch() {
     val marks = if (barsDark) Color.White else Color.Black
     SketchFigure(caption = SystemBarsSay.Caption.of(language)) {
         PhoneFrame {
-            SketchPlatform(PlatformType.Ios) {
+            OnPlatform(PlatformType.Ios) {
                 PantrixTheme(darkTheme = dark, followSystemBars = false) {
                     Box(Modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
                         Column(Modifier.fillMaxSize()) {

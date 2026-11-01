@@ -46,6 +46,9 @@ internal interface BrowserLocation {
  *
  * - **Opening.** The stack opens with the screen the address names ([keyOf]); the address is the page's own, so a
  *   link to it can be shared and a reload opens it again.
+ * - **A part of a page.** The navigator's section is the address's fragment, `#symptom`: an address that names one
+ *   opens the page at it, a section the app moves to is written in the entry on show, without an entry of its own,
+ *   and an entry gone back or forward to opens at the section its address names.
  * - **The app's back.** The app going back goes back in the browser too, so that its Forward button returns.
  * - **Another language.** An entry written in another language shows the screen in the app's, and its address follows.
  *
@@ -59,6 +62,8 @@ class BrowserNavigationHistory<K : Any> internal constructor(
 
     override fun startStack(default: List<K>): List<K> = listOf(keyOf(browser.address))
 
+    override fun startSection(): String? = sectionOf(browser.address)
+
     @Composable
     override fun Bind(
         navigator: Navigator<K>,
@@ -67,12 +72,14 @@ class BrowserNavigationHistory<K : Any> internal constructor(
         val currentPathOf by rememberUpdatedState(pathOf)
         val addresses = remember { { key: K -> currentPathOf(key) } }
         DisposableEffect(navigator) {
-            sync.attach(navigator.backStack.toList(), addresses)
+            sync.attach(navigator.backStack.toList(), navigator.section, addresses)
             val stop = browser.onPop { id, address -> sync.onPop(id, address, navigator) }
             onDispose { stop() }
         }
         LaunchedEffect(navigator) {
-            snapshotFlow { navigator.backStack.toList() }.collect { sync.onStackChanged(it) }
+            // The stack and the section in one: a screen opened at a part of it is one entry, written with its part.
+            snapshotFlow { navigator.backStack.toList() to navigator.section }
+                .collect { (stack, section) -> sync.onStackChanged(stack, section) }
         }
         LaunchedEffect(pathOf) {
             sync.rewriteAddress()
@@ -86,33 +93,46 @@ internal class HistorySync<K : Any>(
     private val keyOf: (String) -> K
 ) {
     private var keys: List<K> = emptyList()
+    private var section: String? = null
     private var ids: List<Int> = emptyList()
     private var nextId = 0
     private var pathOf: (K) -> String = { "" }
 
-    /** Takes [stack] as what the browser's entry on show is, and gives the entry an id. */
+    /** Takes [stack], at [section], as what the browser's entry on show is, and gives the entry an id. */
     fun attach(
         stack: List<K>,
+        section: String?,
         pathOf: (K) -> String
     ) {
         this.pathOf = pathOf
         val id = browser.entryId ?: 0
         nextId = id + 1
         keys = stack
+        this.section = section
         // Only the screen on show is an entry the browser has; older keys, from a stack the app restored, are not.
         ids = List(stack.size - 1) { NOT_AN_ENTRY } + id
-        browser.replace(id, pathOf(stack.last()))
+        browser.replace(id, addressOf(stack.last(), section))
     }
 
-    /** The app changed its stack to [stack]: the browser's history follows. */
-    fun onStackChanged(stack: List<K>) {
-        if (stack == keys || stack.isEmpty()) return
+    /** The app changed its stack to [stack], the last screen at [section]: the browser's history follows. */
+    fun onStackChanged(
+        stack: List<K>,
+        section: String? = null
+    ) {
+        if (stack.isEmpty() || (stack == keys && section == this.section)) return
+        val moved = stack == keys
         val shared = keys.zip(stack).takeWhile { (old, new) -> old == new }.size
+        this.section = section
         when {
+            // The screen on show moved to another of its parts: the entry is written again, not added.
+            moved -> {
+                browser.replace(ids.last(), addressOf(stack.last(), section))
+            }
+
             // A screen opened on top.
             stack.size == keys.size + 1 && shared == keys.size -> {
                 val id = nextId++
-                browser.push(id, pathOf(stack.last()))
+                browser.push(id, addressOf(stack.last(), section))
                 ids = ids + id
             }
 
@@ -127,13 +147,13 @@ internal class HistorySync<K : Any>(
 
             // The screen on show replaced.
             stack.size == keys.size && shared == keys.size - 1 -> {
-                browser.replace(ids.last(), pathOf(stack.last()))
+                browser.replace(ids.last(), addressOf(stack.last(), section))
             }
 
             // Any other jump is a new entry, with nothing of the browser's behind it.
             else -> {
                 val id = nextId++
-                browser.push(id, pathOf(stack.last()))
+                browser.push(id, addressOf(stack.last(), section))
                 ids = List(stack.size - 1) { NOT_AN_ENTRY } + id
             }
         }
@@ -165,19 +185,29 @@ internal class HistorySync<K : Any>(
                 ids = listOf(entry)
             }
         }
-        navigator.setAll(keys)
-        val expected = pathOf(keys.last())
-        if (address.substringBefore('#') != expected || id == null) browser.replace(ids.last(), expected)
+        section = sectionOf(address)
+        navigator.setAll(keys, section)
+        val expected = addressOf(keys.last(), section)
+        if (address != expected || id == null) browser.replace(ids.last(), expected)
     }
 
     /** The addresses changed, as the app's language did: the entry on show is written again. */
     fun rewriteAddress() {
         if (keys.isEmpty()) return
-        browser.replace(ids.last(), pathOf(keys.last()))
+        browser.replace(ids.last(), addressOf(keys.last(), section))
     }
+
+    /** The address of [key], at its part [section] where there is one. */
+    private fun addressOf(
+        key: K,
+        section: String?
+    ): String = if (section == null) pathOf(key) else "${pathOf(key)}#$section"
 
     private companion object {
         /** The id of a key the browser has no entry for. */
         const val NOT_AN_ENTRY = -1
     }
 }
+
+/** The part of a page [address] names after a `#`, or null where it names none. */
+internal fun sectionOf(address: String): String? = address.substringAfter('#', "").ifEmpty { null }

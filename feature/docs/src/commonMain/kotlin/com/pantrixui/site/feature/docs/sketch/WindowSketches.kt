@@ -49,6 +49,7 @@ import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.platform.currentOperatingSystem
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.content.OnPlatform
 import com.pantrixui.site.core.designsystem.content.SketchChoice
 import com.pantrixui.site.core.designsystem.content.SketchControls
 import com.pantrixui.site.core.designsystem.content.SketchFigure
@@ -79,7 +80,7 @@ internal fun WindowTitleSketch() {
             modifier = Modifier.widthIn(max = WINDOW_WIDTH).fillMaxWidth(),
             height = 200.dp
         ) {
-            SketchPlatform(PlatformType.Desktop) {
+            OnPlatform(PlatformType.Desktop) {
                 Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     SketchChoice(
                         options = screens.mapIndexed { index, words -> index to words.of(language) },
@@ -196,7 +197,7 @@ internal fun KeyboardShortcutsSketch() {
             modifier = Modifier.widthIn(max = WINDOW_WIDTH).fillMaxWidth(),
             height = 200.dp
         ) {
-            SketchPlatform(PlatformType.Desktop) {
+            OnPlatform(PlatformType.Desktop) {
                 Column(
                     Modifier
                         .fillMaxSize()

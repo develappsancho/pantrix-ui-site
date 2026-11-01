@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
@@ -23,6 +25,7 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.siteClickable
 
 /**
@@ -43,12 +46,16 @@ data class NavSection(
  * @property label what it says.
  * @property href where it leads: a path of the site or a web address.
  * @property current whether it is the page on show.
+ * @property count how many pages it holds, written at its end: a group of components.
+ * @property nested whether it is a link inside the one above it, set in from it: a component of its group.
  */
 data class NavItem(
     val key: String,
     val label: String,
     val href: String,
-    val current: Boolean = false
+    val current: Boolean = false,
+    val count: Int? = null,
+    val nested: Boolean = false
 )
 
 /**
@@ -71,7 +78,7 @@ fun NavList(
         sections.forEachIndexed { index, section ->
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 PantrixText(
-                    text = section.title.uppercase(),
+                    text = section.title.inCapitals(),
                     style = SiteTheme.type.overline,
                     color = SiteTheme.colors.muted,
                     modifier = Modifier.padding(
@@ -103,15 +110,12 @@ private fun NavRow(
         hovered -> SiteTheme.colors.hover
         else -> Color.Transparent
     }
-    PantrixText(
-        text = item.label,
-        style = SiteTheme.type.sidebarItem.copy(
-            fontWeight = if (item.current) FontWeight.Bold else FontWeight.SemiBold
-        ),
-        color = if (item.current) primary.onContainer else PantrixTheme.colors.textSecondary,
-        modifier = Modifier
+    val side = if (desktop) 10.dp else 12.dp
+    Row(
+        Modifier
+            .padding(start = if (item.nested) NESTED else 0.dp)
             .fillMaxWidth()
-            .semantics { selected = item.current }
+            .semantics(mergeDescendants = true) { selected = item.current }
             .siteClickable("nav_${item.key}", Role.Button, shape, interactions) { onSelect(item.href) }
             .background(fill, shape)
             .heightIn(
@@ -123,6 +127,26 @@ private fun NavRow(
                     48.dp
                 }
             )
-            .padding(horizontal = if (desktop) 10.dp else 12.dp, vertical = if (desktop) 6.dp else 11.dp)
-    )
+            .padding(horizontal = side, vertical = if (desktop) 6.dp else 11.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        PantrixText(
+            text = item.label,
+            style = SiteTheme.type.sidebarItem.copy(
+                fontWeight = if (item.current) FontWeight.Bold else FontWeight.SemiBold
+            ),
+            color = if (item.current) primary.onContainer else PantrixTheme.colors.textSecondary,
+            modifier = Modifier.weight(1f)
+        )
+        item.count?.let { count ->
+            PantrixText(
+                text = "$count",
+                style = SiteTheme.type.sidebarItem.copy(fontWeight = FontWeight.SemiBold),
+                color = SiteTheme.colors.muted
+            )
+        }
+    }
 }
+
+/** How far a link inside another is set in from it. */
+private val NESTED = 12.dp

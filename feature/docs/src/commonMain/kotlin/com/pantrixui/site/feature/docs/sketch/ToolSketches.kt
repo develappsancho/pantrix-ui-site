@@ -46,7 +46,6 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.components.inputs.textfield.PantrixTextField
 import com.pantrixui.foundation.analytics.PantrixAnalytics
 import com.pantrixui.foundation.analytics.PantrixUiEvent
-import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.testing.TestTagPolicy
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteLayout
@@ -59,6 +58,7 @@ import com.pantrixui.site.core.designsystem.content.SketchFigure
 import com.pantrixui.site.core.designsystem.content.SketchNote
 import com.pantrixui.site.core.designsystem.content.SketchSwitch
 import com.pantrixui.site.core.designsystem.content.WindowFrame
+import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.sized
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Block
@@ -290,7 +290,7 @@ private fun EventLog(events: List<PantrixUiEvent>) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         PantrixText(
-            text = ToolSay.Events.of(language).uppercase(),
+            text = ToolSay.Events.of(language).inCapitals(),
             style = SiteTheme.type.overline,
             color = SiteTheme.colors.code.comment
         )

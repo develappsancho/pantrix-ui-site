@@ -159,5 +159,16 @@ class PageReaderTest {
             installation.all { page -> page.contents.size == 7 },
             "the contents of Installation: ${installation.map { it.contents }}"
         )
+        // The landing page's code, a block under each heading its screen looks for.
+        val landing = pages.filter { it.path == "/" }
+        assertEquals(setOf(Language.English, Language.Turkish), landing.map { it.language }.toSet())
+        landing.forEach { page ->
+            val anchors = listOf("review-form", "review-form-wide", "review-form-short", "preset")
+            anchors.forEach { anchor ->
+                val heading = page.blocks.indexOfFirst { it is Block.Heading && it.anchor == anchor }
+                val code = page.blocks.getOrNull(heading + 1) as? Block.Code
+                assertTrue(heading >= 0 && code?.language == "kotlin", "#$anchor in ${page.language}")
+            }
+        }
     }
 }

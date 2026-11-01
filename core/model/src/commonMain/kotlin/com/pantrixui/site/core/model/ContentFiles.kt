@@ -29,6 +29,18 @@ object ContentFiles {
     /** The file of the library's changelog in [language]: `files/content/en/releases.json`. */
     fun changelogFile(language: Language): String = "files/content/${language.code}/releases.json"
 
+    /** The file of the library's components in [language], by group: `files/content/en/components.json`. */
+    fun componentIndexFile(language: Language): String = "files/content/${language.code}/components.json"
+
+    /** The file of the page of the component [key] in [language]: `files/content/en/components/text-area.json`. */
+    fun componentFile(
+        language: Language,
+        key: String
+    ): String = "files/content/${language.code}/components/$key.json"
+
+    /** The file of what the site's search finds in [language]: `files/content/en/search.json`. */
+    fun searchFile(language: Language): String = "files/content/${language.code}/search.json"
+
     /** The file of how long each guide takes to read, by its key, the same in every language. */
     const val GUIDE_MINUTES: String = "files/content/guide-minutes.json"
 }

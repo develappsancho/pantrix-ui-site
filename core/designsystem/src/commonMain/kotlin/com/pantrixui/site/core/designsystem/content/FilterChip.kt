@@ -1,4 +1,4 @@
-package com.pantrixui.site.feature.docs
+package com.pantrixui.site.core.designsystem.content
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -25,7 +25,7 @@ import com.pantrixui.site.core.designsystem.sized
 
 /**
  * A chip that keeps a page's list to one part of it, with how many of the list's lines that part has: a topic of the
- * guides, a module of the changelog.
+ * guides, a module of the changelog, a group of the components.
  *
  * @param label what it says.
  * @param count how many lines it keeps.
@@ -34,7 +34,7 @@ import com.pantrixui.site.core.designsystem.sized
  * @param onClick what choosing it does.
  */
 @Composable
-internal fun FilterChip(
+fun FilterChip(
     label: String,
     count: Int,
     selected: Boolean,

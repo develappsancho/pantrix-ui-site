@@ -17,9 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,38 +32,27 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pantrixui.components.elements.button.ButtonColors
-import com.pantrixui.components.elements.button.ButtonSize
-import com.pantrixui.components.elements.button.ButtonSizeStyle
-import com.pantrixui.components.elements.button.ButtonStyle
-import com.pantrixui.components.elements.button.ButtonVariant
-import com.pantrixui.components.elements.button.PantrixButton
-import com.pantrixui.components.elements.icon.PantrixIcon
 import com.pantrixui.components.elements.text.PantrixText
-import com.pantrixui.components.inputs.textfield.PantrixTextField
-import com.pantrixui.components.inputs.textfield.TextFieldColors
-import com.pantrixui.components.inputs.textfield.TextFieldStyle
-import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.platform.PantrixWindowTitle
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
 import com.pantrixui.foundation.theme.PantrixTheme
-import com.pantrixui.foundation.token.shape.ShapeSpec
 import com.pantrixui.site.core.base.BaseScreen
 import com.pantrixui.site.core.base.LoadState
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.ArticlePage
 import com.pantrixui.site.core.designsystem.content.Crumb
+import com.pantrixui.site.core.designsystem.content.FilterChip
+import com.pantrixui.site.core.designsystem.content.FilterField
 import com.pantrixui.site.core.designsystem.content.LinkCard
 import com.pantrixui.site.core.designsystem.content.PageAnchors
+import com.pantrixui.site.core.designsystem.content.PageFailed
 import com.pantrixui.site.core.designsystem.content.PageHeader
+import com.pantrixui.site.core.designsystem.content.RoundTag
 import com.pantrixui.site.core.designsystem.content.edgeToEdge
 import com.pantrixui.site.core.designsystem.content.pageAnchor
 import com.pantrixui.site.core.designsystem.sized
@@ -213,7 +200,7 @@ private fun GuideFilter(
         snapshotFlow { field.text.toString() }.collect { currentAction(GuidesAction.Filter(it)) }
     }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        FilterField(field, strings.filterTheGuides, height = if (desktop) 40.dp else 48.dp)
+        FilterField(field, strings.filterTheGuides, height = if (desktop) 40.dp else 48.dp, tag = "guideFilter")
         val chips: @Composable () -> Unit = {
             FilterChip(strings.allTopics, state.count(language, null), state.topic == null, "topic_all") {
                 onAction(GuidesAction.PickTopic(null))
@@ -238,37 +225,6 @@ private fun GuideFilter(
             ) { chips() }
         }
     }
-}
-
-@Composable
-private fun FilterField(
-    field: TextFieldState,
-    placeholder: String,
-    height: Dp
-) {
-    PantrixTextField(
-        state = field,
-        modifier = Modifier.fillMaxWidth(),
-        placeholder = placeholder,
-        leadingIcon = {
-            PantrixIcon(
-                imageVector = PantrixIcons.Search,
-                contentDescription = null,
-                tint = SiteTheme.colors.muted,
-                size = 16.dp
-            )
-        },
-        showClearButton = true,
-        style = TextFieldStyle(
-            shape = ShapeSpec.Fixed(RoundedCornerShape(12.dp)),
-            height = height,
-            horizontalPadding = 12.dp,
-            iconPadding = 10.dp
-        ),
-        colors = TextFieldColors(border = PantrixTheme.colors.borderHover),
-        contentDescription = placeholder,
-        tagKey = "guideFilter"
-    )
 }
 
 /** A topic: its heading and the line under it, then its guides' cards, two side by side and one on a phone. */
@@ -321,8 +277,9 @@ private fun GuideCard(
         tagKey = "guide_${guide.key}",
         modifier = modifier
     ) {
-        // One child: the card's own room between its children is not put between its lines.
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // One child: the card's own room between its children is not put between its lines. It fills the card, which
+        // is as tall as the tallest of its row, and its last line stands at the foot.
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             PantrixText(
                 text = guide.title.of(language),
                 style = SiteTheme.type.cardTitle.sized(15.5.sp).copy(lineHeight = (15.5 * TITLE_LINE).sp),
@@ -334,6 +291,7 @@ private fun GuideCard(
                 color = PantrixTheme.colors.textSecondary
             )
             if (minutes != null || guide.withoutPantrix) {
+                Spacer(Modifier.weight(1f))
                 Row(
                     Modifier.padding(top = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -348,13 +306,13 @@ private fun GuideCard(
                         )
                     }
                     if (guide.withoutPantrix) {
-                        PantrixText(
+                        RoundTag(
                             text = strings.alsoWithoutPantrix,
-                            style = small,
-                            color = PantrixTheme.colors.textSecondary,
-                            modifier = Modifier
-                                .background(SiteTheme.colors.hover, CircleShape)
-                                .padding(horizontal = 8.dp, vertical = 2.dp)
+                            container = SiteTheme.colors.hover,
+                            content = PantrixTheme.colors.textSecondary,
+                            textStyle = small,
+                            horizontalPadding = 8.dp,
+                            verticalPadding = 2.dp
                         )
                     }
                 }

@@ -13,10 +13,12 @@ import com.pantrixui.site.core.model.Span
 /**
  * The library's changelog as the site's [Changelog], from its document in Keep a Changelog's form: a title, a line
  * to the other language, a first paragraph, then a `## [version]` heading for each version, `###` for each kind of
- * change, `####` for each module and a list of lines under it, each with a bold lead.
+ * change, `####` for each module, the names it is published under, and a list of lines under it, each with a bold
+ * lead.
  *
- * The modules are named in the changelog's language; a module's key and its artifacts come from the English
- * changelog, which [english] gives the Turkish one: the two have the same headings in the same order.
+ * The modules are named in the changelog's language; a module's key comes from the English changelog, which [english]
+ * gives the Turkish one: the two have the same headings in the same order. A module that names no artifact of its own
+ * takes the English one's.
  *
  * @param language the language the changelog is written in.
  * @param english the English changelog, read first, for the Turkish one; null for the English one itself.
@@ -49,6 +51,9 @@ internal class ChangelogReader(
         val intro = MarkdownBlocks.blocks(introLines.joinToString("\n"))
         val targets = intro.filterIsInstance<Block.ItemList>().firstOrNull()
         val afterTargets = intro.indexOfFirst { it === targets }.let { if (it < 0) intro.size else it + 1 }
+        // A sentence that only leads into the list of targets, "Its targets:", is said by the site's own label.
+        val opening = intro.take(afterTargets).filterNot { it === targets }
+            .let { if (targets != null) it.dropLastWhile(::leadsIntoAList) else it }
         val sections = cut(body.drop(introLines.size), "### ").mapIndexed { index, (kindTitle, kindBody) ->
             val kind = kindOf(kindTitle)
             val twinGroups = twin?.sections?.getOrNull(index)?.groups
@@ -63,7 +68,7 @@ internal class ChangelogReader(
         return Release(
             version = name.takeUnless { it in UNRELEASED },
             date = date,
-            intro = intro.take(afterTargets).filterNot { it === targets },
+            intro = opening,
             targets = targets?.items.orEmpty().map { item ->
                 item.filterIsInstance<Block.Paragraph>().flatMap { it.text }.trimmedEnd()
             },
@@ -78,11 +83,19 @@ internal class ChangelogReader(
         twin: ChangeGroup?
     ): ChangeGroup {
         val key = twin?.key ?: module.lowercase().replace(' ', '-')
-        val list = MarkdownBlocks.blocks(body.joinToString("\n")).filterIsInstance<Block.ItemList>().firstOrNull()
+        val blocks = MarkdownBlocks.blocks(body.joinToString("\n"))
+        val list = blocks.filterIsInstance<Block.ItemList>().firstOrNull()
+        // The names the module is published under stand under its heading, before its lines.
+        val named = blocks.takeWhile { it !is Block.ItemList }
+            .filterIsInstance<Block.Paragraph>()
+            .flatMap { it.text }
+            .filterIsInstance<Span.Code>()
+            .map { it.text }
+            .filter { ARTIFACT.matches(it) }
         return ChangeGroup(
             module = module,
             key = key,
-            artifacts = ARTIFACTS[key].orEmpty(),
+            artifacts = named.ifEmpty { twin?.artifacts.orEmpty() },
             entries = list?.items.orEmpty().map(::entry)
         )
     }
@@ -128,15 +141,12 @@ internal class ChangelogReader(
             ChangeKind.Security to setOf("security", "güvenlik")
         )
 
-        /** What each module of the changelog is published as, by its key. */
-        private val ARTIFACTS = mapOf(
-            "foundation" to listOf("com.pantrixui:foundation"),
-            "components" to listOf("com.pantrixui:components"),
-            "annotations" to listOf("com.pantrixui:annotations"),
-            "material-3" to listOf("com.pantrixui:material3"),
-            "testing" to listOf("com.pantrixui:testing"),
-            "tooling" to listOf("com.pantrixui:detekt-rules", "com.pantrixui:mcp")
-        )
+        /** A Maven artifact's group and name: `com.pantrixui:foundation`. */
+        private val ARTIFACT = Regex("[a-z][a-z0-9.]*:[a-z0-9-]+")
+
+        /** Whether [block] is a sentence that only leads into the list after it: it ends with a colon. */
+        private fun leadsIntoAList(block: Block): Boolean =
+            block is Block.Paragraph && block.text.plainText().trimEnd().endsWith(':')
 
         /** [lines] cut at each line that starts with [marker]: each such line's rest, and the lines up to the next. */
         private fun cut(

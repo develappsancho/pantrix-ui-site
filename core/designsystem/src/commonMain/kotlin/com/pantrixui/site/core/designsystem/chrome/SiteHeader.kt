@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,7 +69,7 @@ data class HeaderLink(
 )
 
 /**
- * The site's header, as wide as the window: the brand, the parts of the site, the search, the language and the
+ * The site's header, across the window: the brand, the parts of the site, the search, the language and the
  * theme. On a desktop the parts are links in it; on a tablet and a phone they are in the menu its first button opens.
  *
  * @param links the parts of the site, in order.
@@ -80,6 +81,9 @@ data class HeaderLink(
  * @param onToggleTheme what the theme button does.
  * @param onOpenMenu what the menu button of a tablet or a phone does.
  * @param modifier the header's modifier.
+ * @param contentWidth the widest its content grows on a desktop, its sides' room left out, in the middle of a wider
+ *   window: a landing page's width on the site's own pages, or unspecified for the whole window, as on the
+ *   documentation's.
  */
 @Composable
 fun SiteHeader(
@@ -91,18 +95,20 @@ fun SiteHeader(
     dark: Boolean,
     onToggleTheme: () -> Unit,
     onOpenMenu: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentWidth: Dp = Dp.Unspecified
 ) {
     val layout = SiteTheme.layout
     val strings = LocalSiteStrings.current
     Column(modifier.fillMaxWidth().background(PantrixTheme.colors.background)) {
-        BoxWithConstraints(Modifier.fillMaxWidth()) {
+        BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
             val showLinks = layout == SiteLayout.Desktop && maxWidth >= 960.dp
             Row(
                 Modifier
-                    .fillMaxWidth()
                     .height(if (layout == SiteLayout.Phone) 56.dp else 64.dp)
-                    .padding(layout.headerRoom),
+                    .padding(layout.headerRoom)
+                    .widthIn(max = if (layout == SiteLayout.Desktop) contentWidth else Dp.Unspecified)
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(
                     when (layout) {

@@ -34,6 +34,7 @@ import com.pantrixui.foundation.adaptive.byWidth
 import com.pantrixui.foundation.adaptive.isNarrow
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
+import com.pantrixui.site.core.designsystem.content.OnPlatform
 import com.pantrixui.site.core.designsystem.content.SketchChoice
 import com.pantrixui.site.core.designsystem.content.SketchControls
 import com.pantrixui.site.core.designsystem.content.SketchFigure
@@ -76,7 +77,7 @@ private fun Orders(
     window: PantrixWindow,
     language: Language
 ) {
-    SketchPlatform(if (window.isNarrow) PlatformType.Ios else PlatformType.Desktop) {
+    OnPlatform(if (window.isNarrow) PlatformType.Ios else PlatformType.Desktop) {
         val columns = window.byWidth(compact = 1, medium = 2, expanded = 3, large = 4)
         Column(
             Modifier.fillMaxSize().background(PantrixTheme.colors.background).padding(24.dp),
@@ -141,7 +142,7 @@ private fun SignIn(
     window: PantrixWindow,
     language: Language
 ) {
-    SketchPlatform(if (window.isNarrow) PlatformType.Ios else PlatformType.Desktop) {
+    OnPlatform(if (window.isNarrow) PlatformType.Ios else PlatformType.Desktop) {
         Row(Modifier.fillMaxSize().background(PantrixTheme.colors.background)) {
             if (!window.isNarrow) {
                 Box(

@@ -1,24 +1,16 @@
 package com.pantrixui.site.feature.docs
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
-import com.pantrixui.components.elements.button.ButtonVariant
-import com.pantrixui.components.elements.button.PantrixButton
-import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.platform.PantrixWindowTitle
 import com.pantrixui.foundation.platform.rememberPantrixClipboard
-import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.base.BaseScreen
 import com.pantrixui.site.core.base.LoadState
 import com.pantrixui.site.core.designsystem.SiteLayout
@@ -27,9 +19,9 @@ import com.pantrixui.site.core.designsystem.content.ArticlePage
 import com.pantrixui.site.core.designsystem.content.ContentBlocks
 import com.pantrixui.site.core.designsystem.content.Crumb
 import com.pantrixui.site.core.designsystem.content.PageAnchors
+import com.pantrixui.site.core.designsystem.content.PageFailed
 import com.pantrixui.site.core.designsystem.content.PageHeader
 import com.pantrixui.site.core.i18n.LocalLanguage
-import com.pantrixui.site.core.i18n.LocalSiteStrings
 import com.pantrixui.site.core.model.GuideCatalogue
 import com.pantrixui.site.core.model.GuideEntry
 import com.pantrixui.site.core.model.Page
@@ -152,25 +144,6 @@ private fun DocArticle(
             )
         )
         ContentBlocks(page.blocks, onLink, anchors = anchors)
-    }
-}
-
-/** What a page says when its content could not be read, with the button that reads it again. */
-@Composable
-internal fun PageFailed(
-    onRetry: () -> Unit,
-    modifier: Modifier
-) {
-    val strings = LocalSiteStrings.current
-    Box(modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            PantrixText(
-                text = strings.pageNotOpened,
-                style = SiteTheme.type.lead,
-                color = PantrixTheme.colors.textPrimary
-            )
-            PantrixButton(text = strings.tryAgain, onClick = onRetry, variant = ButtonVariant.Outline, tagKey = "retry")
-        }
     }
 }
 

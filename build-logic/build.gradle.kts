@@ -82,5 +82,9 @@ gradlePlugin {
             id = "site.content"
             implementationClass = "com.pantrixui.site.buildlogic.ContentConventionPlugin"
         }
+        register("siteLiveExamples") {
+            id = "site.live-examples"
+            implementationClass = "com.pantrixui.site.buildlogic.LiveExamplesConventionPlugin"
+        }
     }
 }

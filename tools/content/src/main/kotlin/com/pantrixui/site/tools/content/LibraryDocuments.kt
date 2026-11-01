@@ -1,5 +1,6 @@
 package com.pantrixui.site.tools.content
 
+import com.pantrixui.site.core.model.Language
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -8,8 +9,8 @@ import java.util.zip.ZipFile
 
 /**
  * The library's documents for coding assistants, as the `com.pantrixui:mcp` jar carries them under `pantrix-ui/`.
- * The site reads the changelog from them, in English and in Turkish, so that what it shows is what the library wrote
- * at its last build.
+ * The site reads the changelog and the components' pages from them, in English and in Turkish, so that what it shows
+ * is what the library wrote at its last build.
  *
  * @param jar the jar.
  */
@@ -18,6 +19,17 @@ internal class LibraryDocuments(private val jar: File) {
     fun version(): String {
         val library = Json.parseToJsonElement(text(LIBRARY)).jsonObject.getValue("library").jsonObject
         return library.getValue("version").jsonPrimitive.content.removeSuffix("-SNAPSHOT")
+    }
+
+    /** The demo's pages in [language], each taken apart, by its key. */
+    fun pages(language: Language): Map<String, LibraryPage> = ZipFile(jar).use { zip ->
+        val folder = if (language == Language.English) "$ROOT/pages/" else "$ROOT/${language.code}/pages/"
+        zip.entries().asSequence()
+            .filter { it.name.startsWith(folder) && it.name.endsWith(".md") }
+            .associate { entry ->
+                entry.name.removePrefix(folder).removeSuffix(".md") to
+                    LibraryPage.read(zip.getInputStream(entry).readBytes().decodeToString())
+            }
     }
 
     /** The text of the document at [path], `CHANGELOG.md`, which the jar has. */

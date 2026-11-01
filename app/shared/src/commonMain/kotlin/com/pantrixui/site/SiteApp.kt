@@ -17,25 +17,41 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.pantrixui.foundation.keyboard.PantrixShortcut
+import com.pantrixui.foundation.keyboard.onShortcut
+import com.pantrixui.foundation.keyboard.shortcutRoot
 import com.pantrixui.foundation.platform.LocalPantrixWindowTitleFormat
 import com.pantrixui.foundation.platform.PantrixWindowTitleFormat
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.base.BaseScreen
+import com.pantrixui.site.core.content.ContentRepository
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.chrome.LocalChooseLanguage
 import com.pantrixui.site.core.designsystem.chrome.SidebarCard
 import com.pantrixui.site.core.designsystem.chrome.SiteHeader
 import com.pantrixui.site.core.designsystem.chrome.SiteMenu
 import com.pantrixui.site.core.designsystem.chrome.SiteSidebar
+import com.pantrixui.site.core.designsystem.content.LANDING_WIDTH
+import com.pantrixui.site.core.designsystem.content.LocalPageSection
+import com.pantrixui.site.core.designsystem.content.PageSection
 import com.pantrixui.site.core.i18n.LocalSiteStrings
+import com.pantrixui.site.core.model.ComponentIndex
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Route
@@ -44,10 +60,20 @@ import com.pantrixui.site.core.navigation.Navigator
 import com.pantrixui.site.core.navigation.NoNavigationHistory
 import com.pantrixui.site.core.navigation.rememberNavigator
 import com.pantrixui.site.core.routing.SiteRoutes
+import com.pantrixui.site.feature.adaptive.AdaptiveRoute
+import com.pantrixui.site.feature.ai.AiRoute
+import com.pantrixui.site.feature.components.ComponentRoute
+import com.pantrixui.site.feature.components.ComponentsRoute
 import com.pantrixui.site.feature.docs.ChangelogRoute
 import com.pantrixui.site.feature.docs.DocRoute
 import com.pantrixui.site.feature.docs.GuidesRoute
 import com.pantrixui.site.feature.docs.NotFoundScreen
+import com.pantrixui.site.feature.foundations.FoundationsRoute
+import com.pantrixui.site.feature.home.HomeRoute
+import com.pantrixui.site.feature.roadmap.RoadmapRoute
+import com.pantrixui.site.feature.search.SearchRoute
+import com.pantrixui.site.feature.theme.ThemeRoute
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -72,11 +98,22 @@ fun SiteApp(
             // for that moment, and the start page is not decided in it.
             if (PantrixTheme.window.isSizeKnown) {
                 CompositionLocalProvider(LocalPantrixWindowTitleFormat provides SiteTitleFormat) {
-                    val navigator = rememberNavigator(history.startStack(listOf(START_PAGE)), Route.serializer())
+                    val navigator = rememberNavigator(
+                        start = history.startStack(listOf(START_PAGE)),
+                        serializer = Route.serializer(),
+                        section = history.startSection()
+                    )
                     val pathOf =
                         remember(state.language) { { route: Route -> SiteRoutes.addressOf(route, state.language) } }
                     history.Bind(navigator, pathOf)
-                    SiteShell(state, systemDark, onAction, navigator)
+                    val section = remember(navigator) { NavigatorSection(navigator) }
+                    val chooseLanguage: (Language) -> Unit = { onAction(SiteAction.ChooseLanguage(it)) }
+                    CompositionLocalProvider(
+                        LocalPageSection provides section,
+                        LocalChooseLanguage provides chooseLanguage
+                    ) {
+                        SiteShell(state, systemDark, onAction, navigator)
+                    }
                 }
             }
         }
@@ -95,17 +132,25 @@ private fun SiteShell(
     val layout = SiteTheme.layout
     val uriHandler = LocalUriHandler.current
     val route = navigator.current
+    // A link of the site's own opens its page, at the part its `#` names; a `#` alone moves the page on show.
     val open: (String) -> Unit = { href ->
-        if (href.startsWith("/")) navigator.navigate(SiteRoutes.locationOf(href).route) else uriHandler.openUri(href)
+        val section = href.substringAfter('#', "").ifEmpty { null }
+        when {
+            href.startsWith("#") -> section?.let(navigator::showSection)
+            href.startsWith("/") -> navigator.navigate(SiteRoutes.locationOf(href.substringBefore('#')).route, section)
+            else -> uriHandler.openUri(href)
+        }
     }
-    // The search is built in a later stage: its box is drawn and opens nothing yet.
-    val onSearch: () -> Unit = {}
+    // The search opens from the header's box, and from ⌘K or Ctrl+K anywhere on the site.
+    var searching by rememberSaveable { mutableStateOf(false) }
+    val onSearch: () -> Unit = { searching = true }
     // On Android and iOS the site is drawn under the system's bars: its frame keeps clear of the top and the sides,
     // and a page scrolls under the bottom one, its own end clear of it.
     Column(
         Modifier
             .fillMaxSize()
             .background(PantrixTheme.colors.background)
+            .searchShortcut(onSearch)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
     ) {
         SiteHeader(
@@ -116,9 +161,20 @@ private fun SiteShell(
             addressIn = { SiteRoutes.addressOf(route, it) },
             dark = state.dark ?: systemDark,
             onToggleTheme = { onAction(SiteAction.ToggleTheme(systemDark)) },
-            onOpenMenu = { onAction(SiteAction.OpenMenu) }
+            onOpenMenu = { onAction(SiteAction.OpenMenu) },
+            contentWidth = if (route.isLanding) LANDING_WIDTH else Dp.Unspecified
         )
         Row(Modifier.weight(1f)) {
+            if (layout == SiteLayout.Desktop && route is Route.Component) {
+                val content = koinInject<ContentRepository>()
+                val index by produceState<ComponentIndex?>(null, state.language) {
+                    value = runCatching { content.componentIndex(state.language) }.getOrNull()
+                }
+                SiteSidebar(sections = componentsSections(strings, state.language, index, route), onSelect = open)
+            }
+            if (layout == SiteLayout.Desktop && route == Route.Foundations) {
+                SiteSidebar(sections = foundationsSections(strings, state.language, navigator.section), onSelect = open)
+            }
             if (layout == SiteLayout.Desktop && route.hasDocsSidebar) {
                 SiteSidebar(
                     sections = docsSections(strings, state.language, route),
@@ -149,6 +205,7 @@ private fun SiteShell(
             )
         }
     }
+    if (searching) SiteSearch(state.language, onAction, open) { searching = false }
     SiteMenu(
         visible = state.menuOpen && layout != SiteLayout.Desktop,
         onDismissRequest = { onAction(SiteAction.CloseMenu) },
@@ -157,6 +214,34 @@ private fun SiteShell(
         onSelect = open
     )
 }
+
+/**
+ * The site's search over the page, and what opening a result does: the site moves to the result's language, where
+ * it was found in the other, and opens its page at its part.
+ */
+@Composable
+private fun SiteSearch(
+    siteLanguage: Language,
+    onAction: (SiteAction) -> Unit,
+    open: (String) -> Unit,
+    onClose: () -> Unit
+) {
+    SearchRoute(
+        onDismiss = onClose,
+        onOpen = { entry, language ->
+            onClose()
+            if (language != siteLanguage) onAction(SiteAction.ChooseLanguage(language))
+            open(entry.path + entry.anchor?.let { "#$it" }.orEmpty())
+        }
+    )
+}
+
+/**
+ * Opens the search on ⌘K, or Ctrl+K: the site's root holds the focus while nothing else does, so that the shortcut is
+ * heard from the moment the site opens.
+ */
+private fun Modifier.searchShortcut(onSearch: () -> Unit): Modifier =
+    shortcutRoot().onShortcut(PantrixShortcut(Key.K, command = true), onTrigger = onSearch)
 
 /** The page [route] names. Each kind of page is a feature's; the pages of later stages are not built yet. */
 @Composable
@@ -178,13 +263,40 @@ private fun SitePage(
             ChangelogRoute(onNavigate)
         }
 
+        Route.Components -> {
+            ComponentsRoute(onNavigate)
+        }
+
+        is Route.Component -> {
+            ComponentRoute(route.key, onNavigate)
+        }
+
         is Route.NotFound -> {
             NotFoundScreen(route.path, onNavigate, onSearch)
         }
 
-        Route.Home, Route.Components, is Route.Component, Route.Foundations,
-        Route.Adaptive, Route.Theme, Route.Ai, Route.Roadmap -> {
-            NotFoundScreen(SiteRoutes.pathOf(route), onNavigate, onSearch)
+        Route.Home -> {
+            HomeRoute(onNavigate)
+        }
+
+        Route.Foundations -> {
+            FoundationsRoute()
+        }
+
+        Route.Theme -> {
+            ThemeRoute()
+        }
+
+        Route.Adaptive -> {
+            AdaptiveRoute(onNavigate)
+        }
+
+        Route.Ai -> {
+            AiRoute()
+        }
+
+        Route.Roadmap -> {
+            RoadmapRoute(onNavigate)
         }
     }
 }
@@ -197,7 +309,17 @@ internal fun systemLanguage(): Language =
 private val SiteTitleFormat = PantrixWindowTitleFormat { "$it · Pantrix UI" }
 
 /** The page the site opens at where no address names one. */
-private val START_PAGE: Route = Route.Doc("installation")
+private val START_PAGE: Route = Route.Home
 
 /** No animation from one page to the next. */
 private val NO_TRANSITION = ContentTransform(EnterTransition.None, ExitTransition.None)
+
+/** The part of the page on show, as the site's [Navigator] keeps it and the browser's address shows it. */
+private class NavigatorSection(private val navigator: Navigator<Route>) : PageSection {
+    override val current: String?
+        get() = navigator.section
+
+    override fun show(anchor: String) {
+        navigator.showSection(anchor)
+    }
+}

@@ -1,6 +1,5 @@
 package com.pantrixui.site.core.designsystem.content
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,7 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -36,6 +37,9 @@ import androidx.compose.ui.unit.sp
 import com.pantrixui.components.container.card.CardColors
 import com.pantrixui.components.container.card.CardVariant
 import com.pantrixui.components.container.card.PantrixCard
+import com.pantrixui.components.data.tag.PantrixTag
+import com.pantrixui.components.data.tag.TagColors
+import com.pantrixui.components.data.tag.TagStyle
 import com.pantrixui.components.elements.button.ButtonColors
 import com.pantrixui.components.elements.button.ButtonSize
 import com.pantrixui.components.elements.button.ButtonSizeStyle
@@ -46,6 +50,7 @@ import com.pantrixui.components.elements.link.LinkUnderline
 import com.pantrixui.components.elements.link.PantrixLink
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
+import com.pantrixui.foundation.token.shape.ShapeRole
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.sized
@@ -74,7 +79,7 @@ data class PageTag(
     val tone: PageTagTone = PageTagTone.Plain
 )
 
-/** A page's tags, in a row that wraps: rounded marks in the colour of what each says. */
+/** A page's tags, in a row that wraps: Pantrix's tags, round at the ends, in the colour of what each says. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun PageTags(
@@ -93,16 +98,37 @@ internal fun PageTags(
                 PageTagTone.Accent -> colors.primary.container to colors.primary.onContainer
                 PageTagTone.Success -> colors.success.container to colors.success.onContainer
             }
-            PantrixText(
-                text = tag.label,
-                style = SiteTheme.type.tag,
-                color = content,
-                modifier = Modifier
-                    .background(container, CircleShape)
-                    .padding(horizontal = 10.dp, vertical = 3.dp)
-            )
+            RoundTag(tag.label, container, content)
         }
     }
+}
+
+/**
+ * A Pantrix tag round at its ends, in colours of the site's own: the marks of a page, a card and a version.
+ *
+ * @param text what it says.
+ * @param container its fill.
+ * @param content the colour of its words.
+ * @param textStyle the type of its words.
+ * @param horizontalPadding the room at each end.
+ * @param verticalPadding the room above and below its words: it is as tall as a line of [textStyle] and this.
+ */
+@Composable
+fun RoundTag(
+    text: String,
+    container: Color,
+    content: Color,
+    textStyle: TextStyle = SiteTheme.type.tag,
+    horizontalPadding: Dp = 10.dp,
+    verticalPadding: Dp = 3.dp
+) {
+    val height = with(LocalDensity.current) { textStyle.lineHeight.toDp() } + verticalPadding * 2
+    PantrixTag(
+        text = text,
+        style = TagStyle(shape = ShapeRole.Full, height = height, horizontalPadding = horizontalPadding),
+        colors = TagColors(container = container, content = content),
+        textStyle = textStyle
+    )
 }
 
 /**
@@ -263,6 +289,7 @@ private fun FootLine(
  * @param modifier the card's modifier.
  * @param contentPadding the room inside it.
  * @param container its fill.
+ * @param shape its corners.
  * @param content what it says.
  */
 @Composable
@@ -272,9 +299,9 @@ fun LinkCard(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(16.dp),
     container: Color = PantrixTheme.colors.surface,
+    shape: Shape = RoundedCornerShape(14.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val shape = RoundedCornerShape(14.dp)
     val interactions = remember { MutableInteractionSource() }
     val hovered by interactions.collectIsHoveredAsState()
     PantrixCard(

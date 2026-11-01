@@ -1,11 +1,14 @@
 package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Changelog
+import com.pantrixui.site.core.model.ComponentIndex
+import com.pantrixui.site.core.model.ComponentPage
 import com.pantrixui.site.core.model.ContentFiles
 import com.pantrixui.site.core.model.GuideCatalogue
 import com.pantrixui.site.core.model.GuideTopic
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page
+import com.pantrixui.site.core.model.SearchIndex
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.serializer
 import java.io.File
@@ -14,8 +17,8 @@ import kotlin.math.ceil
 /**
  * Writes the site's content for the app under `--out`: each page of `--pages` (`<language>/<path>.md`), the guides
  * among them with how long each takes to read, and from the library's documents in `--docs`, the `com.pantrixui:mcp`
- * jar, the changelog in both languages. What `--out` held before is replaced, so that a page taken out of the site
- * is gone from it too.
+ * jar, the changelog and the components, their list and each one's page, in both languages. What `--out` held before
+ * is replaced, so that a page taken out of the site is gone from it too.
  */
 fun main(args: Array<String>) {
     val options = args.toList().chunked(2).associate { it.first() to it.last() }
@@ -24,13 +27,30 @@ fun main(args: Array<String>) {
     val out = File(options.getValue("--out"))
     val guides = SiteGuides.read(folder)
     val writer = ContentWriter(out)
-    val written = writer.write(SitePages.read(folder).map(guides::withMinutes).map(SiteGuides::withCatalogue))
+    val sitePages = SitePages.read(folder).map(guides::withMinutes).map(SiteGuides::withCatalogue)
+    val written = writer.write(sitePages)
     writer.writeMinutes(guides.minutes)
     val english = ChangelogReader(Language.English).read(documents.text(LibraryDocuments.ENGLISH_CHANGELOG))
     val turkish = ChangelogReader(Language.Turkish, english).read(documents.text(LibraryDocuments.TURKISH_CHANGELOG))
     val upcoming = documents.version()
     writer.writeChangelogs(listOf(english, turkish).map { it.copy(upcoming = upcoming) })
-    println("Wrote ${written.size} pages, ${guides.minutes.size} guides among them, and the changelog to $out")
+    val library = documents.text(LibraryDocuments.LIBRARY)
+    val components = ComponentReader(
+        json = library,
+        pages = Language.entries.associateWith(documents::pages),
+        changelogs = mapOf(Language.English to english, Language.Turkish to turkish)
+    )
+    val indexes = Language.entries.associateWith(components::index)
+    val componentPages = Language.entries.associateWith(components::pages)
+    val count = Language.entries.sumOf { language ->
+        writer.writeComponents(indexes.getValue(language), componentPages.getValue(language))
+    }
+    val search = SearchIndexer(library, sitePages, indexes, componentPages)
+    Language.entries.forEach { writer.writeSearch(search.index(it)) }
+    println(
+        "Wrote ${written.size} pages, ${guides.minutes.size} guides among them, the changelog and " +
+            "${count / Language.entries.size} components to $out"
+    )
 }
 
 /** The pages the site writes itself, from a folder of `<language>/<path>.md` files. */
@@ -133,6 +153,26 @@ internal class ContentWriter(private val out: File) {
         File(out, ContentFiles.GUIDE_MINUTES).apply { parentFile.mkdirs() }.writeText(
             ContentFiles.json.encodeToString(MapSerializer(String.serializer(), Int.serializer()), minutes)
         )
+    }
+
+    /** Writes the list of the components in a language, [index], and each one's page of [pages]; says how many. */
+    fun writeComponents(
+        index: ComponentIndex,
+        pages: List<ComponentPage>
+    ): Int {
+        File(out, ContentFiles.componentIndexFile(index.language)).apply { parentFile.mkdirs() }
+            .writeText(ContentFiles.json.encodeToString(ComponentIndex.serializer(), index))
+        pages.forEach { page ->
+            File(out, ContentFiles.componentFile(page.language, page.card.key)).apply { parentFile.mkdirs() }
+                .writeText(ContentFiles.json.encodeToString(ComponentPage.serializer(), page))
+        }
+        return pages.size
+    }
+
+    /** Writes what the site's search finds in one language. */
+    fun writeSearch(index: SearchIndex) {
+        File(out, ContentFiles.searchFile(index.language)).apply { parentFile.mkdirs() }
+            .writeText(ContentFiles.json.encodeToString(SearchIndex.serializer(), index))
     }
 
     /** Writes each of [changelogs], one a language. */

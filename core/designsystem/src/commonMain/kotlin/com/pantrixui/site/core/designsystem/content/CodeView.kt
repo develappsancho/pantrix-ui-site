@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +52,7 @@ import com.pantrixui.site.core.model.TokenKind
  * @param label what the tabs are views of, at the header's start, the tabs then small at its end: `commonMain`.
  * @param fileHeaderHeight how tall the header is where it holds the file alone, where the page's design says.
  * @param compact whether the block is a small one inside a box: no header, smaller code, closer to its edges.
+ * @param shape the block's corners: rounded unless it fills a panel of its own, edge to edge.
  */
 @Composable
 fun CodeView(
@@ -61,14 +63,15 @@ fun CodeView(
     onSelectTab: (Int) -> Unit = {},
     label: String? = null,
     fileHeaderHeight: Dp? = null,
-    compact: Boolean = false
+    compact: Boolean = false,
+    shape: Shape = CodeShape
 ) {
     val colors = SiteTheme.colors.code
     val layout = SiteTheme.layout
     val (text, tokens) = remember(code) { code.lines.toCodeAndTokens() }
     val tabbed = tabs.isNotEmpty()
     if (compact) {
-        CompactCode(text, tokens, colors, modifier)
+        SmallCode(code, modifier)
         return
     }
     if (tabbed && label != null) {
@@ -84,7 +87,7 @@ fun CodeView(
         copyable = false,
         trailing = if (tabbed && file != null) ({ FileName(file, colors, Modifier.padding(end = 6.dp)) }) else null,
         colors = colors.forCodeBlock(),
-        style = codeStyle(tabbed, layout, fileHeaderHeight),
+        style = codeStyle(tabbed, layout, fileHeaderHeight, shape),
         leading = when {
             tabbed -> ({ CodeTabs(tabs, selectedTab, onSelectTab, colors, layout) })
             file != null -> ({ FileName(file, colors) })
@@ -98,9 +101,10 @@ fun CodeView(
 private fun codeStyle(
     tabbed: Boolean,
     layout: SiteLayout,
-    fileHeaderHeight: Dp?
+    fileHeaderHeight: Dp?,
+    shape: Shape
 ) = CodeBlockStyle(
-    shape = ShapeSpec.Fixed(CodeShape),
+    shape = ShapeSpec.Fixed(shape),
     horizontalPadding = if (layout == SiteLayout.Phone) 16.dp else 18.dp,
     verticalPadding = if (layout == SiteLayout.Phone) 14.dp else 16.dp,
     borderWidth = 0.dp,
@@ -118,28 +122,43 @@ private fun codeStyle(
     }
 )
 
-/** A small block inside a box: the code alone, a little closer to its edges and in a smaller type. */
+/**
+ * A small block of the site's code inside a box: the code alone, in its colours, [textSize] and its lines [line]
+ * times that apart, [horizontalPadding] and [verticalPadding] from its edges and rounded [corner], as the box's design
+ * has it.
+ *
+ * @param code the code and its tokens.
+ * @param modifier the block's modifier.
+ * @param textSize the size of its code.
+ * @param line how far apart its lines are, in its size.
+ * @param horizontalPadding the room at its sides.
+ * @param verticalPadding the room over and under it.
+ * @param corner how round its corners are.
+ */
 @Composable
-private fun CompactCode(
-    text: String,
-    tokens: List<CodeToken>,
-    colors: CodeColors,
-    modifier: Modifier
+fun SmallCode(
+    code: Block.Code,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = COMPACT_CODE_SIZE,
+    line: Float = CODE_LINE,
+    horizontalPadding: Dp = 16.dp,
+    verticalPadding: Dp = 14.dp,
+    corner: Dp = 14.dp
 ) {
-    val type = SiteTheme.type.code
+    val (text, tokens) = remember(code) { code.lines.toCodeAndTokens() }
     PantrixCodeBlock(
         code = text,
         modifier = modifier.fillMaxWidth(),
         tokens = tokens,
         copyable = false,
-        colors = colors.forCodeBlock(),
+        colors = SiteTheme.colors.code.forCodeBlock(),
         style = CodeBlockStyle(
-            shape = ShapeSpec.Fixed(CodeShape),
-            horizontalPadding = 16.dp,
-            verticalPadding = 14.dp,
+            shape = ShapeSpec.Fixed(RoundedCornerShape(corner)),
+            horizontalPadding = horizontalPadding,
+            verticalPadding = verticalPadding,
             borderWidth = 0.dp
         ),
-        textStyle = type.copy(fontSize = COMPACT_CODE_SIZE, lineHeight = COMPACT_CODE_SIZE * CODE_LINE)
+        textStyle = SiteTheme.type.code.copy(fontSize = textSize, lineHeight = textSize * line)
     )
 }
 

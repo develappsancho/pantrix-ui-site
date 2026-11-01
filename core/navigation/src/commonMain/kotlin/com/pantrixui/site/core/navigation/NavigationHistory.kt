@@ -14,6 +14,9 @@ interface NavigationHistory<K : Any> {
     /** The stack the app opens with: in a browser, the screen its address names; elsewhere, [default]. */
     fun startStack(default: List<K>): List<K>
 
+    /** The part of the first screen the app opens at: in a browser, the one its address names after a `#`. */
+    fun startSection(): String? = null
+
     /**
      * Keeps the platform's history in step with [navigator] for as long as it is in the composition.
      *

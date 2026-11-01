@@ -6,6 +6,9 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.toUpperCase
 import com.pantrixui.foundation.adaptive.WindowWidthClass
 import com.pantrixui.foundation.adaptive.rememberPantrixWindow
 import com.pantrixui.foundation.l10n.PantrixLocale
@@ -97,5 +100,13 @@ val Language.pantrixLocale: PantrixLocale
         Language.English -> PantrixLocale.English
         Language.Turkish -> PantrixLocale.Turkish
     }
+
+/**
+ * [this] in capitals by the rules of the language the theme speaks, as an overline writes its words: in Turkish an `i`
+ * is an `İ`, which a capital made with no language loses.
+ */
+@Composable
+@ReadOnlyComposable
+fun String.inCapitals(): String = toUpperCase(LocaleList(Locale(PantrixTheme.locale.languageTag)))
 
 private val LocalSiteLayout = staticCompositionLocalOf { SiteLayout.Desktop }

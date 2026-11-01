@@ -14,8 +14,9 @@ import com.pantrixui.foundation.token.typography.rememberPantrixTypography
 /**
  * The site's look: Pantrix's structure in the colours of the Shopeers design system, made accessible where its own
  * values were not. The dark primary is a lighter blue with near-black text on it, a white one reads 3.6:1 on the dark
- * surface; the light danger is a darker red, since Shopeers' own gives white text 4.3:1; success and warning carry
- * near-black text.
+ * surface; the light danger is a darker red, since Shopeers' own gives white text 4.3:1. The light success and warning
+ * are darker than Shopeers' own too, which read 3.4:1 and 3.0:1 as text on the page: a component may write in a
+ * role's colour, and Pantrix's diagnostics found them. The chart keeps Shopeers' own, which are marks, not text.
  *
  * Its colours beyond Pantrix's roles, the site's own grounds and the code's, are [SiteColors].
  */
@@ -49,8 +50,8 @@ object ShopeersPreset : DesignPreset {
             onContainer = Color(0xFF1A52D6)
         ),
         success = PantrixColor(
-            color = Color(0xFF1F9F66),
-            onColor = NearBlack,
+            color = Color(0xFF1A8556),
+            onColor = Color.White,
             container = Color(0xFFE7F6EF),
             onContainer = Color(0xFF146B45)
         ),
@@ -61,8 +62,8 @@ object ShopeersPreset : DesignPreset {
             onContainer = Color(0xFF1A52D6)
         ),
         warning = PantrixColor(
-            color = Color(0xFFE5761F),
-            onColor = NearBlack,
+            color = Color(0xFFB95D15),
+            onColor = Color.White,
             container = Color(0xFFFFF2E6),
             onContainer = Color(0xFF8A4310)
         ),

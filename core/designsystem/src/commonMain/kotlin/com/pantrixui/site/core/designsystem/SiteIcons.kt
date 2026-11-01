@@ -10,8 +10,8 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 /**
- * The site's own icons, for what Pantrix's set has no mark for: a language, the theme, a feed, a lock. Each is drawn
- * as the design draws it, in strokes on a 24 grid, in the colour of where it stands.
+ * The site's own icons, for what Pantrix's set has no mark for: a language, the theme, a feed, a lock, a link out,
+ * code and a tool. Each is drawn as the design draws it, in strokes on a 24 grid, in the colour of where it stands.
  */
 object SiteIcons {
     /** A language: a globe with its equator and a meridian. */
@@ -24,6 +24,31 @@ object SiteIcons {
             arcTo(14f, 14f, 0f, isMoreThanHalf = false, isPositiveArc = true, 12f, 21f)
             arcTo(14f, 14f, 0f, isMoreThanHalf = false, isPositiveArc = true, 12f, 3f)
             close()
+        }
+    }
+
+    /** A link to a page of its own: an arrow up and to the end. */
+    val ArrowUpRight: ImageVector by lazy {
+        icon("ArrowUpRight", strokeWidth = 1.8f) {
+            moveTo(7f, 17f)
+            lineTo(17f, 7f)
+            moveTo(9f, 7f)
+            horizontalLineTo(17f)
+            verticalLineTo(15f)
+        }
+    }
+
+    /** Code: an angle bracket on each side of a slash. */
+    val Code: ImageVector by lazy {
+        icon("Code", strokeWidth = 1.8f) {
+            moveTo(8f, 8f)
+            lineTo(4f, 12f)
+            lineTo(8f, 16f)
+            moveTo(16f, 8f)
+            lineTo(20f, 12f)
+            lineTo(16f, 16f)
+            moveTo(13.5f, 6f)
+            lineTo(10.5f, 18f)
         }
     }
 
@@ -85,6 +110,22 @@ object SiteIcons {
             verticalLineTo(7f)
             arcTo(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = true, 16f, 7f)
             verticalLineTo(10f)
+        }
+    }
+
+    /** A tool an assistant calls: a wrench. */
+    val Wrench: ImageVector by lazy {
+        icon("Wrench", strokeWidth = 2f) {
+            moveTo(14.7f, 6.3f)
+            arcToRelative(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = false, -5.4f, 5.4f)
+            lineTo(3f, 18f)
+            lineToRelative(3f, 3f)
+            lineToRelative(6.3f, -6.3f)
+            arcToRelative(4f, 4f, 0f, isMoreThanHalf = false, isPositiveArc = false, 5.4f, -5.4f)
+            lineToRelative(-2.6f, 2.6f)
+            lineToRelative(-2.8f, -0.6f)
+            lineToRelative(-0.6f, -2.8f)
+            close()
         }
     }
 

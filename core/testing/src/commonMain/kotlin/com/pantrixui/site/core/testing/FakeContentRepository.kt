@@ -2,9 +2,12 @@ package com.pantrixui.site.core.testing
 
 import com.pantrixui.site.core.content.ContentRepository
 import com.pantrixui.site.core.model.Changelog
+import com.pantrixui.site.core.model.ComponentIndex
+import com.pantrixui.site.core.model.ComponentPage
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page
 import com.pantrixui.site.core.model.Route
+import com.pantrixui.site.core.model.SearchIndex
 import com.pantrixui.site.core.routing.SiteRoutes
 
 /**
@@ -14,11 +17,17 @@ import com.pantrixui.site.core.routing.SiteRoutes
  * @param pages the pages it knows.
  * @param changelogs the changelogs it knows, one a language.
  * @param minutes how long each guide takes to read, by its key.
+ * @param indexes the lists of the components it knows, one a language.
+ * @param components the components' pages it knows.
+ * @param searches what its search finds, one index a language.
  */
 class FakeContentRepository(
     private val pages: List<Page> = emptyList(),
     private val changelogs: List<Changelog> = emptyList(),
-    private val minutes: Map<String, Int> = emptyMap()
+    private val minutes: Map<String, Int> = emptyMap(),
+    private val indexes: List<ComponentIndex> = emptyList(),
+    private val components: List<ComponentPage> = emptyList(),
+    private val searches: List<SearchIndex> = emptyList()
 ) : ContentRepository {
     /** Thrown by every read while it is set: a source that cannot be read. */
     var failure: Exception? = null
@@ -47,5 +56,26 @@ class FakeContentRepository(
         reads++
         failure?.let { throw it }
         return minutes
+    }
+
+    override suspend fun componentIndex(language: Language): ComponentIndex {
+        reads++
+        failure?.let { throw it }
+        return indexes.first { it.language == language }
+    }
+
+    override suspend fun component(
+        language: Language,
+        key: String
+    ): ComponentPage? {
+        reads++
+        failure?.let { throw it }
+        return components.firstOrNull { it.language == language && it.card.key == key }
+    }
+
+    override suspend fun searchIndex(language: Language): SearchIndex {
+        reads++
+        failure?.let { throw it }
+        return searches.first { it.language == language }
     }
 }

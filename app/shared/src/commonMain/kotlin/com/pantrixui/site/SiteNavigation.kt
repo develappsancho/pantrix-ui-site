@@ -4,9 +4,13 @@ import com.pantrixui.site.core.designsystem.chrome.HeaderLink
 import com.pantrixui.site.core.designsystem.chrome.NavItem
 import com.pantrixui.site.core.designsystem.chrome.NavSection
 import com.pantrixui.site.core.i18n.SiteStrings
+import com.pantrixui.site.core.model.ComponentGroups
+import com.pantrixui.site.core.model.ComponentIndex
+import com.pantrixui.site.core.model.FoundationSection
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Route
+import com.pantrixui.site.core.model.ThemingLink
 import com.pantrixui.site.core.routing.SiteRoutes
 
 /**
@@ -46,10 +50,106 @@ internal val Route.part: SitePart?
         Route.Roadmap -> SitePart.Roadmap
     }
 
+/** Whether a desktop shows the components' sidebar beside [this] page: a component's page does. */
+internal val Route.hasComponentsSidebar: Boolean
+    get() = this is Route.Component
+
+/**
+ * The sidebar of a component's page: getting started, then the components' groups with how many each has, the group
+ * of [current] opened to its components, each link the page's address in [language]. A group's own link leads to its
+ * first component.
+ */
+internal fun componentsSections(
+    strings: SiteStrings,
+    language: Language,
+    index: ComponentIndex?,
+    current: Route.Component
+): List<NavSection> {
+    val started = docsSections(strings, language, current).first()
+    val groups = index?.groups.orEmpty()
+    val open = groups.firstOrNull { group -> group.components.any { it.key == current.key } }?.key
+    return listOf(
+        started,
+        NavSection(
+            strings.components,
+            groups.flatMap { group ->
+                val first = group.components.firstOrNull() ?: return@flatMap emptyList()
+                listOf(
+                    NavItem(
+                        key = "group_${group.key}",
+                        label = ComponentGroups.title(group.key).of(language),
+                        href = SiteRoutes.addressOf(Route.Component(first.key), language),
+                        count = group.components.size
+                    )
+                ) + if (group.key == open) {
+                    group.components.map { card ->
+                        NavItem(
+                            key = "component_${card.key}",
+                            label = card.name,
+                            href = SiteRoutes.addressOf(Route.Component(card.key), language),
+                            current = card.key == current.key,
+                            nested = true
+                        )
+                    }
+                } else {
+                    emptyList()
+                }
+            }
+        )
+    )
+}
+
+/**
+ * The sidebar of the foundations page: its sections, the one [section] names marked, the first where it names none,
+ * then the pages about the theme, each link an address in [language].
+ */
+internal fun foundationsSections(
+    strings: SiteStrings,
+    language: Language,
+    section: String?
+): List<NavSection> {
+    val shown = section?.takeIf { anchor -> FoundationSection.entries.any { it.anchor == anchor } }
+        ?: FoundationSection.entries.first().anchor
+    val page = SiteRoutes.addressOf(Route.Foundations, language)
+    return listOf(
+        NavSection(
+            strings.foundations,
+            FoundationSection.entries.map { part ->
+                NavItem(
+                    key = "foundation_${part.anchor}",
+                    label = part.title.of(language),
+                    href = "$page#${part.anchor}",
+                    current = part.anchor == shown
+                )
+            }
+        ),
+        NavSection(
+            strings.theming,
+            ThemingLink.entries.map { link ->
+                val address = SiteRoutes.addressOf(link.route, language)
+                NavItem(
+                    key = "theming_${link.key}",
+                    label = link.title.of(language),
+                    href = link.section?.let { "$address#$it" } ?: address
+                )
+            }
+        )
+    )
+}
+
 /** Whether a desktop shows the documentation's sidebar beside [this] page, as its design does. */
 internal val Route.hasDocsSidebar: Boolean
     get() = this is Route.Doc || this == Route.Guides || this is Route.Guide || this == Route.Changelog ||
         this is Route.NotFound
+
+/**
+ * Whether the route is one of the site's own pages, laid out in bands no wider than the design's page, under a header
+ * as wide as they are: the landing page, the components, the adaptive page, the one for coding assistants and the
+ * roadmap.
+ */
+internal val Route.isLanding: Boolean
+    get() = this == Route.Home || this == Route.Components || this == Route.Adaptive || this == Route.Ai ||
+        this == Route.Roadmap
 
 /** The header's links, with the part [current] is in marked. */
 internal fun headerLinks(

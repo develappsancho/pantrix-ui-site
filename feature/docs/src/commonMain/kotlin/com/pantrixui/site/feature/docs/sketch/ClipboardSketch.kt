@@ -22,7 +22,6 @@ import com.pantrixui.components.elements.button.ButtonVariant
 import com.pantrixui.components.elements.button.PantrixButton
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
-import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.PhoneFrame
 import com.pantrixui.site.core.designsystem.content.SketchChoice
 import com.pantrixui.site.core.designsystem.content.SketchControls

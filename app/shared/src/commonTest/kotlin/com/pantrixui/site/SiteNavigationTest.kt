@@ -50,4 +50,18 @@ class SiteNavigationTest {
         assertEquals("Theme", menuTitle(SiteStrings.English, Route.Theme))
         assertEquals("Pantrix UI", menuTitle(SiteStrings.English, Route.Home))
     }
+
+    @Test
+    fun the_foundations_sidebar_leads_to_its_sections_and_to_the_pages_about_the_theme() {
+        val sections = foundationsSections(SiteStrings.Turkish, Language.Turkish, section = "shape")
+        assertEquals(listOf("Temeller", "Tema"), sections.map { it.title })
+        val parts = sections.first().items
+        assertEquals("/tr/foundations#colour", parts.first().href)
+        assertEquals("Şekil", parts.single { it.current }.label)
+        assertEquals("/tr/docs/theming#preset", sections.last().items.first().href)
+        assertEquals("/tr/theme", sections.last().items.last().href)
+        // An address with no section, or one the page has not, marks the first.
+        val first = foundationsSections(SiteStrings.English, Language.English, section = "nothing").first().items
+        assertEquals("foundation_colour", first.single { it.current }.key)
+    }
 }

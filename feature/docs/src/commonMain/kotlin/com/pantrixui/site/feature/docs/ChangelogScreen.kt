@@ -59,11 +59,15 @@ import com.pantrixui.site.core.designsystem.content.ArticlePage
 import com.pantrixui.site.core.designsystem.content.ContentsHeading
 import com.pantrixui.site.core.designsystem.content.ContentsLink
 import com.pantrixui.site.core.designsystem.content.Crumb
+import com.pantrixui.site.core.designsystem.content.FilterChip
 import com.pantrixui.site.core.designsystem.content.PageAnchors
+import com.pantrixui.site.core.designsystem.content.PageFailed
 import com.pantrixui.site.core.designsystem.content.PageHeader
 import com.pantrixui.site.core.designsystem.content.RichText
+import com.pantrixui.site.core.designsystem.content.RoundTag
 import com.pantrixui.site.core.designsystem.content.edgeToEdge
 import com.pantrixui.site.core.designsystem.content.pageAnchor
+import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.designsystem.sized
 import com.pantrixui.site.core.i18n.LocalLanguage
@@ -243,7 +247,8 @@ private fun ChangelogFilter(
                     thumbSizeOn = 16.dp,
                     thumbSizePressed = 16.dp
                 ),
-                tagKey = "onlyBreaking"
+                tagKey = "onlyBreaking",
+                labelStyle = SiteTheme.type.bodySmall.sized(14.sp).copy(fontWeight = FontWeight.Bold)
             )
             Spacer(Modifier.weight(1f))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -399,7 +404,7 @@ private fun Labelled(
     marks: @Composable () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        PantrixText(text = label.uppercase(), style = SiteTheme.type.overline, color = SiteTheme.colors.muted)
+        PantrixText(text = label.inCapitals(), style = SiteTheme.type.overline, color = SiteTheme.colors.muted)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
@@ -529,12 +534,7 @@ private fun Pill(
     container: Color,
     content: Color
 ) {
-    PantrixText(
-        text = text,
-        style = SiteTheme.type.tag.copy(fontWeight = FontWeight.ExtraBold),
-        color = content,
-        modifier = Modifier.background(container, CircleShape).padding(horizontal = 10.dp, vertical = 3.dp)
-    )
+    RoundTag(text, container, content, SiteTheme.type.tag.copy(fontWeight = FontWeight.ExtraBold))
 }
 
 /** What a line says: its sentences, and the lists under them with a bullet each, one inside another. */

@@ -26,10 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pantrixui.components.elements.text.PantrixText
-import com.pantrixui.foundation.a11y.PantrixPlatform
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.content.OnPlatform
 import com.pantrixui.site.core.designsystem.sized
 import kotlinx.coroutines.awaitCancellation
 
@@ -51,7 +51,7 @@ internal fun SketchPhoneScreen(
     overlay: @Composable BoxScope.() -> Unit = {},
     screen: @Composable BoxScope.() -> Unit
 ) {
-    SketchPlatform(PlatformType.Ios) {
+    OnPlatform(PlatformType.Ios) {
         Box(modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize().padding(horizontal = 14.dp)) {
                 Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -70,21 +70,6 @@ internal fun SketchPhoneScreen(
             }
             overlay()
         }
-    }
-}
-
-/**
- * [content] in [type]'s conventions, the platform a sketch is of, whatever the site runs on; the system's bars stay
- * the site's.
- */
-@Composable
-internal fun SketchPlatform(
-    type: PlatformType,
-    content: @Composable () -> Unit
-) {
-    val host = PantrixTheme.platform
-    PantrixTheme(platform = PantrixPlatform.forType(type, isTouch = host.isTouch), followSystemBars = false) {
-        content()
     }
 }
 

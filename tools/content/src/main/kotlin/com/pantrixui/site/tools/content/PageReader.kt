@@ -15,7 +15,6 @@ import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.Step
 import com.pantrixui.site.core.model.Tab
 import com.pantrixui.site.core.model.TableStyle
-import com.pantrixui.site.core.model.Tone
 
 /**
  * A page the site writes itself, from Markdown with a head of its own and the site's pieces in it.

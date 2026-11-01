@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteTheme
+import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LocalSiteStrings
 import com.pantrixui.site.core.model.ContentsEntry
@@ -80,7 +81,7 @@ fun ContentsHeading(
     modifier: Modifier = Modifier
 ) {
     PantrixText(
-        text = text.uppercase(),
+        text = text.inCapitals(),
         style = SiteTheme.type.overline,
         color = SiteTheme.colors.muted,
         modifier = modifier.padding(bottom = 6.dp).semantics { heading() }

@@ -59,8 +59,8 @@ class HistorySyncTest {
     private fun start(address: String = "/"): Triple<FakeBrowser, Navigator<String>, HistorySync<String>> {
         val browser = FakeBrowser(address)
         val sync = HistorySync(browser) { it.substringBefore('#').removePrefix("/tr").ifEmpty { "/" } }
-        val navigator = Navigator(listOf(browser.address.substringBefore('#')))
-        sync.attach(navigator.backStack.toList()) { prefix + it }
+        val navigator = Navigator(listOf(browser.address.substringBefore('#')), sectionOf(browser.address))
+        sync.attach(navigator.backStack.toList(), navigator.section) { prefix + it }
         browser.onPop { id, at -> sync.onPop(id, at, navigator) }
         return Triple(browser, navigator, sync)
     }
@@ -70,7 +70,7 @@ class HistorySyncTest {
         change: Navigator<String>.() -> Unit
     ) {
         change()
-        sync.onStackChanged(backStack.toList())
+        sync.onStackChanged(backStack.toList(), section)
     }
 
     @Test
@@ -142,5 +142,43 @@ class HistorySyncTest {
         browser.back()
         assertEquals(listOf("/docs/installation"), navigator.backStack.toList())
         assertEquals("/tr/docs/installation", browser.address)
+    }
+
+    @Test
+    fun an_address_that_names_a_part_of_its_page_opens_the_page_there_and_keeps_it() {
+        val (browser, navigator) = start("/docs/guides/keyboard-dismissal#fix")
+        assertEquals(listOf("/docs/guides/keyboard-dismissal"), navigator.backStack.toList())
+        assertEquals("fix", navigator.section)
+        assertEquals("/docs/guides/keyboard-dismissal#fix", browser.address)
+    }
+
+    @Test
+    fun moving_to_another_part_rewrites_the_entry_on_show_and_adds_none() {
+        val (browser, navigator, sync) = start("/docs/guides/keyboard-dismissal")
+        navigator.go(sync) { showSection("limits") }
+        assertEquals(listOf("/docs/guides/keyboard-dismissal#limits"), browser.addresses)
+        navigator.go(sync) { showSection(null) }
+        assertEquals(listOf("/docs/guides/keyboard-dismissal"), browser.addresses)
+    }
+
+    @Test
+    fun a_page_opened_at_a_part_is_one_entry_and_going_back_to_it_returns_there() {
+        val (browser, navigator, sync) = start()
+        navigator.go(sync) { navigate("/components/text-area", "api") }
+        navigator.go(sync) { navigate("/roadmap") }
+        assertEquals(listOf("/", "/components/text-area#api", "/roadmap"), browser.addresses)
+        assertEquals(null, navigator.section)
+        browser.back()
+        assertEquals(listOf("/", "/components/text-area"), navigator.backStack.toList())
+        assertEquals("api", navigator.section)
+    }
+
+    @Test
+    fun new_addresses_keep_the_part_of_the_page_on_show() {
+        val (browser, navigator, sync) = start("/docs/installation")
+        navigator.go(sync) { showSection("gradle") }
+        prefix = "/tr"
+        sync.rewriteAddress()
+        assertEquals("/tr/docs/installation#gradle", browser.address)
     }
 }

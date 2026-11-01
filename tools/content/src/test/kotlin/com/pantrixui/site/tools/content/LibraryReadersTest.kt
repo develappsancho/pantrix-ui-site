@@ -32,6 +32,8 @@ class LibraryReadersTest {
 
         The first version.
 
+        Its targets:
+
         - Android, API 30 and newer;
         - the JVM.
 
@@ -41,12 +43,16 @@ class LibraryReadersTest {
 
         #### Foundation
 
+        `com.pantrixui:foundation`
+
         - **Theme:** `PantrixTheme`, and a list:
           - colour roles;
           - type.
         - **Breaking:** **Tokens:** spacing is gone.
 
         #### Tooling
+
+        `com.pantrixui:detekt-rules`, `com.pantrixui:mcp`
 
         - `com.pantrixui:mcp`, for assistants.
 
@@ -70,6 +76,8 @@ class LibraryReadersTest {
         ## [Yayınlanmamış]
 
         İlk sürüm.
+
+        Hedefleri:
 
         *   Android, API 30 ve üstü;
         *   JVM.
@@ -96,6 +104,7 @@ class LibraryReadersTest {
 
     @Test
     fun a_changelog_has_its_versions_their_targets_their_kinds_their_modules_and_their_lines() {
+        // The sentence that leads into the targets, "Its targets:", is the site's label: the intro leaves it out.
         val changelog = ChangelogReader(Language.English).read(english)
         assertEquals("Changelog", changelog.title)
         assertEquals(listOf(Span.Text("What changed in Pantrix UI.")), changelog.description)
@@ -130,6 +139,7 @@ class LibraryReadersTest {
         assertEquals("Araçlar", tooling.module)
         assertEquals("tooling", tooling.key)
         assertEquals("foundation", foundation.key)
+        assertEquals(listOf("com.pantrixui:detekt-rules", "com.pantrixui:mcp"), tooling.artifacts, "the English one's")
         assertTrue(foundation.entries.last().breaking)
         assertEquals("Tokenlar", foundation.entries.last().label)
         assertEquals("components", changelog.releases.last().sections.single().groups.single().key)

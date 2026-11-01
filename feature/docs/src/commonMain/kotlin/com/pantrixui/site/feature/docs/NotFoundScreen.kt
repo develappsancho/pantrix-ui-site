@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -49,6 +48,7 @@ import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.chrome.SearchBox
 import com.pantrixui.site.core.designsystem.content.RichText
+import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.i18n.LocalSiteStrings
 import com.pantrixui.site.core.model.LibraryFacts
@@ -97,7 +97,7 @@ fun NotFoundScreen(
             AddressField(path)
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 PantrixText(
-                    text = strings.error404.uppercase(),
+                    text = strings.error404.inCapitals(),
                     style = SiteTheme.type.overline.copy(fontSize = 13.sp),
                     color = SiteTheme.colors.muted
                 )
@@ -122,7 +122,7 @@ fun NotFoundScreen(
             SearchBox(onSearch, Modifier.fillMaxWidth(), tall = true, height = 48.dp, tag = "notFoundSearch")
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 PantrixText(
-                    text = strings.orStartFrom.uppercase(),
+                    text = strings.orStartFrom.inCapitals(),
                     style = SiteTheme.type.overline.copy(fontSize = 13.sp),
                     color = SiteTheme.colors.muted
                 )

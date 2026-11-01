@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
  * @property warningLine the edge of a warning's note.
  * @property violet the fill of a mark of what is yet to come.
  * @property onViolet what is written on it.
+ * @property violetMark the dot of what is yet to come, as strong in both themes.
  * @property code the colours of a block of code.
  * @property sketch the colours of a guide's sketch of a phone.
  */
@@ -32,6 +33,7 @@ data class SiteColors(
     val warningLine: Color,
     val violet: Color,
     val onViolet: Color,
+    val violetMark: Color,
     val code: CodeColors,
     val sketch: SketchColors
 ) {
@@ -47,6 +49,7 @@ data class SiteColors(
             warningLine = Color(0xFFFBD3AD),
             violet = Color(0xFFEFEAFF),
             onViolet = Color(0xFF4C2FB8),
+            violetMark = VIOLET_MARK,
             code = CodeColors.Light,
             sketch = SketchColors.Light
         )
@@ -62,6 +65,7 @@ data class SiteColors(
             warningLine = Color(0xFF5C3613),
             violet = Color(0xFF241A4A),
             onViolet = Color(0xFFC9BBFF),
+            violetMark = VIOLET_MARK,
             code = CodeColors.Dark,
             sketch = SketchColors.Dark
         )
@@ -168,3 +172,6 @@ data class SketchColors(
 
 /** The site's colours, for everything under the site's theme. */
 val LocalSiteColors: ProvidableCompositionLocal<SiteColors> = staticCompositionLocalOf { SiteColors.Light }
+
+/** The violet of a dot of what is yet to come, the same in both themes. */
+private val VIOLET_MARK = Color(0xFF6D4AFF)

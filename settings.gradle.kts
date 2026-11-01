@@ -58,6 +58,14 @@ include(":core:testing")
 
 // One module for each kind of page.
 include(":feature:docs")
+include(":feature:components")
+include(":feature:home")
+include(":feature:foundations")
+include(":feature:theme")
+include(":feature:adaptive")
+include(":feature:ai")
+include(":feature:roadmap")
+include(":feature:search")
 
 // Programs that run at build time only.
 include(":tools:content")

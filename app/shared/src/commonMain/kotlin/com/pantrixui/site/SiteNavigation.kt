@@ -10,6 +10,7 @@ import com.pantrixui.site.core.model.FoundationSection
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Route
+import com.pantrixui.site.core.model.SiteDownloads
 import com.pantrixui.site.core.model.ThemingLink
 import com.pantrixui.site.core.routing.SiteRoutes
 
@@ -226,7 +227,9 @@ internal fun menuSections(
             item("foundations", strings.foundations, Route.Foundations),
             item("adaptive", strings.adaptiveUi, Route.Adaptive),
             item("theme", strings.themeBuilder, Route.Theme),
-            item("download", strings.download, Route.Download)
+            item("download", strings.download, Route.Download),
+            // The site's source, which a phone narrower than the design has no room for in the header.
+            NavItem(key = "repository", label = "GitHub", href = SiteDownloads.REPOSITORY)
         )
     )
 }

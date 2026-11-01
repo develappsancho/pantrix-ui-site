@@ -27,6 +27,7 @@ import com.pantrixui.site.core.model.Language
  * @property searchTheDocs what the search box says before anything is typed.
  * @property switchToLight the theme button, in the dark theme.
  * @property switchToDark the theme button, in the light theme.
+ * @property theSiteOnGitHub the button that opens the site's source on GitHub.
  * @property language the language menu's name.
  * @property eachPageInBothLanguages the note under the language menu.
  * @property openTheMenu the button that opens the menu on a narrow window.
@@ -116,6 +117,7 @@ class SiteStrings(
     val searchTheDocs: String,
     val switchToLight: String,
     val switchToDark: String,
+    val theSiteOnGitHub: String,
     val language: String,
     val eachPageInBothLanguages: String,
     val openTheMenu: String,
@@ -248,6 +250,7 @@ class SiteStrings(
             searchTheDocs = "Search the docs",
             switchToLight = "Switch to the light theme",
             switchToDark = "Switch to the dark theme",
+            theSiteOnGitHub = "The site's source on GitHub",
             language = "Language",
             eachPageInBothLanguages = "Every page in both languages, each at its own address.",
             openTheMenu = "Open the menu",
@@ -351,6 +354,7 @@ class SiteStrings(
             searchTheDocs = "Belgelerde ara",
             switchToLight = "Açık temaya geç",
             switchToDark = "Koyu temaya geç",
+            theSiteOnGitHub = "Sitenin kaynağı GitHub'da",
             language = "Dil",
             eachPageInBothLanguages = "Her sayfa iki dilde, her biri kendi adresinde.",
             openTheMenu = "Menüyü aç",

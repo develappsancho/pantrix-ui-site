@@ -65,10 +65,12 @@ class SiteNavigationTest {
         val menu = menuSections(SiteStrings.English, Language.English, Route.Theme)
         assertEquals("Pantrix UI", menu.last().title)
         assertEquals(
-            listOf("components", "foundations", "adaptive", "theme", "download"),
+            listOf("components", "foundations", "adaptive", "theme", "download", "repository"),
             menu.last().items.map { it.key }
         )
-        assertEquals("/download", menu.last().items.last().href)
+        assertEquals("/download", menu.last().items.single { it.key == "download" }.href)
+        // The site's source on GitHub, which the header leaves out on a phone narrower than the design.
+        assertEquals("https://github.com/develappsancho/pantrix-ui-site", menu.last().items.last().href)
         assertEquals("theme", menu.flatMap { it.items }.single { it.current }.key)
         assertEquals("Theme", menuTitle(SiteStrings.English, Route.Theme))
         assertEquals("Pantrix UI", menuTitle(SiteStrings.English, Route.Home))

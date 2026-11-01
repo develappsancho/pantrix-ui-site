@@ -49,6 +49,7 @@ import com.pantrixui.site.core.model.ComponentIndex
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Route
+import com.pantrixui.site.core.model.SiteDownloads
 import com.pantrixui.site.core.navigation.NavigationHistory
 import com.pantrixui.site.core.navigation.Navigator
 import com.pantrixui.site.core.navigation.NoNavigationHistory
@@ -156,7 +157,8 @@ private fun SiteShell(
             addressIn = { SiteRoutes.addressOf(route, it) },
             dark = state.dark ?: systemDark,
             onToggleTheme = { onAction(SiteAction.ToggleTheme(systemDark)) },
-            onOpenMenu = { onAction(SiteAction.OpenMenu) }
+            onOpenMenu = { onAction(SiteAction.OpenMenu) },
+            onOpenRepository = { uriHandler.openUri(SiteDownloads.REPOSITORY) }
         )
         Row(Modifier.weight(1f)) {
             if (layout == SiteLayout.Desktop && route is Route.Component) {

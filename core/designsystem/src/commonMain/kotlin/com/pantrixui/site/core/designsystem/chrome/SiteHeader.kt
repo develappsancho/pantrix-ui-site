@@ -72,11 +72,11 @@ data class HeaderLink(
 )
 
 /**
- * The site's header, across the window: the brand, the parts of the site, the search, the language and the
- * theme. On a desktop wide enough for all of them the parts are links in it; on a narrower one, a tablet and a phone
- * they are in the menu its first button opens, which takes the links' place. It is laid out alike on every page, from
- * the window's one edge to the other, so that nothing in it moves as the reader goes from one part of the site to
- * another.
+ * The site's header, across the window: the brand, the parts of the site, the search, the language, the site's source
+ * on GitHub and the theme. On a desktop wide enough for all of them the parts are links in it; on a narrower one, a
+ * tablet and a phone they are in the menu its first button opens, which takes the links' place. It is laid out alike on
+ * every page, from the window's one edge to the other, so that nothing in it moves as the reader goes from one part of
+ * the site to another.
  *
  * @param links the parts of the site, in order.
  * @param onNavigate what choosing a part does, given its key; the brand is the key "home".
@@ -86,6 +86,7 @@ data class HeaderLink(
  * @param dark whether the theme is dark: the theme button offers the other.
  * @param onToggleTheme what the theme button does.
  * @param onOpenMenu what the menu button does, where the links have no room.
+ * @param onOpenRepository what the GitHub button does: open the site's repository.
  * @param modifier the header's modifier.
  */
 @Composable
@@ -98,6 +99,7 @@ fun SiteHeader(
     dark: Boolean,
     onToggleTheme: () -> Unit,
     onOpenMenu: () -> Unit,
+    onOpenRepository: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val layout = SiteTheme.layout
@@ -151,18 +153,31 @@ fun SiteHeader(
                     else -> SearchBox(onSearch, Modifier.width(if (layout == SiteLayout.Tablet) 260.dp else 200.dp))
                 }
                 LanguageButton(onLanguage, addressIn)
+            }
+            // The two buttons with an icon alone stand together at the row's end, in one colour and size.
+            val tint = if (layout == SiteLayout.Phone) {
+                PantrixTheme.colors.textPrimary
+            } else {
+                PantrixTheme.colors.textSecondary
+            }
+            val iconSize = if (layout == SiteLayout.Desktop) 18.dp else 20.dp
+            Box(Modifier.layoutId(HeaderPart.Repository)) {
+                HeaderIconButton(
+                    icon = SiteIcons.GitHub,
+                    description = strings.theSiteOnGitHub,
+                    onClick = onOpenRepository,
+                    tint = tint,
+                    iconSize = iconSize,
+                    tag = "repository"
+                )
+            }
+            Box(Modifier.layoutId(HeaderPart.Theme)) {
                 HeaderIconButton(
                     icon = if (dark) SiteIcons.Sun else SiteIcons.Moon,
                     description = if (dark) strings.switchToLight else strings.switchToDark,
                     onClick = onToggleTheme,
-                    tint = if (layout ==
-                        SiteLayout.Phone
-                    ) {
-                        PantrixTheme.colors.textPrimary
-                    } else {
-                        PantrixTheme.colors.textSecondary
-                    },
-                    iconSize = if (layout == SiteLayout.Desktop) 18.dp else 20.dp,
+                    tint = tint,
+                    iconSize = iconSize,
                     tag = "theme"
                 )
             }
@@ -172,14 +187,16 @@ fun SiteHeader(
 }
 
 /** The parts of the header's row, which [HeaderRow] lays out by what they are. */
-private enum class HeaderPart { Menu, Brand, Links, Tools }
+private enum class HeaderPart { Menu, Brand, Links, Tools, Repository, Theme }
 
 /**
  * The header's row: the brand, then the links where they are given and there is room for them beside the brand and
- * the tools; where there is not, the menu button before the brand in their place. The tools stand at the row's end.
- * Each part is measured as wide as it is, so a language whose names are longer, or a larger type, takes the links
- * away sooner. What is not placed, the menu button or the links, is out of the reach of a screen reader and of the
- * keyboard as well as out of sight: Compose leaves a part that is not placed out of both.
+ * the tools; where there is not, the menu button before the brand in their place. The tools stand at the row's end,
+ * the theme's button last and GitHub's before it where there is room for it too: a phone narrower than the design's
+ * has none, and its menu leads to GitHub instead. Each part is measured as wide as it is, so a language whose names
+ * are longer, or a larger type, takes the links and GitHub's button away sooner. What is not placed, the menu button,
+ * the links or GitHub's button, is out of the reach of a screen reader and of the keyboard as well as out of sight:
+ * Compose leaves a part that is not placed out of both.
  *
  * @param gap the room between the parts, and between the tools.
  * @param modifier the row's modifier, which gives its height.
@@ -197,12 +214,19 @@ private fun HeaderRow(
         fun part(part: HeaderPart) = measurables.firstOrNull { it.layoutId == part }
         val room = gap.roundToPx()
         val brand = part(HeaderPart.Brand)?.measure(loose)
-        val tools = part(HeaderPart.Tools)?.measure(loose)
+        val end = HeaderEnd(
+            tools = part(HeaderPart.Tools)?.measure(loose),
+            repository = part(HeaderPart.Repository)?.measure(loose),
+            theme = part(HeaderPart.Theme)?.measure(loose),
+            room = room
+        )
         // The links as wide as they are, which no window's width limits: what decides whether they have room.
         val links = part(HeaderPart.Links)?.measure(loose.copy(maxWidth = Constraints.Infinity))
         val fits = links != null &&
-            (brand?.width ?: 0) + room + links.width + room + (tools?.width ?: 0) <= constraints.maxWidth
+            (brand?.width ?: 0) + room + links.width + room + end.widthWithRepository <= constraints.maxWidth
         val menu = if (fits) null else part(HeaderPart.Menu)?.measure(loose)
+        val start = (menu?.let { it.width + minOf(room, MENU_GAP.roundToPx()) } ?: 0) + (brand?.width ?: 0)
+        val repositoryFits = start + room + end.widthWithRepository <= constraints.maxWidth
         layout(constraints.maxWidth, constraints.maxHeight) {
             // Centred as a row centres what it holds, its half pixel rounded the same way.
             fun Placeable.placeAt(x: Int) =
@@ -217,7 +241,34 @@ private fun HeaderRow(
                 x += it.width + room
             }
             if (fits) links.placeAt(x)
-            tools?.let { it.placeAt(constraints.maxWidth - it.width) }
+            end.at(constraints.maxWidth, repositoryFits).forEach { (part, at) -> part.placeAt(at) }
+        }
+    }
+}
+
+/**
+ * What stands at the header's end, measured: the [tools], GitHub's button, the [repository], and the theme's button,
+ * the [theme], last, [room] apart.
+ */
+private class HeaderEnd(
+    val tools: Placeable?,
+    val repository: Placeable?,
+    val theme: Placeable?,
+    val room: Int
+) {
+    /** How wide the end is with GitHub's button: what decides whether it has room. */
+    val widthWithRepository: Int =
+        listOfNotNull(tools, repository, theme).let { parts -> parts.sumOf { it.width } + room * (parts.size - 1) }
+
+    /** Each part with where it starts, the row [right] wide, GitHub's button among them where it [fits]. */
+    fun at(
+        right: Int,
+        fits: Boolean
+    ): List<Pair<Placeable, Int>> {
+        var edge = right
+        return listOfNotNull(theme, repository.takeIf { fits }, tools).map { part ->
+            edge -= part.width
+            (part to edge).also { edge -= room }
         }
     }
 }

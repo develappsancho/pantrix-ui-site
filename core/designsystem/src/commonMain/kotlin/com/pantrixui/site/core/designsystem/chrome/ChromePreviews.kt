@@ -77,7 +77,8 @@ private fun SiteHeaderSample(dark: Boolean) {
             addressIn = { "/docs/installation" },
             dark = dark,
             onToggleTheme = {},
-            onOpenMenu = {}
+            onOpenMenu = {},
+            onOpenRepository = {}
         )
     }
 }

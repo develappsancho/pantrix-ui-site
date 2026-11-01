@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Eklenenler
+
+*   **Sitenin kaynağı GitHub'da:** header'da tema düğmesinin yanında GitHub'ın işareti var ve sitenin deposunu açar; tasarımdan dar bir telefonda orada ona yer yoktur, menü de ona götürür.
+
 ### Değişenler
 
 *   **Pantrix UI 0.1.0-alpha05:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir; rehberleri sitededir, yenisi, her tarayıcıda açılan uygulama, canlı çizimiyle birlikte.

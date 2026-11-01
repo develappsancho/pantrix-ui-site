@@ -12,6 +12,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Added
+
+- **The site's source on GitHub:** the header has GitHub's mark beside the theme's button, which opens the site's
+  repository; a phone narrower than the design has no room for it there, and the menu leads to it as well.
+
 ### Changed
 
 - **Pantrix UI 0.1.0-alpha05:** the lines that install the library, on the home page and in Installation, and the files

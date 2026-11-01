@@ -39,6 +39,10 @@ class DesktopApplicationConventionPlugin : Plugin<Project> {
                         targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
                         packageName = "Pantrix UI"
                         packageVersion = "1.0.0"
+                        // The site's logo, three layers, on each platform; Linux's is the window's icon too.
+                        macOS { iconFile.set(target.file("icons/PantrixUI.icns")) }
+                        windows { iconFile.set(target.file("icons/PantrixUI.ico")) }
+                        linux { iconFile.set(target.file("src/main/resources/PantrixUI.png")) }
                     }
                 }
             }

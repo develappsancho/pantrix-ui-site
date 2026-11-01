@@ -9,6 +9,11 @@
     <title>Pantrix UI</title>
     <meta name="description" content="A Compose Multiplatform design system for Android, iOS, the desktop and the web.">
     <link type="text/css" rel="stylesheet" href="styles.css">
+    <!-- The tab's icon, the site's logo on every platform. A browser that reads SVG takes it, one that does not the ICO;
+         iOS takes the square it cuts its own corners from for a page added to the home screen. -->
+    <link rel="icon" href="favicon.ico" sizes="32x32">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <!-- A browser that can run the app, one with Wasm's garbage collection, is marked `app`: it hides the page's static
          words, the #static box the build writes for each page, and draws the app. One that cannot keeps the words. -->
     <script>

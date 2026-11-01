@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- The 1024 square of the other platforms' icons, on the 72 dp a launcher shows. -->
+    <group
+        android:scaleX="0.0703125"
+        android:scaleY="0.0703125"
+        android:translateX="18"
+        android:translateY="18">
+        <path
+            android:fillColor="#FFFFFF"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="40"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M512,236 L800,400 L512,564 L224,400 Z" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeAlpha="0.72"
+            android:strokeWidth="56"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M224,520 L512,684 L800,520" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeAlpha="0.45"
+            android:strokeWidth="56"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M224,640 L512,804 L800,640" />
+    </group>
+</vector>

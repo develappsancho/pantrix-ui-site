@@ -1,6 +1,6 @@
 # 🏗️ Barındırma Mimarisi Rehberi
 
-Bu belge, Pantrix UI'ın sitesinin (`pantrixui.com`) bir sunucuda nasıl çalıştığını anlatır: hangi parçalardan oluştuğunu, bir isteğin hangi yoldan geçtiğini, nginx'in ne olduğunu ve burada neden kullanıldığını, imajların nasıl yapıldığını, lokal ile canlı arasındaki farkı. Şekiller sunumlarda olduğu gibi kullanılabilir; GitHub ve IntelliJ, `mermaid` bloklarını çizer.
+Bu belge, Pantrix UI'ın sitesinin (`pantrixui.com`) bir sunucuda nasıl çalıştığını anlatır: hangi parçalardan oluştuğunu, bir isteğin hangi yoldan geçtiğini, nginx'in ne olduğunu ve burada neden kullanıldığını, imajların nasıl yapıldığını, lokal ile canlı arasındaki farkı. Şekiller sunumlarda olduğu gibi kullanılabilir: her birinin resmi [`images/`](./images) klasöründedir, altında da açılıp kapanan Mermaid kaynağı durur. Bir şeklin kaynağı değişince resimleri `node docs/deploy/draw-diagrams.mjs` yeniden çizer.
 
 Adım adım yayın [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)'dedir; bu belge, o adımların arkasındaki mantığı verir.
 
@@ -12,6 +12,11 @@ Site iki parçadan oluşur, ikisi de bu depodan derlenir:
 *   **Sitenin sunucusu:** Spring Boot üzerinde, kütüphanenin MCP sunucusunu `/mcp` adresinde HTTP ile sunan küçük bir uygulama. Kodlama asistanları (Claude Code, Cursor…) kütüphanenin belgelerini buradan sorar. Bu, çalışan koddur.
 
 İkisi iki ayrı konteynerde, tek bir Docker Compose yığınında çalışır. Dışarıdan gelen her istek önce nginx'e uğrar: dosyaları nginx kendisi verir, `/mcp`'yi arkadaki sunucuya geçirir.
+
+![Genel bakış: ziyaretçi ve asistan, Traefik, web ve server](images/overview.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
 
 ```mermaid
 flowchart LR
@@ -30,6 +35,8 @@ flowchart LR
     web -- "yalnızca /mcp" --> server
 ```
 
+</details>
+
 | Parça | Ne yapar | Nerede çalışır | Dışarıya açık mı |
 | :--- | :--- | :--- | :--- |
 | Traefik | Coolify'ın önündeki vekil: HTTPS sertifikasını tutar, gelen isteği alan adına göre doğru uygulamaya yollar | VPS'te, Coolify ile gelir | Evet: 80 ve 443 |
@@ -43,6 +50,11 @@ flowchart LR
 ### 2.1 Bir Sayfa
 
 Bir ziyaretçi `https://pantrixui.com/docs/installation`'ı açtığında:
+
+![Bir sayfanın yolu: tarayıcı, Traefik, nginx](images/page-request.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
 
 ```mermaid
 sequenceDiagram
@@ -62,11 +74,18 @@ sequenceDiagram
     Note over B: Uygulama açılır, statik metni gizler<br/>ve sayfayı Compose ile çizer.
 ```
 
+</details>
+
 İlk yanıt, o sayfanın derleme sırasında yazılmış statik HTML'idir: başlığı, açıklaması, paylaşım görseli ve metni içindedir. Tarayıcı Wasm çalıştırabiliyorsa uygulama yüklenir, statik metni gizler ve sayfayı kendisi çizer; çalıştıramıyorsa ziyaretçi o metni okur. Sonraki istekler de Traefik'ten geçer; şekilde sadelik için gösterilmedi.
 
 ### 2.2 Bir MCP İsteği
 
 Bir asistan kütüphaneye bir soru sorduğunda:
+
+![Bir MCP isteğinin yolu: asistan, Traefik, nginx, Spring Boot](images/mcp-request.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
 
 ```mermaid
 sequenceDiagram
@@ -83,11 +102,18 @@ sequenceDiagram
     N-->>A: 200 · yanıt
 ```
 
+</details>
+
 Sunucu **durumsuzdur** (stateless): her POST kendi başına bir mesajdır, iki istek arasında bir oturum tutulmaz. Bu yüzden sunucu her an yeniden başlatılabilir, bir asistanın işi yarıda kalmaz.
 
 ### 2.3 Bir Adresin Karşılığı
 
 nginx bir adresi şu sırayla arar:
+
+![Bir adresin karşılığı: dosya, klasörün index.html'i ya da 404](images/address-rules.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
 
 ```mermaid
 flowchart TD
@@ -97,6 +123,8 @@ flowchart TD
     d -- "evet" --> s2["O sayfayı gönder<br/>200, yönlendirme yok"]
     d -- "hayır" --> s3["404.html'i gönder<br/>durum 404"]
 ```
+
+</details>
 
 *   **Yönlendirme yok:** `/docs/installation` adresi `/docs/installation/`'a çevrilmez; adres çubuğundaki adres, sayfanın kendi bildirdiği adresle (canonical) aynı kalır ve bir gidiş dönüş daha yapılmaz.
 *   **Gerçek 404:** Olmayan bir adres, sitenin "Bu sayfa yok" sayfasını **404 durumuyla** alır. Arama motorları olmayan sayfaları böylece dizine almaz.
@@ -112,12 +140,19 @@ flowchart TD
 
 Hızı mimarisinden gelir: her bağlantıya bir iş parçacığı açmak yerine birkaç işçi süreç çalıştırır ve her biri binlerce bağlantıyı tek bir olay döngüsünde yürütür (event-driven). Bir dosyayı gönderirken çekirdeğin `sendfile` çağrısını kullanır: dosya, uygulamanın belleğinden geçmeden diskten ağa kopyalanır. Bu sitede nginx yaklaşık 15 MB bellekle çalışır.
 
+![nginx tek kapı: dosyalar ve /mcp](images/reverse-proxy.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
+
 ```mermaid
 flowchart LR
     c["İstemci"] --> n["nginx<br/>tek kapı"]
     n -- "/, /docs/..., *.wasm" --> disk[("Dosyalar<br/>/usr/share/nginx/html")]
     n -- "/mcp" --> app["Uygulama sunucusu<br/>Spring Boot"]
 ```
+
+</details>
 
 ### 3.2 Bu Sitede Yaptığı İşler
 
@@ -168,15 +203,22 @@ Spring Boot da dosya sunabilir; ama:
 
 ### 4.2 İki İmaj
 
+![İki imaj ve katmanları](images/images.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
+
 ```mermaid
 flowchart TB
     subgraph webimg["pantrix-ui-site-web"]
-        w1["nginx:1.30-alpine<br/>Alpine Linux ve nginx · 51 MB"] --> w2["default.conf.template<br/>ve adres betikleri"] --> w3["Sitenin dosyaları<br/>ve her birinin .gz'si · 83 MB"]
+        w1["nginx:1.30-alpine<br/>Alpine Linux ve nginx<br/>51 MB"] --> w2["default.conf.template<br/>ve adres betikleri"] --> w3["Sitenin dosyaları<br/>ve her birinin .gz'si<br/>83 MB"]
     end
     subgraph srvimg["pantrix-ui-site-server"]
-        s1["eclipse-temurin:21-jre-alpine<br/>Alpine Linux ve Java 21 · 163 MB"] --> s2["server.jar<br/>Spring Boot ve PantrixMcp · 51 MB"]
+        s1["eclipse-temurin:21-jre-alpine<br/>Alpine Linux ve Java 21<br/>163 MB"] --> s2["server.jar<br/>Spring Boot ve PantrixMcp<br/>51 MB"]
     end
 ```
+
+</details>
 
 *   **Dockerfile'lar hiçbir şey derlemez.** Gradle bu makinede derler; Docker yalnızca paketler. Böylece derleme için gereken her şey (JDK, Gradle, GitHub Packages'ın anahtarı) imaja girmez.
 *   **Web imajı iki aşamada yapılır** (multi-stage build). İlk aşama, Alpine'de dosyaları sıkıştırır; ikinci aşama nginx'in üstüne yalnızca sonucu koyar. Sıkıştırma aracı canlı imaja girmez. İlk aşama imajı yapan makinenin kendi mimarisinde çalışır, bu yüzden bir `amd64` imajı bir Mac'te de hızla yapılır.
@@ -184,11 +226,16 @@ flowchart TB
 
 ### 4.3 Yığın ve Ağı
 
-Compose, yığın için özel bir ağ kurar. Konteynerler birbirine servis adıyla ulaşır: nginx, sunucuyu `http://server:8080` olarak bilir. Bu adı Docker'ın kendi DNS'i (`127.0.0.11`) çözer. nginx bu adı her istekte yeniden sorar; böylece sunucu henüz ayağa kalkmamışken de nginx başlar ve site açılır.
+Compose, yığın için özel bir ağ kurar (`pantrix-ui-site_default`). Konteynerler birbirine servis adıyla ulaşır: nginx, sunucuyu `http://server:8080` olarak bilir. Bu adı Docker'ın kendi DNS'i (`127.0.0.11`) çözer. nginx bu adı her istekte yeniden sorar; böylece sunucu henüz ayağa kalkmamışken de nginx başlar ve site açılır.
+
+![Yığın ve ağı: web, server ve Docker DNS](images/stack-network.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
 
 ```mermaid
 flowchart LR
-    subgraph net["pantrix-ui-site_default · yığının ağı"]
+    subgraph net["Yığının ağı"]
         web["web<br/>nginx :80"] -- "server:8080" --> server["server<br/>Spring Boot :8080"]
         dns["Docker DNS<br/>127.0.0.11"]
         web -. "server kim?" .-> dns
@@ -196,7 +243,14 @@ flowchart LR
     out["Dışarısı"] -- "lokalde 127.0.0.1:4004<br/>canlıda Traefik" --> web
 ```
 
+</details>
+
 ## 5. Derlemeden Yayına
+
+![Derlemeden yayına: Gradle, Docker, lokal yığın, GHCR, Coolify](images/build-to-deploy.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
 
 ```mermaid
 flowchart LR
@@ -208,6 +262,8 @@ flowchart LR
     d -. "Coolify adımı: push" .-> r[("GHCR<br/>ghcr.io/develappsancho")]
     r -. "pull" .-> v["Coolify · VPS<br/>pantrixui.com"]
 ```
+
+</details>
 
 İmajlar sunucuda değil, bu makinede derlenir:
 
@@ -235,6 +291,11 @@ flowchart LR
 
 Sitenin adresi hiçbir dosyada elle yazılmaz. Tek bir yerde durur ve her ortam kendi adresini verir: lokaldeki site kendi sayfalarına, MCP sunucusuna ve `llms.txt`'sine `http://localhost:4004` üzerinden götürür, canlıdaki `https://pantrixui.com` üzerinden.
 
+![Sitenin adresi: site.url, SITE_URL ve tarayıcının adresi](images/site-address.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
+
 ```mermaid
 flowchart LR
     prop["gradle.properties<br/>site.url"] --> build["Derleme<br/>statik sayfalar, sitemap, llms.txt,<br/>içerik, paylaşım görselleri,<br/>uygulamaların adresi"]
@@ -245,6 +306,8 @@ flowchart LR
     env --> srv["server<br/>izinli kaynak: SITE_URL"]
     browser["Tarayıcıdaki uygulama"] -- "window.location.origin" --> app["MCP, llms.txt ve<br/>404'teki adres"]
 ```
+
+</details>
 
 *   **Kalıcı adres, `site.url`:** `gradle.properties`'te tek satır. Derleme onu statik sayfalara, `sitemap.xml`'e, `robots.txt`'ye, `llms.txt`'ye, paylaşım görsellerine ve masaüstü, Android ve iOS uygulamalarına (`BUILT_SITE_ADDRESS`) yazar. İçerik sayfaları adresi `{{site}}` diye anar; içerik aracı onu da bu adresle yazar.
 *   **Yığının adresi, `SITE_URL`:** Compose'un ortam değişkeni. `web` konteyneri açılırken dosyalardaki adresi bununla değiştirir ve `.gz`'lerini yeniden yapar; nginx'in `www` yönlendirmesi de bu adrese gider. `server` bu adresin sayfalarına izin verir. Boşsa site derlendiği adreste sunulur. Değiştirmek için yeniden derlemek gerekmez; konteyneri yeniden başlatmak yeter.
@@ -270,6 +333,11 @@ Konteyner yalnızca şemasıyla yazılmış tam adresi değiştirir: `https://pa
 
 Böylece önde iki vekil vardır ve ikisi farklı soruları yanıtlar: Traefik "**hangi uygulama?**", nginx "**bu uygulamada hangi dosya, hangi servis?**"
 
+![Traefik ve nginx: hangi alan adı, hangi yol](images/traefik-nginx.png)
+
+<details>
+<summary>Şeklin Mermaid kaynağı</summary>
+
 ```mermaid
 flowchart LR
     i["İnternet<br/>443"] --> t["Traefik<br/>hangi alan adı?"]
@@ -278,6 +346,8 @@ flowchart LR
     w -- "/mcp" --> s["server"]
     w -- "diğer yollar" --> f[("dosyalar")]
 ```
+
+</details>
 
 Coolify'daki kurulumun adımları, Coolify adımında [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)'ye eklenir.
 

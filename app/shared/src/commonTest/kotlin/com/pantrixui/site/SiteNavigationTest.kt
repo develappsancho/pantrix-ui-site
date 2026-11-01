@@ -61,19 +61,35 @@ class SiteNavigationTest {
     }
 
     @Test
-    fun the_menu_adds_the_parts_of_the_site_the_sidebar_leaves_out() {
+    fun the_menu_holds_every_part_of_the_header_in_its_order_and_github() {
         val menu = menuSections(SiteStrings.English, Language.English, Route.Theme)
         assertEquals("Pantrix UI", menu.last().title)
+        val parts = menu.last().items
+        assertEquals(headerLinks(SiteStrings.English, Route.Theme).map { it.key } + "repository", parts.map { it.key })
+        val names = "Docs, Components, Foundations, Adaptive UI, Theme builder, For AI, Roadmap, Download"
+        assertEquals(names, parts.dropLast(1).joinToString { it.label })
         assertEquals(
-            listOf("components", "foundations", "adaptive", "theme", "download", "repository"),
-            menu.last().items.map { it.key }
+            listOf("/docs/introduction", "/ai", "/roadmap", "/download"),
+            listOf("docs", "ai", "roadmap", "download").map { key -> parts.single { it.key == key }.href }
         )
-        assertEquals("/download", menu.last().items.single { it.key == "download" }.href)
         // The site's source on GitHub, which the header leaves out on a phone narrower than the design.
-        assertEquals("https://github.com/develappsancho/pantrix-ui-site", menu.last().items.last().href)
+        assertEquals("https://github.com/develappsancho/pantrix-ui-site", parts.last().href)
         assertEquals("theme", menu.flatMap { it.items }.single { it.current }.key)
         assertEquals("Theme", menuTitle(SiteStrings.English, Route.Theme))
         assertEquals("Pantrix UI", menuTitle(SiteStrings.English, Route.Home))
+        // Each row has a tag of its own.
+        val keys = menu.flatMap { it.items }.map { it.key }
+        assertEquals(keys.distinct(), keys)
+    }
+
+    @Test
+    fun a_page_in_the_sidebar_s_groups_and_the_header_s_parts_is_marked_once() {
+        fun marked(route: Route) =
+            menuSections(SiteStrings.Turkish, Language.Turkish, route).flatMap { it.items }.filter { it.current }
+        assertEquals(listOf("project_roadmap"), marked(Route.Roadmap).map { it.key })
+        assertEquals(listOf("introduction"), marked(Route.Doc("introduction")).map { it.key })
+        val ai = marked(Route.Ai).single()
+        assertEquals("ai" to "/tr/ai", ai.key to ai.href)
     }
 
     @Test

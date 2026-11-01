@@ -185,7 +185,7 @@ internal fun docsSections(
                 item("forms", strings.forms, Route.Doc("forms")),
                 item("testing", strings.testing, Route.Doc("testing")),
                 // The documentation's page on setting an assistant up; the header's "For AI" is the page about it.
-                item("ai", strings.forAiAssistants, Route.Doc("ai-assistants"))
+                item("ai-assistants", strings.forAiAssistants, Route.Doc("ai-assistants"))
             )
         ),
         NavSection(
@@ -197,7 +197,8 @@ internal fun docsSections(
             strings.project,
             listOfNotNull(
                 item("changelog", strings.changelog, Route.Changelog),
-                item("roadmap", strings.roadmap, Route.Roadmap),
+                // Its own key: the header's link to the same page is "roadmap", beside it on a desktop.
+                item("project_roadmap", strings.roadmap, Route.Roadmap),
                 NavItem(key = "issues", label = strings.reportAProblem, href = ISSUES).takeIf {
                     LibraryFacts.REPOSITORY_IS_OPEN
                 }
@@ -207,30 +208,27 @@ internal fun docsSections(
 }
 
 /**
- * The menu of a tablet and a phone: the documentation's sidebar, then the parts of the site the header of a desktop
- * links to and the sidebar does not.
+ * The menu of a tablet and a phone, and of a desktop too narrow for the header's links: the documentation's sidebar,
+ * then every part of the site the header links to, in its order, and the site's source on GitHub, which a phone
+ * narrower than the design has no room for in the header. A page the sidebar's groups mark is marked there alone.
  */
 internal fun menuSections(
     strings: SiteStrings,
     language: Language,
     current: Route
 ): List<NavSection> {
-    fun item(
-        key: String,
-        label: String,
-        route: Route
-    ) = NavItem(key = key, label = label, href = SiteRoutes.addressOf(route, language), current = route == current)
-    return docsSections(strings, language, current) + NavSection(
+    val docs = docsSections(strings, language, current)
+    val marked = docs.any { section -> section.items.any { it.current } }
+    return docs + NavSection(
         BRAND,
-        listOf(
-            item("components", strings.components, Route.Components),
-            item("foundations", strings.foundations, Route.Foundations),
-            item("adaptive", strings.adaptiveUi, Route.Adaptive),
-            item("theme", strings.themeBuilder, Route.Theme),
-            item("download", strings.download, Route.Download),
-            // The site's source, which a phone narrower than the design has no room for in the header.
-            NavItem(key = "repository", label = "GitHub", href = SiteDownloads.REPOSITORY)
-        )
+        SitePart.entries.map { part ->
+            NavItem(
+                key = part.key,
+                label = part.menuLabel(strings),
+                href = SiteRoutes.addressOf(part.route, language),
+                current = !marked && part.route == current
+            )
+        } + NavItem(key = "repository", label = "GitHub", href = SiteDownloads.REPOSITORY)
     )
 }
 
@@ -239,6 +237,13 @@ internal fun menuTitle(
     strings: SiteStrings,
     current: Route
 ): String = current.part?.label(strings) ?: BRAND
+
+/** What the menu calls [this] part: the header's name, or the longer one a menu has room for. */
+private fun SitePart.menuLabel(strings: SiteStrings): String = when (this) {
+    SitePart.Adaptive -> strings.adaptiveUi
+    SitePart.Theme -> strings.themeBuilder
+    else -> label(strings)
+}
 
 private fun SitePart.label(strings: SiteStrings): String = when (this) {
     SitePart.Docs -> strings.docs

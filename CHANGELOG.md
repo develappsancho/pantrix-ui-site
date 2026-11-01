@@ -33,6 +33,8 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ### Fixed
 
+- **The menu of a tablet or a phone:** under Pantrix UI it lists every part of the site the header does, in the header's
+  order, the page for coding assistants among them, which no menu led to.
 - **The skill and the API's references in a browser:** the site's Markdown files are shown as text, where a browser used
   to save them as files; what to give for one component names its page on the site, `/components/data-table`, in place
   of a file the site does not have.

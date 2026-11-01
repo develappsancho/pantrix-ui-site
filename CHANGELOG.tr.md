@@ -22,6 +22,7 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ### Düzeltilenler
 
+*   **Tabletin ve telefonun menüsü:** Pantrix UI başlığı altında header'ın andığı her bölümü header'ın sırasıyla listeler; hiçbir menünün götürmediği kodlama asistanları sayfası da aralarında.
 *   **Beceri ve API başvuruları tarayıcıda:** sitenin Markdown dosyaları metin olarak gösterilir; önceden tarayıcı onları dosya olarak kaydediyordu. Tek bir bileşen için ne verileceği, sitede olmayan bir dosyanın yerine bileşenin sitedeki sayfasını, `/components/data-table`'ı anar.
 *   **Eski tarayıcılar ve telefonlar:** sitenin Wasm sürümünü çalıştıramayan bir tarayıcıya, 119'dan önceki Chrome ve 18.2'den önceki Safari gibi, ya da onu başlatamayan bir tarayıcıya aynı uygulamanın JavaScript ile derlenmiş sürümü verilir: önceden sayfanın düz metnini ya da beyaz bir sayfa gösteriyordu.
 

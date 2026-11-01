@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-# Checks Pantrix UI's site where it runs, as a browser and an assistant reach it: its pages at their addresses, the
-# page for an address with none, what is compressed and how long a browser keeps it, the second name, and the MCP
-# server at /mcp. Each check writes a line; the script fails when one does.
+# Checks Pantrix UI's site where it runs, as a browser and an assistant reach it: its pages at their addresses and
+# leading to that address, the page for an address with none, what is compressed and how long a browser keeps it, the
+# second name under www, and the MCP server at /mcp. Each check writes a line; the script fails when one does.
 #
 #   deploy/check.sh                          the site on this machine, http://localhost:4004 (or SITE_PORT)
 #   deploy/check.sh https://pantrixui.com    the site on its host
+#
+# The address given is the one the stack is served at, its SITE_URL. CHECK_WWW=no leaves the second name out, for an
+# address that has none, such as a test address.
 set -uo pipefail
 
 BASE="${1:-http://localhost:${SITE_PORT:-4004}}"
 BASE="${BASE%/}"
+HOST="${BASE#*://}"
+HOST="${HOST%%[:/]*}"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 passed=0
@@ -57,11 +62,11 @@ echo "Pages"
 fetch GET /
 check "/ is the home page" eval 'is "$(status)" 200 && contains "$(header Content-Type)" text/html && has "<title>"'
 fetch GET /docs/installation
-check "/docs/installation is its page, with no redirect" \
-    eval 'is "$(status)" 200 && [ -z "$(header Location)" ] && has "rel=\"canonical\" href=\"https://pantrixui.com/docs/installation\""'
+check "/docs/installation is its page, with no redirect, and gives this address as its own" \
+    eval 'is "$(status)" 200 && [ -z "$(header Location)" ] && has "rel=\"canonical\" href=\"$BASE/docs/installation\""'
 fetch GET /tr/docs/installation
 check "/tr/docs/installation is its Turkish page" \
-    eval 'is "$(status)" 200 && has "rel=\"canonical\" href=\"https://pantrixui.com/tr/docs/installation\""'
+    eval 'is "$(status)" 200 && has "rel=\"canonical\" href=\"$BASE/tr/docs/installation\""'
 fetch GET /components/button
 check "/components/button is a component's page" eval 'is "$(status)" 200 && has "<title>"'
 fetch GET /404.html
@@ -70,10 +75,10 @@ fetch GET /no/page/here
 check "an address with no page is 404.html, with a 404" \
     eval 'is "$(status)" 404 && [ -n "$missing_title" ] && has "$missing_title"'
 fetch GET /llms.txt
-check "/llms.txt is plain text in UTF-8" \
-    eval 'is "$(status)" 200 && contains "$(header Content-Type)" "text/plain; charset=utf-8" && has "# Pantrix UI"'
+check "/llms.txt is plain text in UTF-8, and leads to this address" \
+    eval 'is "$(status)" 200 && contains "$(header Content-Type)" "text/plain; charset=utf-8" && has "# Pantrix UI" && has "]($BASE/"'
 fetch GET /sitemap.xml
-check "/sitemap.xml lists the pages" eval 'is "$(status)" 200 && has "<urlset"'
+check "/sitemap.xml lists the pages at this address" eval 'is "$(status)" 200 && has "<urlset" && has "<loc>$BASE/"'
 fetch GET /robots.txt
 check "/robots.txt names the sitemap" eval 'is "$(status)" 200 && has "Sitemap:"'
 
@@ -95,21 +100,17 @@ check "the headers name no version of the server, and forbid guessing a file's t
     eval '! header Server | grep -q "[0-9]" && is "$(header X-Content-Type-Options)" nosniff'
 
 echo "Second name"
-case "$BASE" in
-    http://localhost* | http://127.0.0.1*)
-        fetch GET /docs -H 'Host: www.pantrixui.com'
-        check "www.pantrixui.com is sent to pantrixui.com for good" \
-            eval 'is "$(status)" 301 && is "$(header Location)" https://pantrixui.com/docs'
-        ;;
-    https://pantrixui.com)
-        BASE=https://www.pantrixui.com fetch GET /docs
-        check "www.pantrixui.com is sent to pantrixui.com for good" \
-            eval 'is "$(status)" 301 && is "$(header Location)" https://pantrixui.com/docs'
-        ;;
-    *)
-        echo "  – left out: the second name is only the domain's"
-        ;;
-esac
+if [ "${CHECK_WWW:-yes}" = no ]; then
+    echo "  – left out (CHECK_WWW=no)"
+else
+    case "$BASE" in
+        # Over plain HTTP, on this machine, the second name is asked for by its Host header.
+        http://*) fetch GET /docs -H "Host: www.$HOST" ;;
+        # Over HTTPS, at its own address, as a browser asks for it.
+        *) BASE="${BASE/:\/\//://www.}" fetch GET /docs ;;
+    esac
+    check "www.$HOST is sent to $BASE for good" eval 'is "$(status)" 301 && is "$(header Location)" "$BASE/docs"'
+fi
 
 echo "MCP server"
 fetch POST /mcp "${MCP_HEADERS[@]}" --data-binary "$INITIALIZE"
@@ -121,6 +122,8 @@ fetch POST /mcp "${MCP_HEADERS[@]}" --data-binary "$SEARCH"
 check "search_components finds the snackbar for a toast" eval 'is "$(status)" 200 && has "Snackbar"'
 fetch GET /mcp -H 'Accept: text/event-stream'
 check "GET is refused: the server opens no stream" eval 'is "$(status)" 405'
+fetch POST /mcp "${MCP_HEADERS[@]}" -H "Origin: $BASE" --data-binary "$TOOLS"
+check "a page of the site itself is answered" eval 'is "$(status)" 200'
 fetch POST /mcp "${MCP_HEADERS[@]}" -H 'Origin: https://elsewhere.example' --data-binary "$TOOLS"
 check "a page of another site is refused" eval 'is "$(status)" 403'
 head -c 70000 /dev/zero | tr '\0' 'a' > "$WORK/large"

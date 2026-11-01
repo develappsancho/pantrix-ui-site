@@ -62,6 +62,7 @@ import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.designsystem.sized
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Block
+import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.Token
 import com.pantrixui.site.core.model.Words
 import kotlinx.coroutines.delay
@@ -85,7 +86,7 @@ internal fun WebFontsSketch() {
     }
     SketchFigure(caption = ToolSay.FontsCaption.of(language)) {
         WindowFrame(
-            title = "pantrixui.com",
+            title = SiteAddress.host,
             modifier = Modifier.widthIn(max = 560.dp).fillMaxWidth(),
             height = 180.dp
         ) {

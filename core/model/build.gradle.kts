@@ -1,5 +1,6 @@
 plugins {
     id("site.kmp.library")
+    id("site.address")
     alias(libs.plugins.kotlinSerialization)
 }
 

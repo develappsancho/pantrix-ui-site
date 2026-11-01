@@ -28,6 +28,24 @@ internal val Project.siteNamespace: String
 
 internal const val SITE_PACKAGE = "com.pantrixui.site"
 
+/**
+ * The site's address, `site.url` in `gradle.properties`, with no slash at its end: `https://pantrixui.com`. Every part
+ * of the build that writes the address takes it from here, so that a new address is one line.
+ */
+internal val Project.siteUrl: Provider<String>
+    get() = providers.gradleProperty(SITE_URL_PROPERTY).map { url ->
+        val address = url.trim().trimEnd('/')
+        require(SITE_URL_SHAPE.matches(address)) {
+            "$SITE_URL_PROPERTY in gradle.properties is \"$url\": an address such as https://pantrixui.com"
+        }
+        address
+    }
+
+private const val SITE_URL_PROPERTY = "site.url"
+
+/** An address with its scheme, a host and perhaps a port, and nothing after them. */
+private val SITE_URL_SHAPE = Regex("https?://[A-Za-z0-9.-]+(:[0-9]+)?")
+
 /** The site's application id on Android and its bundle id on iOS. */
 internal const val SITE_APPLICATION_ID = "com.pantrixui.site"
 

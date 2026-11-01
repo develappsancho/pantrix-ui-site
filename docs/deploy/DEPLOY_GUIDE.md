@@ -54,18 +54,35 @@ deploy/deploy.sh stop
 
 | Bölüm | Denenen |
 | :--- | :--- |
-| Sayfalar | Ana sayfa; `/docs/installation` yönlendirmesiz; Türkçesi; bir bileşen sayfası; olmayan bir adres 404 sayfasıyla ve 404 durumuyla; `llms.txt` UTF-8 düz metin; `sitemap.xml`; `robots.txt` |
+| Sayfalar | Ana sayfa; `/docs/installation` yönlendirmesiz ve kendi adresi olarak denenen adresi veriyor; Türkçesi; bir bileşen sayfası; olmayan bir adres 404 sayfasıyla ve 404 durumuyla; `llms.txt` UTF-8 düz metin ve denenen adrese götürüyor; `sitemap.xml` denenen adresle; `robots.txt` |
 | Sıkıştırma ve önbellek | Bir sayfa gzip ile ve `no-cache`; `site.js` `no-cache`; her Wasm dosyası `application/wasm`, gzip ile ve bir yıl önbellekte; sunucunun sürümü yazmıyor, `nosniff` var |
-| İkinci ad | `www.pantrixui.com` kalıcı olarak `pantrixui.com`'a gidiyor (lokalde bir `Host` başlığıyla) |
-| MCP sunucusu | `initialize` pantrix-ui'den yanıt alıyor; `tools/list`; bir araç çağrısı; GET'in reddi (405); başka bir sitenin sayfasından gelenin reddi (403); 64 KB'ı aşan mesajın reddi (413) |
+| İkinci ad | `www` altındaki ad kalıcı olarak denenen adrese gidiyor (lokalde bir `Host` başlığıyla). Adı olmayan bir deneme adresinde `CHECK_WWW=no` ile atlanır |
+| MCP sunucusu | `initialize` pantrix-ui'den yanıt alıyor; `tools/list`; bir araç çağrısı; GET'in reddi (405); sitenin kendi sayfasından gelenin yanıtlanması; başka bir sitenin sayfasından gelenin reddi (403); 64 KB'ı aşan mesajın reddi (413) |
 
-Herhangi bir adreste çalışır:
+Herhangi bir adreste çalışır. Verilen adres, yığının `SITE_URL`'idir: denetimler, sayfaların bu adrese götürdüğünü de dener.
 
 ```bash
 deploy/check.sh https://pantrixui.com
 ```
 
-## 5. Sorun Giderme
+## 5. Sitenin Adresi
+
+Adres iki yerde verilir, kodda hiçbir yerde yazılmaz ([ARCHITECTURE_GUIDE.md](./ARCHITECTURE_GUIDE.md), bölüm 6.2):
+
+| Ayar | Nerede | Ne zaman değişir |
+| :--- | :--- | :--- |
+| `site.url` | `gradle.properties` | Sitenin kalıcı adresi değişince; site yeniden derlenir |
+| `SITE_URL` | Compose'un ortam değişkeni: lokalde `compose.local.yaml` (`http://localhost:4004`), Coolify'da kaynağın ortam değişkenleri | Yığın başka bir adreste sunulunca; konteyner yeniden başlatılır |
+
+İçerik sayfaları adresi `{{site}}` diye anar: `claude mcp add -t http pantrix-ui {{site}}/mcp`.
+
+Yeni bir alan adı:
+
+1.  `gradle.properties`'te `site.url=https://yeni-alan-adi.com`.
+2.  `deploy/deploy.sh local` ile derleyip denemek.
+3.  Coolify'da `SITE_URL=https://yeni-alan-adi.com` vermek ve yayımlamak.
+
+## 6. Sorun Giderme
 
 | Belirti | Neden ve çözüm |
 | :--- | :--- |
@@ -74,8 +91,9 @@ deploy/check.sh https://pantrixui.com
 | Gradle `com.pantrixui` paketlerini bulamıyor | GitHub Packages'ın anahtarı eksik ya da `read:packages` yetkisi yok (Bölüm 2) |
 | `/mcp` 502 dönüyor | Sunucu ayakta değil: `docker compose … logs server` |
 | Yeni bir değişiklik görünmüyor | `--no-gradle` eski çıktıyı kullanır; komutu onsuz çalıştırın |
+| Bağlantılar başka bir adrese götürüyor | Yığına `SITE_URL` verilmemiş ya da yanlış: `docker compose … exec web env \| grep SITE_` |
 | Eski imajlar yer kaplıyor | `docker image ls 'ghcr.io/develappsancho/pantrix-ui-site-*'` ile bakın, `docker image rm` ile silin |
 
-## 6. Coolify'da Yayın
+## 7. Coolify'da Yayın
 
 Bu bölüm bir sonraki adımda yazılacak: imajların GHCR'ye gönderilmesi, Coolify'da kaynağın kurulması, deneme adresinde denetim, alan adının taşınması ve eski sitenin kaldırılması.

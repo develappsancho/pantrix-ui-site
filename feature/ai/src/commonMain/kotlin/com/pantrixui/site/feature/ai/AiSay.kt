@@ -1,7 +1,7 @@
 package com.pantrixui.site.feature.ai
 
 import com.pantrixui.site.core.designsystem.BySize
-import com.pantrixui.site.core.model.LibraryFacts
+import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.TokenKind
 import com.pantrixui.site.core.model.Words
 
@@ -151,7 +151,7 @@ internal object AiSay {
                     "Bir adres ya da jar; yalnızca gerekeni alır."
                 )
             ),
-            LibraryFacts.MCP_ADDRESS.substringAfter("://")
+            SiteAddress.host + "/mcp"
         ),
         Way(
             "SK",
@@ -189,7 +189,7 @@ internal object AiSay {
                 ),
                 phone = Words("The index read first, about 8,500 tokens.", "Önce okunan dizin, yaklaşık 8.500 token.")
             ),
-            "pantrixui.com/llms.txt"
+            SiteAddress.host + "/llms.txt"
         ),
         Way(
             "{ }",

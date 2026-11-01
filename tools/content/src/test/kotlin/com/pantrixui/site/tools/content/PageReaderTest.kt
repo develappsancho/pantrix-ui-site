@@ -1,8 +1,10 @@
 package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Block
+import com.pantrixui.site.core.model.ContentFiles
 import com.pantrixui.site.core.model.ContentsEntry
 import com.pantrixui.site.core.model.Language
+import com.pantrixui.site.core.model.Page
 import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.Token
 import com.pantrixui.site.core.model.TokenKind
@@ -152,7 +154,7 @@ class PageReaderTest {
         val folder = generateSequence(File("").absoluteFile) { it.parentFile }
             .map { File(it, "content") }
             .first { File(it, "en").isDirectory }
-        val pages = SitePages.read(folder)
+        val pages = SitePages.read(folder, SITE)
         val installation = pages.filter { it.path == "/docs/installation" }
         assertEquals(setOf(Language.English, Language.Turkish), installation.map { it.language }.toSet())
         assertTrue(
@@ -170,5 +172,19 @@ class PageReaderTest {
                 assertTrue(heading >= 0 && code?.language == "kotlin", "#$anchor in ${page.language}")
             }
         }
+        // The site's own address, named as {{site}}, is written as the build gives it, in the text and in the code.
+        assertTrue(pages.none { SitePages.SITE in it.markdown.orEmpty() })
+        val assistants = pages.filter { it.path == "/docs/ai-assistants" }
+        assertEquals(2, assistants.size)
+        assistants.forEach { page ->
+            assertTrue("claude mcp add -t http pantrix-ui $SITE/mcp" in page.markdown.orEmpty(), page.markdown)
+            val written = ContentFiles.json.encodeToString(Page.serializer(), page)
+            assertTrue("pantrix-ui $SITE/mcp" in written, "the page's blocks give the address too")
+        }
+    }
+
+    private companion object {
+        /** An address no page names, so that each place a page gives the site's own is seen. */
+        const val SITE = "https://site.example"
     }
 }

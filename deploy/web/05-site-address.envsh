@@ -1,0 +1,13 @@
+# The address the stack is served at, read by nginx's entrypoint before it writes the templates
+# (20-envsubst-on-templates.sh) and before 40-site-address.sh, both of which take it from here:
+# - SITE_FILES_URL, the address the site's files give now, from the home page's canonical link: the one they were
+#   built for, site.url, or the SITE_URL they were last written with;
+# - SITE_URL, the address the stack is served at, or SITE_FILES_URL where the stack gives none;
+# - SITE_HOST, SITE_URL's host, with no scheme and no port.
+SITE_FILES_URL=$(sed -n 's|.*<link rel="canonical" href="\(https\{0,1\}://[^/"]*\)/".*|\1|p' /usr/share/nginx/html/index.html \
+    | head -n 1)
+SITE_URL=${SITE_URL:-$SITE_FILES_URL}
+SITE_URL=${SITE_URL%/}
+SITE_HOST=${SITE_URL#*://}
+SITE_HOST=${SITE_HOST%%[:/]*}
+export SITE_FILES_URL SITE_URL SITE_HOST

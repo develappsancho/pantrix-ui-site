@@ -9,6 +9,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import java.net.URI
@@ -28,7 +29,8 @@ import kotlin.test.assertTrue
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class McpEndpointTest(
-    @param:LocalServerPort private val port: Int
+    @param:LocalServerPort private val port: Int,
+    @param:Autowired private val site: SiteProperties
 ) {
     private val client = HttpClient.newHttpClient()
 
@@ -72,8 +74,10 @@ class McpEndpointTest(
         assertEquals(405, get.statusCode())
         assertEquals("POST", get.headers().firstValue("Allow").orElse(null))
         assertEquals(403, post(request(1, "tools/list"), "Origin" to "https://elsewhere.example").statusCode())
-        assertEquals(200, post(request(1, "tools/list"), "Origin" to "https://pantrixui.com").statusCode())
-        assertEquals(200, post(request(1, "tools/list"), "Origin" to "https://www.pantrixui.com").statusCode())
+        // With no SITE_URL, the site is served at the address it is built for, and its pages may call the server.
+        val host = site.address.host
+        assertEquals(200, post(request(1, "tools/list"), "Origin" to "https://$host").statusCode())
+        assertEquals(200, post(request(1, "tools/list"), "Origin" to "https://www.$host").statusCode())
         assertEquals(415, post(request(1, "tools/list"), "Content-Type" to "text/plain").statusCode())
     }
 

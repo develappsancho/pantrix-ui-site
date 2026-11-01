@@ -5,6 +5,8 @@ import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
@@ -48,6 +50,7 @@ class ContentConventionPlugin : Plugin<Project> {
             mainClass.set(TOOL_MAIN)
             pagesDirectory.set(rootProject.layout.projectDirectory.dir("content"))
             libraryDocuments.from(documents)
+            site.set(siteUrl)
             outputDirectory.set(layout.buildDirectory.dir("generated/siteContent"))
         }
 
@@ -87,6 +90,10 @@ abstract class GenerateSiteContent : JavaExec() {
     @get:PathSensitive(PathSensitivity.NONE)
     abstract val libraryDocuments: ConfigurableFileCollection
 
+    /** The site's address, with no slash at its end, which a page names as `{{site}}`. */
+    @get:Input
+    abstract val site: Property<String>
+
     /** Where the content goes: the Compose resources of the module, under `files/content`. */
     @get:OutputDirectory
     abstract val outputDirectory: DirectoryProperty
@@ -99,6 +106,8 @@ abstract class GenerateSiteContent : JavaExec() {
                     pagesDirectory.get().asFile.absolutePath,
                     "--docs",
                     libraryDocuments.singleFile.absolutePath,
+                    "--site",
+                    site.get(),
                     "--out",
                     outputDirectory.get().asFile.absolutePath
                 )

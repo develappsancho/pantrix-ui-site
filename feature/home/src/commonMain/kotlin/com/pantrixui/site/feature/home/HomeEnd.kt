@@ -60,6 +60,7 @@ import com.pantrixui.site.core.model.ComponentGroups
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Route
+import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.Token
 import com.pantrixui.site.core.model.TokenKind
 import com.pantrixui.site.core.model.Words
@@ -172,7 +173,7 @@ internal fun terminalLines(
     language: Language,
     short: Boolean
 ): List<List<Token>> {
-    val address = LibraryFacts.MCP_ADDRESS
+    val address = SiteAddress.mcp
     val asked = if (short) HomeSay.AskedShort else HomeSay.Asked
     val prompt = listOf(Token(">", TokenKind.Keyword), Token(" " + asked.of(language)))
     val component = listOf(Token("  get_component(\"PantrixTextArea\")", TokenKind.Comment))

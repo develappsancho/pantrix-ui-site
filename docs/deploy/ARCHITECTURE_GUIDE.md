@@ -121,7 +121,7 @@ flowchart LR
 
 ### 3.2 Bu Sitede Yaptığı İşler
 
-Ayarların hepsi tek bir dosyadadır: [`deploy/web/default.conf`](../../deploy/web/default.conf).
+Ayarların hepsi tek bir dosyadadır: [`deploy/web/default.conf.template`](../../deploy/web/default.conf.template).
 
 | İş | Ayar | Neden |
 | :--- | :--- | :--- |
@@ -130,7 +130,7 @@ Ayarların hepsi tek bir dosyadadır: [`deploy/web/default.conf`](../../deploy/w
 | Sıkıştırma | `gzip_static on` | Dosyaların `.gz` kopyaları imaj yapılırken bir kez hazırlanır; nginx her istekte yeniden sıkıştırmaz, hazırını gönderir |
 | Önbellek | `map $uri $site_cache` ve `Cache-Control` | Bölüm 8: adı içeriğinin karması olan dosya bir yıl, diğerleri her seferinde sorulur |
 | `/mcp`'yi geçirmek | `location = /mcp`, `proxy_pass` | Sunucu dışarıya kapalı kalır; nginx yalnızca bu yolu ona iletir |
-| İkinci ad | `server_name www.pantrixui.com`, `return 301` | `www.pantrixui.com` kalıcı olarak `pantrixui.com`'a gider: sitenin tek bir adı olur |
+| İkinci ad | `server_name www.${SITE_HOST}`, `return 301` | `www.pantrixui.com` kalıcı olarak `pantrixui.com`'a gider: sitenin tek bir adı olur (bölüm 6.2) |
 | Boyut sınırı | `client_max_body_size 64k` | 64 KB'tan büyük bir mesaj sunucuya ulaşmadan reddedilir (413) |
 | Güvenlik başlıkları | `add_header`, `server_tokens off` | Bölüm 9 |
 
@@ -171,7 +171,7 @@ Spring Boot da dosya sunabilir; ama:
 ```mermaid
 flowchart TB
     subgraph webimg["pantrix-ui-site-web"]
-        w1["nginx:1.30-alpine<br/>Alpine Linux ve nginx · 51 MB"] --> w2["default.conf<br/>sitenin kuralları"] --> w3["Sitenin dosyaları<br/>ve her birinin .gz'si · 83 MB"]
+        w1["nginx:1.30-alpine<br/>Alpine Linux ve nginx · 51 MB"] --> w2["default.conf.template<br/>ve adres betikleri"] --> w3["Sitenin dosyaları<br/>ve her birinin .gz'si · 83 MB"]
     end
     subgraph srvimg["pantrix-ui-site-server"]
         s1["eclipse-temurin:21-jre-alpine<br/>Alpine Linux ve Java 21 · 163 MB"] --> s2["server.jar<br/>Spring Boot ve PantrixMcp · 51 MB"]
@@ -217,6 +217,8 @@ flowchart LR
 
 ## 6. Lokal ve Canlı: Aynı Yığın, İki Yer
 
+### 6.1 Farklar
+
 | | Lokal | Canlı (Coolify) |
 | :--- | :--- | :--- |
 | Komut | `deploy/deploy.sh local` | Coolify adımında yazılacak |
@@ -227,7 +229,39 @@ flowchart LR
 | Port | `127.0.0.1:4004` → `web:80` | Traefik → `web:80`; makinede açılan port yok |
 | `www` | `check.sh` bir `Host` başlığıyla dener | DNS ve Coolify'daki alan adı |
 
-`compose.local.yaml` yalnızca iki şey ekler: imajların bu makinede nasıl yapılacağı (`build`) ve portun dışarıya açılması (`ports`). Gerisi ortaktır.
+`compose.local.yaml` yalnızca üç şey ekler: imajların bu makinede nasıl yapılacağı (`build`), portun dışarıya açılması (`ports`) ve yığının adresi (`SITE_URL`). Gerisi ortaktır.
+
+### 6.2 Sitenin Adresi
+
+Sitenin adresi hiçbir dosyada elle yazılmaz. Tek bir yerde durur ve her ortam kendi adresini verir: lokaldeki site kendi sayfalarına, MCP sunucusuna ve `llms.txt`'sine `http://localhost:4004` üzerinden götürür, canlıdaki `https://pantrixui.com` üzerinden.
+
+```mermaid
+flowchart LR
+    prop["gradle.properties<br/>site.url"] --> build["Derleme<br/>statik sayfalar, sitemap, llms.txt,<br/>içerik, paylaşım görselleri,<br/>uygulamaların adresi"]
+    build --> image["web imajı"]
+    env["compose · SITE_URL<br/>lokalde localhost:4004<br/>canlıda pantrixui.com"] --> start["web konteyneri açılırken<br/>05-site-address.envsh<br/>40-site-address.sh"]
+    image --> start
+    start --> files["Dosyalardaki adres<br/>ve www yönlendirmesi<br/>SITE_URL olur"]
+    env --> srv["server<br/>izinli kaynak: SITE_URL"]
+    browser["Tarayıcıdaki uygulama"] -- "window.location.origin" --> app["MCP, llms.txt ve<br/>404'teki adres"]
+```
+
+*   **Kalıcı adres, `site.url`:** `gradle.properties`'te tek satır. Derleme onu statik sayfalara, `sitemap.xml`'e, `robots.txt`'ye, `llms.txt`'ye, paylaşım görsellerine ve masaüstü, Android ve iOS uygulamalarına (`BUILT_SITE_ADDRESS`) yazar. İçerik sayfaları adresi `{{site}}` diye anar; içerik aracı onu da bu adresle yazar.
+*   **Yığının adresi, `SITE_URL`:** Compose'un ortam değişkeni. `web` konteyneri açılırken dosyalardaki adresi bununla değiştirir ve `.gz`'lerini yeniden yapar; nginx'in `www` yönlendirmesi de bu adrese gider. `server` bu adresin sayfalarına izin verir. Boşsa site derlendiği adreste sunulur. Değiştirmek için yeniden derlemek gerekmez; konteyneri yeniden başlatmak yeter.
+*   **Web uygulaması:** Adresi gömmez, açıldığı adresi kendisi okur (`SiteAddress`, `window.location.origin`). Aynı derleme her adreste kendini gösterir.
+
+| Adresi kullanan | Nereden alır | Ne zaman |
+| :--- | :--- | :--- |
+| Statik sayfalar, `sitemap.xml`, `robots.txt`, `llms.txt`, içerik | `site.url`, sonra `SITE_URL` | Derlemede; `web` konteyneri açılırken |
+| Web uygulamasının gösterdiği adresler: MCP, `llms.txt`, 404 sayfası | Açıldığı adres | Her açılışta |
+| Masaüstü, Android ve iOS uygulamaları | `site.url` | Derlemede |
+| Paylaşım görselleri | `site.url` | Derlemede |
+| nginx'in `www` yönlendirmesi | `SITE_URL` | `web` konteyneri açılırken |
+| Sunucunun izin verdiği kaynak | `SITE_URL`, yoksa `site.url` | `server` açılırken |
+
+Konteyner yalnızca şemasıyla yazılmış tam adresi değiştirir: `https://pantrixui.com`. Şemasız bir alan adı bir sözcüktür. Rehberlerin örnek kodları da onu böyle kullanır (`"pantrixui.com/tr"`), bu yüzden olduğu gibi kalır.
+
+**Yeni bir alan adı** için `gradle.properties`'teki `site.url` değiştirilir, site yeniden derlenir ve Coolify'da `SITE_URL` yeni adres yapılır. Kodda değişen bir şey olmaz.
 
 ## 7. Coolify ve Traefik
 
@@ -290,6 +324,7 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 | Dosyaları da Spring Boot'un sunması | Bölüm 3.3 |
 | VPS'te, Git'ten derlemek | Sunucuyu zorlar; VPS'te başka uygulamalar çalışıyor |
 | GitHub Actions'ta derlemek | İleride eklenebilir; şimdilik "lokalde denenen imaj canlıya gider" ilkesi seçildi |
+| Her adres için ayrı derlemek | Lokaldeki ve canlıdaki imaj birbirinden ayrılır; deneme adresi de ayrı bir derleme ister. Adres, derlemenin değil, yığının ayarıdır (bölüm 6.2) |
 
 ## 11. Dosyalar
 
@@ -298,7 +333,8 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 | [`deploy/compose.yaml`](../../deploy/compose.yaml) | Yığın: iki servis, imajların adları, sunucunun bellek sınırı |
 | [`deploy/compose.local.yaml`](../../deploy/compose.local.yaml) | Lokalde: imajların bu makinede yapılması ve 4004 portu |
 | [`deploy/web/Dockerfile`](../../deploy/web/Dockerfile) | Web imajı: sıkıştırma aşaması ve nginx |
-| [`deploy/web/default.conf`](../../deploy/web/default.conf) | nginx'in ayarları |
+| [`deploy/web/default.conf.template`](../../deploy/web/default.conf.template) | nginx'in ayarları; `SITE_URL` ve `SITE_HOST`, konteyner açılırken yazılır |
+| [`deploy/web/05-site-address.envsh`](../../deploy/web/05-site-address.envsh), [`deploy/web/40-site-address.sh`](../../deploy/web/40-site-address.sh) | Konteyner açılırken: yığının adresini bulur ve dosyalara yazar |
 | [`deploy/server/Dockerfile`](../../deploy/server/Dockerfile) | Sunucu imajı: Java 21 ve `server.jar` |
 | [`deploy/deploy.sh`](../../deploy/deploy.sh) | Tek komut: derler, imajları yapar, yığını kaldırır, denetler |
 | [`deploy/check.sh`](../../deploy/check.sh) | Denetimler: herhangi bir adreste, lokalde ya da canlıda |
@@ -323,5 +359,7 @@ Bir ziyaretçi, ilk açılışta uygulama için 23 MB yerine yaklaşık 7 MB ind
 ## 13. Doğrulama
 
 *   **Lokalde görülen (2026-10-30):** `deploy/deploy.sh local` iki imajı yaptı ve yığını `http://localhost:4004`'te kaldırdı; iki konteyner de sağlıklı (`healthy`). `check.sh`'in 21 denetimi geçti: sayfalar, Türkçe sayfa, bileşen sayfası, 404, `llms.txt`, `sitemap.xml`, `robots.txt`, gzip ve önbellek başlıkları, iki Wasm dosyası, `www` yönlendirmesi ve `/mcp`'ye gerçek MCP mesajları (initialize, tools/list, bir araç çağrısı, GET'in, başka sitenin ve 64 KB'ı aşan mesajın reddi). Sayfalar başsız Chrome'da ve iOS simülatöründeki Safari'de çizildi. 512 MB sınırında sunucu, 200 eşzamanlı araç çağrısından sonra 317 MB kullandı ve yeniden başlamadı.
+*   **Adres, lokalde görülen (2026-10-30):** `SITE_URL=http://localhost:4004` ile `web` konteyneri açılırken 294 dosyadaki adresi yazdı (yaklaşık 1,3 saniye); dosyalarda canlı adres kalmadı, `.gz`'ler dosyalarıyla aynı, paket adları (`com.pantrixui.components`) ve rehberlerin örnekleri (`"pantrixui.com/tr"`) olduğu gibi. `check.sh`'in 22 denetimi bu adresle geçti: canonical, `llms.txt`, `sitemap.xml`, `www.localhost` yönlendirmesi ve sitenin kendi sayfasından gelen MCP isteği. Tarayıcıda yapay zekâ sayfası ve belgelerdeki asistan sayfası `http://localhost:4004/mcp`, 404 sayfası `localhost:4004/…` gösterdi. Aynı konteyner yeniden başlarken dosyalara dokunmadı; `SITE_URL` verilmeyen bir konteyner derlendiği adresle (`https://pantrixui.com`), başka bir adres verilen konteyner o adresle sunuldu.
+*   **Adres, bilinen sınır:** JavaScript'siz okuyucular için gizlenen statik metinde şemasız yazılan adres (`pantrixui.com/mcp`) değişmez; uygulama bu adresi açıldığı adresle gösterir.
 *   **Kaynakta okunan:** nginx'in `try_files`, `gzip_static`, `resolver` ve `add_header` davranışları nginx'in belgelerindedir.
 *   **Henüz denenmeyen:** Coolify, Traefik, HTTPS ve canlı alan adı; `amd64` imajı (lokalde `arm64` çalıştı). Bunlar Coolify adımında denenir.

@@ -6,6 +6,7 @@ import com.pantrixui.site.core.base.valueOrNull
 import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.Page
+import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.Token
 import com.pantrixui.site.core.model.TokenKind
@@ -125,10 +126,10 @@ class HomeTest {
 
         fun List<Token>.text() = joinToString("") { it.text }
         assertEquals("> Her siparişin altına en çok 280 karakterlik bir yorum kutusu", desktop[2].text())
-        assertEquals("$ claude mcp add -t http pantrix-ui https://pantrixui.com/mcp", desktop.first().text())
+        assertEquals("$ claude mcp add -t http pantrix-ui ${SiteAddress.mcp}", desktop.first().text())
         assertEquals(TokenKind.Number, desktop.last().single { it.text == "280" }.kind)
         assertEquals(
-            listOf("$ claude mcp add -t http \\", "    pantrix-ui https://pantrixui.com/mcp"),
+            listOf("$ claude mcp add -t http \\", "    pantrix-ui ${SiteAddress.mcp}"),
             phone.take(2).map { it.text() }
         )
         assertEquals(5, phone.size)

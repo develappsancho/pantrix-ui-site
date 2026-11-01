@@ -34,6 +34,10 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 - **Nothing of yours in `.claude/`**, but the library's skill `pantrix-ui` in `.claude/skills/` (owner, 2026-10-30):
   the site is the library's first app, and is built with the skill and the MCP server an app is given (`.mcp.json`).
   `local.properties` holds a token and is never copied or printed.
+- **The site's address is never written by hand** (owner, 2026-10-30): `site.url` in `gradle.properties` is the one
+  place, which the build gives the static pages, the content (a page writes `{{site}}`), the share images and the apps
+  (`BUILT_SITE_ADDRESS`); the app gives `SiteAddress` (the web app the address it was opened at); a running stack is
+  served at `SITE_URL`.
 - **A backend is Spring Boot**: `:server`, which serves the library's MCP server at `/mcp` (`PantrixMcp.http()`),
   without the Ktor the MCP SDK brings.
 
@@ -45,7 +49,7 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp` |
 | `core/base` | MVI: `UiState`, `UiAction`, `UiEffect`, `BaseViewModel`, `BaseScreen`, `LoadState` |
 | `core/navigation` | `Navigator`, `NavigationHistory`, `BrowserNavigationHistory` (History API: path addresses, each entry keeping the stack it was written with, so a reload and Back or Forward reopen it) |
-| `core/model` | `Route`, `Language`, `Page` and its blocks, `ContentFiles`, `LibraryFacts` (the library's counts the frame says: 100 components, 24 guides); `GuideCatalogue` (each guide's topic, summary, tags and platforms, kept in the site), `Changelog`, `ComponentIndex` and `ComponentPage`, `FoundationSection`, `SearchIndex`, `DemoPages` (a component's key, where the demo's other pages stand), `ShareImage` |
+| `core/model` | `SiteAddress` (the site's address: on the web the page's own, in an app `site.url`, written by `site.address` as `BUILT_SITE_ADDRESS`), `Route`, `Language`, `Page` and its blocks, `ContentFiles`, `LibraryFacts` (the library's counts the frame says: 100 components, 24 guides); `GuideCatalogue` (each guide's topic, summary, tags and platforms, kept in the site), `Changelog`, `ComponentIndex` and `ComponentPage`, `FoundationSection`, `SearchIndex`, `DemoPages` (a component's key, where the demo's other pages stand), `ShareImage` |
 | `core/routing` | `SiteRoutes`: the one table of addresses (`/docs/installation`, `/tr/docs/installation`) |
 | `core/i18n` | `SiteStrings`: the frame's words in English and Turkish; `LandingHeads`: the landing pages' titles (their windows' too) and descriptions |
 | `core/designsystem` | `PantrixPreset`, `SiteTheme`, `SiteType`, `SiteColors`, `SiteTypefaces`, `SiteIcons`, `BySize`, `SitePreview` (what a preview is drawn in, and its sizes); `chrome/` (header, sidebar and its `NavList`, menu, foot), `content/` (blocks, a guide's pieces, code, article page, page header, "On this page", a page's foot, a landing page's bands, the live stage of an example, the frames of a sketch: `PhoneFrame`, `WindowFrame`, `SketchControls`) |
@@ -66,7 +70,7 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `server` | The site's server, Spring Boot on the JVM, which runs beside the site on its host: the library's MCP server over Streamable HTTP at `/mcp` (`McpEndpoint`, `PantrixMcp.http()`), its allowed origins in `application.properties` (`pantrix.mcp.origins`); `./gradlew :server:bootJar` makes the jar that runs by itself, on `PORT` or 8080 |
 | `.claude/skills/pantrix-ui`, `.mcp.json` | The library's skill and its MCP server, as an app of the library takes them: the skill written by the library's jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`), the server the same jar, which each machine names in `PANTRIX_MCP_JAR`: the jar attached to the library's release, or `~/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar` after a local publish |
 | `content` | The pages, in English and Turkish; `examples/<language>/<key>.md`: a component's examples the site writes itself, in place of the demo's (the data table's) |
-| `deploy` | Putting the site up: two images built on this machine from Gradle's outputs, the site's files behind nginx (`web/Dockerfile`, `web/default.conf`) and the server (`server/Dockerfile`), in one Compose stack (`compose.yaml`; `compose.local.yaml` builds them here and opens port 4004); `deploy.sh local` builds, runs and checks it, `check.sh` checks any address. Nothing is compiled on the host |
+| `deploy` | Putting the site up: two images built on this machine from Gradle's outputs, the site's files behind nginx (`web/Dockerfile`, `web/default.conf`) and the server (`server/Dockerfile`), in one Compose stack (`compose.yaml`; `compose.local.yaml` builds them here, opens port 4004 and serves the site at `http://localhost:4004`); `SITE_URL`, the address a stack is served at, is written into the files as the web container starts (`web/05-site-address.envsh`, `web/40-site-address.sh`) and allowed by the server; `deploy.sh local` builds, runs and checks it, `check.sh` checks any address. Nothing is compiled on the host |
 | `docs/deploy` | The deploy's guides, in Turkish: `ARCHITECTURE_GUIDE.md` (what runs where and why, with diagrams) and `DEPLOY_GUIDE.md` (the steps) |
 
 ## Checks

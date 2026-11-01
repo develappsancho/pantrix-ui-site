@@ -8,6 +8,7 @@ import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Page
+import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.Token
 import com.pantrixui.site.core.model.Words
@@ -99,7 +100,7 @@ class AiTest {
     fun reading_llms_txt_opens_the_file_where_the_site_serves_it() = runTest(dispatcher) {
         val model = AiViewModel(Language.Turkish, FakeContentRepository(emptyList()))
         model.onAction(AiAction.ReadLlms)
-        assertEquals(AiEffect.OpenUrl("https://pantrixui.com/llms.txt"), model.effects.first())
+        assertEquals(AiEffect.OpenUrl("${SiteAddress.origin}/llms.txt"), model.effects.first())
     }
 
     @Test
@@ -111,7 +112,7 @@ class AiTest {
 
     @Test
     fun each_setup_line_is_a_comment_or_code_and_every_setup_names_the_server_or_its_documents() {
-        val names = listOf("mcp-${LibraryFacts.RELEASE}-all.jar", LibraryFacts.MCP_ADDRESS, "/llms.txt")
+        val names = listOf("mcp-${LibraryFacts.RELEASE}-all.jar", SiteAddress.mcp, "/llms.txt")
         SiteLayout.entries.forEach { layout ->
             val clients = SetupSay.Clients.filter { layout != SiteLayout.Phone || it.onPhone }
             clients.forEach { client ->

@@ -88,6 +88,10 @@ gradlePlugin {
             id = "site.server"
             implementationClass = "com.pantrixui.site.buildlogic.ServerConventionPlugin"
         }
+        register("siteAddress") {
+            id = "site.address"
+            implementationClass = "com.pantrixui.site.buildlogic.SiteAddressConventionPlugin"
+        }
         register("siteContent") {
             id = "site.content"
             implementationClass = "com.pantrixui.site.buildlogic.ContentConventionPlugin"

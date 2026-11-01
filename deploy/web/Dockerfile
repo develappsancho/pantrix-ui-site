@@ -17,7 +17,12 @@ LABEL org.opencontainers.image.title="Pantrix UI site" \
       org.opencontainers.image.description="The website of Pantrix UI: its files, served by nginx" \
       org.opencontainers.image.source="https://github.com/develappsancho/pantrix-ui-site" \
       org.opencontainers.image.revision="$REVISION"
-COPY default.conf /etc/nginx/conf.d/default.conf
+# The address the stack is served at, SITE_URL, is written as the container starts: into nginx's settings from the
+# template, and into the site's files (05-site-address.envsh, 40-site-address.sh). Only SITE_ variables are written
+# into the template, so that nginx's own, such as $uri, stay as they are.
+ENV NGINX_ENVSUBST_FILTER=^SITE_
+COPY default.conf.template /etc/nginx/templates/default.conf.template
+COPY --chmod=755 05-site-address.envsh 40-site-address.sh /docker-entrypoint.d/
 COPY --from=files /site/ /usr/share/nginx/html/
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
     CMD wget -q -O /dev/null http://127.0.0.1/ || exit 1

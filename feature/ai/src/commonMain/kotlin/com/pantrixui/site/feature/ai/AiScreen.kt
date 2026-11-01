@@ -25,6 +25,7 @@ import com.pantrixui.site.core.designsystem.content.pageAnchorRoot
 import com.pantrixui.site.core.designsystem.content.rememberScrollToAnchor
 import com.pantrixui.site.core.i18n.LandingHeads
 import com.pantrixui.site.core.i18n.LocalLanguage
+import com.pantrixui.site.core.model.SiteAddress
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -107,9 +108,10 @@ internal const val DOCUMENTS = "documents"
 
 /**
  * The index of the documents for coding assistants, which "Read llms.txt" opens and the setup without a server names:
- * the site's own `llms.txt`, at its address on every platform.
+ * the site's own `llms.txt`, at the address the site is opened at ([SiteAddress]).
  */
-internal const val LLMS_ADDRESS = "https://pantrixui.com/llms.txt"
+internal val LLMS_ADDRESS: String
+    get() = SiteAddress.llms
 
 /** How far apart the page's lines are, in their size. */
 private const val LINE = 1.5f

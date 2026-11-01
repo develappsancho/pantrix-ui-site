@@ -53,6 +53,7 @@ import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.i18n.LocalSiteStrings
 import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Route
+import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.routing.SiteRoutes
 
@@ -196,7 +197,7 @@ private fun AddressField(path: String) {
         ) {
             PantrixText(
                 text = buildAnnotatedString {
-                    withStyle(SpanStyle(color = SiteTheme.colors.muted)) { append(SITE_HOST) }
+                    withStyle(SpanStyle(color = SiteTheme.colors.muted)) { append(SiteAddress.host) }
                     append(path)
                 },
                 style = mono,
@@ -275,9 +276,6 @@ private fun StartCards(
         }
     }
 }
-
-/** The site's own host, before the path in the address field. */
-private const val SITE_HOST = "pantrixui.com"
 
 /** Where a broken link is reported: a new issue of the library's repository. */
 private const val NEW_ISSUE = "${LibraryFacts.REPOSITORY}/issues/new"

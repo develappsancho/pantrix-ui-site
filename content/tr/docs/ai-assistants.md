@@ -7,7 +7,7 @@ section: Başlarken
 ## Bir asistana verilenler {#documents}
 
 :::table Belgeler
-- `pantrixui.com/mcp`: Bu sitenin HTTP üzerinden sunduğu MCP sunucusu: bir asistana yalnızca adresi verilir
+- `{{site}}/mcp`: Bu sitenin HTTP üzerinden sunduğu MCP sunucusu: bir asistana yalnızca adresi verilir
 - `mcp-0.1.0-alpha03-all.jar`: Aynı sunucu, kendi başına çalışan tek bir jar olarak; her sürüme ekli, kendi makinen için
 - `pantrix-ui` becerisi: Pantrix ile yazılan kodun uyduğu kurallar, Material'ın adları ve Pantrix'inkiler, parçaların birbirine nasıl oturduğu
 - `llms.txt`, `llms-full.txt`: Belgelerin dizini ve hepsi tek bir dosyada, bu sitenin kökünde
@@ -19,13 +19,13 @@ section: Başlarken
 :::steps
 ## Sunucuyu asistana ver {#server toc="Sunucu"}
 
-Sunucu `https://pantrixui.com/mcp` adresinde cevap verir; asistana adresinden başkası gerekmez.
+Sunucu `{{site}}/mcp` adresinde cevap verir; asistana adresinden başkası gerekmez.
 
 :::tabs
 ### Claude Code
 
 ```bash
-claude mcp add -t http pantrix-ui https://pantrixui.com/mcp
+claude mcp add -t http pantrix-ui {{site}}/mcp
 ```
 
 ### Bir projenin .mcp.json'u
@@ -35,7 +35,7 @@ claude mcp add -t http pantrix-ui https://pantrixui.com/mcp
   "mcpServers": {
     "pantrix-ui": {
       "type": "http",
-      "url": "https://pantrixui.com/mcp"
+      "url": "{{site}}/mcp"
     }
   }
 }
@@ -67,9 +67,9 @@ java -jar ~/.pantrix/mcp-0.1.0-alpha03-all.jar skill .claude/skills
 :::table Nerede bulunur
 | Ne | Nerede |
 | :--- | :--- |
-| MCP sunucusu | `https://pantrixui.com/mcp`, [sürüme](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.1.0-alpha03) ekli `mcp-0.1.0-alpha03-all.jar` ya da yerel yayından sonra yerel Maven deposu |
+| MCP sunucusu | `{{site}}/mcp`, [sürüme](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.1.0-alpha03) ekli `mcp-0.1.0-alpha03-all.jar` ya da yerel yayından sonra yerel Maven deposu |
 | Beceri | Claude Code'un `pantrix-ui@pantrix-ui` eklentisi, sürüme ekli `pantrix-ui-skill-0.1.0-alpha03.zip` ya da jar'ın `skill` komutu |
-| `llms.txt` | [pantrixui.com/llms.txt](https://pantrixui.com/llms.txt): bağlantıları bu sitenin sayfalarına gider, sayfası olmayanlar `/llms/` altındadır |
+| `llms.txt` | [{{site}}/llms.txt]({{site}}/llms.txt): bağlantıları bu sitenin sayfalarına gider, sayfası olmayanlar `/llms/` altındadır |
 | Bütün belgeler, kendi makinende | `java -jar mcp-0.1.0-alpha03-all.jar docs <klasör>` |
 :::
 

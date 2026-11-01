@@ -99,7 +99,7 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                 dependsOn(":core:content:generateSiteContent")
                 contentDirectory.set(rootProject.layout.projectDirectory.dir(CONTENT))
                 template.set(layout.projectDirectory.file("src/wasmJsMain/resources/index.html"))
-                site.set(SITE)
+                site.set(siteUrl)
                 landingWords.set(landing.flatMap { it.wordsFile })
                 libraryDocuments.from(documents)
                 shareImages.set(shareManifest)
@@ -118,9 +118,6 @@ class WebApplicationConventionPlugin : Plugin<Project> {
     private companion object {
         /** The script `index.html` loads. */
         const val WEB_BUNDLE = "site.js"
-
-        /** The site's address, which its pages' links, its sitemap and what a shared link shows are written with. */
-        const val SITE = "https://pantrixui.com"
 
         const val PRERENDER_MAIN = "com.pantrixui.site.tools.prerender.MainKt"
         const val LANDING_MAIN = "com.pantrixui.site.tools.render.LandingMainKt"

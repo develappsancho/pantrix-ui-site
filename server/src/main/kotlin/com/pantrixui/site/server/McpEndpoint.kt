@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController
  */
 @RestController
 class McpEndpoint(
-    properties: McpProperties
+    site: SiteProperties
 ) {
-    private val mcp = PantrixMcp.http(origins = properties.origins)
+    private val mcp = PantrixMcp.http(origins = site.hosts)
 
     /** Answers a request made to `/mcp`, with the request's [body] where it has one. */
     @RequestMapping("/mcp")

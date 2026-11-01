@@ -1,5 +1,8 @@
 # Pantrix UI's site in nginx: its files, served by the rules its pages are written for, and the site's server at
 # /mcp, which only nginx reaches. docs/deploy/ARCHITECTURE_GUIDE.md says why each rule is here.
+#
+# A template: nginx's image writes it as conf.d/default.conf as it starts, with SITE_URL, the address the stack is
+# served at, and SITE_HOST, its host, which 05-site-address.envsh gives.
 
 # How long a browser keeps a file. A file named by a hash of what it holds never changes, since a new build gives it a
 # new name: it is kept for a year. Any other file is asked for again each time, and answered "not modified" while it
@@ -9,11 +12,11 @@ map $uri $site_cache {
     default                   "no-cache";
 }
 
-# www.pantrixui.com is the same site under a second name: it is sent, for good, to the one name its pages give.
+# The site's host under www is the same site under a second name: it is sent, for good, to the one its pages give.
 server {
     listen 80;
-    server_name www.pantrixui.com;
-    return 301 https://pantrixui.com$request_uri;
+    server_name www.${SITE_HOST};
+    return 301 ${SITE_URL}$request_uri;
 }
 
 server {

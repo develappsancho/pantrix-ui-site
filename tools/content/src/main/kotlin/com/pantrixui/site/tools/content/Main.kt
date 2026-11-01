@@ -18,8 +18,9 @@ import kotlin.math.ceil
  * Writes the site's content for the app under `--out`: each page of `--pages` (`<language>/<path>.md`), the guides
  * among them with how long each takes to read, and from the library's documents in `--docs`, the `com.pantrixui:mcp`
  * jar, the changelog and the components, their list and each one's page, in both languages. A component the site
- * writes examples of its own for, under `--pages`' `examples` ([SiteExamples]), shows those. What `--out` held before
- * is replaced, so that a page taken out of the site is gone from it too.
+ * writes examples of its own for, under `--pages`' `examples` ([SiteExamples]), shows those. A page names the site's
+ * own address as `{{site}}`, written as `--site` gives it. What `--out` held before is replaced, so that a page taken
+ * out of the site is gone from it too.
  */
 fun main(args: Array<String>) {
     val options = args.toList().chunked(2).associate { it.first() to it.last() }
@@ -28,7 +29,9 @@ fun main(args: Array<String>) {
     val out = File(options.getValue("--out"))
     val guides = SiteGuides.read(folder)
     val writer = ContentWriter(out)
-    val sitePages = SitePages.read(folder).map(guides::withMinutes).map(SiteGuides::withCatalogue)
+    val sitePages = SitePages.read(folder, options.getValue("--site"))
+        .map(guides::withMinutes)
+        .map(SiteGuides::withCatalogue)
     val written = writer.write(sitePages)
     writer.writeMinutes(guides.minutes)
     val english = ChangelogReader(Language.English).read(documents.text(LibraryDocuments.ENGLISH_CHANGELOG))
@@ -55,14 +58,23 @@ fun main(args: Array<String>) {
     )
 }
 
-/** The pages the site writes itself, from a folder of `<language>/<path>.md` files. */
+/**
+ * The pages the site writes itself, from a folder of `<language>/<path>.md` files. A page names the site's own address
+ * as [SITE]: it is written as [site] gives it, so that a new address is one line of `gradle.properties`.
+ */
 internal object SitePages {
-    fun read(folder: File): List<Page> = Language.entries.flatMap { language ->
+    /** How a page names the site's own address: `{{site}}/mcp`. */
+    const val SITE = "{{site}}"
+
+    fun read(
+        folder: File,
+        site: String
+    ): List<Page> = Language.entries.flatMap { language ->
         val root = File(folder, language.code)
         root.walkTopDown().filter { it.isFile && it.extension == "md" }.sortedBy { it.path }.map { file ->
             val name = file.relativeTo(root).invariantSeparatorsPath.removeSuffix(".md")
             val path = if (name == "index") "/" else "/$name"
-            PageReader(language, path).read(file.readText())
+            PageReader(language, path).read(file.readText().replace(SITE, site))
         }.toList()
     }
 }

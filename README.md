@@ -44,6 +44,10 @@ the host.
   the token above for GitHub Packages.
 - On the host, `pantrixui.com`: Coolify, from the same images on GitHub's container registry (to come).
 
+The site's address is written in one place: `site.url` in `gradle.properties`, which the build gives the static pages,
+the content (as `{{site}}`), the share images and the apps. A running stack is served at `SITE_URL` instead, which the
+web container writes into the site's files as it starts, and the web app reads the address it was opened at.
+
 The guides are in Turkish: `docs/deploy/ARCHITECTURE_GUIDE.md` draws what runs where and why (nginx, the images, the
 stack, compression and caching), and `docs/deploy/DEPLOY_GUIDE.md` has the steps.
 

@@ -28,9 +28,6 @@ object LibraryFacts {
     /** The repository the library is distributed from: its packages, its releases and Claude Code's plugin for it. */
     const val PACKAGES_REPOSITORY: String = "develappsancho/pantrix-ui-cmp-package"
 
-    /** Where the site serves the library's MCP server over HTTP, which an assistant is given instead of the jar. */
-    const val MCP_ADDRESS: String = "https://pantrixui.com/mcp"
-
     /** The version the roadmap plans after the first, which the changelog's foot leads to. */
     const val PLANNED_VERSION: String = "0.2.0"
 

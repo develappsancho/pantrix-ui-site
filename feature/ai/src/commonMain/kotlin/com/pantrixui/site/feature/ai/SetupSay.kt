@@ -2,6 +2,7 @@ package com.pantrixui.site.feature.ai
 
 import com.pantrixui.site.core.designsystem.BySize
 import com.pantrixui.site.core.model.LibraryFacts
+import com.pantrixui.site.core.model.SiteAddress
 import com.pantrixui.site.core.model.TokenKind
 import com.pantrixui.site.core.model.Words
 
@@ -11,11 +12,13 @@ private const val JAR_VERSION = LibraryFacts.RELEASE
 /** The server's jar by its name alone. */
 private const val JAR = "mcp-$JAR_VERSION-all.jar"
 
-/** Where the site serves the server. */
-private const val ADDRESS = LibraryFacts.MCP_ADDRESS
+/** Where the site serves the server: at the address the site is opened at. */
+private val ADDRESS: String
+    get() = SiteAddress.mcp
 
 /** The address with no scheme, as a sentence names it. */
-private val SHORT_ADDRESS = ADDRESS.substringAfter("://")
+private val SHORT_ADDRESS: String
+    get() = ADDRESS.substringAfter("://")
 
 /** The words of the page's setup, in each language and each size: its steps and each assistant's lines. */
 internal object SetupSay {

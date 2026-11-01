@@ -1,7 +1,10 @@
 # The stack on this machine: both images built from what Gradle made here, and the site at http://localhost:4004
-# (SITE_PORT changes it), open to this machine alone. deploy/deploy.sh local runs it.
+# (SITE_PORT changes it), open to this machine alone, which its links, its MCP server and llms.txt lead to.
+# deploy/deploy.sh local runs it.
 services:
   web:
+    environment:
+      SITE_URL: http://localhost:${SITE_PORT:-4004}
     build:
       context: web
       additional_contexts:
@@ -12,6 +15,8 @@ services:
       - "127.0.0.1:${SITE_PORT:-4004}:80"
 
   server:
+    environment:
+      SITE_URL: http://localhost:${SITE_PORT:-4004}
     build:
       context: server
       additional_contexts:

@@ -25,6 +25,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.inCapitals
 import com.pantrixui.site.core.model.ShareImage
+import com.pantrixui.site.core.model.SiteAddress
 
 /**
  * The card a shared link of a page shows: the site's mark, what part of the site the page is in, and its title, in
@@ -71,7 +72,7 @@ internal fun ShareCard(image: ShareImage) {
                 )
             }
             PantrixText(
-                text = "pantrixui.com",
+                text = SiteAddress.host,
                 color = colors.textSecondary,
                 style = type.body.copy(fontSize = 26.sp, lineHeight = 32.sp, fontWeight = FontWeight.SemiBold)
             )

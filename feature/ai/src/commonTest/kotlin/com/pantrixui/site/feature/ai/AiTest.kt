@@ -112,7 +112,9 @@ class AiTest {
 
     @Test
     fun each_setup_line_is_a_comment_or_code_and_every_setup_names_the_server_or_its_documents() {
-        val names = listOf("mcp-${LibraryFacts.RELEASE}-all.jar", SiteAddress.mcp, "/llms.txt")
+        // The plugin brings the server at the site's address.
+        val names =
+            listOf("mcp-${LibraryFacts.RELEASE}-all.jar", SiteAddress.mcp, "pantrix-ui@pantrix-ui", "/llms.txt")
         SiteLayout.entries.forEach { layout ->
             val clients = SetupSay.Clients.filter { layout != SiteLayout.Phone || it.onPhone }
             clients.forEach { client ->
@@ -121,7 +123,7 @@ class AiTest {
                     assertTrue(line.comment == null || line.code.isEmpty(), client.name.desktop.english)
                     line.comment?.let { assertTrue(it.english.startsWith("# ") && it.turkish.startsWith("# ")) }
                 }
-                // The server by its address or its jar, or the documents without one.
+                // The server by its address, its jar or the plugin, or the documents without one.
                 assertTrue(
                     lines.any { line -> names.any { it in line.code } },
                     "$layout ${client.name.desktop.english}"

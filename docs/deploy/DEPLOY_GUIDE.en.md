@@ -212,7 +212,7 @@ The commands are run at the root of the site's repository. With no version given
 1.  Builds the site and the server with Gradle.
 2.  Makes both images for `linux/amd64` and `linux/arm64` and pushes them to GHCR with three tags: the version (`26.10.31`), the commit (`08ec2a5`) and `latest`. The VPS pulls its own architecture's.
 3.  Asks Coolify for a deploy by POST, reads its status every 10 seconds and waits for it to end (about 30 seconds).
-4.  Runs `check.sh` at the live address. `www` is tried on the lasting domain alone.
+4.  Waits for the home page to answer 200, two minutes at most: Coolify calls a deploy finished once its containers have started, and its proxy can answer 503 for a while, until the new site takes requests. Then runs `check.sh` at the live address. `www` is tried on the lasting domain alone.
 
 `desktop`:
 

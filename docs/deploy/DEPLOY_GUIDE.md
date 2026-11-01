@@ -212,7 +212,7 @@ Komutlar, sitenin deposunun kökünde çalıştırılır. Sürüm verilmezse bug
 1.  Siteyi ve sunucuyu Gradle'la derler.
 2.  İki imajı `linux/amd64` ve `linux/arm64` için yapar, üç etiketle GHCR'ye gönderir: sürüm (`26.10.31`), commit (`08ec2a5`) ve `latest`. VPS kendi mimarisininkini çeker.
 3.  Coolify'a yayını POST ile sorar, her 10 saniyede durumunu okur ve bitmesini bekler (yaklaşık 30 saniye).
-4.  Canlı adreste `check.sh`'i çalıştırır. `www` yalnızca kalıcı alan adında denenir.
+4.  Ana sayfa 200 dönene dek bekler, en çok iki dakika: Coolify yayını konteynerler başlayınca bitmiş sayar ve vekili yeni site istek alana dek bir süre 503 dönebilir. Sonra canlı adreste `check.sh`'i çalıştırır. `www` yalnızca kalıcı alan adında denenir.
 
 `desktop` şunları yapar:
 

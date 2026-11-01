@@ -75,30 +75,26 @@ internal object SetupSay {
                 phone = Words("/mcp and /skills then list pantrix-ui.", "Sonra /mcp ve /skills pantrix-ui'yi gösterir.")
             ),
             BySize(
+                // The plugin brings the server at the site's address and the skill: the server added by its address
+                // as well would be listed twice.
                 listOf(
-                    SetupLine(comment = Words("# The server, by its address", "# Sunucu, adresiyle")),
-                    SetupLine("claude mcp add -t http pantrix-ui $ADDRESS"),
-                    SetupLine(),
                     SetupLine(
-                        comment = Words("# The skill, with Pantrix UI's plugin", "# Beceri, Pantrix UI'ın eklentisiyle")
+                        comment = Words(
+                            "# The server and the skill, with Pantrix UI's plugin",
+                            "# Sunucu ve beceri, Pantrix UI'ın eklentisiyle"
+                        )
                     ),
                     SetupLine("claude plugin marketplace add ${LibraryFacts.PACKAGES_REPOSITORY}"),
                     SetupLine("claude plugin install pantrix-ui@pantrix-ui")
                 ),
                 tablet = listOf(
-                    SetupLine(comment = Words("# The server", "# Sunucu")),
-                    SetupLine("claude mcp add -t http pantrix-ui \\"),
-                    SetupLine("  $ADDRESS"),
-                    SetupLine(comment = Words("# The skill, with the plugin", "# Beceri, eklentiyle")),
+                    SetupLine(comment = Words("# Server and skill, with the plugin", "# Sunucu ve beceri, eklentiyle")),
                     SetupLine("claude plugin marketplace add \\"),
                     SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY}"),
                     SetupLine("claude plugin install pantrix-ui@pantrix-ui")
                 ),
                 phone = listOf(
-                    SetupLine("claude mcp add -t http \\"),
-                    SetupLine("  pantrix-ui $ADDRESS"),
-                    SetupLine(),
-                    SetupLine(comment = Words("# the skill, with the plugin", "# beceri, eklentiyle")),
+                    SetupLine(comment = Words("# the server and the skill", "# sunucu ve beceri")),
                     SetupLine("claude plugin marketplace add \\"),
                     SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY}"),
                     SetupLine("claude plugin install \\"),

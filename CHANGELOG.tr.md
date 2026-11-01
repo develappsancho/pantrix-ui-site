@@ -12,6 +12,7 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 ### Değişenler
 
 *   **Pantrix UI 0.1.0-alpha04:** kütüphaneyi kuran satırlar, ana sayfada ve Kurulum'da, ve kodlama asistanları için dosyalar onun yeni sürümünü anar; o sürümün Claude Code eklentisi `pantrixui.com/mcp`'deki MCP sunucusunu da getirir.
+*   **Kodlama asistanları sayfası:** Claude Code yalnızca Pantrix UI'ın eklentisiyle kurulur; eklenti MCP sunucusunu ve beceriyi birlikte getirir, sunucu artık iki kez eklenmez.
 
 ### Güvenlik
 

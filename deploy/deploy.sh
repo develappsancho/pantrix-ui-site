@@ -156,6 +156,18 @@ coolify_deploy() {
     fail "Coolify's deployment $deployment did not end within 20 minutes"
 }
 
+# Coolify calls a deployment finished once its containers have started, and its proxy can answer 503 for a while
+# after, until the new site takes requests: the checks wait for the home page, two minutes at most.
+wait_for_site() {
+    local address="$1" code=""
+    for _ in $(seq 1 24); do
+        code="$(curl -s -o /dev/null -w '%{http_code}' "$address/")" || code="000"
+        [ "$code" = 200 ] && return 0
+        sleep 5
+    done
+    echo "  $address/ still answers $code after two minutes"
+}
+
 # The address the site's resource is served at in Coolify: the web service's first domain. A Docker Compose resource
 # keeps its domains by service, in docker_compose_domains, not in fqdn.
 coolify_address() {
@@ -278,6 +290,7 @@ web() {
     local address
     address="$(coolify_address)"
     [ -n "$address" ] || fail "the site's resource in Coolify has no domain"
+    wait_for_site "$address"
     step "The checks, at $address"
     local site_host
     site_host="$(site_url)"

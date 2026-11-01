@@ -17,6 +17,8 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 - **Pantrix UI 0.1.0-alpha04:** the lines that install the library, on the home page and in Installation, and the files
   for coding assistants name its new release, whose Claude Code plugin brings the MCP server at `pantrixui.com/mcp`
   too.
+- **The page for coding assistants:** Claude Code is set up with Pantrix UI's plugin alone, which brings the MCP server
+  and the skill together, so the server is no longer added twice.
 
 ### Security
 

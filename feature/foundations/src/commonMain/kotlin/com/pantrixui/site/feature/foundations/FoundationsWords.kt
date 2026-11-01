@@ -7,24 +7,24 @@ import com.pantrixui.site.core.model.Words
 internal object FoundationsSay {
     val Title = Words("Foundations", "Temeller")
     val Lead = Words(
-        "The tokens every component is drawn with. This page shows them in the Shopeers preset, the look this site " +
+        "The tokens every component is drawn with. This page shows them in the Pantrix preset, the look this site " +
             "wears: a brand's colours, type and shapes over Pantrix's own spacing, elevation, motion and density.",
-        "Her bileşenin çizildiği tokenlar. Bu sayfa onları sitenin giydiği görünüşte, Shopeers hazır ayarında " +
+        "Her bileşenin çizildiği tokenlar. Bu sayfa onları sitenin giydiği görünüşte, Pantrix hazır ayarında " +
             "gösteriyor: Pantrix'in kendi boşluğu, yükseltisi, hareketi ve yoğunluğu üstünde bir markanın renkleri, " +
             "yazısı ve şekilleri."
     )
     val LeadTablet = Words(
-        "The tokens every component is drawn with, in the Shopeers preset: a brand's colours, type and shapes over " +
+        "The tokens every component is drawn with, in the Pantrix preset: a brand's colours, type and shapes over " +
             "Pantrix's own spacing, elevation, motion and density.",
-        "Her bileşenin çizildiği tokenlar, Shopeers hazır ayarında: Pantrix'in kendi boşluğu, yükseltisi, hareketi " +
+        "Her bileşenin çizildiği tokenlar, Pantrix hazır ayarında: Pantrix'in kendi boşluğu, yükseltisi, hareketi " +
             "ve yoğunluğu üstünde bir markanın renkleri, yazısı ve şekilleri."
     )
     val LeadPhone = Words(
-        "The tokens every component is drawn with, in the Shopeers preset.",
-        "Her bileşenin çizildiği tokenlar, Shopeers hazır ayarında."
+        "The tokens every component is drawn with, in the Pantrix preset.",
+        "Her bileşenin çizildiği tokenlar, Pantrix hazır ayarında."
     )
     val Tags = listOf(
-        Words("ShopeersPreset", "ShopeersPreset"),
+        Words("PantrixPreset", "PantrixPreset"),
         Words("Light and dark", "Açık ve koyu"),
         Words("Contrast worked out on this page", "Kontrast bu sayfada hesaplanır")
     )
@@ -48,7 +48,7 @@ internal object FoundationsSay {
     val For = Words("For", "Ne için")
     val Passes = Words("passes", "geçer")
     val Fails = Words("fails", "kalır")
-    val Palette = Words("The Shopeers palette", "Shopeers paleti")
+    val Palette = Words("The Pantrix palette", "Pantrix paleti")
 
     /** What a ground, a text or a line is for, by its role's name. */
     val uses: Map<String, Words> = mapOf(
@@ -112,15 +112,15 @@ internal object FoundationsSay {
     // Shape.
     val ShapeLeadStart = Words("Components ask for a ", "Bileşenler bir ")
     val ShapeLeadEnd = Words(
-        "; the preset says how round each one is. Shopeers rounds more than Pantrix's own scale.",
-        " ister; her birinin ne kadar yuvarlak olduğunu hazır ayar söyler. Shopeers, Pantrix'in kendi ölçeğinden " +
-            "daha çok yuvarlar."
+        "; the preset says how round each one is. The Pantrix preset rounds more than the library's default scale.",
+        " ister; her birinin ne kadar yuvarlak olduğunu hazır ayar söyler. Pantrix hazır ayarı, kütüphanenin " +
+            "varsayılan ölçeğinden daha çok yuvarlar."
     )
     val APill = Words("A pill, on every scale", "Her ölçekte hap")
     val APillShort = Words("A pill", "Hap")
     val ShapeFoot = Words(
-        "Shopeers first, Pantrix's own scale second.",
-        "Önce Shopeers, sonra Pantrix'in kendi ölçeği."
+        "The Pantrix preset first, the library's default scale second.",
+        "Önce Pantrix hazır ayarı, sonra kütüphanenin varsayılan ölçeği."
     )
     val ABorder = Words("a border", "bir kenar çizgisi")
 
@@ -161,7 +161,7 @@ internal class PaletteStep(
     val argb: Long
 )
 
-/** Shopeers' blues, from 50 to 700. */
+/** The preset's blues, from 50 to 700. */
 internal val BLUES = listOf(
     PaletteStep(50, 0xFFF4F8FF),
     PaletteStep(100, 0xFFECF3FE),
@@ -173,7 +173,7 @@ internal val BLUES = listOf(
     PaletteStep(700, 0xFF1442B8)
 )
 
-/** Shopeers' greys, from 25 to 900. */
+/** The preset's greys, from 25 to 900. */
 internal val GREYS = listOf(
     PaletteStep(25, 0xFFFAFBFC),
     PaletteStep(50, 0xFFF5F7F9),

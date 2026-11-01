@@ -12,16 +12,17 @@ import com.pantrixui.foundation.token.typography.PantrixTypography
 import com.pantrixui.foundation.token.typography.rememberPantrixTypography
 
 /**
- * The site's look: Pantrix's structure in the colours of the Shopeers design system, made accessible where its own
- * values were not. The dark primary is a lighter blue with near-black text on it, a white one reads 3.6:1 on the dark
- * surface; the light danger is a darker red, since Shopeers' own gives white text 4.3:1. The light success and warning
- * are darker than Shopeers' own too, which read 3.4:1 and 3.0:1 as text on the page: a component may write in a
- * role's colour, and Pantrix's diagnostics found them. The chart keeps Shopeers' own, which are marks, not text.
+ * The site's look, the Pantrix preset: Pantrix's structure in the site's own palette, made accessible where the
+ * palette's first values were not. The dark primary is a lighter blue with near-black text on it, a white one reads
+ * 3.6:1 on the dark surface; the light danger is a darker red, since the palette's own gives white text 4.3:1. The
+ * light success and warning are darker than the palette's own too, which read 3.4:1 and 3.0:1 as text on the page: a
+ * component may write in a role's colour, and Pantrix's diagnostics found them. The chart keeps the palette's own,
+ * which are marks, not text.
  *
  * Its colours beyond Pantrix's roles, the site's own grounds and the code's, are [SiteColors].
  */
-object ShopeersPreset : DesignPreset {
-    override val name: String = "Shopeers"
+object PantrixPreset : DesignPreset {
+    override val name: String = "Pantrix"
 
     override fun colors(dark: Boolean): PantrixColors = if (dark) Dark else Light
 

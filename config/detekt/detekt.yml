@@ -38,7 +38,7 @@ style:
       # The design system's own tokens, the sizes and colours of its type and its preset: the numbers are the table.
       - '**/com/pantrixui/site/core/designsystem/SiteType.kt'
       - '**/com/pantrixui/site/core/designsystem/SiteColors.kt'
-      - '**/com/pantrixui/site/core/designsystem/ShopeersPreset.kt'
+      - '**/com/pantrixui/site/core/designsystem/PantrixPreset.kt'
     ignorePropertyDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
   UnusedPrivateMember:

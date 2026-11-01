@@ -653,7 +653,7 @@ private const val TAG_EXAMPLE = "TextArea_comment"
 
 /** The files of "Write it once", and the source set they are in. */
 private const val FORM_FILE = "ReviewForm.kt"
-private const val PRESET_FILE = "ShopeersPreset.kt"
+private const val PRESET_FILE = "PantrixPreset.kt"
 private const val SOURCE_SET = "commonMain"
 
 /** How wide a desktop's page is where the four platforms' cards share a row: four of 250 and their gaps. */

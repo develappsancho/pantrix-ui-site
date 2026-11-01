@@ -36,7 +36,7 @@ import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.color.PantrixColors
-import com.pantrixui.site.core.designsystem.ShopeersPreset
+import com.pantrixui.site.core.designsystem.PantrixPreset
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.CodeView
@@ -320,8 +320,8 @@ private fun ColorsTable(
     colors: ComponentType,
     language: Language
 ) {
-    val light = remember { ShopeersPreset.colors(dark = false) }
-    val dark = remember { ShopeersPreset.colors(dark = true) }
+    val light = remember { PantrixPreset.colors(dark = false) }
+    val dark = remember { PantrixPreset.colors(dark = true) }
     val shape = RoundedCornerShape(12.dp)
     val phone = SiteTheme.layout == SiteLayout.Phone
     Column(
@@ -586,8 +586,8 @@ private object ApiSay {
     val FirstOnly = Words("Show the first few", "İlklerini göster")
     val TypesItTakes = Words("Types it takes:", "Aldığı tipler:")
     val ThemeRole = Words("Theme's role", "Temadaki rolü")
-    val Light = Words("Shopeers, light", "Shopeers, açık")
-    val Dark = Words("Shopeers, dark", "Shopeers, koyu")
+    val Light = Words("Pantrix, light", "Pantrix, açık")
+    val Dark = Words("Pantrix, dark", "Pantrix, koyu")
 
     fun showAll(count: Int): Words = Words("Show all $count parameters", "$count parametrenin hepsini göster")
 }

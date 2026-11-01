@@ -13,7 +13,7 @@ The landing page's code, as its sections show it.
 @Composable
 fun ReviewForm(onSend: (String) -> Unit) {
     val comment = rememberTextFieldState()
-    PantrixTheme(preset = ShopeersPreset) {
+    PantrixTheme(preset = PantrixPreset) {
         Column(Modifier.clearFocusOnTap(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             PantrixTextArea(
                 state = comment,
@@ -37,7 +37,7 @@ fun ReviewForm(onSend: (String) -> Unit) {
 @Composable
 fun ReviewForm(onSend: (String) -> Unit) {
     val comment = rememberTextFieldState()
-    PantrixTheme(preset = ShopeersPreset) {
+    PantrixTheme(preset = PantrixPreset) {
         Column(Modifier.clearFocusOnTap(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             PantrixTextArea(state = comment, label = stringResource(Res.string.comment), maxLength = 280, tagKey = "comment")
             PantrixButton(text = stringResource(Res.string.send), onClick = { onSend(comment.text.toString()) }, tagKey = "send")
@@ -50,7 +50,7 @@ fun ReviewForm(onSend: (String) -> Unit) {
 
 ```kotlin ReviewForm.kt
 val comment = rememberTextFieldState()
-PantrixTheme(preset = ShopeersPreset) {
+PantrixTheme(preset = PantrixPreset) {
     PantrixTextArea(
         state = comment,
         label = stringResource(Res.string.comment),
@@ -62,9 +62,9 @@ PantrixTheme(preset = ShopeersPreset) {
 
 ### The preset {#preset}
 
-```kotlin ShopeersPreset.kt
-object ShopeersPreset : DesignPreset {
-    override val name: String = "Shopeers"
+```kotlin PantrixPreset.kt
+object PantrixPreset : DesignPreset {
+    override val name: String = "Pantrix"
 
     override fun colors(dark: Boolean): PantrixColors = if (dark) Dark else Light
 

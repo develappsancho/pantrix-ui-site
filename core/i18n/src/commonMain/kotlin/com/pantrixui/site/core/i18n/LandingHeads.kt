@@ -50,9 +50,9 @@ object LandingHeads {
         title = Words("Foundations", "Temeller"),
         description = Words(
             "The tokens every Pantrix component is drawn with: colours, type, spacing, shapes, elevation, motion and " +
-                "density, shown in the Shopeers preset.",
+                "density, shown in the Pantrix preset.",
             "Her Pantrix bileşeninin çizildiği tokenlar: renkler, yazı, boşluk, şekiller, yükselti, hareket ve " +
-                "yoğunluk, Shopeers hazır ayarında."
+                "yoğunluk, Pantrix hazır ayarında."
         )
     )
 

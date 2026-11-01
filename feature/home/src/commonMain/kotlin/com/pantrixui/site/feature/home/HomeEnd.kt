@@ -42,7 +42,7 @@ import com.pantrixui.components.elements.button.ButtonColors
 import com.pantrixui.components.elements.text.PantrixText
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.color.PantrixColors
-import com.pantrixui.site.core.designsystem.ShopeersPreset
+import com.pantrixui.site.core.designsystem.PantrixPreset
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.chrome.FootBand
@@ -354,7 +354,7 @@ private fun Swatches(
     named: SwatchNames
 ) {
     // The preset's own light colours, whichever theme the page is in: they are the brand's values.
-    val colors = ShopeersPreset.colors(dark = false)
+    val colors = PantrixPreset.colors(dark = false)
     val phone = SiteTheme.layout == SiteLayout.Phone
     Column(verticalArrangement = Arrangement.spacedBy(if (phone) 8.dp else 10.dp)) {
         SWATCHES.chunked(columns).forEach { row ->
@@ -769,7 +769,7 @@ private val SWATCHES: List<Pair<String, (PantrixColors) -> Color>> = listOf(
     "danger" to { it.danger.color }
 )
 
-/** Shopeers' blues from 50 to 700, where each stands along the band. */
+/** The preset's blues from 50 to 700, where each stands along the band. */
 private val BLUES = arrayOf(
     0f to Color(0xFFF4F8FF),
     0.22f to Color(0xFFCFDFFF),

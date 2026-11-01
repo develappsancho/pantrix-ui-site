@@ -32,11 +32,11 @@ data class ThemeUiState(
     val copied: Boolean = false,
     val codeOpen: Boolean = false
 ) : UiState {
-    /** The preset's object, as the Kotlin names it: `ShopeersPreset`, `BrandPreset` for a name of no letters. */
+    /** The preset's object, as the Kotlin names it: `PantrixPreset`, `BrandPreset` for a name of no letters. */
     val objectName: String
         get() = name.filter { it.isLetterOrDigit() && it.code < ASCII_END }.ifEmpty { "Brand" } + "Preset"
 
-    /** The file the Kotlin is: `ShopeersPreset.kt`. */
+    /** The file the Kotlin is: `PantrixPreset.kt`. */
     val fileName: String
         get() = "$objectName.kt"
 
@@ -55,7 +55,7 @@ enum class Corners(val radii: Radii) {
     /** Pantrix's own scale. */
     Sharp(SHARP),
 
-    /** Shopeers', the site's own. */
+    /** The Pantrix preset's, the site's own. */
     Rounded(ROUNDED),
 
     /** Rounder than both. */
@@ -122,7 +122,7 @@ sealed interface ThemeAction : UiAction {
     /** Shows the preset's dark colours, or its light ones. */
     data class ShowDark(val dark: Boolean) : ThemeAction
 
-    /** Starts again from Shopeers. */
+    /** Starts again from the Pantrix preset. */
     data object Reset : ThemeAction
 
     /** Copies the Kotlin. */
@@ -150,6 +150,6 @@ sealed interface ThemeEffect : UiEffect {
     ) : ThemeEffect
 }
 
-/** The preset the builder starts from: Shopeers, the site's own. */
-internal const val DEFAULT_NAME = "Shopeers"
+/** The preset the builder starts from: Pantrix, the site's own. */
+internal const val DEFAULT_NAME = "Pantrix"
 internal const val DEFAULT_PRIMARY = 0xFF2264FF

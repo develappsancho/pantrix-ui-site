@@ -29,7 +29,7 @@ enum class SiteLayout {
 }
 
 /**
- * The site's look around [content]: Pantrix's theme in [ShopeersPreset], the site's own colours and styles, and the
+ * The site's look around [content]: Pantrix's theme in [PantrixPreset], the site's own colours and styles, and the
  * words of [language].
  *
  * @param dark whether the theme is dark; the site's own button chooses it, not only the system.
@@ -45,13 +45,13 @@ fun SiteTheme(
     // The window is classed before the theme is built: the theme's code type is the layout's.
     val window = rememberPantrixWindow()
     val layout = siteLayoutOf(window.widthClass)
-    val base = ShopeersPreset.typography()
+    val base = PantrixPreset.typography()
     val sans = base.body.fontFamily ?: FontFamily.Default
     val mono = base.code.fontFamily ?: FontFamily.Monospace
     val type = remember(layout, sans, mono) { SiteType.of(layout, sans, mono) }
     PantrixTheme(
-        preset = ShopeersPreset,
-        colors = rememberPantrixColors(ShopeersPreset, darkTheme = dark),
+        preset = PantrixPreset,
+        colors = rememberPantrixColors(PantrixPreset, darkTheme = dark),
         typography = base,
         window = window,
         locale = language.pantrixLocale

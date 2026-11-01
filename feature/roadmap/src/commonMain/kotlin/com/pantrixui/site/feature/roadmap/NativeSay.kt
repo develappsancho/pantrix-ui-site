@@ -97,8 +97,8 @@ internal object NativeSay {
             "her bileşen aynı adla: PantrixTextArea, PantrixButton, PantrixDatePicker…"
         ),
         Words("The look", "Görünüş") to Words(
-            "the same tokens and presets, Shopeers’ among them",
-            "aynı tokenlar ve hazır ayarlar, Shopeers'inki de"
+            "the same tokens and presets, Pantrix’s among them",
+            "aynı tokenlar ve hazır ayarlar, Pantrix'inki de"
         ),
         Words("Tags", "Etiketler") to Words(
             "TextArea_courierNote in all three, so one Maestro flow tests the Android and the iOS app",
@@ -140,12 +140,12 @@ internal object NativeSay {
 
     /** A desktop's line on the tokens: one file the three would be made from, still being weighed. */
     val Tokens = Words("Being weighed, one source of tokens:", "Tartılan, tek bir token kaynağı:")
-    const val TOKENS_FILE = "shopeers.tokens.json"
-    val TokenOutputs = listOf("ShopeersPreset.kt", "ShopeersPreset.swift", "shopeers.css")
+    const val TOKENS_FILE = "pantrix.tokens.json"
+    val TokenOutputs = listOf("PantrixPreset.kt", "PantrixPreset.swift", "pantrix.css")
 
     /** The Kotlin sample, its strings from [res]: `Res` in a multiplatform project, `R` in an Android one. */
     private fun kotlin(res: String) = listOf(
-        CodeLine("PantrixTheme(preset = ShopeersPreset) {", TokenKind.Function),
+        CodeLine("PantrixTheme(preset = PantrixPreset) {", TokenKind.Function),
         CodeLine("    PantrixTextArea(", TokenKind.Function),
         CodeLine("        state = note,"),
         CodeLine("        label = stringResource($res.string.note),"),
@@ -157,7 +157,7 @@ internal object NativeSay {
 
     /** The Swift sample, its label [label]. */
     private fun swift(label: String) = listOf(
-        CodeLine("PantrixTheme(preset: .shopeers) {", TokenKind.Function),
+        CodeLine("PantrixTheme(preset: .pantrix) {", TokenKind.Function),
         CodeLine("    PantrixTextArea(", TokenKind.Function),
         CodeLine("        \"$label\",", TokenKind.StringLiteral),
         CodeLine("        text: \$note,"),

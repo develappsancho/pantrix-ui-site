@@ -3,7 +3,7 @@ package com.pantrixui.site.feature.foundations
 import androidx.compose.ui.graphics.Color
 import com.pantrixui.foundation.l10n.PantrixStrings
 import com.pantrixui.foundation.token.color.contrastRatio
-import com.pantrixui.site.core.designsystem.ShopeersPreset
+import com.pantrixui.site.core.designsystem.PantrixPreset
 import com.pantrixui.site.core.model.FoundationSection
 import com.pantrixui.site.core.model.Language
 import com.pantrixui.site.core.model.ThemingLink
@@ -41,7 +41,7 @@ class FoundationsTest {
     @Test
     fun what_the_site_wears_on_its_roles_reads_as_text_in_both_themes() {
         listOf(false, true).forEach { dark ->
-            val colors = ShopeersPreset.colors(dark)
+            val colors = PantrixPreset.colors(dark)
             listOf(colors.primary, colors.success, colors.warning, colors.danger).forEach { role ->
                 assertTrue(contrastRatio(role.onColor, role.color) >= 4.5f, "on ${role.color.hex()}, dark = $dark")
             }

@@ -97,16 +97,16 @@ fun App() {
 
 Bir `DesignPreset` bir markanın açık ve koyu renklerini, yazısını, şekillerini ve bileşenlere özel ayarlarını tutar. [Tema oluşturucu](/theme) sizin için bir tane yazar.
 
-```kotlin ShopeersPreset.kt
-object ShopeersPreset : DesignPreset {
-    override val name = "Shopeers"
-    override fun colors(dark: Boolean) = if (dark) ShopeersDark else ShopeersLight
+```kotlin PantrixPreset.kt
+object PantrixPreset : DesignPreset {
+    override val name = "Pantrix"
+    override fun colors(dark: Boolean) = if (dark) PantrixDark else PantrixLight
 
     @Composable override fun typography() = rememberPantrixTypography()
     @Composable override fun shapes() = rememberPantrixShapes()
 }
 
-PantrixTheme(preset = ShopeersPreset) { App() }
+PantrixTheme(preset = PantrixPreset) { App() }
 ```
 :::
 

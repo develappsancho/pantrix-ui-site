@@ -33,7 +33,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.color.PantrixColor
 import com.pantrixui.foundation.token.color.PantrixColors
 import com.pantrixui.foundation.token.color.contrastRatio
-import com.pantrixui.site.core.designsystem.ShopeersPreset
+import com.pantrixui.site.core.designsystem.PantrixPreset
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.i18n.LocalLanguage
@@ -54,7 +54,7 @@ internal fun ColourSection(
 ) {
     val language = LocalLanguage.current
     val layout = SiteTheme.layout
-    val colors = ShopeersPreset.colors(state.dark)
+    val colors = PantrixPreset.colors(state.dark)
     Section(
         title = FoundationSection.Colour.title.of(language),
         modifier = modifier,
@@ -403,7 +403,7 @@ private fun Badge(
     )
 }
 
-/** Shopeers' blues and greys, each step in its colour with its number. */
+/** The preset's blues and greys, each step in its colour with its number. */
 @Composable
 private fun Palette() {
     val language = LocalLanguage.current

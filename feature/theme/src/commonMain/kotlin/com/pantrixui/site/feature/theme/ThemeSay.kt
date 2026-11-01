@@ -8,7 +8,7 @@ internal object ThemeSay {
     val Title = Words("Theme builder", "Tema oluşturucu")
     val SubtitleStart = Words("A ", "Kotlin olarak alınan bir ")
     val SubtitleEnd = Words(" you take away as Kotlin", "")
-    val StartAgain = Words("Start again from Shopeers", "Shopeers'tan yeniden başla")
+    val StartAgain = Words("Start again from Pantrix", "Pantrix'ten yeniden başla")
     val CopyKotlin = Words("Copy Kotlin", "Kotlin'i kopyala")
     val Copied = Words("Copied", "Kopyalandı")
 
@@ -50,8 +50,8 @@ internal object ThemeSay {
 
     /** Whose scale the corners are, before their radii. */
     fun cornersOf(corners: Corners): Words = when (corners) {
-        Corners.Sharp -> Words("Pantrix’s own", "Pantrix'in kendisi")
-        Corners.Rounded -> Words("Shopeers", "Shopeers")
+        Corners.Sharp -> Words("Default", "Varsayılan")
+        Corners.Rounded -> Words("Pantrix", "Pantrix")
         Corners.Soft -> Words("Soft", "Yumuşak")
     }
 
@@ -71,7 +71,7 @@ internal object ThemeSay {
 
     /** The swatches to start from, each a colour and what it is called. */
     val Swatches: List<Pair<Long, Words>> = listOf(
-        0xFF2264FF to Words("Shopeers blue", "Shopeers mavisi"),
+        0xFF2264FF to Words("Pantrix blue", "Pantrix mavisi"),
         0xFF6D4AFF to Words("Violet", "Mor"),
         0xFF0F7B7D to Words("Teal", "Camgöbeği"),
         0xFFE5761F to Words("Orange", "Turuncu"),

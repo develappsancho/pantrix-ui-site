@@ -104,7 +104,7 @@ class ThemeTest {
         model.onAction(ThemeAction.CopyKotlin)
         val copy = model.effects.first()
         assertIs<ThemeEffect.Copy>(copy)
-        assertTrue(copy.text.startsWith("object ShopeersPreset : DesignPreset {"))
+        assertTrue(copy.text.startsWith("object PantrixPreset : DesignPreset {"))
     }
 
     @Test

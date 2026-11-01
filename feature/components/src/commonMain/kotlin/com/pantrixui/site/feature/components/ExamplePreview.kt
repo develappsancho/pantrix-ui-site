@@ -30,7 +30,7 @@ import com.pantrixui.foundation.a11y.PantrixPlatform
 import com.pantrixui.foundation.l10n.PantrixLocale
 import com.pantrixui.foundation.platform.PlatformType
 import com.pantrixui.foundation.theme.PantrixTheme
-import com.pantrixui.site.core.designsystem.ShopeersPreset
+import com.pantrixui.site.core.designsystem.PantrixPreset
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.dotted
@@ -97,9 +97,9 @@ internal fun ExampleFrame(
                 Toggle(FrameSay.ArabicRtl.of(language), rtl, "exampleRtl") { rtl = !rtl }
             }
         }
-        val colors = remember(dark) { ShopeersPreset.colors(dark) }
+        val colors = remember(dark) { PantrixPreset.colors(dark) }
         PantrixTheme(
-            preset = ShopeersPreset,
+            preset = PantrixPreset,
             colors = colors,
             platform = PantrixPlatform.forType(platform, isTouch = host.isTouch),
             locale = if (rtl) PantrixLocale.Arabic else PantrixTheme.locale,

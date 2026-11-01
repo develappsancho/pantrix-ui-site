@@ -42,7 +42,7 @@ import com.pantrixui.foundation.icons.PantrixIcons
 import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.foundation.token.density.PantrixDensity
 import com.pantrixui.foundation.token.shape.PantrixShapes
-import com.pantrixui.site.core.designsystem.ShopeersPreset
+import com.pantrixui.site.core.designsystem.PantrixPreset
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.i18n.LocalLanguage
@@ -255,7 +255,7 @@ private fun Bar(
 internal fun ShapeSection(modifier: Modifier) {
     val language = LocalLanguage.current
     val layout = SiteTheme.layout
-    val brand = ShopeersPreset.shapes()
+    val brand = PantrixPreset.shapes()
     val own = PantrixShapes()
     val roles = listOf(
         Triple("ExtraSmall", brand.xs, own.xs),

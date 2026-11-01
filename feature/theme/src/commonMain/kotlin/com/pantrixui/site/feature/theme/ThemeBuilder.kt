@@ -11,13 +11,13 @@ import com.pantrixui.foundation.token.color.PantrixColors
 import com.pantrixui.foundation.token.color.contrastRatio
 import com.pantrixui.foundation.token.shape.PantrixShapes
 import com.pantrixui.foundation.token.typography.PantrixTypography
-import com.pantrixui.site.core.designsystem.ShopeersPreset
+import com.pantrixui.site.core.designsystem.PantrixPreset
 import kotlin.math.roundToInt
 
 /**
- * The preset the builder makes of [state], as a theme takes it: Shopeers' colours with the brand's in its primary
- * role and its focus ring, the corners chosen, and the type the site wears. A typeface of the brand's own is the
- * brand's app's to load: the preview keeps Pantrix's.
+ * The preset the builder makes of [state], as a theme takes it: the Pantrix preset's colours with the brand's in its
+ * primary role and its focus ring, the corners chosen, and the type the site wears. A typeface of the brand's own is
+ * the brand's app's to load: the preview keeps Pantrix's.
  */
 internal class BuiltPreset(private val state: ThemeUiState) : DesignPreset {
     override val name: String = state.name
@@ -25,17 +25,17 @@ internal class BuiltPreset(private val state: ThemeUiState) : DesignPreset {
     override fun colors(dark: Boolean): PantrixColors = presetColors(Color(state.primary), dark)
 
     @Composable
-    override fun typography(): PantrixTypography = ShopeersPreset.typography()
+    override fun typography(): PantrixTypography = PantrixPreset.typography()
 
     @Composable
     override fun shapes(): PantrixShapes = shapesOf(state.corners)
 }
 
-/** Shopeers' colours with [primary]'s role and focus ring, in light or [dark]. */
+/** The Pantrix preset's colours with [primary]'s role and focus ring, in light or [dark]. */
 internal fun presetColors(
     primary: Color,
     dark: Boolean
-): PantrixColors = ShopeersPreset.colors(
+): PantrixColors = PantrixPreset.colors(
     dark
 ).copy(primary = primaryRole(primary, dark), focusRing = textShade(primary, dark))
 

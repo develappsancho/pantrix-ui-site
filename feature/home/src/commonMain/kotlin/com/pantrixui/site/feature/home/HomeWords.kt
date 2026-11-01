@@ -365,19 +365,19 @@ internal object HomeSay {
     val BrandTitleEnd = Words(".", " içinde.")
     val BrandLead = Words(
         "Colours for light and dark, the type scale, the shapes and any component's overrides. This site wears one " +
-            "called Shopeers. Build your own in the theme builder and take it away as Kotlin.",
-        "Açık ve koyu için renkler, yazı ölçeği, şekiller ve herhangi bir bileşenin özel ayarları. Bu site Shopeers " +
+            "called Pantrix. Build your own in the theme builder and take it away as Kotlin.",
+        "Açık ve koyu için renkler, yazı ölçeği, şekiller ve herhangi bir bileşenin özel ayarları. Bu site Pantrix " +
             "adında birini giyiyor. Kendininkini tema oluşturucuda kur, Kotlin olarak al."
     )
     val BrandLeadShort = Words(
         "Colours for light and dark, the type scale, the shapes and any component's overrides. This site wears one " +
-            "called Shopeers.",
-        "Açık ve koyu için renkler, yazı ölçeği, şekiller ve herhangi bir bileşenin özel ayarları. Bu site Shopeers " +
+            "called Pantrix.",
+        "Açık ve koyu için renkler, yazı ölçeği, şekiller ve herhangi bir bileşenin özel ayarları. Bu site Pantrix " +
             "adında birini giyiyor."
     )
     val OpenThemeBuilder = Words("Open the theme builder", "Tema oluşturucuyu aç")
     val SeeTheTokens = Words("See the tokens", "Tokenlara bak")
-    val Palette = Words("Shopeers blue, 50 to 700", "Shopeers mavisi, 50'den 700'e")
+    val Palette = Words("Pantrix blue, 50 to 700", "Pantrix mavisi, 50'den 700'e")
 
     // The call at the end.
     val CallTitle = Words("Start with one line in Gradle.", "Gradle'da tek satırla başla.")

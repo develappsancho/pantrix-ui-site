@@ -16,22 +16,22 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":feature:docs"))
-            implementation(project(":feature:components"))
-            implementation(project(":feature:home"))
-            implementation(project(":feature:foundations"))
-            implementation(project(":feature:theme"))
-            implementation(project(":feature:adaptive"))
-            implementation(project(":feature:ai"))
-            implementation(project(":feature:roadmap"))
-            implementation(project(":feature:search"))
-            implementation(project(":core:base"))
-            implementation(project(":core:navigation"))
-            implementation(project(":core:model"))
-            implementation(project(":core:routing"))
-            implementation(project(":core:i18n"))
-            implementation(project(":core:designsystem"))
-            implementation(project(":core:content"))
+            implementation(projects.feature.docs)
+            implementation(projects.feature.components)
+            implementation(projects.feature.home)
+            implementation(projects.feature.foundations)
+            implementation(projects.feature.theme)
+            implementation(projects.feature.adaptive)
+            implementation(projects.feature.ai)
+            implementation(projects.feature.roadmap)
+            implementation(projects.feature.search)
+            implementation(projects.core.base)
+            implementation(projects.core.navigation)
+            implementation(projects.core.model)
+            implementation(projects.core.routing)
+            implementation(projects.core.i18n)
+            implementation(projects.core.designsystem)
+            implementation(projects.core.content)
             implementation(libs.pantrix.components)
             implementation(libs.navigation3.ui)
             implementation(libs.androidx.lifecycle.viewmodelNavigation3)
@@ -39,7 +39,7 @@ kotlin {
             implementation(libs.koin.composeViewmodel)
         }
         commonTest.dependencies {
-            implementation(project(":core:testing"))
+            implementation(projects.core.testing)
         }
     }
 }

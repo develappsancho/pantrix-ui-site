@@ -11,12 +11,12 @@ application {
 }
 
 dependencies {
-    implementation(project(":app:shared"))
-    implementation(project(":core:model"))
-    implementation(project(":core:navigation"))
-    implementation(project(":core:routing"))
-    implementation(project(":core:i18n"))
-    implementation(project(":core:designsystem"))
+    implementation(projects.app.shared)
+    implementation(projects.core.model)
+    implementation(projects.core.navigation)
+    implementation(projects.core.routing)
+    implementation(projects.core.i18n)
+    implementation(projects.core.designsystem)
     implementation(libs.pantrix.components)
     implementation(compose.desktop.currentOs)
     implementation(libs.compose.uiTest)

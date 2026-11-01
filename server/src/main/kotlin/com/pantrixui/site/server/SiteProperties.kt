@@ -10,7 +10,7 @@ import java.net.URI
  * @property url the address the site is served at, `SITE_URL`: `http://localhost:4004` on this machine. Empty where
  *   the stack gives none, and the site is served at [builtUrl].
  * @property builtUrl the address the site is built for, `site.url` in `gradle.properties`, which the build writes in
- *   the properties: `https://pantrixui.com`.
+ *   `site.properties` beside the application's own: `https://pantrixui.com`.
  */
 @ConfigurationProperties("pantrix.site")
 data class SiteProperties(

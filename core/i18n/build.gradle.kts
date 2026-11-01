@@ -6,7 +6,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            api(project(":core:model"))
+            api(projects.core.model)
         }
     }
 }

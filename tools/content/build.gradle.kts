@@ -7,7 +7,7 @@ application {
 }
 
 dependencies {
-    implementation(project(":core:model"))
+    implementation(projects.core.model)
     implementation(libs.markdown)
     implementation(libs.kotlinx.serialization.json)
 }

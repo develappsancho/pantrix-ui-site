@@ -6,10 +6,10 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            api(project(":core:base"))
-            api(project(":core:content"))
-            api(project(":core:routing"))
-            api(project(":core:designsystem"))
+            api(projects.core.base)
+            api(projects.core.content)
+            api(projects.core.routing)
+            api(projects.core.designsystem)
             api(libs.kotlinx.coroutines.test)
             api(libs.pantrix.testing)
         }

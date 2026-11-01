@@ -8,9 +8,9 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            api(project(":core:model"))
+            api(projects.core.model)
             api(libs.kotlinx.coroutines.core)
-            implementation(project(":core:routing"))
+            implementation(projects.core.routing)
         }
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)

@@ -7,8 +7,8 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(libs.pantrix.components)
-            api(project(":core:model"))
-            api(project(":core:i18n"))
+            api(projects.core.model)
+            api(projects.core.i18n)
         }
         commonTest.dependencies {
             implementation(libs.pantrix.testing)

@@ -1,6 +1,8 @@
 package com.pantrixui.site.buildlogic
 
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.HostTestBuilder
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,11 +37,23 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             buildFeatures {
                 compose = true
             }
+            // AGP's Compose Preview task (generate<Variant>ComposePreviewRunfiles), made for every variant with Compose,
+            // draws the previews with a unit test's compiled resources: it fails as it is created, and the IDE's sync
+            // with it, where the unit tests leave them out.
+            testOptions {
+                unitTests.isIncludeAndroidResources = true
+            }
             packaging {
                 resources {
                     excludes += "/META-INF/{AL2.0,LGPL2.1}"
                 }
             }
+        }
+
+        // The same task needs the variant's unit tests, which AGP turns off for every build type but the tested one,
+        // release among them.
+        extensions.configure<ApplicationAndroidComponentsExtension> {
+            beforeVariants { variant -> variant.hostTests[HostTestBuilder.UNIT_TEST_TYPE]?.enable = true }
         }
 
         tasks.withType<KotlinJvmCompile>().configureEach {

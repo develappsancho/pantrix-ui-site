@@ -7,8 +7,8 @@ application {
 }
 
 dependencies {
-    implementation(project(":core:model"))
-    implementation(project(":core:routing"))
-    implementation(project(":core:i18n"))
+    implementation(projects.core.model)
+    implementation(projects.core.routing)
+    implementation(projects.core.i18n)
     implementation(libs.kotlinx.serialization.json)
 }

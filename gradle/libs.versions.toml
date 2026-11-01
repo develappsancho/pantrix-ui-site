@@ -5,9 +5,9 @@ android-minSdk = "30"
 android-targetSdk = "37"
 kotlin = "2.4.21"
 composeMultiplatform = "1.12.2"
-# The Pantrix UI library, from the local Maven repository while the site is built (./gradlew publishToMavenLocal in
-# pantrix-ui-cmp), from GitHub Packages when the site is deployed.
-pantrix = "0.1.0-alpha03-SNAPSHOT"
+# The Pantrix UI library: a release from GitHub Packages, a -SNAPSHOT from the local Maven repository
+# (./gradlew publishToMavenLocal in pantrix-ui-cmp), as settings.gradle.kts says.
+pantrix = "0.1.0-alpha03"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.11.0"
 navigation3 = "1.2.0"

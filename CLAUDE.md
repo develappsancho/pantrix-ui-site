@@ -1,8 +1,9 @@
 # Pantrix UI site
 
 The website of Pantrix UI, `pantrixui.com`, as a Compose Multiplatform app: the web (Wasm) first, and the same site on
-Android, iOS and the desktop. It is built on Pantrix UI itself, from `mavenLocal` (`com.pantrixui`, the version in
-`gradle/libs.versions.toml`). Group: `com.pantrixui.site`.
+Android, iOS and the desktop. It is built on Pantrix UI itself (`com.pantrixui`, the version in
+`gradle/libs.versions.toml`): a release from GitHub Packages, a `-SNAPSHOT` from `mavenLocal`. Group:
+`com.pantrixui.site`.
 
 ## How I want you to work
 
@@ -26,8 +27,10 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 - **Navigation is the site's own API** (`:core:navigation`), written to be reused by other projects; no
   navigation3-browser.
 - **Web fonts**: the library's fix for a typeface that arrives late (preloads in `index.html`, `PantrixTypefaceGate`).
-- **Local until done.** Pantrix comes from `mavenLocal`; publishing to GitHub Packages and the deploy (Coolify on a VPS)
-  come at the end.
+- **Pantrix from both repositories** (owner, 2026-10-30): a release from GitHub Packages, with the token in
+  `~/.gradle/gradle.properties` (`GitHubPackagesUsername`, `GitHubPackagesPassword`), a `-SNAPSHOT` from `mavenLocal`,
+  published from the library's repository; the catalogue's version chooses (`settings.gradle.kts`). The deploy (Coolify
+  on a VPS) comes at the end.
 - **Nothing of yours in `.claude/`**, but the library's skill `pantrix-ui` in `.claude/skills/` (owner, 2026-10-30):
   the site is the library's first app, and is built with the skill and the MCP server an app is given (`.mcp.json`).
   `local.properties` holds a token and is never copied or printed.
@@ -61,7 +64,7 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 | `tools/prerender` | Run after each web distribution: every page's static `index.html` in the folder of its address (its head, its other language, what a shared link shows, and its words as plain HTML, hidden where the browser runs the app), the `404.html`, `sitemap.xml`, `robots.txt`, and `llms.txt` with its links led to the site's pages |
 | `tools/render` | Draws the app with Compose on the JVM at build time: the landing pages' words read from their semantics (`LandingMainKt`; parts marked `Modifier.live()` and the controls are left out) and each page's share image (`ShareMainKt`); both run only when what they read has changed |
 | `server` | The site's server, Spring Boot on the JVM, which runs beside the site on its host: the library's MCP server over Streamable HTTP at `/mcp` (`McpEndpoint`, `PantrixMcp.http()`), its allowed origins in `application.properties` (`pantrix.mcp.origins`); `./gradlew :server:bootJar` makes the jar that runs by itself, on `PORT` or 8080 |
-| `.claude/skills/pantrix-ui`, `.mcp.json` | The library's skill and its MCP server, as an app of the library takes them: the skill written by the library's jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`), the server the same jar, which each machine names in `PANTRIX_MCP_JAR` (`~/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar`) |
+| `.claude/skills/pantrix-ui`, `.mcp.json` | The library's skill and its MCP server, as an app of the library takes them: the skill written by the library's jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`), the server the same jar, which each machine names in `PANTRIX_MCP_JAR`: the jar attached to the library's release, or `~/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar` after a local publish |
 | `content` | The pages, in English and Turkish; `examples/<language>/<key>.md`: a component's examples the site writes itself, in place of the demo's (the data table's) |
 
 ## Checks
@@ -76,7 +79,8 @@ something surprising — flag it, even if it is unrelated to the task at hand.
 - The server: `./gradlew :server:test` asks every kind of MCP message over real HTTP.
 - When the library's version changes: `pantrix` in `gradle/libs.versions.toml`, `LibraryFacts.RELEASE` once it is
   released, and the skill written again with the new jar (`java -jar "$PANTRIX_MCP_JAR" skill .claude/skills`).
-- When the library's guides change: publish the library to `mavenLocal`, run `./gradlew :core:content:writeGuidePages`
+- When the library's guides change: take its new version (a release, or a `-SNAPSHOT` published to `mavenLocal`), run
+  `./gradlew :core:content:writeGuidePages`
   and look at the diff of `content/*/docs/guides/` before handing it over. A new guide needs its line in
   `GuideCatalogue` and its sketch in `GuideSketches` first.
 - The library's repository is private (owner, 2026-10-29): `LibraryFacts.REPOSITORY_IS_OPEN` is false, and the site

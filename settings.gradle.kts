@@ -20,9 +20,19 @@ pluginManagement {
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositories {
-        // Pantrix UI comes from the local Maven repository until the site is deployed, and nothing else does.
+        // Pantrix UI, and nothing else, from two places that the version in the catalogue chooses between: a release
+        // from GitHub Packages, with the token in ~/.gradle/gradle.properties (GitHubPackagesUsername,
+        // GitHubPackagesPassword); a -SNAPSHOT from the local Maven repository, published from the library's own.
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/develappsancho/pantrix-ui-cmp-package")
+            credentials(PasswordCredentials::class)
+            content { includeGroupAndSubgroups("com.pantrixui") }
+            mavenContent { releasesOnly() }
+        }
         mavenLocal {
             content { includeGroupAndSubgroups("com.pantrixui") }
+            mavenContent { snapshotsOnly() }
         }
         google {
             mavenContent {

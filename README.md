@@ -6,7 +6,10 @@ its own address: `/docs/installation` and `/tr/docs/installation`.
 
 ## Running it
 
-Pantrix UI comes from `mavenLocal`: publish it from the library's repository first.
+Pantrix UI comes from one of two repositories, as the version in `gradle/libs.versions.toml` chooses: a release from
+GitHub Packages, which asks for a token that may read packages (`GitHubPackagesUsername` and `GitHubPackagesPassword` in
+`~/.gradle/gradle.properties`), and a `-SNAPSHOT` from the local Maven repository, published from the library's own
+repository (`./gradlew publishToMavenLocal`).
 
 - Web: `./gradlew :app:webApp:wasmJsBrowserDevelopmentExecutableDistribution`, then serve
   `app/webApp/build/dist/wasmJs/developmentExecutable`: a file as it is, an address with a page its folder's
@@ -42,9 +45,13 @@ code. The build runs the code it shows, and draws the site's own examples as wid
 
 The site is built with what Pantrix UI gives an app's assistant: its skill in `.claude/skills/pantrix-ui`, and its MCP
 server in `.mcp.json`, which runs the library's jar from `PANTRIX_MCP_JAR`. Each machine sets it, in the shell's
-profile for example:
+profile for example: to the jar attached to the library's release, or to the one a local publish puts in the local
+Maven repository.
 
 ```bash
+curl -fL --create-dirs -o ~/.pantrix/mcp-<version>-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v<version>/mcp-<version>-all.jar
+export PANTRIX_MCP_JAR=$HOME/.pantrix/mcp-<version>-all.jar
+# Or after publishToMavenLocal in the library's repository
 export PANTRIX_MCP_JAR=$HOME/.m2/repository/com/pantrixui/mcp/<version>/mcp-<version>-all.jar
 ```
 

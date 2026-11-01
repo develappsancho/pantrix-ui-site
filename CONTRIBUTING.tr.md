@@ -45,7 +45,7 @@ Değişikliğin dokunabileceği her şey koşturulur.
 *   **Biçim ve statik analiz:** `./gradlew detekt lintKotlin`. Düzeni `formatKotlin` düzeltir.
 *   **Testler, her hedefte:** `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`. Ortak testler Android'in ana makine ağacında koşmaz.
 *   **Önizlemeler:** `app/shared`'in düz bir `jvmTest`'i olan `SitePreviewsTest`, bir ekranın önizlemesi eksikken başarısız olur ve hepsini çizer.
-*   **Çerçeveye dokunarak:** yine `app/shared`'in düz bir `jvmTest`'i olan `SiteAppTest`, menüyü, başlığı, dili, temayı, aramayı ve bir bileşenin sayfasını telefon, tablet ve masaüstü boyutunda kullanır.
+*   **Her ekrana dokunarak:** yine `app/shared`'in düz bir `jvmTest`'i. `SiteAppTest` çerçeveyi, menüyü, başlığı, dili, temayı ve aramayı telefon, tablet ve masaüstü boyutunda kullanır; her ekranın yanında kendi `…PageTest`'i vardır, `HomeScreen`'in `HomePageTest`'i, ve ekranın yaptığını kullanır. Bir ekranın testi eksikken `PageTestsTest` başarısız olur.
 *   **Sunucu:** `./gradlew :server:test` her tür MCP mesajını gerçek HTTP üzerinden sorar.
 *   **Sayfanın yükleyicisi,** `site.js` değişince: `check`'in parçası olan `./gradlew :app:webApp:loaderTest` onu yerine konan parçalardan kurulmuş bir tarayıcıda koşturur.
 *   **Tarayıcıda,** `site.js`, web uygulaması ya da onun götürdüğü bir yol değişince: `./gradlew :app:webApp:browserTest` siteyi derler ve Chrome'da açar (Mac'teki olağan yerinde olmayan bir Chrome'u `CHROME` adlandırır). Oradaki yükleyici: Wasm derlemesi, Wasm'ın çöp toplaması yoksa ya da Wasm derlemesi düşerse JavaScript derlemesi, Wasm hiç yoksa sayfanın durağan sözleri. Ve ana yollar, adresiyle ve tarayıcının Geri'siyle.

@@ -51,7 +51,7 @@ are the owner's on top of them.
 
 | Path | What it is |
 | :--- | :--- |
-| `app/shared` | The composition root: `SiteApp` (theme, header, sidebar, menu, `PageDisplay`: Navigation 3's `NavDisplay` with the demo's page transitions, `PageTransitions.kt`), `SiteViewModel`, the site's links (`SiteNavigation.kt`), Koin (`SiteKoin.kt`); `wasmJsMain/WebSite.kt` (address, browser history, typeface gate); `iosMain/MainViewController.kt`; `jvmTest/PageScreenshotTest.kt` and `screenshots/jvm/`: the pages' screenshots; `jvmTest/SiteAppTest.kt`: the frame pressed through, both drawn by `SiteUnderTest.kt` |
+| `app/shared` | The composition root: `SiteApp` (theme, header, sidebar, menu, `PageDisplay`: Navigation 3's `NavDisplay` with the demo's page transitions, `PageTransitions.kt`), `SiteViewModel`, the site's links (`SiteNavigation.kt`), Koin (`SiteKoin.kt`); `wasmJsMain/WebSite.kt` (address, browser history, typeface gate); `iosMain/MainViewController.kt`; `jvmTest/PageScreenshotTest.kt` and `screenshots/jvm/`: the pages' screenshots; `jvmTest/SiteAppTest.kt` and a `…PageTest.kt` for each screen: the frame and every screen pressed through, all drawn by `SiteUnderTest.kt` |
 | `app/webApp`, `app/desktopApp`, `app/androidApp`, `app/iosApp` | The four entry points; each starts Koin with `startSiteKoin()` and draws `SiteApp`. The web one is built twice, as Wasm (`site-wasm.js`) and as JavaScript (`site-js.js`), and its own `site.js` starts the one the browser can run: the JavaScript build where Wasm's garbage collection is missing (Chrome before 119, Safari before 18.2) or the Wasm build fails before it has drawn; the static HTML where neither runs; `src/loaderTest` tests `site.js` with Node's test runner, `src/browserTest` the built site in Chrome |
 | `app/maestro` | The Maestro flows of the app's main paths on a phone, found by the components' tags: launch, the header, the menu, a component's page, the search, the language, the theme and the references (`site.maestro`: `maestroTest`, `maestroIosTest`) |
 | `core/base` | MVI: `UiState`, `UiAction`, `UiEffect`, `BaseViewModel`, `BaseScreen`, `LoadState` |
@@ -89,10 +89,13 @@ are the owner's on top of them.
 - Previews: every screen has four in a `…ScreenPreviews.kt` beside it, the desktop's page and the phone's in the light
   and the dark theme, drawn from a sample state in `SitePreview`; a part of the design system has two, light and dark.
   `SitePreviewsTest` (a plain `jvmTest` of `app/shared`) fails while a screen lacks one, and draws every preview.
-- The frame pressed through: `SiteAppTest` (a plain `jvmTest` of `app/shared`) uses the menu, the header's links and
-  tools, the language, the theme, the search and a component's page at 390×844, 834×1194 and 1440×900, finding nodes
-  by their Pantrix tags; its clock is driven by hand, and it scrolls with its own `scrollTo`, as Compose's
-  `performScrollTo` never ends with such a clock.
+- Every screen pressed through (plain `jvmTest`s of `app/shared`): `SiteAppTest` the frame (menu, header's links and
+  tools, language, theme, search) and a `…PageTest` for each screen (`HomeScreen` → `HomePageTest`), at 390×844,
+  834×1194 or 1440×900, on the real content; `PageTestsTest` fails while a screen lacks one. They find nodes by their
+  Pantrix tags and draw with `siteAt` in `SiteUnderTest.kt`: a test's clipboard, file saver and link handler, the
+  test's own MCP server (`AskServerForTests.kt`), the site's address read from its navigator. The clock is driven by
+  hand, so they scroll with their own `scrollTo` (Compose's `performScrollTo` never ends with such a clock), press the
+  placed copy of a node (a breadcrumb measures copies it never places), and let a page come in after its address.
 - Tests on every target: `./gradlew jvmTest iosSimulatorArm64Test wasmJsBrowserTest`. Common tests do not run in the
   Android host tree, as in the library.
 - The web: `./gradlew :app:webApp:wasmJsBrowserDevelopmentExecutableDistribution`, the output copied out of the tree and

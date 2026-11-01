@@ -24,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -391,6 +393,7 @@ private fun ClientTab(
         modifier = Modifier
             .background(if (on) code.selectedTab else code.background, shape)
             .siteClickable(tag = tag, role = Role.Tab, shape = shape, onClick = onClick)
+            .semantics { selected = on }
             .height(if (desktop) 34.dp else 44.dp)
             .wrapContentHeight()
             .padding(horizontal = 12.dp)

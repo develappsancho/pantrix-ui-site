@@ -58,8 +58,10 @@ Run what the change can affect.
   in the Android host tree.
 - **Previews:** `SitePreviewsTest`, a plain `jvmTest` of `app/shared`, fails while a screen lacks one, and draws them
   all.
-- **The frame pressed through:** `SiteAppTest`, a plain `jvmTest` of `app/shared` too, uses the menu, the header, the
-  language, the theme, the search and a component's page at a phone's, a tablet's and a desktop's size.
+- **Every screen pressed through:** a plain `jvmTest` of `app/shared` too. `SiteAppTest` uses the frame, the menu, the
+  header, the language, the theme and the search, at a phone's, a tablet's and a desktop's size; each screen has a
+  `…PageTest` of its own beside it, `HomeScreen` its `HomePageTest`, which uses what the screen does. `PageTestsTest`
+  fails while a screen lacks one.
 - **The server:** `./gradlew :server:test` asks every kind of MCP message over real HTTP.
 - **The page's loader,** when `site.js` changes: `./gradlew :app:webApp:loaderTest`, part of `check`, runs it in a
   browser made of stand-ins.

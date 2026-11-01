@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -199,6 +200,7 @@ private fun SectionTabs(
                     .siteClickable(tag = "section_${entry.anchor}", role = Role.Tab, shape = tab) {
                         onSection(entry.anchor)
                     }
+                    .semantics { selected = on }
                     .padding(horizontal = 14.dp, vertical = 9.dp)
             )
         }
@@ -227,6 +229,7 @@ private fun SectionChips(
                     .siteClickable(tag = "section_${entry.anchor}", role = Role.Tab, shape = chip) {
                         onSection(entry.anchor)
                     }
+                    .semantics { selected = on }
                     .padding(horizontal = 14.dp, vertical = 10.dp)
             )
         }

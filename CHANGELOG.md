@@ -12,6 +12,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Fixed
+
+- **Tabs a screen reader can tell apart:** the clients of the page for coding assistants and the sections of the
+  foundations' page say which one is chosen, as their look does.
+
 ### Security
 
 - **A limit on the MCP server:** an address may ask `/mcp` ten times a second, with a burst of twenty; past that the

@@ -100,6 +100,8 @@ rules of these checks; where this skill and it part, CONTRIBUTING.md is right.
   wasmJsBrowserTest`, or a module's own (`:feature:ai:jvmTest`). A change to common code affects all three.
 - A screen's previews: a new screen has four in a `…ScreenPreviews.kt` beside it; `SitePreviewsTest`
   (`:app:shared:jvmTest`) fails while one is missing, and draws them all.
+- A screen's test: a new screen has a `…PageTest` in `app/shared/src/jvmTest` that presses through what it does;
+  `PageTestsTest` fails while one is missing.
 - The server: `./gradlew :server:test` when `server/` changed.
 - The page's loader and the web app in Chrome: `./gradlew :app:webApp:loaderTest` when `site.js` changed, and
   `browserTest` when `site.js`, the web app or a path it leads along changed.

@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Düzeltilenler
+
+*   **Ekran okuyucunun ayırt edebildiği sekmeler:** kodlama asistanları sayfasının istemcileri ve temeller sayfasının bölümleri, görünüşlerinin söylediği gibi hangisinin seçili olduğunu da söyler.
+
 ### Güvenlik
 
 *   **MCP sunucusunda bir sınır:** bir adres `/mcp`'ye saniyede on kez, bir kerede yirmilik bir taşmayla sorabilir; ötesine site 429 (Too Many Requests) döner, böylece tek bir ziyaretçi sunucuyu herkes için meşgul edemez.

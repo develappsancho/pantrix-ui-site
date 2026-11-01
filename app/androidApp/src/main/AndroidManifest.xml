@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- The download page reads the desktop app's latest release from GitHub's API. -->
+    <!-- The download page reads the desktop app's latest release from GitHub's API, and the page that asks the server
+         calls the library's MCP server on the site. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application

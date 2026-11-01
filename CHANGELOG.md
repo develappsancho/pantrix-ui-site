@@ -4,14 +4,18 @@ Türkçesi: [CHANGELOG.tr.md](./CHANGELOG.tr.md)
 
 What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone who reads it or builds it.
 
-- **Format:** this file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The site has no version
-  numbers: a release is a deploy that changes what a visitor sees, and it is named by its date (`2026-11-02`).
+- **Format:** this file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). A release is a deploy that
+  changes what a visitor sees, and it is named by its date as three numbers, `YY.M.D` (`26.11.2`): the version its
+  desktop app carries too.
 - **What gets a line:** [CONTRIBUTING.md](./CONTRIBUTING.md#the-changelog) says which changes get one, and how it is
   written.
 
 ## [Unreleased]
 
-The site's first version, built with Pantrix UI 0.1.0-alpha03. It is not online yet.
+## [26.10.31] - 2026-10-31
+
+The site's first version, built with Pantrix UI 0.1.0-alpha03, online at `pantrixui.com`, and its desktop app's first
+release.
 
 ### Added
 

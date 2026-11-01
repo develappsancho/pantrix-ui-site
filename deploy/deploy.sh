@@ -343,14 +343,25 @@ desktop() {
     echo "https://github.com/$REPOSITORY/releases/tag/v$version"
 }
 
-# The release's notes: the changelog's section of the version, where it has one, and how to check the DMG.
+# The release's notes: the changelog's section of the version, where it has one, and how to check the DMG. The
+# changelog wraps its lines at 120 columns, and GitHub breaks a release's lines where they break: each paragraph and
+# each item of a list is joined into one line.
 release_notes() {
     local version="$1" sha="$2"
     python3 - "$ROOT/CHANGELOG.md" "$version" << 'EOF'
 import re, sys
 text = open(sys.argv[1], encoding="utf-8").read()
 match = re.search(rf"^## \[{re.escape(sys.argv[2])}\][^\n]*\n(.*?)(?=^## \[|\Z)", text, re.S | re.M)
-print(match.group(1).strip() if match else f"Pantrix UI's site, {sys.argv[2]}.")
+section = match.group(1).strip() if match else f"Pantrix UI's site, {sys.argv[2]}."
+lines = []
+for line in section.split("\n"):
+    words = line.strip()
+    starts = not words or words.startswith(("#", "- ", "* ", "```", "|")) or re.match(r"\d+\. ", words)
+    if lines and lines[-1].strip() and not lines[-1].lstrip().startswith("#") and not starts:
+        lines[-1] += " " + words
+    else:
+        lines.append(line)
+print("\n".join(lines))
 EOF
     printf '\n### The desktop app\n\n`%s`: for macOS 13 or later on Apple silicon, signed with a Developer ID and notarized by Apple. Its SHA-256:\n\n```\n%s\n```\n' "$DMG_NAME" "$sha"
 }

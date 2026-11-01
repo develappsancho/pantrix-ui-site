@@ -4,12 +4,14 @@ English: [CHANGELOG.md](./CHANGELOG.md)
 
 Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin değiştiği; onu okuyan ya da derleyen biri için.
 
-*   **Biçim:** bu dosya [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)'u izler. Sitenin sürüm numarası yoktur: bir sürüm, bir ziyaretçinin gördüğünü değiştiren bir yayındır ve tarihiyle adlandırılır (`2026-11-02`).
+*   **Biçim:** bu dosya [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)'u izler. Bir sürüm, bir ziyaretçinin gördüğünü değiştiren bir yayındır ve tarihiyle, üç sayı olarak adlandırılır: `YY.A.G` (`26.11.2`); masaüstü uygulaması da bu sürümü taşır.
 *   **Hangi değişiklik satır alır:** hangilerinin aldığını ve satırın nasıl yazıldığını [CONTRIBUTING.tr.md](./CONTRIBUTING.tr.md#değişiklik-günlüğü) anlatır.
 
 ## [Yayınlanmamış]
 
-Sitenin ilk sürümü, Pantrix UI 0.1.0-alpha03 ile yapıldı. Henüz yayında değil.
+## [26.10.31] - 2026-10-31
+
+Sitenin ilk sürümü, Pantrix UI 0.1.0-alpha03 ile yapıldı; `pantrixui.com`'da yayında. Masaüstü uygulamasının da ilk sürümü.
 
 ### Eklenenler
 

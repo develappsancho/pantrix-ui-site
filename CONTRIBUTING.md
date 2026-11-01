@@ -83,7 +83,8 @@ who reads the site or uses its apps.
 - **Both files:** the same line goes in the Turkish copy, in its section.
 - **Before the site goes online,** the `Unreleased` entry describes the first version: a change to what it lists
   updates that description, rather than adding a line under `Changed` or `Removed`.
-- **A deploy** that changes what a visitor sees renames `Unreleased` to its date in both files.
+- **A deploy** that changes what a visitor sees renames `Unreleased` to its version, its date as `YY.M.D`, with the
+  date, in both files: `deploy/deploy.sh prepare` does it.
 
 ## Commits
 

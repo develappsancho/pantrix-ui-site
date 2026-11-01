@@ -62,7 +62,7 @@ Pull request'te neyin doğrulandığı, hangi platformlarda ve neyin doğrulanma
 *   **Nasıl:** sayfayı ya da parçayı adıyla anar ve ziyaretçi için neyin değiştiğini tek cümlede söyler.
 *   **İki dosya:** aynı satır, kendi bölümünde, Türkçe kopyaya da girer.
 *   **Site yayına girmeden önce** `Yayınlanmamış` girdisi ilk sürümü anlatır: listelediğinde bir değişiklik, `Değişenler` ya da `Kaldırılanlar` altına satır eklemek yerine o anlatımı günceller.
-*   **Bir yayın,** ziyaretçinin gördüğünü değiştiriyorsa, iki dosyada da `Yayınlanmamış`'ı kendi tarihiyle yeniden adlandırır.
+*   **Bir yayın,** ziyaretçinin gördüğünü değiştiriyorsa, iki dosyada da `Yayınlanmamış`'ı kendi sürümüyle, `YY.A.G` biçiminde tarihiyle, ve tarihle yeniden adlandırır: bunu `deploy/deploy.sh prepare` yapar.
 
 ## Commit'ler
 

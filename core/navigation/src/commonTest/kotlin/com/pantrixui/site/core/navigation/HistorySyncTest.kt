@@ -2,31 +2,32 @@ package com.pantrixui.site.core.navigation
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class HistorySyncTest {
     /** A browser's history: its entries, the one on show, and what it tells the app when the user moves. */
     private class FakeBrowser(start: String) : BrowserLocation {
-        val entries = mutableListOf<Pair<Int?, String>>(null to start)
+        val entries = mutableListOf<Pair<EntryState?, String>>(null to start)
         var index = 0
-        private var listener: ((Int?, String) -> Unit)? = null
+        private var listener: ((EntryState?, String) -> Unit)? = null
 
         override val address: String get() = entries[index].second
-        override val entryId: Int? get() = entries[index].first
+        override val entry: EntryState? get() = entries[index].first
 
         override fun push(
-            id: Int,
+            state: EntryState,
             address: String
         ) {
             while (entries.lastIndex > index) entries.removeAt(entries.lastIndex)
-            entries += id to address
+            entries += state to address
             index = entries.lastIndex
         }
 
         override fun replace(
-            id: Int,
+            state: EntryState,
             address: String
         ) {
-            entries[index] = id to address
+            entries[index] = state to address
         }
 
         override fun go(steps: Int) {
@@ -34,7 +35,7 @@ class HistorySyncTest {
             pop()
         }
 
-        override fun onPop(listener: (id: Int?, address: String) -> Unit): () -> Unit {
+        override fun onPop(listener: (state: EntryState?, address: String) -> Unit): () -> Unit {
             this.listener = listener
             return { this.listener = null }
         }
@@ -45,9 +46,17 @@ class HistorySyncTest {
         /** The user pressing Forward. */
         fun forward() = go(1)
 
+        /** The user changing only the address's `#` in the bar: an entry with no state of the app's. */
+        fun type(address: String) {
+            while (entries.lastIndex > index) entries.removeAt(entries.lastIndex)
+            entries += null to address
+            index = entries.lastIndex
+            pop()
+        }
+
         private fun pop() {
-            val (id, address) = entries[index]
-            listener?.invoke(id, address)
+            val (state, address) = entries[index]
+            listener?.invoke(state, address)
         }
 
         val addresses: List<String> get() = entries.map { it.second }
@@ -58,11 +67,17 @@ class HistorySyncTest {
 
     private fun start(address: String = "/"): Triple<FakeBrowser, Navigator<String>, HistorySync<String>> {
         val browser = FakeBrowser(address)
-        val sync = HistorySync(browser) { it.substringBefore('#').removePrefix("/tr").ifEmpty { "/" } }
-        val navigator = Navigator(listOf(browser.address.substringBefore('#')), sectionOf(browser.address))
-        sync.attach(navigator.backStack.toList(), navigator.section) { prefix + it }
-        browser.onPop { id, at -> sync.onPop(id, at, navigator) }
+        val (navigator, sync) = open(browser)
         return Triple(browser, navigator, sync)
+    }
+
+    /** The app opening on [browser]'s entry on show, as at its start and after a reload. */
+    private fun open(browser: FakeBrowser): Pair<Navigator<String>, HistorySync<String>> {
+        val sync = HistorySync(browser) { it.substringBefore('#').removePrefix("/tr").ifEmpty { "/" } }
+        val navigator = Navigator(sync.startStack(), sectionOf(browser.address))
+        sync.attach(navigator.backStack.toList(), navigator.section) { prefix + it }
+        browser.onPop { state, at -> sync.onPop(state, at, navigator) }
+        return navigator to sync
     }
 
     private fun Navigator<String>.go(
@@ -77,7 +92,7 @@ class HistorySyncTest {
     fun the_stack_opens_with_the_page_the_address_names() {
         val (browser, navigator) = start("/docs/installation")
         assertEquals(listOf("/docs/installation"), navigator.backStack.toList())
-        assertEquals(0, browser.entryId)
+        assertEquals(0, browser.entry?.id)
     }
 
     @Test
@@ -115,6 +130,35 @@ class HistorySyncTest {
     }
 
     @Test
+    fun a_reload_opens_the_stack_the_entry_was_written_with_and_the_app_s_back_goes_on() {
+        val (browser, navigator, sync) = start()
+        navigator.go(sync) { navigate("/components") }
+        navigator.go(sync) { navigate("/components/text-area") }
+        val (reloaded, again) = open(browser)
+        assertEquals(listOf("/", "/components", "/components/text-area"), reloaded.backStack.toList())
+        reloaded.go(again) { back() }
+        assertEquals(1, browser.index)
+        assertEquals(listOf("/", "/components"), reloaded.backStack.toList())
+        browser.forward()
+        assertEquals(listOf("/", "/components", "/components/text-area"), reloaded.backStack.toList())
+    }
+
+    @Test
+    fun after_a_reload_each_entry_gone_back_to_has_its_own_stack() {
+        val (browser, navigator, sync) = start()
+        navigator.go(sync) { navigate("/components") }
+        navigator.go(sync) { navigate("/components/text-area") }
+        browser.back()
+        val (reloaded) = open(browser)
+        assertEquals(listOf("/", "/components"), reloaded.backStack.toList())
+        browser.back()
+        assertEquals(listOf("/"), reloaded.backStack.toList())
+        browser.forward()
+        browser.forward()
+        assertEquals(listOf("/", "/components", "/components/text-area"), reloaded.backStack.toList())
+    }
+
+    @Test
     fun a_page_replaced_rewrites_the_entry_on_show() {
         val (browser, navigator, sync) = start()
         navigator.go(sync) { navigate("/components") }
@@ -123,13 +167,25 @@ class HistorySyncTest {
     }
 
     @Test
-    fun back_from_a_reset_opens_the_page_before_it_alone() {
+    fun back_from_a_jump_opens_the_stack_the_page_before_it_had() {
         val (browser, navigator, sync) = start()
         navigator.go(sync) { navigate("/components") }
         navigator.go(sync) { resetTo("/roadmap") }
         assertEquals(listOf("/", "/components", "/roadmap"), browser.addresses)
         browser.back()
-        assertEquals(listOf("/components"), navigator.backStack.toList())
+        assertEquals(listOf("/", "/components"), navigator.backStack.toList())
+    }
+
+    @Test
+    fun an_entry_the_app_never_wrote_is_its_page_alone_and_is_written_as_the_app_s() {
+        val (browser, navigator, sync) = start()
+        navigator.go(sync) { navigate("/components") }
+        browser.type("/docs/installation#gradle")
+        assertEquals(listOf("/docs/installation"), navigator.backStack.toList())
+        assertEquals("gradle", navigator.section)
+        assertEquals(listOf("/docs/installation#gradle"), browser.entry?.pages?.map { it.address })
+        browser.back()
+        assertEquals(listOf("/", "/components"), navigator.backStack.toList())
     }
 
     @Test
@@ -139,6 +195,7 @@ class HistorySyncTest {
         prefix = "/tr"
         sync.rewriteAddress()
         assertEquals(listOf("/docs/installation", "/tr/components"), browser.addresses)
+        assertEquals(listOf("/tr/docs/installation", "/tr/components"), browser.entry?.pages?.map { it.address })
         browser.back()
         assertEquals(listOf("/docs/installation"), navigator.backStack.toList())
         assertEquals("/tr/docs/installation", browser.address)
@@ -180,5 +237,16 @@ class HistorySyncTest {
         prefix = "/tr"
         sync.rewriteAddress()
         assertEquals("/tr/docs/installation#gradle", browser.address)
+    }
+
+    @Test
+    fun an_entry_s_state_is_read_as_it_is_written_and_other_text_is_no_state() {
+        val state = EntryState(listOf(EntryState.Page(NOT_AN_ENTRY, "/"), EntryState.Page(4, "/docs/forms#rules")))
+        assertEquals("-1 /\n4 /docs/forms#rules", state.write())
+        assertEquals(state, EntryState.read(state.write()))
+        assertEquals(4, state.id)
+        assertNull(EntryState.read(""))
+        assertNull(EntryState.read("installation"))
+        assertNull(EntryState.read("3"))
     }
 }

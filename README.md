@@ -12,6 +12,9 @@ Pantrix UI comes from `mavenLocal`: publish it from the library's repository fir
   `app/webApp/build/dist/wasmJs/developmentExecutable`: a file as it is, an address with a page its folder's
   `index.html`, any other address `404.html`. Each page has a static `index.html` beside the app, for search engines
   and for a browser that cannot run the app, with `sitemap.xml`, `robots.txt` and `llms.txt` at the root.
+- Web while it is developed: `./gradlew :app:webApp:wasmJsBrowserDevelopmentRun`. Webpack's server answers every
+  page's address with the app, which opens the page the address names, so a page reloads where it is
+  (`app/webApp/webpack.config.d/historyFallback.js`); it has no static pages.
 - Desktop: `./gradlew :app:desktopApp:run`
 - Android: `./gradlew :app:androidApp:installDebug`
 - iOS: open `app/iosApp` in Xcode and run the `app.iosApp` scheme.

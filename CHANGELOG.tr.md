@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+## [26.11.7] - 2026-11-07
+
+Site telefonda ve masaüstünde yeniden okundu: ana sayfanın turu düğmesini ve tek yüksekliğini korur, bir adımın "isteğe bağlı" sözü ve uyarlanabilir sayfanın çizimleri artık harf harf dizilmez, belgelerin başlıkları da başlık olarak okunur.
+
 ### Değişenler
 
 *   **Ana sayfanın turunda her adımın kullandığı parçalar:** tasarımdaki gibi, kodun yazısıyla yazılmış küçük kutucuklar; düz bağlantılardı.

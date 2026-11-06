@@ -12,6 +12,12 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+## [26.11.7] - 2026-11-07
+
+The site read again on a phone and a desktop: the home page's tour keeps its button and one height, a step's
+"optional" and the adaptive page's sketches no longer stand one letter to a line, and the docs' headings are read as
+headings.
+
 ### Changed
 
 - **The parts each step of the home page's tour uses:** chips in the code's face, as the design draws them; they were

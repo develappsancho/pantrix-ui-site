@@ -12,6 +12,12 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+## [26.11.11] - 2026-11-11
+
+The site on Pantrix UI 0.2.1: four new guides with sketches to try, an installation that goes from GitHub's token to
+a brand of one's own, the page for coding assistants with all the skill's rules, and a roadmap up to 0.2.1 with the
+library for Jetpack Compose being built.
+
 ### Added
 
 - **Four guides:** the app's own words in its reader's language, sending a text to another app, previewing a screen's

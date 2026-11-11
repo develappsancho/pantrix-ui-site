@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+## [26.11.11] - 2026-11-11
+
+Site Pantrix UI 0.2.1'de: denenecek çizimleriyle dört yeni rehber, GitHub token'ından insanın kendi markasına giden bir kurulum, becerinin bütün kurallarıyla kodlama asistanları sayfası ve Jetpack Compose kütüphanesinin yapıldığı, 0.2.1'e kadar güncel bir yol haritası.
+
 ### Eklenenler
 
 - **Dört rehber:** uygulamanın kendi sözleri okurunun dilinde, bir metni başka bir uygulamaya göndermek, bir ekranın hâllerini önizlemek ve iOS için küçük bir semantik ağaç; her biri denenecek bir çizimle.

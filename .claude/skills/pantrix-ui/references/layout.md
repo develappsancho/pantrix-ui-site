@@ -69,12 +69,17 @@ fun OrdersScreen(onNewOrder: () -> Unit, onExport: () -> Unit) {
   `trailing` holds the app's own buttons, always shown.
 - **The title's place.** `PageTitlePlacement.Adaptive` writes the title, the subtitle and the actions as a heading in
   the content from Expanded on, by the page's own width; `largeTitle` gives the bar a title that collapses.
+  `PageTitlePlacement.Content` keeps the heading in the content at every width, for a page inside a shell that draws
+  its own bar, and `titleStyle` and `subtitleStyle` set the heading's type: a start screen's large title.
 - **Headers.** `header` scrolls with the content: a breadcrumb, a notice. `stickyHeader` stays under the bar: tabs,
   filters.
 - **Scroll and width.** The page scrolls. `scroll = PageScroll.None` leaves a table or a map to scroll itself, given
-  `contentPadding`; a list's page is `PantrixLazyPageScaffold`, whose content is a `LazyListScope`. The page takes its
-  whole width by default (`PageWidth.Full`), in a wide window too; `PageWidth.Content` keeps a page that is read to the
-  theme's content width.
+  `contentPadding`; a list's page is `PantrixLazyPageScaffold`, whose content is a `LazyPageScope`: a `LazyListScope`
+  with the list's `contentPadding`, which each row says with `Modifier.scrollPadding`, read before the rows, so that a
+  row that takes the focus is shown above a bar at the bottom. The page takes its whole width by default
+  (`PageWidth.Full`), in a wide window too; `PageWidth.Content` keeps a page that is read to the theme's content width,
+  and `PageWidth.Centered` keeps it there in the middle of the page with its heading: a start screen, whose heading's
+  gap and line width come from `PageScaffoldStyle(headingGap, subtitleMaxWidth)`.
 - **A scroll bar.** A column of the screen's own that scrolls takes `Modifier.pantrixVerticalScroll(state)` in place of
   `verticalScroll`, and a `LazyColumn` takes `Modifier.pantrixScrollBar(listState)`: Pantrix's bar, drawn over the
   content, which a mouse can drag and which shows under a finger while the content moves.
@@ -257,6 +262,7 @@ room changes, and handle back.
 | A list and the detail of the item opened in it: an inbox, settings, files | `PantrixListDetailScaffold` with `rememberListDetailState()` |
 | Main content and a pane that supports it: a document and its comments, a map and its results | `PantrixSupportingPaneScaffold` with `rememberSupportingPaneState()` |
 | Two panes side by side or one above the other, split at a fold | `PantrixTwoPane` |
+| Two panes whose split the user drags, a text above its tree | `PantrixTwoPane(firstSize = size, onFirstSizeChange = { size = it })` |
 | What is looked at and what is touched, by how a foldable is held: a video and its controls | `PantrixTabletopLayout` |
 
 ```kotlin
@@ -289,7 +295,7 @@ fun Inbox(mails: List<Mail>) {
 - **Supporting pane.** Beside the main content from `Expanded` on; in a narrower room `show()` opens it in a sheet, or
   in the main content's place with `SupportingPanePresentation.Pane`.
 - **Each pane is a window.** Inside a pane, `PantrixTheme.window` and `PantrixTheme.layout` answer for the pane.
-- **`resizable = true`** puts a handle between the panes, which a keyboard and a screen reader can move too.
+- **`resizable = true`** puts a handle between the panes, which a keyboard and a screen reader can move too. Its bar takes colours of its own with `handleColors = PaneHandleColors(…)`, as `PantrixTwoPane`'s does; on a phone its strip may lie over the panes' edges, and a tap there is still the pane's.
 
 ## A device that folds
 

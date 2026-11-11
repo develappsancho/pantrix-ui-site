@@ -68,16 +68,26 @@ Each works the same way on every platform, and says where a platform cannot.
 - **Clipboard.** `rememberPantrixClipboard()` and its suspending `copyText(text, label)`, which returns whether the
   text got there. A web page that is not secure and a JVM with no display have no clipboard; on Android 13 and later
   the system shows what was copied itself, and `currentClipboardTraits().announcedBySystem` tells the app not to say
-  it again.
+  it again. `readText()` reads the plain text there, for a paste button; a browser and iOS may ask the reader first,
+  and `traits.readable` says whether there is a clipboard to read. `Modifier.onPaste { text -> }` hears the reader's
+  own Cmd+V or Ctrl+V around the focus where no text field takes it; on the web it hears the browser's paste, which
+  asks nothing. Cmd+V is never an `onShortcut`: on the web it would keep the browser from pasting.
 - **Files.** `rememberFilePicker()` and `pick(FilePickRequest(accept, multiple)) { files -> … }`; where only pictures
   are asked for, Android and iOS open their photo picker. `Modifier.fileDropTarget(onOver, onFiles)` takes files dropped
   on the desktop and the web. A `PantrixFile` reads its content when it is asked for. `PantrixFileDrop` is the
   component built on both. `rememberFileSaver()` and `save(PantrixFile(name, bytes, mimeType)) { result -> … }` give
   the user a file the app made, in each platform's window for saving: `FileSaveResult.Saved`, `Cancelled`, `Failed`,
   and `Started` on the web, whose download says no more.
+- **Sending to another app.** `rememberShareSheet()` gives the platform's share sheet, Android's chooser, iOS's
+  `UIActivityViewController`, a browser's `navigator.share`, or null on the desktop and in a browser without one, where
+  a screen offers `copyText` instead. `sheet.share(text, title) { result -> … }` answers a `ShareResult`: `Shared`,
+  `Cancelled`, `Failed`, and `Started` on Android, whose chooser says no more. On the web it is called from a press.
+  A file to share is the app's own `Intent` with a `FileProvider`.
 - **Keyboard shortcuts.** `PantrixShortcut(Key.S, command = true)` is Command+S on Apple's systems and Ctrl+S
   elsewhere; `Modifier.onShortcut(shortcut) { … }` listens for it, and `Modifier.shortcutRoot()` on the window's root
-  hears it while nothing has the focus.
+  hears it while nothing has the focus. On the web `onShortcut` keeps its key from the browser; a key a node answers
+  itself, with `onPreviewKeyEvent`, is kept with `Modifier.keepFromBrowser(listOf(shortcut))`, or Cmd+F in a field
+  opens the browser's find bar as well.
 - **Pointer shapes.** `Modifier.pointerHoverIcon(PantrixPointerIcons.ResizeHorizontal)` (and `ResizeVertical`) over a
   handle that is dragged; iOS shows no pointer.
 - **Analytics.** `PantrixTheme(analytics = PantrixAnalytics { event -> … })` receives every component's events: a

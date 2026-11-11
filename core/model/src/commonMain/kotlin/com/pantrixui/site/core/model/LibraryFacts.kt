@@ -7,10 +7,10 @@ package com.pantrixui.site.core.model
  */
 object LibraryFacts {
     /** How many components the library has. */
-    const val COMPONENTS: Int = 100
+    const val COMPONENTS: Int = 108
 
     /** How many of its guides are for apps, in both languages. */
-    const val GUIDES: Int = 25
+    const val GUIDES: Int = 29
 
     /** The Compose Multiplatform the library was last checked with, which a guide's foot names. */
     const val COMPOSE_VERSION: String = "1.12.2"
@@ -23,7 +23,7 @@ object LibraryFacts {
      * raised with each release. The site's server needs `PantrixMcp.http()`, which came in 0.1.0-alpha03, so the site
      * goes online with that release or a later one.
      */
-    const val RELEASE: String = "0.1.1"
+    const val RELEASE: String = "0.2.0"
 
     /** The repository the library is distributed from: its packages, its releases and Claude Code's plugin for it. */
     const val PACKAGES_REPOSITORY: String = "develappsancho/pantrix-ui-cmp-package"
@@ -41,7 +41,7 @@ object LibraryFacts {
     fun releaseFile(file: String): String = "https://github.com/$PACKAGES_REPOSITORY/releases/download/v$RELEASE/$file"
 
     /** The version the roadmap plans after the first, which the changelog's foot leads to. */
-    const val PLANNED_VERSION: String = "0.2.0"
+    const val PLANNED_VERSION: String = "0.3.0"
 
     /** The library's repository, where its sources and guides are read and its problems reported. */
     const val REPOSITORY: String = "https://github.com/develappsancho/pantrix-ui-cmp"

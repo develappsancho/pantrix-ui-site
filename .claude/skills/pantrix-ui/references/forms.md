@@ -4,7 +4,7 @@ How a form holds its fields, their rules and its submission, and which input tak
 `text-field`, `text-area`, `secure-text-field`, `checkbox`, `radio-button`, `switch-button`, `segment-button`,
 `select`, `multi-select`, `date-text-field`, `time-text-field` and `file-drop` have every example.
 
-Contents: A form · What binds to a field · Text fields · Text areas · Dates and times
+Contents: A form · What binds to a field · Text fields · Text areas · Code · Dates and times
 
 ## A form
 
@@ -167,6 +167,50 @@ Column(Modifier.fillMaxSize().clearFocusOnTap()) {
         tagKey = "comment"
     )
 }
+```
+
+## Code
+
+`PantrixCodeEditor` is for code that is written and changed: a config file, a query, a script, a JSON document. It is
+no form field; its text is a `CodeEditorState` (`rememberCodeEditorState`), kept a line at a time, so a text of many
+megabytes opens at once.
+
+- **Colours.** The editor knows no language. The app gives a `CodeHighlighter`: it reads a line from the state the
+  line before ended in, and gives the line's runs (`CodeToken` of a `CodeTokenKind`) and the state it ends in, as a
+  `CodeHighlight`. Without one the code is written in one colour.
+- **The language's syntax.** `CodeSyntax` names its brackets, quotes and comments: they are closed as they are typed,
+  and Ctrl+/ comments the selected lines out. `indent` is one step: two spaces by default, or a tab.
+- **Changing the text.** The app changes it on the state, each change one step of its undo: `replace`, `setText`,
+  `edit { … }` for several places at once. `revision` grows with each change, which a screen listens to instead of
+  reading `text` on every keystroke.
+- **Marks.** `lineMarks` (by line, from nought) and `rangeMarks` (`CodeRangeMark`) say what is wrong where, with a
+  `CodeMark`'s tone and message. A comparison marks its lines the same way: `gutter` puts `+`, `−` or `~` before the
+  number, `bar` draws the change shown with a bar of another tone, `showBar = false` leaves the other changes on their
+  bands alone, and `CodeRangeStyle.Highlight` fills the changed value instead of underlining it.
+  `state.revealLines(lines)` brings a change onto the screen without moving the caret; never select lines to show
+  them.
+- **Find and replace.** Ctrl+F and Ctrl+H open the editor's own bar; `state.find.open()` opens it from a button, and
+  `findNext`, `findAll`, `replaceNext` and `replaceAll` do the same without it.
+- **On a phone** a row of keys stands under the code while it has the focus; `keyRow` takes the app's own `CodeKey`s.
+- **Long lines** scroll sideways by default; `softWrap = true` has them go on under themselves, as an app's "wrap long
+  lines" setting asks, with each line's number by its first row.
+
+```kotlin
+import com.pantrixui.components.data.codeeditor.CodeSyntax
+import com.pantrixui.components.data.codeeditor.PantrixCodeEditor
+import com.pantrixui.components.data.codeeditor.rememberCodeEditorState
+
+val config = rememberCodeEditorState(initialText = file.text)
+LaunchedEffect(config) {
+    snapshotFlow { config.revision }.collectLatest { viewModel.keep(config.text) }
+}
+PantrixCodeEditor(
+    state = config,
+    modifier = Modifier.fillMaxWidth().height(320.dp),
+    highlighter = IniHighlighter, // the app's own CodeHighlighter
+    syntax = CodeSyntax(brackets = "[]", quotes = "\"", lineComment = "#"),
+    tagKey = "config"
+)
 ```
 
 ## Dates and times

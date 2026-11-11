@@ -8,7 +8,7 @@ section: Başlarken
 
 :::table Belgeler
 - `{{site}}/mcp`: Bu sitenin HTTP üzerinden sunduğu MCP sunucusu: bir asistana yalnızca adresi verilir
-- `mcp-0.1.1-all.jar`: Aynı sunucu, kendi başına çalışan tek bir jar olarak; her sürüme ekli, kendi makinen için
+- `mcp-0.2.0-all.jar`: Aynı sunucu, kendi başına çalışan tek bir jar olarak; her sürüme ekli, kendi makinen için
 - `pantrix-ui` becerisi: Pantrix ile yazılan kodun uyduğu kurallar, Material'ın adları ve Pantrix'inkiler, parçaların birbirine nasıl oturduğu
 - `llms.txt`, `llms-full.txt`: Belgelerin dizini ve hepsi tek bir dosyada, bu sitenin kökünde
 - `pantrix-ui.json`: Veri olarak kütüphane: her bileşen, parametreleri, örnekleri ve etiketleri
@@ -56,9 +56,9 @@ claude plugin install pantrix-ui@pantrix-ui
 Jar [her sürüme](https://github.com/develappsancho/pantrix-ui-cmp-package/releases) eklidir; kütüphanenin deposunda `./gradlew publishToMavenLocal`'dan sonra yerel Maven deposunda da durur: `~/.m2/repository/com/pantrixui/mcp/<sürüm>/`. JDK 17 ya da üstünde çalışır. Beceriyi bir projeye de yazar; ekip onu git'ten alır, becerileri okuyan her asistan da kullanır:
 
 ```bash
-curl -fL --create-dirs -o ~/.pantrix/mcp-0.1.1-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.1.1/mcp-0.1.1-all.jar
-claude mcp add pantrix-ui -- java -jar ~/.pantrix/mcp-0.1.1-all.jar
-java -jar ~/.pantrix/mcp-0.1.1-all.jar skill .claude/skills
+curl -fL --create-dirs -o ~/.pantrix/mcp-0.2.0-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.2.0/mcp-0.2.0-all.jar
+claude mcp add pantrix-ui -- java -jar ~/.pantrix/mcp-0.2.0-all.jar
+java -jar ~/.pantrix/mcp-0.2.0-all.jar skill .claude/skills
 ```
 :::
 
@@ -67,10 +67,10 @@ java -jar ~/.pantrix/mcp-0.1.1-all.jar skill .claude/skills
 :::table Nerede bulunur
 | Ne | Nerede |
 | :--- | :--- |
-| MCP sunucusu | `{{site}}/mcp`, [sürüme](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.1.1) ekli `mcp-0.1.1-all.jar` ya da yerel yayından sonra yerel Maven deposu |
-| Beceri | Claude Code'un `pantrix-ui@pantrix-ui` eklentisi, sürüme ekli `pantrix-ui-skill-0.1.1.zip` ya da jar'ın `skill` komutu |
+| MCP sunucusu | `{{site}}/mcp`, [sürüme](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.2.0) ekli `mcp-0.2.0-all.jar` ya da yerel yayından sonra yerel Maven deposu |
+| Beceri | Claude Code'un `pantrix-ui@pantrix-ui` eklentisi, sürüme ekli `pantrix-ui-skill-0.2.0.zip` ya da jar'ın `skill` komutu |
 | `llms.txt` | [{{site}}/llms.txt]({{site}}/llms.txt): bağlantıları bu sitenin sayfalarına gider, sayfası olmayanlar `/llms/` altındadır |
-| Bütün belgeler, kendi makinende | `java -jar mcp-0.1.1-all.jar docs <klasör>` |
+| Bütün belgeler, kendi makinende | `java -jar mcp-0.2.0-all.jar docs <klasör>` |
 :::
 
 ## Neleri sorabilir {#tools}

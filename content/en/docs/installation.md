@@ -61,10 +61,10 @@ One line in the common source set. Gradle picks each target's build, and `founda
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("com.pantrixui:components:0.1.1")
+            implementation("com.pantrixui:components:0.2.0")
         }
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.1")
+            implementation("com.pantrixui:testing:0.2.0")
         }
     }
 }

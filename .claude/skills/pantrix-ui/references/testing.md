@@ -4,7 +4,7 @@ How an app's UI test finds Pantrix's components, draws the screen the same on ev
 of it, and checks what a screen reader and a finger meet. The helpers are `com.pantrixui:testing`, in the package
 `com.pantrixui.testing`, on every target; [setup.md](setup.md) adds it to `commonTest`.
 
-Contents: Automation tags · A test · The same screen on every machine · Each platform · Running · On a device
+Contents: Automation tags · A test · The same screen on every machine · Each platform · Running · Previews · On a device
 
 ## Automation tags
 
@@ -28,7 +28,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.requestFocus
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import com.pantrixui.foundation.diagnostics.PantrixFindings
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.RecordingAnalytics
@@ -63,6 +63,8 @@ class CheckoutScreenTest {
   for the charts drawn on `PantrixChart`. [components.md](components.md) lists each one's tags.
 - **Experimental API.** `runComposeUiTest` is `@ExperimentalTestApi` in Compose's ui-test, and so are the helpers that
   take a `ComposeUiTest`: `onEachPlatform` and `assertNoFindings`.
+- **v2's runner.** `runComposeUiTest` comes from `androidx.compose.ui.test.v2`: Compose Multiplatform 1.12.2 deprecates
+  the one in `androidx.compose.ui.test`. Pantrix's helpers take either's `ComposeUiTest`.
 - **`setContent` is called once** in a test; a value that changes is given as a `mutableStateOf`.
 
 ## The same screen on every machine
@@ -78,6 +80,7 @@ picker of its own. It takes the doubles as parameters:
 | `TestClipboard()` | What the screen copied: `text()`, `texts()`; its `traits` play another platform's clipboard |
 | `TestFilePicker(files)` | Answers every pick with `files` |
 | `TestFileSaver(result)` | The files the screen saved, `files`; given inside the theme through `LocalFileSaver` |
+| `TestShareSheet(result)` | The texts the screen sent to another app, `shared` (`SharedText`); given inside the theme through `LocalShareSheet`, which `null` makes a platform without a sheet |
 | `TestClock(now, utcOffset)` | The screen's clock, which moves only when the test moves it: `advanceBy(…)` |
 | `PantrixFindings()` | What the diagnostics found, for `assertNoFindings` |
 
@@ -91,7 +94,7 @@ picker of its own. It takes the doubles as parameters:
 
 ```kotlin
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import com.pantrixui.testing.PantrixTestTheme
 import com.pantrixui.testing.assertTouchTargetOf
 import com.pantrixui.testing.onEachPlatform
@@ -111,13 +114,39 @@ class SaveButtonTest {
 
 `onEachPlatform` draws the screen once for each platform's conventions in one test. The other checks:
 `assertHasName(name)` (what a screen reader calls the node), `assertTouchTargetOf(platform)` (48dp on Android, 44pt on
-iOS, 32dp with a mouse), `performShortcut(shortcut, system)` and `readText()`.
+iOS, 32dp with a mouse), `performShortcut(shortcut, system)`, `performPaste(text, clipboard, system)` (the paste key,
+which `Modifier.onPaste` hears on every platform, the web's browser paste included) and `readText()`.
 
 ## Running
 
 The common tests run on every target: `jvmTest`, `iosSimulatorArm64Test`, `jsBrowserTest`, `wasmJsBrowserTest`.
-Android's run in its host tree (`androidHostTest`) with Robolectric, where the module is added again. Screenshots are
-the app's choice of tool: the module has no helper for them.
+Android's run in its host tree (`androidHostTest`) with Robolectric, where the module is added again: a tree of its
+own (`withHostTestBuilder { sourceSetTreeName = "androidScreenshot" }`), or every common test runs there again under
+plain JUnit and each UI test fails. In a browser a UI test runs only where the web target is built as an executable
+(`binaries.executable()`), and on JS only with Skiko loaded before it; `waitUntil` lets nothing else run there, so a
+test waits in real time. The testing guide has the Karma files, a screenshot setup to copy, a Maestro task for an app
+and the page's semantics copy for end-to-end tests on the web. Screenshots are the app's choice of tool: the module
+has no helper for them.
+
+## Previews
+
+A preview in `commonMain` takes `PantrixPreviewTheme` from foundation, not `PantrixTestTheme`, which goes into test
+source sets alone. It fixes the platform, dark or light, the window and the clock; the app's own theme goes inside it
+and keeps them. A screen's states are a `PreviewParameterProvider`, which a screenshot test walks in
+`PantrixTestTheme` with the same platform, dark and moment.
+
+```kotlin
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.pantrixui.foundation.platform.PlatformType
+import com.pantrixui.foundation.theme.PantrixPreviewTheme
+
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun CheckoutOnAnIphoneDarkPreview() {
+    PantrixPreviewTheme(platform = PlatformType.Ios, dark = true) { AppTheme { CheckoutScreen() } }
+}
+```
 
 ## On a device
 

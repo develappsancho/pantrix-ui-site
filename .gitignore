@@ -24,3 +24,14 @@ node_modules/
 .swiftpm/
 /kotlin-js-store/wasm/yarn.lock
 /kotlin-js-store/yarn.lock
+
+# Apple signing credentials
+*.p12
+*.p8
+*.mobileprovision
+AuthKey_*.p8
+
+# Secrets
+.env
+.env.*
+!.env.example

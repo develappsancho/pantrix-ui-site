@@ -32,7 +32,7 @@ internal object FilesSay {
             FileRow(
                 title = Words("The skill", "Beceri"),
                 name = LibraryFacts.SKILL_ZIP,
-                size = Words("about 50 KB", "yaklaşık 50 KB"),
+                size = Words("about 53 KB", "yaklaşık 53 KB"),
                 how = Words(
                     "Unzipped into the project, where the team gets it through git: ",
                     "Projeye açılır, ekip onu git'ten alır: "
@@ -44,7 +44,7 @@ internal object FilesSay {
             FileRow(
                 title = Words("The skill, to read", "Beceri, okumak için"),
                 name = "SKILL.md",
-                size = Words("about 11 KB", "yaklaşık 11 KB"),
+                size = Words("about 13 KB", "yaklaşık 13 KB"),
                 how = Words(
                     "Its rules, and the references beside it that it leads to.",
                     "Kuralları ve yanında durup götürdüğü referanslar."
@@ -54,7 +54,7 @@ internal object FilesSay {
             FileRow(
                 title = Words("The index", "Dizin"),
                 name = "llms.txt",
-                size = Words("about 40 KB", "yaklaşık 40 KB"),
+                size = Words("about 45 KB", "yaklaşık 45 KB"),
                 how = Words(
                     "What an assistant reads first; its links lead to this site's pages.",
                     "Bir asistanın önce okuduğu; bağlantıları bu sitenin sayfalarına gider."
@@ -64,7 +64,7 @@ internal object FilesSay {
             FileRow(
                 title = Words("Every document", "Bütün belgeler"),
                 name = "llms-full.txt",
-                size = Words("about 4.7 MB", "yaklaşık 4,7 MB"),
+                size = Words("about 4.9 MB", "yaklaşık 4,9 MB"),
                 how = Words(
                     "Every page, guide and API reference in one file, for a wide context.",
                     "Her sayfa, rehber ve API başvurusu tek dosyada, geniş bir bağlam için."
@@ -74,7 +74,7 @@ internal object FilesSay {
             FileRow(
                 title = Words("The library as data", "Veri olarak kütüphane"),
                 name = "pantrix-ui.json",
-                size = Words("about 5.4 MB", "yaklaşık 5,4 MB"),
+                size = Words("about 5.7 MB", "yaklaşık 5,7 MB"),
                 how = Words(
                     "Its pages, its components and every public declaration, for tools and code generators.",
                     "Sayfaları, bileşenleri ve her genel bildirimi; araçlar ve kod üreticileri için."

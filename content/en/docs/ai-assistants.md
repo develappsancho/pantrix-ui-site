@@ -8,7 +8,7 @@ section: Getting started
 
 :::table The documents
 - `{{site}}/mcp`: The MCP server, which this site serves over HTTP: an assistant is given its address alone
-- `mcp-0.1.1-all.jar`: The same server as one jar that runs by itself, attached to each release, for a machine of your own
+- `mcp-0.2.0-all.jar`: The same server as one jar that runs by itself, attached to each release, for a machine of your own
 - `pantrix-ui` skill: The rules code written with Pantrix keeps, Material's names and Pantrix's, and how the parts fit
 - `llms.txt`, `llms-full.txt`: The index of the documents, and all of them in one file, at this site's root
 - `pantrix-ui.json`: The library as data: every component, its parameters, its examples and its tags
@@ -56,9 +56,9 @@ claude plugin install pantrix-ui@pantrix-ui
 The jar is attached to [each release](https://github.com/develappsancho/pantrix-ui-cmp-package/releases), and after `./gradlew publishToMavenLocal` in the library's repository it stands in the local Maven repository too: `~/.m2/repository/com/pantrixui/mcp/<version>/`. It runs on JDK 17 or newer. It writes the skill into a project too, which the team then gets through git, and which any assistant that reads skills takes:
 
 ```bash
-curl -fL --create-dirs -o ~/.pantrix/mcp-0.1.1-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.1.1/mcp-0.1.1-all.jar
-claude mcp add pantrix-ui -- java -jar ~/.pantrix/mcp-0.1.1-all.jar
-java -jar ~/.pantrix/mcp-0.1.1-all.jar skill .claude/skills
+curl -fL --create-dirs -o ~/.pantrix/mcp-0.2.0-all.jar https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.2.0/mcp-0.2.0-all.jar
+claude mcp add pantrix-ui -- java -jar ~/.pantrix/mcp-0.2.0-all.jar
+java -jar ~/.pantrix/mcp-0.2.0-all.jar skill .claude/skills
 ```
 :::
 
@@ -67,10 +67,10 @@ java -jar ~/.pantrix/mcp-0.1.1-all.jar skill .claude/skills
 :::table Where to find them
 | What | Where |
 | :--- | :--- |
-| The MCP server | `{{site}}/mcp`, `mcp-0.1.1-all.jar` on [the release](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.1.1), or the local Maven repository after a local publish |
-| The skill | Claude Code's plugin `pantrix-ui@pantrix-ui`, `pantrix-ui-skill-0.1.1.zip` on the release, or the jar's `skill` command |
+| The MCP server | `{{site}}/mcp`, `mcp-0.2.0-all.jar` on [the release](https://github.com/develappsancho/pantrix-ui-cmp-package/releases/tag/v0.2.0), or the local Maven repository after a local publish |
+| The skill | Claude Code's plugin `pantrix-ui@pantrix-ui`, `pantrix-ui-skill-0.2.0.zip` on the release, or the jar's `skill` command |
 | `llms.txt` | [{{site}}/llms.txt]({{site}}/llms.txt): its links lead to this site's pages, and what has no page is under `/llms/` |
-| Every document, on your machine | `java -jar mcp-0.1.1-all.jar docs <folder>` |
+| Every document, on your machine | `java -jar mcp-0.2.0-all.jar docs <folder>` |
 :::
 
 ## What it can ask {#tools}

@@ -69,6 +69,8 @@ Every name, parameter and example of the library is in its documents; nothing ab
 | `Scaffold` | `PantrixScaffold` |
 | A screen's own `Scaffold` with its `TopAppBar` | `PantrixPageScaffold`, inside the app's one `PantrixScaffold` |
 | `TopAppBar`, `CenterAlignedTopAppBar` | `PantrixTopBar` (centred on iOS by itself) |
+| A `Row` of buttons and `IconButton`s over a pane, with a `DropdownMenu` behind a "⋯" for what does not fit | `PantrixToolbar` with `ToolbarItem`s: buttons turn into their icons and then fold into its own "…" menu by `priority` |
+| A short `Row` of `Text` and small buttons at a window's or a pane's foot: a document's size, a caret's line and column | `PantrixStatusBar` with `text`, `button` and `item` at its `start` and `end`; its buttons are pressed past it up to the touch target |
 | `NavigationBar`, `NavigationRail` | `PantrixNavigationBar`, `PantrixNavigationRail` |
 | `PermanentNavigationDrawer` | `PantrixSidebar`; a narrow window takes a `PantrixNavigationBar`, not a modal drawer |
 | `Button`, `OutlinedButton`, `TextButton`, `FilledTonalButton` | `PantrixButton` with `variant = ButtonVariant.Solid`, `Outline`, `Text`, `Soft` |
@@ -76,6 +78,7 @@ Every name, parameter and example of the library is in its documents; nothing ab
 | `Text`, `Icon`, `Image` | `PantrixText`, `PantrixIcon`, `PantrixImage` |
 | `OutlinedTextField`, `TextField` | `PantrixTextField`, `PantrixFilledTextField` |
 | `OutlinedTextField`, `TextField` of several lines (`minLines`) | `PantrixTextArea`, `PantrixFilledTextArea` |
+| A `BasicTextField` in a monospace type that holds code: a config file, a query, a script | `PantrixCodeEditor` with `rememberCodeEditorState` ([references/forms.md](references/forms.md)) |
 | `Checkbox`, `TriStateCheckbox`, `RadioButton`, `Switch` | `PantrixCheckbox`, `PantrixTriStateCheckbox`, `PantrixRadioButton` (in a group, `PantrixRadioGroup`), `PantrixSwitchButton` |
 | `SegmentedButton` | `PantrixSegmentButton` |
 | `ExposedDropdownMenuBox` | `PantrixSelect`, `PantrixMultiSelect` |
@@ -83,12 +86,18 @@ Every name, parameter and example of the library is in its documents; nothing ab
 | `AlertDialog`, `ModalBottomSheet` | `PantrixDialog`, `PantrixSheet` |
 | `Dialog` with content of the app's own | `PantrixModal` |
 | `ListItem` | `PantrixListItem` |
+| A `LazyColumn` of nested rows that open and close: a project's files, a document of another format | `PantrixLazyTreeView` with `rememberTreeViewState()`, which `scrollToKey` brings a row into view by; a short tree in a page that scrolls is `PantrixTreeView`; a tree too large for a list takes a `TreeSource`, which gives each open branch's children as they are shown |
+| A `Column` of an `Icon`, a `Text` and a `Button` centred where a list or a search has nothing to show | `PantrixEmptyState(title, description, icon, action)` |
+| Two texts compared by hand, removed and added lines in red and green `Text`s side by side | `PantrixDiffView(before, after)`: lines aligned by Myers' diff, changed words marked, unchanged runs folded; `rememberDiffViewState()`'s `scrollToChange` goes to a change |
+| A JSON text pretty-printed into a `LazyColumn` by hand, its objects folding, a line kept in step with a text's caret | `PantrixJsonView(json)`: `selectedPath` and `onSelect` select a line, and `rememberJsonViewState()`'s `scrollToPath` opens the way to one and brings it into view |
 | `Snackbar`, `SnackbarHost` | `PantrixSnackbarState.show`, `PantrixSnackbarHost` |
 | `TooltipBox` | `PantrixTooltip` |
 | `TabRow` | `PantrixTabs` |
 | `Card`, `Surface`, `HorizontalDivider` | `PantrixCard`, `PantrixSurface`, `PantrixHorizontalDivider` |
 | `AssistChip`, `FilterChip`, `InputChip` | `PantrixChip` |
 | `Badge`, `BadgedBox` | `PantrixBadge`, `PantrixBadgedBox` |
+| Boxes and lines drawn on a `Canvas` with `graphicsLayer` pan and zoom: a document's structure, an org chart, a pipeline | `PantrixGraph(nodes, links)` with `GraphNode` and `GraphLink`: it lays the cards out as a tree or in layers, pans, zooms and walks them with the keys; `rememberGraphState()` fits it and `bringIntoView(key)` |
+| A shortcut written as text beside a command, such as `Text("⌘K")` | `PantrixKeycaps(shortcut)`: each key on a cap, in the system's order, read once by a screen reader |
 | `CircularProgressIndicator` | `PantrixSpinner`, and `PantrixProgressCircle` for a known amount |
 | `DatePicker`, `TimePicker` | `PantrixDatePicker`, `PantrixTimePicker`; in a field, `PantrixDateTextField`, `PantrixTimeTextField` |
 

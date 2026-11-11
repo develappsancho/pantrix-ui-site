@@ -207,7 +207,10 @@ internal object RoadmapSay {
         Column(
             Stage.Next,
             Words("Next", "Sırada"),
-            Words("Planned for 0.2.0, waiting to start.", "0.2.0 için planlandı, başlamayı bekliyor."),
+            Words(
+                "Planned for ${LibraryFacts.PLANNED_VERSION}, waiting to start.",
+                "${LibraryFacts.PLANNED_VERSION} için planlandı, başlamayı bekliyor."
+            ),
             listOf(
                 Item(
                     Area.Library,
@@ -347,6 +350,18 @@ internal object RoadmapSay {
                     "dil, " +
                     "test yardımcıları, tanılama, detekt kuralları, Material 3 köprüsü ve asistanlar için belgeler. " +
                     "Bu web sitesi de onunla gelir."
+            )
+        ),
+        Version(
+            Stage.Shipped,
+            Words("0.2.0 · documents and code", "0.2.0 · belgeler ve kod"),
+            Words("Eight components and their tools", "Sekiz bileşen ve araçları"),
+            Words(
+                "A code editor, a lazy tree, keycaps, a graph, a toolbar, a status bar, a diff view and an empty " +
+                    "state; a share sheet, the clipboard's text, a theme for previews and a page in the middle.",
+                "Bir kod editörü, tembel bir ağaç, tuş kapakları, bir çizge, bir araç çubuğu, bir durum çubuğu, bir " +
+                    "fark görünümü ve boş bir durum; bir paylaşım sayfası, panodaki metin, önizlemeler için bir tema " +
+                    "ve ortada duran bir sayfa."
             )
         ),
         Version(

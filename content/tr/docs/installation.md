@@ -10,7 +10,7 @@ section: Başlarken
 - Kotlin: 2.4.21 ya da daha yeni
 - Compose Multiplatform: 1.12.2 ya da daha yeni
 - Android: API 30, Android 11
-- Android derlemesi: paketlerin istediği compileSdk 37; AGP 9.5.0 ile derlendi
+- Android derlemesi: paketlerin istediği compileSdk 37; AGP 9.5.1 ile derlendi
 - iOS: Arm64, simülatör
 - Masaüstü ve web: JVM, Wasm, JS
 :::

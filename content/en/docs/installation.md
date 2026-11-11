@@ -10,7 +10,7 @@ section: Getting started
 - Kotlin: 2.4.21 or newer
 - Compose Multiplatform: 1.12.2 or newer
 - Android: API 30, Android 11
-- Android build: compileSdk 37, which the packages ask for; built with AGP 9.5.0
+- Android build: compileSdk 37, which the packages ask for; built with AGP 9.5.1
 - iOS: Arm64, simulator
 - Desktop and web: JVM, Wasm, JS
 :::

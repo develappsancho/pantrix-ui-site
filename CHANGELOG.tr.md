@@ -18,7 +18,15 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 - **Pantrix UI 0.2.1:** kütüphaneyi kuran satırlar, ana sayfada, Kurulum'da ve kodlama asistanları için, yapay zekâ sayfasının dosyaları ve beceri; site 108 bileşen ve 29 rehber sayar.
 - **Kurulum:** bağımlılık bir sürüm kataloğuyla da, testlerin satırlarıyla; GitHub'ın token'ının nasıl alındığı ve aldığı iki satır; Android Studio sihirbazından gelen bir projede neyin değiştiği; ilk örneğin metni ve importları; adları var olan bir marka örneği; paketlerin istediği `compileSdk`; ve web'in satırı Safari'ye JavaScript sürümünü veren yükleyiciye götürür.
 - **Kodlama asistanları sayfası:** becerinin on bir kuralı, tuttuğunun hepsi; ve Claude Code'un eklentisi bütün proje için kurulur, onu gösteren yeni bir oturumla.
-- **Yol haritası:** sürümler arasında 0.2.0, ve sunucu güdümlü UI 0.3.0 için planlandı.
+- **Yol haritası:** 0.2.1'e kadar yayımlananlar, 0.2.0'ın bileşenleri ve araçları ve bu web sitesiyle; sürümler
+  arasında 0.1.1, 0.2.0 ve 0.2.1; Jetpack Compose kütüphanesi yapılıyor; ve sunucu güdümlü UI kartında da 0.3.0 için
+  planlandı.
+
+### Düzeltilenler
+
+- **Bir bileşenin sayfası:** 0.2.0'la gelen sekiz bileşen, kod editörü ve ötekiler, bunu söylüyor; her sayfa 0.1.0
+  diyordu.
+- **Yol haritası:** bugünkü kütüphanenin kartı 0.1.0'ı değil, son sürümünü anıyor.
 
 ## [26.11.7] - 2026-11-07
 

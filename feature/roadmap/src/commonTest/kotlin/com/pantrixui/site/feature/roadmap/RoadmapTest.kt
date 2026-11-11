@@ -65,6 +65,7 @@ class RoadmapTest {
         assertEquals(Stage.entries.toList(), RoadmapSay.Columns.map { it.stage })
         val sdui = RoadmapSay.Columns.single { it.stage == Stage.Next }.items.single()
         assertEquals("0 of ${SduiSay.Steps.size} steps", sdui.progress?.label?.english)
+        assertEquals("${LibraryFacts.PLANNED_VERSION} · planned", sdui.version.english, "the version the plan names")
         assertEquals(Link.Section(SDUI), sdui.link)
         val considered = RoadmapSay.Columns.single { it.stage == Stage.Later }.items.filter {
             it.version.english ==

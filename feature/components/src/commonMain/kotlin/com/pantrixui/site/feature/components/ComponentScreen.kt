@@ -253,7 +253,7 @@ private fun tagsOf(page: ComponentPage): List<PageTag> {
         PageTag(ComponentGroups.title(page.card.group).of(language), PageTagTone.Accent),
         PageTag(if (phone) ComponentSay.FourPlatforms.of(language) else PLATFORMS),
         PageTag(ComponentSay.BindsToForm.of(language)).takeIf { page.bindsToForm },
-        PageTag(ComponentSay.since(LibraryFacts.VERSION).of(language)).takeIf { !phone }
+        PageTag(ComponentSay.since(page.since ?: LibraryFacts.VERSION).of(language)).takeIf { !phone }
     )
 }
 

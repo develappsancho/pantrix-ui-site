@@ -63,7 +63,7 @@ internal object NativeSay {
                 "Yalnızca Android'de çalışan bir uygulama için, Google'ın Jetpack Compose kütüphaneleri üzerinde " +
                     "yeniden yazılan aynı kütüphane."
             ),
-            availability = Availability.Later,
+            availability = Availability.Building,
             targets = listOf(Words("Android", "Android")),
             file = "app · Kotlin",
             code = { _ -> kotlin("R") }
@@ -200,8 +200,9 @@ internal enum class Availability(
     val note: Words
 ) {
     Today(
-        Words("Available · ${LibraryFacts.VERSION}", "Kullanılabilir · ${LibraryFacts.VERSION}"),
+        Words("Available · ${LibraryFacts.RELEASE}", "Kullanılabilir · ${LibraryFacts.RELEASE}"),
         Words("Today", "Bugün")
     ),
+    Building(Words("Being built", "Yapılıyor"), Words("A sketch", "Bir taslak")),
     Later(Words("Later", "Sonra"), Words("A sketch", "Bir taslak"))
 }

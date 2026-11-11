@@ -67,6 +67,8 @@ data class ComponentCard(
  * @property tags the automation tags it gives, each with what it is the tag of.
  * @property tagKey a key its examples give it, for the tags a test finds it by.
  * @property changes the changelog's lines about it, each with its version.
+ * @property since the version it came in, where the changelog adds it as a new component; null for one of the first
+ *   release, which the changelog describes as a whole.
  * @property previous the component before it in its group's order, and [next] the one after.
  */
 @Serializable
@@ -86,6 +88,7 @@ data class ComponentPage(
     val tags: List<ComponentTag> = emptyList(),
     val tagKey: String? = null,
     val changes: List<ComponentChange> = emptyList(),
+    val since: String? = null,
     val previous: ComponentLink? = null,
     val next: ComponentLink? = null
 )

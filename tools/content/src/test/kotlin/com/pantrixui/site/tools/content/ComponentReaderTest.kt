@@ -112,13 +112,12 @@ class ComponentReaderTest {
         }
         """.trimIndent()
 
-    private val reader = ComponentReader(
-        json = json,
-        pages = mapOf(
-            Language.English to mapOf("text-area" to LibraryPage.read(english)),
-            Language.Turkish to emptyMap()
-        )
+    private val demoPages = mapOf(
+        Language.English to mapOf("text-area" to LibraryPage.read(english)),
+        Language.Turkish to emptyMap()
     )
+
+    private val reader = ComponentReader(json = json, pages = demoPages)
 
     @Test
     fun a_page_of_the_documents_has_its_features_its_examples_and_its_api() {
@@ -223,6 +222,36 @@ class ComponentReaderTest {
         File(folder, "en").apply { mkdirs() }.resolve("text-area.md").writeText("# Text Area\n\n## Examples\n")
         val failure = assertFailsWith<IllegalStateException> { SiteExamples.read(folder) }
         assertTrue("examples/tr" in failure.message.orEmpty(), failure.message)
+    }
+
+    @Test
+    fun a_component_s_page_says_the_version_it_came_in() {
+        val changelog = ChangelogReader(Language.English).read(
+            """
+            # Changelog
+
+            ## [0.2.0] - 2026-11-11
+
+            ### Added
+
+            #### Components
+
+            `com.pantrixui:components`
+
+            - `PantrixTextArea`, the 101st component: text of several lines.
+
+            ## [0.1.0] - 2026-11-01
+
+            ### Added
+
+            #### Components
+
+            - `PantrixTextArea`'s `minLines`, the least it shows.
+            """.trimIndent()
+        )
+        val added = ComponentReader(json, demoPages, mapOf(Language.English to changelog))
+        assertEquals("0.2.0", added.pages(Language.English).single().since, "where its line adds it")
+        assertNull(reader.pages(Language.English).single().since, "one of the first release")
     }
 
     private val siteExamples = mapOf("en" to "A note", "tr" to "Bir not")

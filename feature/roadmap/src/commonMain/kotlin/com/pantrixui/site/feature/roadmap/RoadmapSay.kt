@@ -41,8 +41,74 @@ internal object RoadmapSay {
         Column(
             Stage.Shipped,
             Words("Shipped", "Yayımlandı"),
-            Words("In 0.1.0, the first release.", "İlk sürüm 0.1.0'da."),
+            Words(
+                "From 0.1.0, the first release; the latest is ${LibraryFacts.RELEASE}.",
+                "İlk sürüm 0.1.0'dan bu yana; en son sürüm ${LibraryFacts.RELEASE}."
+            ),
             listOf(
+                Item(
+                    Area.Components,
+                    BySize(Words("Components for documents and code", "Belgeler ve kod için bileşenler")),
+                    BySize(
+                        Words(
+                            "A code editor, a lazy tree, keycaps, a graph, a toolbar, a status bar, a diff view and " +
+                                "an empty state.",
+                            "Bir kod editörü, tembel bir ağaç, tuş kapakları, bir çizge, bir araç çubuğu, bir durum " +
+                                "çubuğu, bir fark görünümü ve boş bir durum."
+                        ),
+                        tablet = Words(
+                            "A code editor, a lazy tree, a graph, a diff view and four more.",
+                            "Bir kod editörü, tembel bir ağaç, bir çizge, bir fark görünümü ve dört bileşen daha."
+                        ),
+                        phone = Words(
+                            "A code editor, a graph and six more.",
+                            "Bir kod editörü, bir çizge ve altı bileşen daha."
+                        )
+                    ),
+                    SECOND,
+                    link = Link.Page(Route.Components)
+                ),
+                Item(
+                    Area.Library,
+                    BySize(
+                        Words("Sharing, the clipboard and previews", "Paylaşım, pano ve önizlemeler"),
+                        phone = Words("Sharing and previews", "Paylaşım ve önizlemeler")
+                    ),
+                    BySize(
+                        Words(
+                            "A share sheet, the clipboard’s text, a paste a node hears, and a theme that draws a " +
+                                "preview as each platform would.",
+                            "Bir paylaşım sayfası, panodaki metin, bir düğümün duyduğu yapıştırma ve bir önizlemeyi " +
+                                "her platformun çizeceği gibi çizen bir tema."
+                        ),
+                        tablet = Words(
+                            "A share sheet, the clipboard’s text and a theme for previews.",
+                            "Bir paylaşım sayfası, panodaki metin ve önizlemeler için bir tema."
+                        ),
+                        phone = Words("A share sheet and a theme for previews.", "Paylaşım sayfası ve önizleme teması.")
+                    ),
+                    SECOND,
+                    link = Link.Page(Route.Guide("sharing"))
+                ),
+                Item(
+                    Area.Docs,
+                    BySize(Words("This website", "Bu web sitesi")),
+                    BySize(
+                        Words(
+                            "Built with Pantrix itself in Compose Multiplatform: the web, and desktop, Android and " +
+                                "iOS apps from the same code. Its texts come from the assistants’ documents.",
+                            "Pantrix'in kendisiyle, Compose Multiplatform'da yapıldı: web ile masaüstü, Android ve " +
+                                "iOS uygulamaları aynı koddan. Metinleri asistanların belgelerinden gelir."
+                        ),
+                        tablet = Words(
+                            "In Compose Multiplatform with Pantrix: the web, desktop, Android and iOS from the same " +
+                                "code.",
+                            "Compose Multiplatform'da Pantrix'le: web, masaüstü, Android ve iOS aynı koddan."
+                        )
+                    ),
+                    Words("With 0.1.0", "0.1.0'la"),
+                    link = Link.Page(Route.Home)
+                ),
                 Item(
                     Area.Tooling,
                     BySize(
@@ -179,28 +245,21 @@ internal object RoadmapSay {
             Words("Being made now.", "Şu an yapılıyor."),
             listOf(
                 Item(
-                    Area.Docs,
-                    BySize(Words("This website", "Bu web sitesi")),
+                    Area.Native,
+                    BySize(Words("Pantrix for Jetpack Compose", "Jetpack Compose için Pantrix")),
                     BySize(
                         Words(
-                            "Built with Pantrix itself in Compose Multiplatform: the web, and desktop, Android and " +
-                                "iOS " +
-                                "apps from the same code. Its texts come from the assistants’ documents.",
-                            "Pantrix'in kendisiyle, Compose Multiplatform'da yapılıyor: web ile masaüstü, Android ve " +
-                                "iOS uygulamaları aynı koddan. Metinleri asistanların belgelerinden gelir."
+                            "For a native Android project: the same library, on Jetpack Compose.",
+                            "Yerel bir Android projesi için: aynı kütüphane, Jetpack Compose üzerinde."
                         ),
-                        tablet = Words(
-                            "In Compose Multiplatform with Pantrix: the web, desktop, Android and iOS from the same " +
-                                "code.",
-                            "Compose Multiplatform'da Pantrix'le: web, masaüstü, Android ve iOS aynı koddan."
+                        phone = Words(
+                            "For a native Android project, on Jetpack Compose.",
+                            "Yerel bir Android projesi için, Jetpack Compose üzerinde."
                         )
                     ),
-                    Words("With 0.1.0", "0.1.0'la"),
-                    link = Link.Page(Route.Home),
-                    progress = Progress(
-                        SITE_PROGRESS,
-                        Words("Every page built · publishing next", "Sayfalar yapıldı · sırada yayın")
-                    )
+                    OWN_FIRST,
+                    link = Link.Section(NATIVE),
+                    progress = Progress(ANDROID_PROGRESS, Words("3 of 12 steps", "12 adımdan 3'ü"))
                 )
             )
         ),
@@ -225,7 +284,7 @@ internal object RoadmapSay {
                             "Bir sunucunun tarif ettiği ekranlar, Pantrix'le denetlenip çizilir."
                         )
                     ),
-                    Words("0.2.0 · planned", "0.2.0 · planlandı"),
+                    Words("${LibraryFacts.PLANNED_VERSION} · planned", "${LibraryFacts.PLANNED_VERSION} · planlandı"),
                     link = Link.Section(SDUI),
                     progress = Progress(0, Words("0 of 7 steps", "7 adımdan 0'ı"))
                 )
@@ -239,22 +298,6 @@ internal object RoadmapSay {
                 "Karar verildi ya da tartılıyor; henüz sürüm yok."
             ),
             listOf(
-                Item(
-                    Area.Native,
-                    BySize(Words("Pantrix for Jetpack Compose", "Jetpack Compose için Pantrix")),
-                    BySize(
-                        Words(
-                            "For a native Android project: the same library, on Jetpack Compose.",
-                            "Yerel bir Android projesi için: aynı kütüphane, Jetpack Compose üzerinde."
-                        ),
-                        phone = Words(
-                            "For a native Android project, on Jetpack Compose.",
-                            "Yerel bir Android projesi için, Jetpack Compose üzerinde."
-                        )
-                    ),
-                    LATER,
-                    link = Link.Section(NATIVE)
-                ),
                 Item(
                     Area.Native,
                     BySize(Words("Pantrix for SwiftUI", "SwiftUI için Pantrix")),
@@ -296,23 +339,23 @@ internal object RoadmapSay {
                     BySize(Words("New components", "Yeni bileşenler")),
                     BySize(
                         Words(
-                            "Slider, Stepper, ListItem, EmptyState, a linear progress, FAB, Drawer, KeyValue.",
-                            "Slider, Stepper, ListItem, EmptyState, doğrusal bir ilerleme, FAB, Drawer, KeyValue."
+                            "Slider, Stepper, a linear progress, FAB, Drawer, KeyValue.",
+                            "Slider, Stepper, doğrusal bir ilerleme, FAB, Drawer, KeyValue."
                         ),
                         tablet = Words(
-                            "Slider, Stepper, ListItem, EmptyState, FAB, Drawer…",
-                            "Slider, Stepper, ListItem, EmptyState, FAB, Drawer…"
+                            "Slider, Stepper, a linear progress, FAB, Drawer…",
+                            "Slider, Stepper, doğrusal ilerleme, FAB, Drawer…"
                         )
                     ),
                     WEIGHED
                 ),
                 Item(
                     Area.Tooling,
-                    BySize(Words("A BOM, previews and benchmarks", "Bir BOM, önizlemeler ve ölçümler")),
+                    BySize(Words("A BOM and benchmarks", "Bir BOM ve ölçümler")),
                     BySize(
                         Words(
-                            "One version for every artifact, a module of previews and measured performance.",
-                            "Her yayın için tek sürüm, bir önizleme modülü ve ölçülmüş başarım."
+                            "One version for every artifact, and measured performance.",
+                            "Her yayın için tek sürüm ve ölçülmüş başarım."
                         ),
                         tablet = Words(
                             "One version for every artifact, and measured speed.",
@@ -354,6 +397,17 @@ internal object RoadmapSay {
         ),
         Version(
             Stage.Shipped,
+            Words("0.1.1 · fixes", "0.1.1 · düzeltmeler"),
+            Words("Xcode 27.2 and the page’s language", "Xcode 27.2 ve sayfanın dili"),
+            Words(
+                "The shared iOS code builds with Xcode 27.2, a web page tells a screen reader the app’s language, " +
+                    "and the klibs no longer carry the paths of the machine that built them.",
+                "Ortak iOS kodu Xcode 27.2'yle derlenir, bir web sayfası ekran okuyucuya uygulamanın dilini söyler " +
+                    "ve klib'ler onları derleyen makinenin yollarını artık taşımaz."
+            )
+        ),
+        Version(
+            Stage.Shipped,
             Words("0.2.0 · documents and code", "0.2.0 · belgeler ve kod"),
             Words("Eight components and their tools", "Sekiz bileşen ve araçları"),
             Words(
@@ -362,6 +416,29 @@ internal object RoadmapSay {
                 "Bir kod editörü, tembel bir ağaç, tuş kapakları, bir çizge, bir araç çubuğu, bir durum çubuğu, bir " +
                     "fark görünümü ve boş bir durum; bir paylaşım sayfası, panodaki metin, önizlemeler için bir tema " +
                     "ve ortada duran bir sayfa."
+            )
+        ),
+        Version(
+            Stage.Shipped,
+            Words("0.2.1 · fixes", "0.2.1 · düzeltmeler"),
+            Words("A far drag of the scroll bar", "Kaydırma çubuğunda uzun bir sürükleme"),
+            Words(
+                "A long list goes straight where a drag of its scroll thumb asks, and the assistants’ documents " +
+                    "carry the code editor’s examples whole.",
+                "Uzun bir liste, kaydırma çubuğunun sürüklendiği yere doğrudan gider; asistanların belgeleri kod " +
+                    "editörünün örneklerini bütün taşır."
+            )
+        ),
+        Version(
+            Stage.Building,
+            Words("Jetpack Compose · its own 0.1.0", "Jetpack Compose · kendi 0.1.0'ı"),
+            Words("The library for native Android", "Yerel Android için kütüphane"),
+            Words(
+                "The same library for an Android-only app, on Jetpack Compose, in a project of its own and with " +
+                    "versions of its own: its skeleton, its foundation and the first of the components’ six stages " +
+                    "are done.",
+                "Yalnızca Android'de çalışan bir uygulama için aynı kütüphane, Jetpack Compose üzerinde, kendi " +
+                    "projesinde ve kendi sürümleriyle: iskeleti, temeli ve bileşenlerin altı aşamasından ilki yapıldı."
             )
         ),
         Version(
@@ -376,12 +453,12 @@ internal object RoadmapSay {
         Version(
             Stage.Later,
             LATER,
-            Words("Jetpack Compose and SwiftUI", "Jetpack Compose ve SwiftUI"),
+            Words("SwiftUI", "SwiftUI"),
             Words(
-                "The library for Android alone and for iOS alone, each a project of its own; design tokens as JSON " +
-                    "are weighed with them.",
-                "Yalnızca Android ve yalnızca iOS için kütüphane, her biri kendi projesinde; JSON olarak tasarım " +
-                    "tokenları onlarla birlikte tartılıyor."
+                "The library for iOS alone, in Swift and in a project of its own; design tokens as JSON are weighed " +
+                    "with it.",
+                "Yalnızca iOS için kütüphane, Swift'te ve kendi projesinde; JSON olarak tasarım tokenları onunla " +
+                    "birlikte tartılıyor."
             )
         )
     )
@@ -462,8 +539,14 @@ internal class Version(
     val body: Words
 )
 
-/** The first release, which every shipped item is in. */
+/** The first release. */
 private val FIRST = Words("0.1.0", "0.1.0")
+
+/** The release of the components for documents and code. */
+private val SECOND = Words("0.2.0", "0.2.0")
+
+/** The first version of a library of its own, with numbers of its own, as the native libraries have. */
+private val OWN_FIRST = Words("Its own 0.1.0", "Kendi 0.1.0'ı")
 
 /** An item decided on, with no version yet. */
 private val LATER = Words("Later", "Sonra")
@@ -471,8 +554,11 @@ private val LATER = Words("Later", "Sonra")
 /** An item being weighed: out of the plan until the owner asks for it (the library's ROADMAP.md, part 14). */
 private val WEIGHED = Words("Considered", "Tartılıyor")
 
-/** How far this website has come, out of a hundred. */
-private const val SITE_PROGRESS = 90
+/**
+ * How far the library for Jetpack Compose has come, out of a hundred: three of its plan's twelve steps (the library's
+ * ROADMAP.md, part 12), its skeleton, its foundation and the first of the components’ six stages.
+ */
+private const val ANDROID_PROGRESS = 25
 
 /** The part of the page about server-driven UI. */
 internal const val SDUI = "sdui"

@@ -27,7 +27,15 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
   gives Safari the JavaScript build.
 - **The page for coding assistants:** the skill's eleven rules, all it keeps; and Claude Code's plugin installed for
   the whole project, with a new session to list it.
-- **Roadmap:** 0.2.0 among the versions, and server-driven UI planned for 0.3.0.
+- **Roadmap:** what shipped up to 0.2.1, with 0.2.0's components and tools and this website; 0.1.1, 0.2.0 and 0.2.1
+  among the versions; the library for Jetpack Compose being built; and server-driven UI planned for 0.3.0 on its
+  card too.
+
+### Fixed
+
+- **A component's page:** the eight components that came in 0.2.0, the code editor and the others, say so; every
+  page said 0.1.0.
+- **Roadmap:** the card of today's library names its latest release, not 0.1.0.
 
 ## [26.11.7] - 2026-11-07
 

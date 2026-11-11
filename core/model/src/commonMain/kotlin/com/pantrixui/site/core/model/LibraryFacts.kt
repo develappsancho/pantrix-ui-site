@@ -15,7 +15,7 @@ object LibraryFacts {
     /** The Compose Multiplatform the library was last checked with, which a guide's foot names. */
     const val COMPOSE_VERSION: String = "1.12.2"
 
-    /** The library's first version, the one every component came in, as a component's page says. */
+    /** The library's first version, the one each of the first release's components came in, as its page says. */
     const val VERSION: String = "0.1.0"
 
     /**

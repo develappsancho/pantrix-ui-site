@@ -2,6 +2,7 @@ package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.ChangeEntry
+import com.pantrixui.site.core.model.ChangeKind
 import com.pantrixui.site.core.model.Changelog
 import com.pantrixui.site.core.model.ComponentChange
 import com.pantrixui.site.core.model.ComponentFeature
@@ -146,6 +147,31 @@ internal class ComponentChanges(private val changelogs: Map<Language, Changelog>
         }
     }
 
+    /**
+     * The version the component drawn by [function] came in: the release whose added lines name it as a new
+     * component, as the changelog writes one (`` `PantrixCodeEditor`, the 101st component: ``), and the version still
+     * to come where it is unreleased. Null for a component of the first release, which the changelog describes as a
+     * whole. A preview's version is its release's: `0.1.0-alpha03` is `0.1.0`.
+     */
+    fun since(function: String): String? {
+        val english = changelogs[Language.English] ?: return null
+        // The releases are the newest first: the last that adds it is the one it came in.
+        val release = english.releases.lastOrNull { release ->
+            release.sections.any { section ->
+                section.kind == ChangeKind.Added &&
+                    section.groups.any { group -> group.entries.any { it.adds(function) } }
+            }
+        }
+        return release?.let { (it.version ?: english.upcoming)?.substringBefore('-') }
+    }
+
+    /** Whether the line adds the component drawn by [function]: its first words are its name and its count. */
+    private fun ChangeEntry.adds(function: String): Boolean {
+        val spans = (blocks.firstOrNull() as? Block.Paragraph)?.text.orEmpty()
+        val name = spans.firstOrNull() as? Span.Code
+        return name?.text == function && NEW_COMPONENT.containsMatchIn(spans.drop(1).plainText())
+    }
+
     private fun ChangeEntry.isAbout(
         function: String,
         named: Regex
@@ -155,6 +181,9 @@ internal class ComponentChanges(private val changelogs: Map<Language, Changelog>
             named.containsMatchIn(spans.plainText().lowercase())
     }
 }
+
+/** What follows a new component's name on its added line: `, the 101st component`. */
+private val NEW_COMPONENT = Regex("""^, the \d+(st|nd|rd|th) component\b""")
 
 private val LEAD = Regex("""^\*\*(.+?)\*\*""")
 private val TYPE_NAME = Regex("""\b[A-Z][A-Za-z0-9]*""")

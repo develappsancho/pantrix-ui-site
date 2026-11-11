@@ -169,6 +169,7 @@ internal class ComponentReader(
             ),
             tagKey = page.examples.firstNotNullOfOrNull { TAG_KEY_GIVEN.find(it.code)?.groupValues?.get(1) },
             changes = changes.of(component.function, nameOf(component), language),
+            since = changes.since(component.function),
             previous = previous?.let { ComponentLink(it.key, nameOf(it)) },
             next = next?.let { ComponentLink(it.key, nameOf(it)) }
         )

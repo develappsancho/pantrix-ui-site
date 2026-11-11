@@ -20,8 +20,9 @@ class GuidesPageTest {
     @Test
     fun a_topic_keeps_its_own_guides() = siteAt(Route.Guides) {
         press(hasPantrixTag("Button", "topic_platform"))
-        until("the platform's services alone") { !has(guide("adaptive")) && has(guide("clipboard")) }
-        assertEquals(4, count(hasPantrixTag("Card") and !hasPantrixTag("Card", "guidesForAssistants") and !HUB))
+        until("the platform's services alone") { !has(guide("adaptive")) && has(guide("sharing")) }
+        // Dates and times, the clipboard, sharing, files and exporting a chart.
+        assertEquals(5, count(hasPantrixTag("Card") and !hasPantrixTag("Card", "guidesForAssistants") and !HUB))
         press(hasPantrixTag("Button", "topic_all"))
         until("every guide again") { has(guide("adaptive")) }
     }

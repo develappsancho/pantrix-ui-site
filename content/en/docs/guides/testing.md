@@ -25,7 +25,7 @@ Everything said about Compose was read in the sources of Compose Multiplatform 1
 *   **The theme reads its defaults from the device.** That is right for an app: the system's language, dark mode, font scale, reduce-motion setting and operating system. For a test, each is an input bound to the machine.
 *   **Compose's test clipboard is the system's.** `LocalClipboard` gives the machine's clipboard in a test too; `rememberFilePicker()` opens the platform's picker.
 *   **The clock is the device's.** Today is read from `Clock.System` and from the device's UTC offset (`systemUtcOffset`).
-*   **Some findings come late.** The diagnostics report a squeezed touch target once it has lasted half a second, the same tag on two nodes once it has lasted a second and a half: a page transition shows two pages together for as long as it lasts (700 ms on Android).
+*   **Some findings come late.** The diagnostics report a squeezed touch target once it has lasted half a second, the same tag on two nodes and a blank name once they have lasted a second and a half: a page transition shows two pages together for as long as it lasts (700 ms on Android), and an app's own words read from its resources come a few frames late in a browser.
 *   **Robolectric starts only an activity a manifest declares.** androidx's `ui-test-manifest` declares this activity, but it comes with androidx Compose's version, not with Compose Multiplatform's.
 *   **Device automation reads the platform's accessibility tree.** On Android a tag becomes a `resource-id` only while `testTagsAsResourceId` is on; on iOS Compose makes `testTag` an `accessibilityIdentifier` itself. On the web Compose draws on a canvas; the semantics tree has a hidden DOM mirror, but it is inside a shadow root (section 8).
 
@@ -53,7 +53,7 @@ The test module `ui/testing` is published as `com.pantrixui:testing`; its packag
 kotlin {
     sourceSets {
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.1")
+            implementation("com.pantrixui:testing:0.2.1")
             implementation(kotlin("test"))
         }
         // runComposeUiTest really draws on the desktop: the test JVM needs this machine's Skiko.
@@ -63,8 +63,11 @@ kotlin {
 ```
 
 *   **Only to the test source sets.** The module's Android side declares `androidx.activity.ComponentActivity` in its own manifest; if it goes into an app's own build, it carries this activity too.
-*   **Android's host tests.** If Android's host tests are in a separate source tree (`androidHostTest`), the module is added there too. Once it is depended on, the activity merges into the test's manifest, and the test's own `AndroidManifest.xml` is not needed (`TestingOnAndroidTest` is therefore without a manifest).
+*   **Android's host tests.** With the Android plugin for Kotlin Multiplatform, `withHostTest {}` puts the host tests on the common tree of source sets: every `commonTest` test is compiled and run there a second time, under plain JUnit with no Android beneath it, and each UI test among them fails (Pantrix's own died on a null `Build.FINGERPRINT`). A tree of their own keeps them apart: `withHostTestBuilder { sourceSetTreeName = "androidScreenshot" }.configure { isIncludeAndroidResources = true }`, the name being any but `test`. The module is then added to `androidHostTest` too. Once it is depended on, the activity merges into the test's manifest, and the test's own `AndroidManifest.xml` is not needed (`TestingOnAndroidTest` is therefore without a manifest).
+*   **Android 17 under Robolectric.** Pantrix's own host tests run on API 34 (`@Config(sdk = [34])`). An app whose host tests run on API 37 needs two things more, seen in an app's tests and not in this repository's: Espresso 3.7.0 (`androidx.test.espresso:espresso-core:3.7.0`), since the 3.5.0 that Compose Multiplatform 1.12.2's ui-test brings asks Android 17 for an `InputManager.getInstance()` it no longer has; and on JDK 21, `jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")` on the host test task, which Robolectric 4.17's Android 17 needs.
 *   **An experimental API.** `ComposeUiTest` and `runComposeUiTest` are `@ExperimentalTestApi` in compose ui-test. The helpers that take it (`onEachPlatform`, `assertNoFindings`) are too; the finding helpers are not.
+*   **The test's runner is v2's.** `runComposeUiTest` is imported from `androidx.compose.ui.test.v2`: Compose Multiplatform 1.12.2 marks the one in `androidx.compose.ui.test` deprecated, and v2 runs the screen's coroutines on a `StandardTestDispatcher`. Pantrix's helpers take the `ComposeUiTest` of either; Pantrix's own tests use v2.
+*   **In a convention plugin.** A Gradle plugin written as a Kotlin class has no `compose` accessor: the desktop line is `implementation(extensions.getByType<ComposeExtension>().dependencies.desktop.currentOs)`, as Pantrix's own build has it.
 
 ### 3.2. Finding a component
 
@@ -105,7 +108,7 @@ onPantrixNode("Segment", "newest", scope = "SegmentButton_sort") // a control's 
 | `locale` | `PantrixLocale.English` | The text's direction comes with it |
 | `density` | `PantrixDensity.Comfortable` | |
 | `fontScale` | `1f` | Only the text grows; the screen's pixels stay the same |
-| `window` | `null`: the window the test draws | If it is given, inside `PantrixWindowFrame`: folds and layers follow it |
+| `window` | `null`: the window the test draws | If it is given, inside `PantrixWindowFrame`: folds and layers follow it, and an overlay opened in it covers the test's whole room |
 | motion | Reduced | Nothing is caught halfway; a snackbar comes in and goes out in one frame |
 | `findings` | `null`: diagnostics on, findings to the log | If it is given, the findings are gathered there (3.5) |
 | `analytics`, `haptics` | `NoOp` | Given a recorder, what the screen says is kept (3.4) |
@@ -127,6 +130,17 @@ fun pay_is_told_and_the_screen_has_no_findings() = runComposeUiTest {
 }
 ```
 
+**The window is what the screen is told, not the size it is drawn at.** The test draws in its own room: 1024×768 pixels on the desktop, 320dp wide in Robolectric. A screen told `PantrixWindow(DpSize(1440.dp, 900.dp))` is laid out in that room, a toolbar too narrow for its buttons included. A layout of a width is tested at that size: on the desktop with Compose's `runDesktopComposeUiTest(width, height)`, on iOS and the web with `runSkikoComposeUiTest(size = …)`, and in a common test by putting the screen in a box of that size inside the theme. What stands outside the test's room is not drawn, and a press there misses. The box starts at the room's top left and runs past it to the right and down (`wrapContentSize(Alignment.TopStart, unbounded = true)`): `requiredSize` would centre a box larger than its room, and in the room of 1024×768 the 1440×900 screen would lose 208 pixels at its left and 66 at its top, its top bar with them.
+
+```kotlin
+val window = PantrixWindow(DpSize(1440.dp, 900.dp))
+setContent {
+    PantrixTestTheme(platform = PlatformType.Desktop, window = window) {
+        Box(Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).size(window.size)) { TableScreen() }
+    }
+}
+```
+
 **On every platform:** `onEachPlatform(content, check)` sets up the screen on the four platforms in turn, in a single run of the test. On the web a run is a promise the test gives back, so no one waits for runs started from a loop; nothing that fails in them fails the test.
 
 ```kotlin
@@ -140,7 +154,7 @@ onEachPlatform({ platform -> PantrixTestTheme(platform = platform) { SaveButton(
 :::table
 | Double | What it keeps, how it answers |
 | :--- | :--- |
-| `TestClipboard(traits)` | What the screen copied, in order. `text()` and `texts()` read as the platform reads: on Android the first item of the `ClipData`, on the desktop the `Transferable`'s text, on iOS plain text, on the web `text/plain`. On the web, reading waits for the browser (`suspend`). `traits` is told to the screen as the platform's traits: `ClipboardTraits(announcedBySystem = true)` is Android 13, `ClipboardTraits(writable = false)` a page served over plain http. The platform clipboard that Compose's text field asks (`nativeClipboard`) is the test's too: on the desktop its own AWT clipboard that keeps the last copy, on iOS a pasteboard with its own name, apart from the general pasteboard |
+| `TestClipboard(traits)` | What the screen copied, in order. `text()` and `texts()` read as the platform reads: on Android the first item of the `ClipData`, on the desktop the `Transferable`'s text, on iOS plain text, on the web `text/plain`. On the web, reading waits for the browser (`suspend`). `traits` is told to the screen as the platform's traits: `ClipboardTraits(announcedBySystem = true)` is Android 13, `ClipboardTraits(writable = false)` a page served over plain http. The platform clipboard that Compose's text field asks (`nativeClipboard`) is the test's too: on the desktop its own AWT clipboard that keeps the last copy, on iOS a pasteboard with its own name, apart from the general pasteboard. `putText(text)` puts a text on the clipboard as another app's copy would: the screen's `readText()` reads it, and on the desktop, Android and iOS its ⌘V or Ctrl+V too; on the web ⌘V is the browser's own paste, which `performPaste` sends to the page (3.5) |
 | `RecordingAnalytics()` | The events the components report, in order: `events`, `eventsOf("Button")` |
 | `RecordingHaptics()` | The haptic feedback played, in order: `played` |
 | `TestFilePicker(files)` | Answers every pick with `files`: only with the types the picker shows, and with the first if a single file was asked for; if none fits, it does not answer, like a user who closes the picker. `requests` keeps what each pick asked for |
@@ -173,6 +187,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 | `assertHasName(name)` | The name the screen reader gives the node: its content description, or else its text |
 | `assertTouchTargetOf(platform)` | The area a finger can press is as large as the platform asks: 48dp on Android, 44pt on iOS, 32dp with a mouse on the desktop and the web. What is measured is the region that takes the press, not what is drawn |
 | `performShortcut(shortcut, system)` | Presses the shortcut as that system's keyboard does: with Command on Apple's systems, with Control on the others. That the screen too is written for that system is said by `PantrixTestTheme(system = …)` |
+| `performPaste(text, clipboard, system)` | Presses the paste key on the node as that system's keyboard does, after putting the text on the clipboard: what `Modifier.onPaste` hears is that text on every platform. On the web it also sends the page the browser's paste while the key is down, a `paste` rising from the element that has the focus; the browser gives its paste from the machine's clipboard, and a test's key does not bring it. `clipboard` is the clipboard given to the theme, `system` is `PantrixTestTheme(system = …)`. A text field is typed into with `performTextInput` |
 | `readText()` | The text the node shows: what a text field holds, or else its texts and the texts of what it merges, line by line |
 :::
 
@@ -180,7 +195,75 @@ Pixel and colour helpers are not in the module: looking for a colour in pixels d
 
 ### 3.6. Screenshots
 
-There is no helper in the module for screenshot tests, and the module is not bound to Roborazzi: on which platform, with which tool and where to record is the app's choice. Pantrix's own setup is in the Roborazzi guide (in Turkish). Its summary for an app:
+There is no helper in the module for screenshot tests, and the module is not bound to Roborazzi: on which platform, with which tool and where to record is the app's choice. Pantrix's own setup, written for a module of an app:
+
+```kotlin
+// The shared module's build.gradle.kts.
+plugins {
+    id("io.github.takahirom.roborazzi") version "1.77.0"
+}
+
+kotlin {
+    sourceSets {
+        jvmTest.dependencies { implementation("io.github.takahirom.roborazzi:roborazzi-compose-desktop:1.77.0") }
+        iosTest.dependencies { implementation("io.github.takahirom.roborazzi:roborazzi-compose-ios:1.77.0") }
+        // On a tree of its own (3.1), nothing of commonTest comes with it.
+        getByName("androidHostTest").dependencies {
+            implementation("io.github.takahirom.roborazzi:roborazzi:1.77.0")
+            implementation("io.github.takahirom.roborazzi:roborazzi-compose:1.77.0")
+            implementation("org.robolectric:robolectric:4.17")
+            implementation("org.jetbrains.compose.ui:ui-test:1.12.2")
+            implementation("com.pantrixui:testing:0.2.1")
+        }
+    }
+}
+
+roborazzi {
+    outputDir.set(layout.projectDirectory.dir("screenshots"))
+}
+
+// A file name given to captureRoboImage lands in outputDir on the JVM and Android too, as it does on iOS.
+tasks.withType<Test>().configureEach {
+    systemProperty("roborazzi.record.filePathStrategy", "relativePathFromRoborazziContextOutputDirectory")
+}
+```
+
+```kotlin
+// jvmTest: drawn at the size given, with this machine's Skia.
+@OptIn(ExperimentalTestApi::class)
+class CheckoutScreenshotTest {
+    @Test
+    fun checkout() = runDesktopComposeUiTest(width = 1024, height = 768) {
+        setContent { PantrixTestTheme(platform = PlatformType.Desktop) { CheckoutScreen() } }
+        onRoot().captureRoboImage("Checkout.png") // io.github.takahirom.roborazzi.captureRoboImage
+    }
+}
+
+// androidHostTest: on Robolectric, with Android's own renderer.
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], qualifiers = "w400dp-h800dp-mdpi")
+class CheckoutScreenshotOnAndroidTest {
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun checkout() = runComposeUiTest {
+        setContent { PantrixTestTheme { CheckoutScreen() } }
+        onRoot().captureRoboImage("Checkout.png") // com.github.takahirom.roborazzi.captureRoboImage
+    }
+}
+
+// iosTest: in the simulator.
+@OptIn(ExperimentalTestApi::class)
+class CheckoutScreenshotOnIosTest {
+    @Test
+    fun checkout() = runComposeUiTest {
+        setContent { PantrixTestTheme(platform = PlatformType.Ios) { CheckoutScreen() } }
+        onRoot().captureRoboImage(this, filePath = "Checkout.png") // io.github.takahirom.roborazzi.captureRoboImage
+    }
+}
+```
+
+The references are recorded with `-Proborazzi.test.record=true` on each platform's test task (`jvmTest`, `testAndroidHostTest`, `iosSimulatorArm64Test`) and checked with `verifyRoborazzi`. What Pantrix learned from it:
 
 *   **Three platforms.** The desktop (`jvmTest`, `io.github.takahirom.roborazzi.captureRoboImage`), Android (`androidHostTest`, Robolectric, `@GraphicsMode(GraphicsMode.Mode.NATIVE)`, `com.github.takahirom.roborazzi.captureRoboImage`) and iOS (`iosTest`, `captureRoboImage(this, filePath = …)`). There is no Roborazzi on the web.
 *   **`PantrixTestTheme` sets up the scene.** If the theme, the platform, the language and the font scale are not fixed, the picture changes from machine to machine. A scene that shows a date should take a `TestClock`: if it does not, the picture changes every month.
@@ -246,7 +329,168 @@ The demo's `MaestroFlowsTest` (JVM) checks that the flows keep up with the catal
 *   In the iOS task, Xcode's build phase calls the shared module's own Gradle task (`embedAndSignAppleFrameworkForXcode`): the inner Gradle opens a second daemon, and does not wait for the outer one.
 *   **How long:** all the flows take about three hours on one platform; a page about a minute and a half, an example eight or nine seconds. Most of the time is Maestro waiting for the screen to settle after each press. A section or a tag ends sooner: `-Pmaestro.flows`, `-Pmaestro.include=smoke`.
 
+**In an app.** The tasks above are the demo's own, in this repository's build; an app gets them from no plugin. The same for an Android app, as two tasks to copy: `-Pmaestro.device` names the device, `-Pmaestro.flows` the flows, from the root of the project, and the report is `build/maestro/report.xml`. On iOS the build is installed with `xcrun simctl install <udid> <app>`, and `maestro test` runs the same way.
+
+```kotlin
+// androidApp/build.gradle.kts: installs the debug build on one device, then runs the flows on it.
+val maestroDevice = providers.gradleProperty("maestro.device")
+val maestroFlows = providers.gradleProperty("maestro.flows").orElse("maestro")
+
+val installForMaestro by tasks.registering(Exec::class) {
+    dependsOn("assembleDebug")
+    val apk = layout.buildDirectory.file("outputs/apk/debug/androidApp-debug.apk").get().asFile
+    commandLine(buildList {
+        add("adb")
+        maestroDevice.orNull?.let { addAll(listOf("-s", it)) }
+        addAll(listOf("install", "-r", apk.path))
+    })
+}
+
+val maestroTest by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Runs the Maestro flows on the device the debug build was installed on."
+    dependsOn(installForMaestro)
+    val report = layout.buildDirectory.file("maestro/report.xml").get().asFile
+    commandLine(buildList {
+        addAll(listOf("maestro", "test"))
+        maestroDevice.orNull?.let { addAll(listOf("--device", it)) }
+        addAll(listOf("-e", "APP_ID=com.example.app.debug", "--format", "junit", "--output", report.path))
+        addAll(maestroFlows.get().split(',').map { rootProject.file(it).path })
+    })
+}
+```
+
 **When to use which:** a screen's behaviour, accessibility and platform rules are tested in common tests (`runComposeUiTest`), on five targets. Maestro shows, on a real device, that a real app was installed and that the tags reach the system; it takes in the keyboard, the system bars and the navigation too.
+
+### 3.8. In the browser
+
+The common tests run in a browser too (`jsBrowserTest`, `wasmJsBrowserTest`), on the conditions of Compose Multiplatform 1.12.2:
+
+*   **An executable.** Compose runs no UI test for a web target that is not built as one: `binaries.executable()` in `js { browser() }` and in `wasmJs { browser() }` (CMP-4906).
+*   **Skiko on JS.** On the JS target every UI test fails with "org_jetbrains_skia_Surface__1nMakeRasterN32Premul is not defined": Compose copies Skiko's runtime beside the test bundle, but nothing loads it. A file in the module's `karma.config.d` serves the runtime and holds the tests until `awaitSkiko` has resolved; Compose Multiplatform 1.13 generates the same itself. Wasm loads Skiko by itself.
+*   **Time.** Mocha gives a test two seconds, and a UI test drawn by Skiko in a browser outgrows them with nothing wrong: Pantrix gives twenty.
+*   **Waiting.** In a browser `waitUntil` holds the page's only thread, and what the test waits for, work on `Dispatchers.Default` or a fetch, never runs. A test waits in real time instead: `withContext(Dispatchers.Default) { delay(50) }`, and then `awaitIdle()`.
+*   **The app's own words.** Text an app reads from Compose's resources (`stringResource`) is fetched by the browser: Karma must serve the test package's `kotlin/composeResources/` and send `/composeResources/` there, and the test waits for it as above. Seen in an app's tests; Pantrix's own read none.
+
+Pantrix's two files, in `config/karma/js/` and `config/karma/wasm/` and handed to Kotlin's Karma with `useConfigDirectory`; in a module of an app they stand in its `karma.config.d/`:
+
+```javascript
+// karma.config.d/mocha-timeout.js, for both targets.
+// Mocha's two seconds, raised for Compose UI tests.
+//
+// A test here draws through Skiko in a browser, and the heavier ones take longer than two seconds with nothing
+// wrong: a drag injected in real time, anything at all while a full build loads the machine. The JVM runs the
+// same tests with no per-test limit. Twenty seconds still catches a hang.
+//
+// Kotlin appends every file in this directory to the karma.conf.js it generates, where `config` is in scope.
+(function (config) {
+    const client = config.client || {};
+    config.set({ client: Object.assign({}, client, { mocha: Object.assign({}, client.mocha, { timeout: 20000 }) }) });
+})(config);
+```
+
+```javascript
+// karma.config.d/compose-skiko.js, for JS alone: delete it on Compose Multiplatform 1.13.
+// Loads the Skiko runtime before Compose UI tests start on the Kotlin/JS browser target.
+//
+// Compose Multiplatform 1.12 copies skiko.mjs, skiko.wasm and js-reexport-symbols.mjs next to the
+// test bundle, but nothing in the bundle imports js-reexport-symbols.mjs: the module that puts the
+// org_jetbrains_skia_* functions on window and exposes awaitSkiko. An application reaches it
+// through onWasmReady; runComposeUiTest does not, so every UI test failed with
+// "org_jetbrains_skia_Surface__1nMakeRasterN32Premul is not defined" (CMP-4906).
+//
+// This is the Karma setup Compose Multiplatform generates itself from 1.13.0-alpha01
+// (JetBrains/compose-multiplatform#5621): serve the runtime files, and hold Karma's start until
+// awaitSkiko has resolved. Delete this file once the project is on Compose Multiplatform 1.13 or
+// later; mocha-timeout.js beside it stays, and so does the wiring in KmpComposePlugin.
+//
+// Kotlin appends this file to the karma.conf.js it generates for the js test task of every module
+// that applies pantrix.kmp.compose, where `config` is in scope. The wasmJs target does not use it.
+const fs = require("fs");
+const path = require("path");
+
+(function (config) {
+    const files = config.files || [];
+    // The Kotlin test bundle: build/js/packages/<module>-test/kotlin/<module>-test.js.
+    const testEntry = files.find((entry) =>
+        typeof entry === "string" &&
+        entry.endsWith(".js") &&
+        entry.includes(path.sep + "kotlin" + path.sep)
+    );
+    if (!testEntry) return;
+
+    const kotlinDir = path.dirname(testEntry);
+    // Modules without Compose UI get no Skiko runtime next to their bundle, and need nothing here.
+    if (!fs.existsSync(path.resolve(kotlinDir, "js-reexport-symbols.mjs"))) return;
+
+    const isListed = (filePath) => files.some((entry) =>
+        entry === filePath ||
+        (entry && typeof entry === "object" && entry.pattern === filePath)
+    );
+
+    for (const name of ["js-reexport-symbols.mjs", "skiko.mjs", "skiko.wasm"]) {
+        const filePath = path.resolve(kotlinDir, name);
+        if (fs.existsSync(filePath) && !isListed(filePath)) {
+            files.unshift({ pattern: filePath, watched: false, included: false, served: true });
+        }
+    }
+
+    // Karma runs the tests when the page calls __karma__.loaded(). The loader holds that call until
+    // js-reexport-symbols.mjs has been imported, which publishes the Skia functions, and until
+    // awaitSkiko has resolved, which means skiko.wasm is instantiated.
+    const loaderFile = path.resolve(kotlinDir, "compose-skiko-loader.js");
+    fs.writeFileSync(loaderFile, `(function () {
+    if (!window.__karma__) return;
+    const originalLoaded = window.__karma__.loaded.bind(window.__karma__);
+    let skikoReady = null;
+    window.__karma__.loaded = function () {
+        if (!skikoReady) {
+            const reexportUrl = Object.keys(window.__karma__.files || {})
+                .find((url) => url.endsWith("js-reexport-symbols.mjs"));
+            skikoReady = reexportUrl
+                ? import(reexportUrl).then((module) => module?.api?.awaitSkiko ?? Promise.resolve())
+                : Promise.resolve();
+        }
+        skikoReady.then(() => originalLoaded()).catch((error) => {
+            window.__karma__.error(error?.stack ?? String(error));
+        });
+    };
+})();
+`);
+
+    // First, so the loader wraps __karma__.loaded before anything else can call it.
+    if (!isListed(loaderFile)) {
+        files.unshift(loaderFile);
+    }
+    config.files = files;
+})(config);
+```
+
+### 3.9. End to end on the Web
+
+Device automation does not reach a page: Maestro 2.10's Chromium does not go into the shadow root that holds Compose's copy of the semantics tree (section 8). A tool that runs JavaScript in the page does, with Chrome's DevTools or Playwright:
+
+```javascript
+// The copy of the semantics tree, inside the shadow root of the element that holds the canvas.
+function a11yRoot(node = document.documentElement) {
+    if (node.id === "cmp_a11y_root") return node;
+    for (const child of [...node.children, ...(node.shadowRoot ? node.shadowRoot.children : [])]) {
+        const found = a11yRoot(child);
+        if (found) return found;
+    }
+    return null;
+}
+
+const save = a11yRoot().querySelector('[id="Checkout.Button_pay"]');
+save.getAttribute("aria-label"); // its name; its words are the element's own text
+save.getBoundingClientRect();    // where it stands on the page, to press its middle
+save.click();                    // runs the node's press, with no pointer
+```
+
+*   **The copy.** Compose 1.12.2 writes the semantics tree into hidden elements under `#cmp_a11y_root`: an element's `id` is the Pantrix tag, so a selector quotes it (`[id="SegmentButton_sort.Segment_newest"]`, for the dot); its name is `aria-label`, its words its text, its role `role`.
+*   **Where and how it is pressed.** An element on the screen stands at its node's place and size (`position: fixed`); one off the screen has no size. A press at its middle with the browser's own mouse event (DevTools' `Input.dispatchMouseEvent`) reaches Compose as a real press, seen in an app's tests. `click()` on the element runs the node's own press, with no pointer.
+*   **When.** The copy is written 100 ms after the screen settles, and a second late at the most while it keeps changing: the test waits for the element before it reads it.
+*   **After a layer.** In Compose 1.12.2 the copy follows the last layer opened: after a menu, a sheet or a dialog closes, it stays as that layer was until the page is loaded again ([the web compatibility guide](/docs/guides/web-compatibility), section 7). A test reads the page before it opens a layer, or loads the page again.
 
 ## 4. Without Pantrix {#without}
 
@@ -303,7 +547,7 @@ It is not needed on iOS: Compose gives `testTag` as `accessibilityIdentifier`.
 *   **A screenshot helper.** The module is not bound to Roborazzi (3.6).
 *   **Pixel and colour helpers.** They stay in Pantrix's own tests.
 *   **Fixing the window and the clock by itself.** If `window` is not given, the screen is in the window the test draws (1024×768 on the desktop, 320dp wide in Robolectric); if `clock` is not given, it is the device's clock.
-*   **Device automation on the web.** Maestro 2.10's Chromium cannot see Compose's semantics tree (section 8); on the web the common tests run.
+*   **Device automation on the web.** Maestro 2.10's Chromium cannot see Compose's semantics tree (section 8); a tool that runs JavaScript in the page reaches the tags (3.9), and the module gives no helper for it.
 *   **A text field's menu on Android.** On Android, when the field is right-clicked with a mouse or while the selection toolbar opens, Compose asks only its own clipboard (`AndroidClipboard`) whether there is something to paste. A test that right-clicks a text field with the test's clipboard fails with `IllegalArgumentException` (seen in Robolectric); focusing, typing and copying do not ask. The toolbar could not be opened in Robolectric: selection by touch fails in the magnifier, whatever the clipboard (an open item).
 *   **Knowing a component's inside.** The module knows components by their names; the names of a component's parts (`Segment`, `Day_2026_10_24`) are in that component's KDoc.
 
@@ -322,7 +566,9 @@ Each behaviour was broken once, and the test was seen to turn red (section 8). T
 *   **A local given from outside the theme loses to the theme's.** `PantrixTestTheme` gives the clipboard and its traits, the operating system, the font scale and the file picker itself; a test that gives these from outside the theme does not get its value to the screen (`CompositionLocalProvider(LocalClipboard provides …) { PantrixTestTheme { … } }`). They are given by parameter, or from inside the theme. A screen density and a clock given from outside do get through: the theme changes only the font scale, and the clock only when `clock` is given.
 *   **Compose's text field looks at the platform's clipboard.** It asks the clipboard's `nativeClipboard` whether there is something to paste: on the desktop while the right-click menu opens, on iOS at every focus. A clipboard that does not give it fails with `NotImplementedError`, by the interface's default; on iOS every text field that takes the focus fails. `TestClipboard` gives its own AWT clipboard on the desktop and its own named pasteboard on iOS; a clipboard a test writes itself must give one too.
 *   **`setContent` is called once in a test.** A second call gives an error; a changing parameter is given with `mutableStateOf`.
-*   **On Android the common tests do not run in the host tree.** A behaviour of Android's own is tested apart, in `androidHostTest`.
+*   **On Android the common tests run in the host tree, unless it is a tree of its own.** With `withHostTest` every common test runs there again, under plain JUnit, and a UI test fails. On a tree of its own (3.1) the host tree takes none of them, and a behaviour of Android's own is tested there apart.
+*   **In a browser, `waitUntil` lets nothing else run.** A wait for work on `Dispatchers.Default`, or for the browser's fetch, never ends; the test waits in real time (3.8). Seen in Pantrix's own browser tests: a long comparison of `PantrixDiffView`'s, worked out on `Dispatchers.Default`.
+*   **On Android a node with no size takes no focus.** `FocusRequester.requestFocus()` says `false` there, and the keys do not come to the node; on the JVM, iOS and the web the same node takes the focus. The node the keys are pressed on is given a size (`Modifier.size(…)`). Seen in Robolectric (`TestingOnAndroidTest`); the reason in Compose's Android source was not looked at.
 *   **On the web, reading the clipboard waits.** `TestClipboard.text()` waits for the browser's promise on the web; on a page not in a secure context, Compose writes an empty text.
 *   **The file picker in an iOS test.** In Compose's iOS tests there is no app and no `LocalUIViewController`; `rememberFilePicker()` returns a picker there that never answers.
 *   **In Maestro a chosen option is two separate properties on two platforms.** iOS gives every chosen or switched-on control as `selected`: a radio button, a segment, a checkbox, a switch, a chip, a tree's row and a page number. Android gives only a node in the tab role (a tab, a row of the bottom bar and of the side menu) as `selected`, and the others as `checked`. The demo's `subflows/assert_chosen.yaml` and `assert_not_chosen.yaml` look by platform; a tab is looked at with `selected: true` on both.
@@ -351,10 +597,10 @@ Each behaviour was broken once, and the test was seen to turn red (section 8). T
 | Finding: the key and its cutting, the scope chain, finding with no key, the parts, the screen's tags and the merged tree | `ui/testing/src/commonTest/.../PantrixTagsTest.kt` (JVM, iOS, JS, Wasm) |
 | The theme: the defaults, what is given, Windows on the desktop and the web, the window and keeping the state, the clipboard and a text field that takes the focus over it, the picker, the clock, the diagnostics, the finding that waits, every platform | `PantrixTestThemeTest` |
 | The doubles: analytics, haptic feedback, the picker's answers, the clock, the clipboard (hard texts included) and an unwritable clipboard | `TestDoublesTest` |
-| The assertions: the name, the text, the touch target, the shortcut | `PantrixAssertionsTest` |
+| The assertions: the name, the text, the touch target, the shortcut, the paste of the two systems, and the paste heard on a window's root after `shortcutRoot` | `PantrixAssertionsTest` |
 | The platform's clipboard on the desktop: it keeps the last copy, empties when cleared, and every test's clipboard is its own | `ui/testing/src/jvmTest/.../TestClipboardOnTheDesktopTest.kt` |
 | The platform's clipboard on iOS: the same, and that the general pasteboard is never written | `ui/testing/src/iosTest/.../TestClipboardOnIosTest.kt` |
-| Android: a test with no manifest, the `ClipData` and its label, the picker | `ui/testing/src/androidHostTest/.../TestingOnAndroidTest.kt` |
+| Android: a test with no manifest, the `ClipData` and its label, the paste by the key, the picker | `ui/testing/src/androidHostTest/.../TestingOnAndroidTest.kt` |
 | The tag's text | `ui/foundation/src/commonTest/.../testing/TestTagTest.kt` |
 | The screen's clock and its readers | `PantrixClockTest`, `TimeTextFieldTest`, `ElasticDatePickerTest`, `ChartScreenClockTest` |
 | The screen's picker | `LocalFilePickerTest`, `FilesOnAndroidTest` |
@@ -362,7 +608,7 @@ Each behaviour was broken once, and the test was seen to turn red (section 8). T
 
 ### Behaviours broken by hand
 
-*   In the test module 24 behaviours were broken one by one; in each, at least one test turned red: finding with no key telling apart the parts and the longer names, the filtering of the tags, the key built by hand, the theme's operating system, the font scale, the clipboard's traits, the machine's clipboard, the platform's picker, the device's clock, the diagnostics turned off and the findings not kept, the window's frame, every platform set up again, the half-second wait, the order of the name, the touch target's two directions, the shortcut's Command, the text field's text, the picker's types and single file, the copy of the events, the clipboard's last copy, and the clock's advance.
+*   In the test module 26 behaviours were broken one by one; in each, at least one test turned red: finding with no key telling apart the parts and the longer names, the filtering of the tags, the key built by hand, the theme's operating system, the font scale, the clipboard's traits, the machine's clipboard, the platform's picker, the device's clock, the diagnostics turned off and the findings not kept, the window's frame, every platform set up again, the half-second wait, the order of the name, the touch target's two directions, the shortcut's Command, the text field's text, the picker's types and single file, the copy of the events, the clipboard's last copy, the clock's advance, the paste's Command, and the paste sent to the page on the web.
 *   The platform clipboard's stand-in was broken. On the desktop in four ways: the stand-in keeps nothing, the copy does not reach the stand-in, the stand-in does not empty when cleared, one stand-in for all clipboards. On iOS in four ways: the stand-in keeps nothing, it does not empty when cleared, one stand-in for all clipboards, no stand-in at all. In all of them a test turned red. The last is the very lack that failed 299 of Pantrix's iOS tests; the test of a text field that takes the focus over the theme's clipboard caught it too. On iOS, a break that writes to the system's general pasteboard was not tried: Simulator can share it with the Mac's.
 *   In the three additions in foundation 18 behaviours were broken; in 17 a test turned red. The remaining one is the time field's `remember` key: it makes no difference, since the picker's inside is set up again at every opening.
 
@@ -381,11 +627,15 @@ Each behaviour was broken once, and the test was seen to turn red (section 8). T
 *   **The manifest merge:** the own manifests of foundation's and the components' Android host tests were deleted; their tests (40 and 193) pass with the module's manifest.
 *   **The demo's three new examples on the web:** "The screen's clock" shows 24 October in Kiritimati and 23 October in Pago Pago; "A screen with sample files" writes the two sample files; "The tag a test looks for" writes the tag looked for and the tag carried the same.
 
+*   **End to end on the web (2026-11-10), in a browser driven with the page's JavaScript:** in the demo's Wasm build, the function of 3.9 found `#cmp_a11y_root` inside the canvas's shadow root; `id`s were Pantrix tags; `click()` on `Button_show_with_close` showed the snackbar, whose element held its message and its close button. After the appearance menu was opened and closed, the copy held the menu's 11 elements and nothing of the page.
+*   **The window-size box (2026-11-10, in a scratch desktop test):** in the room of 1024×768, at a density of 1, `wrapContentSize(Alignment.TopStart, unbounded = true).size(1440.dp, 900.dp)` placed the box at (0, 0) and `requiredSize(1440.dp, 900.dp)` at (−208, −66).
+
 ### Not verified
 
 *   Real devices, Maestro Cloud, and a CI machine on Linux or Windows. Two languages on an Android phone: the full run ran in English, the device's language; the flows are written to pass in Turkish too (tags, and the words of both languages), and no full run was made on a Turkish device.
 *   A separate project that takes the module from Maven: its POM, its module metadata and the Android AAR's manifest were generated and read, but not published to the local repository.
-*   Finding the tags on the web with a tool that goes into the shadow root (for example Playwright's selectors).
+*   Playwright's selectors on the web, and a press by DevTools' mouse event: the copy was read and pressed with the page's own JavaScript (`click()`).
+*   The screenshot setup of 3.6 and the Maestro tasks of 3.7 as written for an app: they restate this repository's setup and were not run in an app's build. The conditions of 3.8 for an app's own resources and for Android 17 under Robolectric (3.1) were seen in an app's tests, not here.
 *   On Android, a selection toolbar opened with the test's clipboard (section 5): read in Compose's source; it could not be opened in Robolectric, since selection by touch fails in the magnifier, and it was not run on a device.
 
 ## 9. Where it is in this repository {#repository toc="9. In the repository"}

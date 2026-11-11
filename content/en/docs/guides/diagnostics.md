@@ -50,15 +50,16 @@ The library gives all four pieces (`com.pantrixui.foundation.diagnostics`; the i
 | `PantrixDiagnostics.Log` | Writes every finding to the platform's log: on Android a warning to Logcat with the tag `Pantrix` (`Log.w`), on iOS to the unified log (`NSLog`, Xcode's console), in the browser `console.warn`, on the JVM to standard error |
 | `PantrixFindings(then = …)` | Keeps the findings (`all`, `clear()`, `boundsOf(finding)`), and gives each of them to `then` too. If `all` is read in a composition, it is followed as it grows |
 | `PantrixFinding` | A finding: `check`, `component`, `testTag`, `screen` (the `TestScope` chain), `message` (in English) and the measured `values` |
-| `PantrixCheck` | The six checks (3.1) |
+| `PantrixCheck` | The seven checks (3.1) |
 | `LocalPantrixDiagnostics` | The receiver at that point |
 | `PantrixDiagnosticsInspector(findings) { … }` | A button over the app that shows the number of findings; when pressed, the list of findings; the node of the finding chosen from the list is framed on the screen until the next press. While there are no findings it shows nothing |
 | `Modifier.checkName(component, name)` | `MissingName` for the app's own component |
 | `Modifier.checkContrast(component) { pairs }`, `ContrastPair`, `ContrastNeed` | `LowContrast` for the app's own component |
+| `Modifier.checkGraphCycles(component, cycles)` | `GraphCycle` for the app's own graph |
 | `contrastRatio(foreground, background)` | The WCAG 2.2 ratio of two colours |
 :::
 
-### 3.1. The six checks
+### 3.1. The seven checks
 
 :::table
 | Check | When it is reported | Where it comes from | How it is put right |
@@ -66,9 +67,10 @@ The library gives all four pieces (`com.pantrixui.foundation.diagnostics`; the i
 | `DuplicateTestTag` | If two nodes in the same window carry the same tag for a second and a half: longer than a page transition | `Modifier.pantrixTestTag`: all Pantrix components and the app code that uses it | Its own `tagKey` for each, or each in its own `TestScope` |
 | `LowContrast` | The theme's 34 role pairs, once each time its colours change; the components' text and mark pairs, once for each component and its colours, however many of them show | `PantrixTheme`; the 39 components with a `…Colors` class of their own; `checkContrast` | Text 4.5:1; large text and a control's mark 3:1 |
 | `SmallTouchTarget` | If a control is laid out for half a second in less room than the platform's touch target | `Modifier.minTouchTarget`: Pantrix's pressable controls | Have the one above give it room |
-| `MissingName` | If the name the screen reader would say is empty. `null` is not reported: a picture that is decoration, or a control named by its text, gives no name | The components that take a `contentDescription`, a `label` or a `title`; `checkName` | A name in the app's language that says what it is or what it does |
+| `MissingName` | If the name the screen reader would say stays empty for a second and a half: a name that comes a moment late, as an app's words read from its resources do in a browser, is not reported. `null` is not reported: a picture that is decoration, or a control named by its text, gives no name | The components that take a `contentDescription`, a `label` or a `title`; `checkName` | A name in the app's language that says what it is or what it does |
 | `NoStringsForLanguage` | If the theme's words are English while its language is not | `PantrixTheme` | That language's words, with `PantrixTheme(strings = …)` |
 | `ShadowedShortcut` | If a node around it also listens to a shortcut: the inner one never runs | `Modifier.onShortcut` | Remove the inner one, or move it to another key |
+| `GraphCycle` | If a graph's links run in a circle: the link that closes it is drawn backwards and lays nothing out | `PantrixGraph`; `checkGraphCycles` | Leave the link out, or turn it round; where the circle is meant, the finding stays |
 :::
 
 The theme's 34 pairs: for each of the six roles (`primary`, `success`, `info`, `warning`, `danger`, `neutral`), `onColor` on `color`, `onContainer` on `container`, and `color` on `background` and on `surface`; the page's texts `onSurface`, `textPrimary` and `textSecondary`, and the marks `borderStrong` and `focusRing`, on `background` and on `surface`.
@@ -234,7 +236,7 @@ At the end of a screen test, `assertEquals(emptyMap(), repeatedTestTags())`. It 
 | `ui/foundation`, `PantrixDiagnosticsTest` | The JVM, the iOS simulator, JS, Wasm | The theme looks for nothing unless given a receiver; a theme inside uses the outer one's receiver; findings are kept once and in the order they come; a suspicion is reported on the next frame, layout's after half a second, a repeated tag after a second and a half; one that goes before its time is up is not reported; it is reported once, and again if it comes back; the owners of the same suspicion are one suspicion; the desk asks for frames only while something waits; the log line |
 | `ui/foundation`, `PantrixDiagnosticsOnIosTest` | The iOS simulator | A finding carrying percent signs and `%@` is written to the unified log, and the app does not crash |
 | `ui/foundation`, `ContrastRatioTest` | The same four targets | Black on white 21, a colour on itself 1; which is drawn on top makes no difference; a foreground colour that shows what is behind it is measured as drawn; an unspecified colour has no ratio |
-| `ui/foundation`, `DuplicateTestTagTest`, `SmallTouchTargetTest`, `LowContrastTest`, `MissingNameTest`, `NoStringsForLanguageTest`, `ShadowedShortcutTest` | The same four targets | Each check: what it finds, what it does not find, that it measures nothing while off, that it finds when turned on later |
+| `ui/foundation`, `DuplicateTestTagTest`, `SmallTouchTargetTest`, `LowContrastTest`, `MissingNameTest`, `NoStringsForLanguageTest`, `ShadowedShortcutTest`, `GraphCycleTest` | The same four targets | Each check: what it finds, what it does not find, that it measures nothing while off, that it finds when turned on later |
 | `ui/components`, `ComponentDiagnosticsTest`, `DiagnosticsInspectorTest` | The JVM, the iOS simulator, JS, Wasm | Pantrix's own colours are no finding in either mode; a component's finding comes with its tag; a component with no fill on a filled ground; names, repeats, a squeezed target; the inspector's button, list, frame and clearing |
 | `ui/components`, `ComponentScreenshotTest.diagnostics_inspector` | The JVM, Android, the iOS simulator | The inspector's picture in the light and the dark theme |
 | `app/shared`, `DemoPagesTest`, `DiagnosticsSamplesTest`, `DemoShellTest`, `SettingsPageTest`, `DemoSettingsTest` | The JVM | Every page in two languages with zero findings; each example of the two diagnostics pages shows only its own findings; the app stays where it is when the setting is turned on and off; the findings are cleared when it turns off; the setting is kept, and is on in an old record |
@@ -264,7 +266,7 @@ Each behaviour was broken once by hand, and which test turned red was looked at;
 | `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/diagnostics/PantrixDiagnostics.kt` | `PantrixCheck`, `PantrixFinding`, `PantrixDiagnostics`, `LocalPantrixDiagnostics` |
 | `…/diagnostics/PantrixFindings.kt` | `PantrixFindings` |
 | `…/diagnostics/DiagnosticsDesk.kt` | The desk for each window: the suspicions, the half second, reporting once |
-| `…/diagnostics/DuplicateTestTag.kt`, `LowContrast.kt`, `MissingName.kt`, `NoStringsForLanguage.kt` | The checks; `checkContrast`, `ContrastPair`, `ContrastNeed`, `checkName` |
+| `…/diagnostics/DuplicateTestTag.kt`, `LowContrast.kt`, `MissingName.kt`, `NoStringsForLanguage.kt`, `GraphCycle.kt` | The checks; `checkContrast`, `ContrastPair`, `ContrastNeed`, `checkName`, `checkGraphCycles` |
 | `…/a11y/TouchTarget.kt`, `…/keyboard/Shortcuts.kt`, `…/testing/TestTag.kt` | `SmallTouchTarget`, `ShadowedShortcut` and the tags' register |
 | `…/token/color/ContrastRatio.kt` | `contrastRatio` |
 | `ui/foundation/src/{android,ios,jvm,web}Main/…/diagnostics/PantrixDiagnostics.*.kt` | The platforms' logs |

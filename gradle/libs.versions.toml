@@ -7,7 +7,7 @@ kotlin = "2.4.21"
 composeMultiplatform = "1.12.2"
 # The Pantrix UI library: a release from GitHub Packages, a -SNAPSHOT from the local Maven repository
 # (./gradlew publishToMavenLocal in pantrix-ui-cmp), as settings.gradle.kts says.
-pantrix = "0.2.0"
+pantrix = "0.2.1"
 androidx-activity = "1.13.0"
 androidx-lifecycle = "2.11.0"
 navigation3 = "1.2.0"

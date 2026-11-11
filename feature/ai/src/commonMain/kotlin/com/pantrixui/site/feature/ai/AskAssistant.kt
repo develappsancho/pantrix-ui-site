@@ -234,10 +234,13 @@ internal fun cursorLink(): String {
 internal fun vsCodeCommand(): String =
     """code --add-mcp '{"name":"$SERVER","type":"http","url":"${SiteAddress.mcp}"}'"""
 
-/** Claude Code's commands that add the plugin, which brings the server and the skill. */
+/**
+ * Claude Code's commands that add the plugin, which brings the server and the skill, for the whole project: its
+ * `.claude/settings.json`, which the team gets through git.
+ */
 private val CLAUDE_CODE = listOf(
-    "claude plugin marketplace add ${LibraryFacts.PACKAGES_REPOSITORY}",
-    "claude plugin install pantrix-ui@pantrix-ui"
+    "claude plugin marketplace add ${LibraryFacts.PACKAGES_REPOSITORY} --scope project",
+    "claude plugin install pantrix-ui@pantrix-ui --scope project"
 )
 
 /** The server's name in an assistant's settings. */

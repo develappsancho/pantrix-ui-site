@@ -53,7 +53,7 @@ internal object AiSay {
             Words("prompts: a component, a screen, a test", "istem: bir bileşen, bir ekran, bir test"),
             tablet = Words("prompts", "istem")
         ),
-        "7" to BySize(Words("rules the skill keeps", "becerinin tuttuğu kural"))
+        ServerSay.Rules.size.toString() to BySize(Words("rules the skill keeps", "becerinin tuttuğu kural"))
     )
 
     // The conversation.

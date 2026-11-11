@@ -111,6 +111,15 @@ PantrixScaffold(bottomBar = { insets -> AppTabs(Modifier.padding(insets)) }) { p
 
 A row it is not put on behaves as before: it comes to the edge. If the list's `contentPadding` is less than what is said, the list is asked for what it does not have (section 2, detail 1): **the two values must come from the same variable.** In grids (`LazyVerticalGrid`) the use is the same.
 
+In `PantrixLazyPageScaffold` the list is the page's: the content takes the list's room as `contentPadding` (`LazyPageScope`), the page's own rows, its heading and its header, say it, and the app's rows say it too. A row's own scope cannot read it (the scopes of a list are a DSL's): it is read before the rows.
+
+```kotlin
+PantrixLazyPageScaffold(title = "Orders") {
+    val shown = Modifier.scrollPadding(contentPadding)
+    items(orders, key = { it.id }) { order -> OrderRow(order, shown) }
+}
+```
+
 ### 3.3. While the keyboard is open
 
 A screen with a text field ends the scrolling area above the keyboard. Meanwhile the bottom bar is behind the keyboard; the keyboard's share is taken off the padding. Compose's subtraction of `PaddingValues` does this: it does not go below zero and reads its value at the moment it is asked, so the screen is not composed again while the keyboard moves.
@@ -125,7 +134,7 @@ Column(
 )
 ```
 
-The demo's page is like this (`App.kt`, `DemoPage`).
+The demo's component page is the lazy list's form of it: each of its rows says `contentPadding - WindowInsets.ime.asPaddingValues()` (`ComponentPage.kt`).
 
 ### 3.4. Scrollers inside
 
@@ -214,6 +223,7 @@ In the inner lambda `isAttached` is checked: the request is asked again on every
 
 *   `ScrollPaddingTest` (twelve tests, on five targets): the end and the start of a column, both ends of a row and a right-to-left layout, no more asked than the content reaches, a changing padding, a scroller inside, an item clipped by the one above, padding removed while a scroll runs, a lazy column and a lazy row, with the focus ring.
 *   `DemoShellTest`: when a button low on the page takes the focus, it stands above the bottom bar.
+*   `PageScaffoldTest`: in a list's page, a row that takes the focus stands above the bottom bar.
 *   `HorizontalScrollFrameTest`: the frame goes all the way to its end when the button at its end takes the focus.
 *   Mutation of the lines written: of 80 mutants 63 were killed and 6 did not compile; five of the 11 that survived were real gaps, and their tests were written (a ring that scrolls in a row inside a column, a clipped item, removed padding, as much as the ring reaches out, the card's copy button).
 
@@ -244,7 +254,8 @@ Compose Multiplatform 1.12.1, `foundation` and `ui`:
 | The reckoning that finds the scrolled content and cuts the request at its bounds | `RoomInView.kt` in the same package (`withRoom`); the focus ring uses it too (`FocusRing.kt`) |
 | As much as a ring reaches out | `PantrixPlatform.focusRingReach` (`Platform.kt`) |
 | Tests | `ScrollPaddingTest`, `FocusRingInViewTest` (`ui/foundation/src/commonTest/.../a11y`) |
-| The demo's page | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/App.kt` (`DemoPage`) |
+| The demo's page | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/page/ComponentPage.kt` (`ComponentPage`) |
+| A list's page | `ui/components/src/commonMain/kotlin/com/pantrixui/components/container/page/PageScaffold.kt` (`ListBody`), `LazyPageScope` (`PageAction.kt`) |
 | The demo's sideways-scrolling frame | `app/shared/.../demo/page/HorizontalScrollFrame.kt` |
 | The example in the demo | "Focus in a list that scrolls beneath the bars" on the `Scaffold` page |
 :::

@@ -3,7 +3,7 @@ title: Bir grafiği dosya olarak dışa aktarma
 description: Bir Pantrix grafiğinin PNG, SVG ve PDF olarak nasıl dışa aktarıldığı, kütüphanenin neyi yapıp neyi uygulamaya bıraktığı, üretilen dosyanın kullanıcıya her platformda nasıl ulaştırılacağı ve üç dosya türünün sınırları.
 ---
 
-Grafik dosyayı **üretir** ve uygulamaya **verir**; kaydetmez, paylaşmaz, indirmez. Kullanıcıya foundation'ın `FileSaver`'ı verir, her platformun kaydetme penceresiyle (3. bölüm); paylaşım sayfası uygulamanındır.
+Grafik dosyayı **üretir** ve uygulamaya **verir**; kaydetmez, paylaşmaz, indirmez. Kullanıcıya foundation'ın `FileSaver`'ı verir, her platformun kaydetme penceresiyle (3. bölüm); bir dosyanın paylaşım sayfası uygulamanındır. Bir metni ya da bir bağlantıyı foundation'ın `ShareSheet`'i gönderir ([paylaşma rehberi](/docs/guides/sharing)).
 
 Burada kütüphane hakkında söylenen her şey bu depoda koşan testlerde ya da üretilen dosyalara bakılarak görülmüştür; hangisinin nerede görüldüğü 6. bölümde yazılıdır. 3. bölümdeki iki paylaşım parçası demonun eski kodudur ve dört platformda derlenmişti; nerede denendiği 6. bölümdedir.
 

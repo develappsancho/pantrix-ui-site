@@ -79,7 +79,7 @@ Uygulamanın anahtarlarını gönderen bileşenler:
 | :--- | :--- | :--- |
 | `row`, `column` | `PantrixDataTable` | Satırın ve sütunun anahtarı |
 | `option` | `PantrixSelect`, `PantrixMultiSelect` | Seçeneğin anahtarı |
-| `node` | `PantrixTreeView`, `PantrixSankeyChart` | Düğümün anahtarı; Sankey'de bir akış `kaynak>hedef` |
+| `node` | `PantrixTreeView`, `PantrixLazyTreeView`, `PantrixSankeyChart` | Düğümün anahtarı; Sankey'de bir akış `kaynak>hedef` |
 | `series` | Eksenli grafikler, `PantrixScatterChart`, `PantrixRadarChart`, `PantrixPolarChart` | Serinin anahtarı |
 | `slice` | `PantrixPieChart` | Dilimin anahtarı |
 | `stage` | `PantrixFunnelChart` | Aşamanın anahtarı |
@@ -138,6 +138,7 @@ Tablo, bileşenlerin testlerinde görülen olaylardan ve kaynaklarından yazıld
 | `PantrixHeatmap` | `Heatmap` | `select`, `export` | `cell`, `format` |
 | `PantrixIconButton` | `IconButton` | `click` | `variant` |
 | `PantrixJsonView` | `JsonView` | `expand`, `collapse`, `copy` | `level`, `copied` |
+| `PantrixLazyTreeView` | `LazyTreeView` | `select`, `expand`, `collapse`, `check`, `uncheck`, `action` | `node` |
 | `PantrixLink` | `Link` | `click` | `external` |
 | `PantrixMenu` | `Menu`; öğesi `MenuItem` | `open`, `dismiss`; öğe: `click` | öğe: `destructive` |
 | `PantrixMultiSelect` | `MultiSelect`; arama alanı `MultiSelectSearch` | `open`, `toggle`; arama: `focus`, `clear` | `option`, `selected` |
@@ -165,7 +166,7 @@ Tablo, bileşenlerin testlerinde görülen olaylardan ve kaynaklarından yazıld
 | `PantrixTextField`, `PantrixFilledTextField`, `PantrixAutoResizeTextField`, `PantrixFilledAutoResizeTextField` | Bileşenin adı | `focus`, `clear` | — |
 | `PantrixTimePicker` | `TimePicker` | `select` | `part` |
 | `PantrixTreemap` | `Treemap` | `select`, `export` | `tile`, `format` |
-| `PantrixTreeView` | `TreeView` | `select`, `expand`, `collapse`, `check`, `uncheck` | `node` |
+| `PantrixTreeView` | `TreeView` | `select`, `expand`, `collapse`, `check`, `uncheck`, `action` | `node` |
 :::
 
 ## 3. Bağlayıcı {#the-connector}

@@ -251,6 +251,17 @@ object GuideCatalogue {
             withoutPantrix = true
         ),
         GuideEntry(
+            key = "language",
+            topic = GuideTopic.Text,
+            title = Words("The app's own words", "Uygulamanın kendi sözleri"),
+            summary = Words(
+                "An app's words in the language its reader chooses, beside the library's, switched by the same locale.",
+                "Uygulamanın sözleri, okurunun seçtiği dilde, kütüphanenin sözlerinin yanında, aynı locale ile değişir."
+            ),
+            everyApp = true,
+            withoutPantrix = true
+        ),
+        GuideEntry(
             key = "number-format",
             topic = GuideTopic.Text,
             title = Words("Formatting numbers", "Sayıları biçimlendirme"),
@@ -279,6 +290,17 @@ object GuideCatalogue {
             summary = Words(
                 "Copying is not one call: what a copy button should say, and when, on each platform.",
                 "Kopyalamak tek bir çağrı değildir: bir kopyalama düğmesi her platformda ne zaman ne demeli."
+            ),
+            everyApp = true,
+            withoutPantrix = true
+        ),
+        GuideEntry(
+            key = "sharing",
+            topic = GuideTopic.Platform,
+            title = Words("Sending a text to another app", "Bir metni başka bir uygulamaya göndermek"),
+            summary = Words(
+                "The platform's share sheet from common code, what each platform says back, and a double for tests.",
+                "Ortak koddan platformun paylaşım sayfası, her platformun ne cevap verdiği ve testler için bir dublör."
             ),
             everyApp = true,
             withoutPantrix = true
@@ -317,6 +339,17 @@ object GuideCatalogue {
             withoutPantrix = true
         ),
         GuideEntry(
+            key = "previews",
+            topic = GuideTopic.Quality,
+            title = Words("Previewing a screen's states", "Bir ekranın hâllerini önizlemek"),
+            summary = Words(
+                "A preview drawn on the platform, in the theme and at the window size it is meant for.",
+                "Amaçlandığı platformda, temada ve pencere boyunda çizilen bir önizleme."
+            ),
+            everyApp = true,
+            withoutPantrix = true
+        ),
+        GuideEntry(
             key = "diagnostics",
             topic = GuideTopic.Quality,
             title = Words("Runtime diagnostics", "Çalışma anı tanılaması"),
@@ -325,6 +358,19 @@ object GuideCatalogue {
                 "Yalnızca çalışan bir ekranda görülen kusurlar, uygulamanın kendi hata ayıklama derlemesinde yakalanır."
             ),
             everyApp = true,
+            withoutPantrix = true
+        ),
+        GuideEntry(
+            key = "semantics-tree",
+            topic = GuideTopic.Quality,
+            title = Words("A small semantics tree for iOS", "iOS için küçük bir semantik ağaç"),
+            summary = Words(
+                "Why a long screen stalls on iOS while its accessibility tree is read, and how the tree is kept small.",
+                "Uzun bir ekranın iOS'ta, erişilebilirlik ağacı okunurken, neden takıldığı ve ağacın nasıl küçük " +
+                    "tutulduğu."
+            ),
+            everyApp = true,
+            seenOn = setOf(GuidePlatform.Ios),
             withoutPantrix = true
         ),
         GuideEntry(

@@ -23,7 +23,7 @@ object LibraryFacts {
      * raised with each release. The site's server needs `PantrixMcp.http()`, which came in 0.1.0-alpha03, so the site
      * goes online with that release or a later one.
      */
-    const val RELEASE: String = "0.2.0"
+    const val RELEASE: String = "0.2.1"
 
     /** The repository the library is distributed from: its packages, its releases and Claude Code's plugin for it. */
     const val PACKAGES_REPOSITORY: String = "develappsancho/pantrix-ui-cmp-package"

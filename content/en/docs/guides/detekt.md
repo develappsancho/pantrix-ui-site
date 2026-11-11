@@ -18,13 +18,13 @@ Detekt is a static code analysis tool for Kotlin. Kotlinter looks at how code lo
 :::table
 | Where | Configuration | What runs |
 | :--- | :--- | :--- |
-| The library's modules (`ui/foundation`, `ui/components`, `ui/annotations`, `ui/testing`, `ui/material3`) | [`config/detekt/detekt.yml`](/docs/detekt-settings#detekt-yml) | detekt's rules and the project's rules for the library. Every finding stops the build. |
-| The demo (`app/*`) | [`config/detekt/demo.yml`](/docs/detekt-settings#demo-yml) | Only the four rules of the project that an app keeps too: `NoMaterialImport`, `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. The last two report but do not stop the build. |
+| The library's modules (`ui/foundation`, `ui/components`, `ui/annotations`, `ui/testing`, `ui/material3`) | `config/detekt/detekt.yml` in this repository | detekt's rules and the project's rules for the library. Every finding stops the build. |
+| The demo (`app/*`) | `config/detekt/demo.yml` in this repository, printed in section 5 | Only the four rules of the project that an app keeps too: `NoMaterialImport`, `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. The last two report but do not stop the build. |
 :::
 
 Of detekt's own rules, `UndocumentedPublicClass`, `UndocumentedPublicFunction` and `UndocumentedPublicProperty` are on in the library: no class, function or property is left without KDoc. An enum's entry counts as a property too. Parameters are held by the project's `UndocumentedParameter` (section 3).
 
-The setup is in two plugins of `build-logic`: `DetektSetupPlugin`, which `pantrix.codequality` applies, for the library, and `pantrix.demo.detekt` for the demo. Tests are outside the project's rules.
+The setup is in this repository's own build logic, for the library and for the demo; what an app writes for the same is in section 5. Tests are outside the project's rules.
 
 Running it:
 
@@ -48,6 +48,7 @@ The reports are in each module's `build/reports/detekt/` folder: HTML (for readi
 | `EmptyComposableDefault` | A composable lambda's default is `null`, not an empty lambda; an empty lambda adds a public `ComposableSingletons` class to the ABI | The library |
 | `KDocNotASentence` | A KDoc's summary is a sentence: it starts with a capital and ends with a full stop (names written in lower case, such as `iOS`, may come first) | The library |
 | `UndocumentedParameter` | Every parameter of a public function or constructor is described: by a link `[name]` in the KDoc's text, by a `@param` or `@property` tag, or by the parameter's own KDoc. A declaration with no KDoc at all is left to detekt's `UndocumentedPublicFunction` and `UndocumentedPublicClass`. An override's description (a constructor's `override val` too) is in what it overrides, and an `actual`'s in its `expect` | The library |
+| `TagKeyLast` | A component's `tagKey` is its last parameter: what it gains goes right before the key, and only the content lambda it draws, one that is composable or is called on a scope, comes after it. A component is a composable function or a public class's constructor; a function that works on a key, such as `pantrixTestTagOf`, and an override are left out | The library |
 | `LiteralTextInLibrary` | What a component says comes from `PantrixStrings`; no fixed text goes to the screen or to a screen reader. Names given to tools, such as an animation's label and an inspector's name, do not count | The library (but its packs of words) |
 | `FixedSideLayout` | Layout follows the reading direction: start and end in place of `absolutePadding`, `absoluteOffset`, `AbsoluteAlignment`, `Arrangement.Absolute` | The library, the demo |
 | `SizeOutsideStyle` | A component's size is in its style or in a named constant; no `12.dp` is written in the code. 0 and 1 are free | `ui/components` (but the style files) |
@@ -74,26 +75,91 @@ private val COPY_CORNER: Alignment = AbsoluteAlignment.TopRight
 
 ## 5. Pantrix's rules in your own app {#pantrix-s-rules-in-your-own-app}
 
-The rules are published as `com.pantrixui:detekt-rules`. An app gives them to detekt as a plugin:
+The rules are published as `com.pantrixui:detekt-rules`. An app gives them to detekt as a plugin, with detekt 1.23 (the rules are compiled against detekt 1.23.8's API) and wired to every target of a Kotlin Multiplatform module, as Pantrix's own build does:
 
 ```kotlin
+// The shared module's build.gradle.kts.
+plugins {
+    // The rules are written against detekt 1's API (io.gitlab.arturbosch.detekt.api): detekt 2 does not load them.
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    basePath = rootProject.projectDir.absolutePath
+}
+
 dependencies {
-    detektPlugins("com.pantrixui:detekt-rules:0.1.1")
+    detektPlugins("com.pantrixui:detekt-rules:0.2.1")
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    // Generated sources, such as Compose's resource accessors, are not the app's to check.
+    exclude { it.file.absolutePath.contains("${File.separator}build${File.separator}") }
+}
+
+// In Kotlin Multiplatform the plain task looks at an empty source set: it is wired to every target's own.
+tasks.named("detekt") {
+    dependsOn(tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().matching {
+        it.name != "detekt" && !it.name.startsWith("detektBaseline")
+    })
 }
 ```
 
-Where detekt is built upon its own default configuration (`buildUponDefaultConfig = true`), the rule set's own configuration turns three rules on: `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. The rules of the library alone start off; an app turns them on in its own configuration if it wants to. The recommended configuration, with the last two reporting and not stopping the build:
+These lines restate the setup of Pantrix's own modules for a module's build file; as written here they were not run in an app's build. An app on detekt 1.23.8 and Kotlin 2.4 needs no pin of detekt's Kotlin: detekt holds its own (2.0.21), and the rules' `kotlin-stdlib` beside it did no harm (seen in an app).
+
+Where detekt is built upon its own default configuration (`buildUponDefaultConfig = true`), the rule set's own configuration turns three rules on: `FixedSideLayout`, `ImageWithoutDescription`, `UntaggedControl`. The rules of the library alone start off; an app turns them on in its own configuration if it wants to. The configuration Pantrix's demo is checked with, as an app, with the last two rules reporting and not stopping the build:
 
 ```yaml
+# config/detekt/detekt.yml: the configuration Pantrix's demo is checked with, as an app built on the library.
 build:
+  # These two report and do not stop the build: a finding of weight nought does not count towards maxIssues.
   weights:
     UntaggedControl: 0
     ImageWithoutDescription: 0
 
+# detekt's own rules, off: only the rules an app keeps of Pantrix's run. An app that wants them leaves these out.
+comments:
+  active: false
+complexity:
+  active: false
+coroutines:
+  active: false
+empty-blocks:
+  active: false
+exceptions:
+  active: false
+naming:
+  active: false
+performance:
+  active: false
+potential-bugs:
+  active: false
+style:
+  active: false
+
 PantrixUIRule:
+  active: true
   # If the app uses no Material:
   NoMaterialImport:
     active: true
+  FixedSideLayout:
+    active: true
+  ImageWithoutDescription:
+    active: true
+    excludes: &tests
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/iosTest/**'
+      - '**/jsTest/**'
+      - '**/wasmJsTest/**'
+      - '**/webTest/**'
+      - '**/androidHostTest/**'
+      - '**/androidDeviceTest/**'
+  UntaggedControl:
+    active: true
+    excludes: *tests
 ```
 
 The rule classes are compiled for JVM 17: the JDK that runs detekt has to be 17 or newer.

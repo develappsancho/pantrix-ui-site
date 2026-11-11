@@ -165,6 +165,8 @@ claude plugin install pantrix-ui@pantrix-ui
 ```
 
 *   **The skill's name:** a plugin's skills take the plugin's name before theirs: `pantrix-ui:pantrix-ui`.
+*   **For the whole team:** with `--scope project` on both commands the marketplace and the plugin are written into the project's `.claude/settings.json`, which the team gets through git; without it they are the user's alone.
+*   **A new session:** a plugin is loaded as a session starts. The session it was installed in sees neither its server nor its skill; in a new one `/mcp` lists `pantrix-ui` as connected, and `/skills` its skill.
 *   **Keeping it current:** the plugin's version is the library's. When the marketplace is updated (`claude plugin marketplace update pantrix-ui`), the new version comes.
 *   **What writes it:** at each release, `release.sh publish` writes the marketplace (`.claude-plugin/marketplace.json`) and the plugin (`plugins/pantrix-ui/`) again with the skill the release's jar writes, and checks them with `claude plugin validate` (the distribution guide, in Turkish).
 
@@ -211,7 +213,7 @@ An app's repository that uses Pantrix takes the skill and the server so. The fir
 
     Claude Code expands `${PANTRIX_MCP_JAR}` with each machine's own variable: the file goes into git, the jar's path does not. An interactive session asks for approval of the repository's server the first time it opens; `claude -p` loads it without asking. Where a site serves the server, the entry carries its address alone (`"type": "http"`, `"url"`), and step 2 is not needed.
 5.  **Trying it:** `claude` is opened in the app's folder. `/skills` lists `pantrix-ui`, and `/mcp` lists `pantrix-ui` as connected. Asked for something like "write a sign-up screen", the assistant loads the skill, calls the server's tools and writes with Pantrix's components (the trial in section 9).
-6.  **Keeping it current:** when Pantrix is updated, steps 1–3 are taken again: the library, the jar and the skill come from one version. The skill command writes the folder anew; the change is a commit in the app's repository.
+6.  **Keeping it current:** when Pantrix is updated, steps 1–3 are taken again: the library, the jar and the skill come from one version. The skill command writes the folder anew; the change is a commit in the app's repository. An assistant starts the server once for a session and keeps it, so a jar written again under it, by a new local publishing for example, answers only in a new session, or after the server is connected again (`/mcp`); reloading the plugins does not start it again. The server says which build it is: `get_changelog` starts with "Answered by the MCP server of Pantrix UI 0.1.2-SNAPSHOT, commit 7f42363d, built 2026-11-10 12:31 UTC", its version as `initialize` gives it carries the same (`0.1.2-SNAPSHOT+7f42363d.20261110T1231Z`), and while the jar it started from is newer on disk, every answer ends with a note that says so.
 7.  **Other assistants:** clients that read their settings from a `mcpServers` field take the same entry in their own settings file. An assistant that reads skills reads the folder `pantrix-ui` from its own folder of skills. An assistant that reads neither is given `llms.txt` (below).
 
 ### Giving the files

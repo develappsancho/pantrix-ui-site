@@ -3,14 +3,21 @@ package com.pantrixui.site.feature.roadmap
 import com.pantrixui.site.core.designsystem.BySize
 import com.pantrixui.site.core.designsystem.SiteLayout
 import com.pantrixui.site.core.model.Language
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.TokenKind
 import com.pantrixui.site.core.model.Words
 
 /** The words of the part about server-driven UI, in each language and each size. */
 internal object SduiSay {
     val Pill = BySize(
-        Words("Next · 0.2.0, planned · Server-driven UI", "Sırada · 0.2.0, planlandı · Sunucu güdümlü UI"),
-        phone = Words("Next · 0.2.0, planned", "Sırada · 0.2.0, planlandı")
+        Words(
+            "Next · ${LibraryFacts.PLANNED_VERSION}, planned · Server-driven UI",
+            "Sırada · ${LibraryFacts.PLANNED_VERSION}, planlandı · Sunucu güdümlü UI"
+        ),
+        phone = Words(
+            "Next · ${LibraryFacts.PLANNED_VERSION}, planned",
+            "Sırada · ${LibraryFacts.PLANNED_VERSION}, planlandı"
+        )
     )
     val Title = BySize(
         Words(

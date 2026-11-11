@@ -63,7 +63,7 @@ private val PAGE = Page(
     blocks = listOf(
         Block.Heading(level = 2, anchor = "dependency", text = previewSpans("Add the dependency")),
         Block.Paragraph(previewSpans("Pantrix is one dependency in the shared module's common source set.")),
-        previewCode("implementation(\"com.pantrixui:components:0.2.0\")"),
+        previewCode("implementation(\"com.pantrixui:components:0.2.1\")"),
         Block.Heading(level = 2, anchor = "first-screen", text = previewSpans("Your first screen")),
         Block.Paragraph(previewSpans("Put the app's content in the theme, and draw a component in it.")),
         previewCode("PantrixTheme {\n    PantrixButton(text = \"Hello\", onClick = {})\n}", file = "App.kt")

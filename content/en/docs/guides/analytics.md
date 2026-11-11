@@ -79,7 +79,7 @@ The components that send the app's keys:
 | :--- | :--- | :--- |
 | `row`, `column` | `PantrixDataTable` | The row's and the column's key |
 | `option` | `PantrixSelect`, `PantrixMultiSelect` | The option's key |
-| `node` | `PantrixTreeView`, `PantrixSankeyChart` | The node's key; in a Sankey, a flow is `source>target` |
+| `node` | `PantrixTreeView`, `PantrixLazyTreeView`, `PantrixSankeyChart` | The node's key; in a Sankey, a flow is `source>target` |
 | `series` | The charts with axes, `PantrixScatterChart`, `PantrixRadarChart`, `PantrixPolarChart` | The series' key |
 | `slice` | `PantrixPieChart` | The slice's key |
 | `stage` | `PantrixFunnelChart` | The stage's key |
@@ -138,6 +138,7 @@ The table was written from the events seen in the components' tests and from the
 | `PantrixHeatmap` | `Heatmap` | `select`, `export` | `cell`, `format` |
 | `PantrixIconButton` | `IconButton` | `click` | `variant` |
 | `PantrixJsonView` | `JsonView` | `expand`, `collapse`, `copy` | `level`, `copied` |
+| `PantrixLazyTreeView` | `LazyTreeView` | `select`, `expand`, `collapse`, `check`, `uncheck`, `action` | `node` |
 | `PantrixLink` | `Link` | `click` | `external` |
 | `PantrixMenu` | `Menu`; its item `MenuItem` | `open`, `dismiss`; the item: `click` | the item: `destructive` |
 | `PantrixMultiSelect` | `MultiSelect`; its search field `MultiSelectSearch` | `open`, `toggle`; the search: `focus`, `clear` | `option`, `selected` |
@@ -165,7 +166,7 @@ The table was written from the events seen in the components' tests and from the
 | `PantrixTextField`, `PantrixFilledTextField`, `PantrixAutoResizeTextField`, `PantrixFilledAutoResizeTextField` | The component's name | `focus`, `clear` | — |
 | `PantrixTimePicker` | `TimePicker` | `select` | `part` |
 | `PantrixTreemap` | `Treemap` | `select`, `export` | `tile`, `format` |
-| `PantrixTreeView` | `TreeView` | `select`, `expand`, `collapse`, `check`, `uncheck` | `node` |
+| `PantrixTreeView` | `TreeView` | `select`, `expand`, `collapse`, `check`, `uncheck`, `action` | `node` |
 :::
 
 ## 3. The connector {#the-connector}

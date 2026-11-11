@@ -169,6 +169,34 @@ internal object ServerSay {
             ),
             tablet = Words("Every component has a package of its own.", "Her bileşenin kendi paketi var."),
             phone = Words("Take the import given.", "Verilen importu al.")
+        ),
+        BySize(Words("Parameters from the documents", "Parametreler belgelerden")) to BySize(
+            Words(
+                "Each parameter, what it takes and its default before a call; arguments by name.",
+                "Bir çağrıdan önce her parametre, ne aldığı ve varsayılanı; argümanlar adıyla."
+            ),
+            tablet = Words("Arguments by name, as documented.", "Belgelendiği gibi, argümanlar adıyla.")
+        ),
+        BySize(Words("Words from resources", "Sözler kaynaklardan")) to BySize(
+            Words(
+                "What the app shows from its resources; Pantrix's components say their own.",
+                "Uygulamanın gösterdiği kaynaklarından; Pantrix'in bileşenleri kendi sözlerini söyler."
+            ),
+            tablet = Words("stringResource, not a literal.", "Düz metin değil, stringResource.")
+        ),
+        BySize(Words("Windows, not devices", "Cihaz değil, pencere")) to BySize(
+            Words(
+                "A layout reads the window it is drawn in, its size and its folds.",
+                "Bir düzen çizildiği pencereyi, boyunu ve katlanma yerlerini okur."
+            ),
+            tablet = Words("The window's size and folds.", "Pencerenin boyu ve katlanma yerleri.")
+        ),
+        BySize(Words("Tests on Pantrix's helpers", "Testler Pantrix'in yardımcılarıyla")) to BySize(
+            Words(
+                "PantrixTestTheme, and a component found by its tag.",
+                "PantrixTestTheme, ve etiketiyle bulunan bir bileşen."
+            ),
+            tablet = Words("PantrixTestTheme and tags.", "PantrixTestTheme ve etiketler.")
         )
     )
 

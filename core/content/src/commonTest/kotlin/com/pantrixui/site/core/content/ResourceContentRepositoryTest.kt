@@ -38,7 +38,7 @@ class ResourceContentRepositoryTest {
         val english = repository.changelog(Language.English)
         val turkish = repository.changelog(Language.Turkish)
         // The version of the library the site is built on, without -SNAPSHOT: it rises with the catalogue's.
-        assertEquals("0.2.0", english.upcoming)
+        assertEquals("0.2.1", english.upcoming)
         assertEquals(english.releases.size, turkish.releases.size)
         assertTrue(english.releases.first().sections.isNotEmpty())
         assertTrue("keyboard-dismissal" in repository.guideMinutes())

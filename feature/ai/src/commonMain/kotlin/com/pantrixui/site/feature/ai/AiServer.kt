@@ -274,7 +274,7 @@ internal fun RulesAndChecks() {
     }
 }
 
-/** A desktop's rules: the heading, where they come from, and the seven. */
+/** A desktop's rules: the heading, where they come from, and every one of them. */
 @Composable
 private fun DesktopRules(modifier: Modifier) {
     val language = LocalLanguage.current

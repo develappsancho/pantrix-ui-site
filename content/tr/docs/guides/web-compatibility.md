@@ -122,6 +122,46 @@ tasks.named("wasmJsBrowserDistribution") {
 *   JS dağıtımı kopyanın değil, Wasm dağıtımının **bağımlılığıdır**. Kopya JS dağıtımına bağımlı bir sonlandırıcı (finalizer) olursa Gradle "Unable to make progress running work" ile durur: Kotlin'in JS görevlerinin kendi sonlandırıcıları vardır ve Gradle, başka sonlandırıcıları olan görevleri bekleyen bir sonlandırıcıyı yürütemez.
 *   `skiko.wasm` (hash'siz ad) paket tarafından yalnızca sayfa kendi `locateFile`'ını verirse istenir; paket hash adlı kopyayı ister.
 
+### 3.3. Yolları silen webpack eklentisi
+
+Web modülünün `webpack.config.d/stripFilePaths.js`'i; Kotlin'in webpack kurulumu onu kendiliğinden alır (7. bölüm):
+
+```javascript
+// Takes the path of the machine that built a script out of it.
+//
+// Skiko's skiko.mjs reads `import.meta.url`, and webpack writes it into the script as the module's own path where it
+// was built: "file:///Users/<name>/…/kotlin/skiko.mjs", the builder's user name and folders in a public file. The
+// script reads it only for the folder it was loaded from, which it asks for nothing here: it finds Skiko's Wasm by the
+// address webpack gives it. Each such string becomes an empty one, which the script takes for no path at all. It is
+// done after the script is minified and before its source map is written, through a ReplaceSource, so that the map
+// still matches the script. A development build writes each module into a string that it evaluates, where the path's
+// quotes are escaped, `\"file:///…\"`: the empty string keeps their escape, or it would end the module's string.
+config.plugins.push({
+    apply(compiler) {
+        const { Compilation, sources } = compiler.webpack;
+        compiler.hooks.thisCompilation.tap("StripFilePaths", (compilation) => {
+            compilation.hooks.processAssets.tap(
+                { name: "StripFilePaths", stage: Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_SIZE + 1 },
+                () => {
+                    for (const asset of compilation.getAssets()) {
+                        if (!/\.m?js$/.test(asset.name)) continue;
+                        const text = asset.source.source().toString();
+                        const paths = [...text.matchAll(/(\\?)"file:\/\/\/[^"\\]*\1"/g)];
+                        if (paths.length === 0) continue;
+                        const stripped = new sources.ReplaceSource(asset.source);
+                        for (const path of paths) {
+                            const quote = `${path[1]}"`;
+                            stripped.replace(path.index, path.index + path[0].length - 1, quote + quote);
+                        }
+                        compilation.updateAsset(asset.name, stripped);
+                    }
+                }
+            );
+        });
+    }
+});
+```
+
 ## 4. Kod {#the-code}
 
 *   **`wasmJsMain` → `webMain`.** Kotlin 2.4'te tarayıcıyla konuşan kodun çoğu (`JsAny`, `JsString`, `toJsString`, `js("...")`, `kotlinx.browser.window`) iki web hedefinde ortaktır ve `webMain`'e olduğu gibi taşınır. Kaynaklar da (`index.html`, stiller, simgeler) `webMain/resources`'a.
@@ -251,10 +291,12 @@ map $uri $site_cache {
 | Emülatörün Chrome'u | Sistem imajının Chrome'u eskidir ve güncellenmeden kalır | Eski tarayıcı yolunu sınamak için tam da bu yüzden işe yarar |
 | Gradle'da sonlandırıcı | "Unable to make progress running work" | JS dağıtımı Wasm dağıtımının bağımlılığı olur, kopya yalnızca sonlandırıcı (3.2) |
 | `JsException` | JS'te iptali de yakalar | İptal önce yukarı gönderilir (4. bölüm) |
-| Webpack ve `import.meta.url` | Skia'nın JavaScript'indeki `import.meta.url`, pakete derleyen makinedeki dosya yolu olarak yazılır (`file:///Users/…`): herkese açık bir dosyada kullanıcı adı ve klasörler | Paket yalnızca yüklendiği klasörü bulmak için okur ve burada kullanmaz: bir webpack eklentisi, paket küçültüldükten sonra ve harita yazılmadan önce, her `"file:///…"` dizgisini boş dizgi yapar (`webpack.config.d/stripFilePaths.js`, 9. bölüm) |
+| Webpack ve `import.meta.url` | Skia'nın JavaScript'indeki `import.meta.url`, pakete derleyen makinedeki dosya yolu olarak yazılır (`file:///Users/…`): herkese açık bir dosyada kullanıcı adı ve klasörler | Paket yalnızca yüklendiği klasörü bulmak için okur ve burada kullanmaz: bir webpack eklentisi, paket küçültüldükten sonra ve harita yazılmadan önce, her `"file:///…"` dizgisini boş dizgi yapar (`webpack.config.d/stripFilePaths.js`, 3.3. bölüm) |
 | Klib'lerin kaynak yolları | Kotlin her modülün klib'ine kaynak dosyalarının derleyen makinedeki tam yolunu yazar; Wasm'a girerler (`/Users/…/src/commonMain/…`): herkese açık bir dosyada kullanıcı adı ve klasörler. Kütüphanenin klib'leri 0.1.1'den beri yolları deponun köküne göre yazar | Uygulamanın web için derlenen her modülünde `tasks.withType<Kotlin2JsCompile>().configureEach { compilerOptions.freeCompilerArgs.add("-Xklib-relative-path-base=${rootDir.absolutePath}") }`; Wasm'da `strings` ile `/Users/` aranır (8. bölüm) |
 | WebKit 27.2'nin Wasm derleyicisi | Uygulama ilk karesini çizer, sonra `SkiaParagraph.getBoundingBox`'ta `NullPointerException` ile durur; sayfa boş kalır, yükleyici JS'e geçmez | WebKit'e JS sürümü verilir (5.2). Bağlantılı her metin (`LinkAnnotation`, `PantrixLink`) tetikleyebilir; JS sürümünde yoktur |
 | Sayfanın dili | Uygulama içinde dil değiştirilince sayfanın `<html lang>`'ı açıldığı dilde kalır: ekran okuyucu Türkçe metni İngilizce telaffuzla okur, tarayıcı yanlış dilden çeviri önerir | Kütüphaneyle: en dıştaki `PantrixTheme` `locale`'inin dilini yazar ve izler. Kütüphanesiz: dil değiştikçe `document.documentElement.setAttribute("lang", etiket)` |
+| Ekran okuyucunun kopyası | Compose 1.12.2 anlam ağacını gizli bir DOM kopyasına yazar (`#cmp_a11y_root`, kökü `aria-live="polite"`), ama tek bir katmandan: bir menü, sheet ya da diyalog açılınca kopya onun öğeleriyle değişir, katman kapanınca o hâlde kalır. Sonra gösterilen bir snackbar'ın iletisi de sayfanın değişiklikleri de ekran okuyucuya gitmez | Compose 1.13.0 her katmanı tutar; kütüphane o kararlı olunca yükselir. O zamana kadar bir tarayıcı testi kopyaya bir katman açılmadan önce bakar; katman açılmamışsa snackbar'ın iletisi kopyada metin olarak durur ve söylenir |
+| Alanda basılan kısayol | Bir metin alanı odaktayken uygulamanın karşıladığı Cmd+F, Ctrl+H ya da F3 tarayıcının bul çubuğunu, geçmişini ya da sonraki eşleşmesini de açar: Compose alandaki tuşu tarayıcıdan sonra işler ve yalnızca Tab'ı tutar | Kütüphaneyle: `onShortcut` kendi kısayolunu tutar, kendi karşılanan tuşlar `Modifier.keepFromBrowser(shortcuts)`'a verilir ([klavye kısayolları rehberi](/docs/guides/keyboard-shortcuts), 3.4). Kütüphanesiz: odak alandayken pencerenin `keydown`'unda, yakalama aşamasında, o tuşlar için `preventDefault()` |
 | `adb screencap` | Birden çok ekranı olan bir emülatörde (katlanabilir) uyarı verir ve ilk ekranı alır | `-d <ekran>` ile ekran seçilir |
 :::
 

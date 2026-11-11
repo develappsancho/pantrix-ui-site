@@ -1,6 +1,6 @@
 ---
 title: Klavye kısayolları
-description: Compose Multiplatform'da bütün pencereye ait bir klavye kısayolunun (Cmd+K ya da Ctrl+K gibi) neden tek bir onPreviewKeyEvent ile çalışmadığı, kütüphanenin bunun için ne verdiği, bir kısayolun her sistemde nasıl yazıldığı ve bunun nasıl sınandığı. Sorun Pantrix'e özgü değildir: ortak kodunda bir uygulama kısayolu olan her Compose Multiplatform projesinde aynı şekilde görülür.
+description: Compose Multiplatform'da bütün pencereye ait bir klavye kısayolunun (Cmd+K ya da Ctrl+K gibi) neden tek bir onPreviewKeyEvent ile çalışmadığı, kütüphanenin bunun için ne verdiği, bir kısayolun her sistemde nasıl yazıldığı, web'de tarayıcıdan nasıl tutulduğu ve bunun nasıl sınandığı. Sorun Pantrix'e özgü değildir: ortak kodunda bir uygulama kısayolu olan her Compose Multiplatform projesinde aynı şekilde görülür.
 ---
 
 Compose hakkında burada söylenen her şey Compose Multiplatform 1.12.1'in kaynaklarında okunmuş ya da bu depoda koşan bir testte, bir cihazda veya tarayıcıda görülmüştür; hangisinin nerede görüldüğü 7. ve 8. bölümlerde yazılıdır.
@@ -13,6 +13,7 @@ Compose hakkında burada söylenen her şey Compose Multiplatform 1.12.1'in kayn
 *   Bir kısayol Apple'da Command ile, başka yerde Control ile başlar: `isMetaPressed` ile `isCtrlPressed`'ten hangisine bakılacağı sisteme göre değişir. Masaüstünde ve tarayıcıda hangi sistemde olunduğu `PlatformType`'tan anlaşılmaz.
 *   Kısayolu `KeyDown`'da çalıştırıp `true` dönen bir dinleyici, tuşun kalkışını (`KeyUp`) odaktaki kontrole bırakır. Enter'ı `KeyUp`'ta basan bir düğme, kendi başlamadığı bir basışın sonunu görür.
 *   Kısayolun yazılışı da sisteme göre değişir: Mac'te `⇧⌘K`, Windows'ta ve Linux'ta `Ctrl+Shift+K`.
+*   Tarayıcıda bir metin alanı odaktayken uygulamanın çalıştırdığı Cmd+F, tarayıcının bul çubuğunu da açar; Ctrl+H Windows'ta tarayıcının geçmişini, F3 tarayıcının sonraki eşleşmesini.
 
 :::sketch keyboard-shortcuts
 :::
@@ -36,7 +37,21 @@ Bunu yapan bir düğüm de iki şeye dikkat etmelidir:
 *   **Tab.** Odakta olan bir ata, Tab'ın tek boyutlu aramasında bir duraktır. Kök odaktayken Tab'a basılınca da Compose aramayı odaktakinin kardeşlerinde yapar; kökün kardeşi yoktur ve odak kökte kalır.
 *   **Başa dönüş.** Tab son kontrolden ilkine dönerken Compose önce odağı bırakır, sonra ilk kontrolü arar (`FocusOwnerImpl.moveFocus`: `clearFocus(…)` sonra `takeFocus(focusDirection, …)`). Odak bırakıldığı anda kendini odaklanabilir yapan bir kök, o aramada "ilk" olur.
 
-## 2. Çözüm: üç parça {#fix}
+Tarayıcıda bir tuş önce sayfaya gelir. Odakta bir metin alanı yokken Compose tuşu tuvalin `keydown`'unda hemen karşılar ve karşıladığını tarayıcıdan tutar (`preventDefault`). Bir metin alanı odaktayken tuş, Compose'un alanın yanına koyduğu gizli giriş öğesine gelir; Compose onu bir sonraki karede işler, tarayıcı ise tuşla yapacağını o zamana dek yapmıştır. Compose orada yalnızca Tab'ı tutar. `DomInputStrategy` (Compose Multiplatform 1.12.2, `webMain/androidx/compose/ui/platform/DomInputStrategy.kt`):
+
+```kotlin
+htmlInput.addEventListener("keydown", { evt ->
+    nativeInputEventsProcessor.registerEvent(evt as KeyboardEvent)
+    if (evt.keyCode == tabKeyCode) {
+        evt.preventDefault()
+    }
+    …
+})
+```
+
+Cmd ya da Ctrl olmadan bir karakter yazan tuşu (`isTypedEvent`) Compose hiç sahneye vermez: onu tarayıcı yazar, Compose yazılanı alır.
+
+## 2. Çözüm: dört parça {#fix}
 
 :::table
 | Parça | Ne yapar |
@@ -44,6 +59,7 @@ Bunu yapan bir düğüm de iki şeye dikkat etmelidir:
 | `PantrixShortcut(key, command, shift, alt)` | Bir tuş ve değiştiriciler. `command` Apple'da Command, ötekilerde Control'dür. `isPressedBy(event, system)`: tuşu inerken tam bu değiştiriciler basılı mı, başkası değil. `keysOn(system)`, `writtenOn(system)`: sistemin yazdığı gibi. |
 | `Modifier.onShortcut(shortcut) { … }` | Odak bu düğümdeyken ya da içindeyken kısayolu, odaktaki kontrolden önce duyar (`onPreKeyEvent`). Çalıştırdığı tuşun kalkışını da yutar. |
 | `Modifier.shortcutRoot()` | İçinde hiçbir şey odakta değilken odağı tutar; Tab için durak değildir. |
+| `Modifier.keepFromBrowser(shortcuts)` | Web'de, odak bu düğümdeyken ya da içindeyken kısayolları tarayıcıdan tutar: tuş inerken tarayıcıya onu bırakmasını söyler, Compose onu yine duyar. `onShortcut` kendi kısayolunu böyle tutar. Öteki platformlarda bir şey yapmaz. |
 :::
 
 `LocalOperatingSystem` (`foundation/platform`), kısayolun hangi sistemde basıldığını söyler: varsayılanı `currentOperatingSystem()`'dır; bir test başka bir sistem verir.
@@ -86,7 +102,27 @@ shortcut.writtenOn(OperatingSystem.Windows) // "Ctrl+Shift+R"
 shortcut.keysOn(LocalOperatingSystem.current) // tuş kapakları için, birer birer
 ```
 
+`PantrixKeycaps(shortcut)` bu tuşları bir menünün ya da bir kısayol listesinin yaptığı gibi her birini bir kapakta çizer; ekran okuyucu kısayolu bir kez, `writtenOn`'un yazdığı gibi duyar.
+
 Apple'ın sırası Option, Shift, Command ve tuştur; ötekilerinki Ctrl, Alt, Shift ve tuş. Harflerin, rakamların, okların, F1–F12'nin, Enter'ın, Escape'in, Tab'ın, boşluğun, Backspace'in, Delete'in, Home ile End'in, sayfa tuşlarının ve yaygın işaretlerin adı vardır; başka bir tuş `#numarası` diye yazılır.
+
+### 3.4. Tarayıcıdan tutmak
+
+`onShortcut` kendi kısayolunu kendiliğinden tutar. Bir düğümün kendi karşıladığı tuşlar, örneğin `onPreviewKeyEvent` ile karşılananlar, `keepFromBrowser`'a verilir:
+
+```kotlin
+val find = PantrixShortcut(Key.F, command = true)
+val system = LocalOperatingSystem.current
+PantrixTextArea(
+    state = text,
+    modifier = Modifier
+        .keepFromBrowser(listOf(find))
+        .onPreviewKeyEvent { event -> find.isPressedBy(event, system).also { if (it) finding = true } },
+    label = "Metin"
+)
+```
+
+Yalnızca uygulamanın karşıladığı tuşlar verilir: tarayıcıdan tutulan bir tuş, uygulama onunla bir şey yapmasa da tarayıcıda hiçbir şey yapmaz. `PantrixCodeEditor` kendi tuşlarını böyle tutar: bulmak, sonraki ve önceki eşleşme, değiştirmek, satırları silmek, yorum ve eşleşen ayraç.
 
 ## 4. Pantrix olmadan {#without}
 
@@ -147,13 +183,27 @@ val pressed = event.type == KeyEventType.KeyDown && event.key == key && lead == 
     event.isShiftPressed == shift && event.isAltPressed == alt
 ```
 
+Web'de tuşu tarayıcıdan tutan, odak düğüme gelince pencereye konan ve odak gidince kaldırılan bir dinleyicidir (`ui/foundation/src/webMain/.../keyboard/KeepFromBrowser.web.kt`). Yakalama aşamasında, tuş alanın giriş öğesine inerken çalışır ve sayfadan bir şey almaz:
+
+```kotlin
+val listener: (Event) -> Unit = { event ->
+    val key = event as? KeyboardEvent
+    val types = key != null && !key.metaKey && !key.ctrlKey && key.key.length == 1
+    if (key != null && !key.isComposing && !types && pressesAShortcut(key)) event.preventDefault()
+}
+window.addEventListener("keydown", listener, true)
+// odak düğümden çıkınca: window.removeEventListener("keydown", listener, true)
+```
+
+Tuş, Compose'un okuduğu gibi klavyedeki yerinden eşleştirilir (`KeyboardEvent.code`: `KeyF`, `Slash`, `F3`).
+
 ## 5. Yardımcının yapmadıkları {#limits toc="5. Yapmadıkları"}
 
 *   **Uygulama odakta değilken.** Kısayol yalnızca uygulamanın penceresi odaktayken duyulur; sistem genelinde bir kısayol (uygulama arkadayken) yoktur.
 *   **Sıralı kısayollar.** "G, sonra I" gibi iki basışlı kısayollar yoktur.
 *   **Basılı tutma.** Tuş basılı tutulup yinelenince kısayol her yinelemede yeniden çalışır; yinelemeyi ayıran ortak bir işaret yoktur.
 *   **Çakışma.** İki kısayolun aynı tuşu aldığı bildirilmez: dıştaki çalışır, `commandShortcuts`'ta listedeki ilki.
-*   **Tarayıcının kendi kısayolları.** Ctrl+W, Ctrl+T, Cmd+Q gibi tarayıcının ya da sistemin tuttuğu kısayollar sayfaya hiç gelmez.
+*   **Tarayıcının kendi kısayolları.** Ctrl+W, Ctrl+T, Cmd+Q gibi tarayıcının ya da sistemin tuttuğu kısayollar sayfaya hiç gelmez; `keepFromBrowser` da onları tutamaz.
 *   **iPad'in kısayol listesi.** iPad'de ⌘ basılı tutulunca çıkan liste (`UIKeyCommand`) doldurulmaz.
 
 ## 6. Test etmek {#testing}
@@ -176,6 +226,8 @@ onNodeWithTag("field").performKeyInput { withKeyDown(Key.MetaLeft) { pressKey(Ke
 
 *   **Tarayıcıda ilk tıklama.** Sayfa açılınca DOM odağı Compose'un öğesinde değildir; ilk tıklamaya kadar tuşlar Compose'a hiç gelmez, kök odakta olsa da. Bu tarayıcının sınırıdır; `shortcutRoot` ondan sonrasını çözer (bu depoda tarayıcıda görüldü: kök odaktaydı, tuş olayı kısayol düğümüne tıklamadan sonra geldi).
 *   **Değiştiricisi ayrıca basılmayan yapay olaylar.** Bir otomasyon aracı Cmd+K'yı yalnızca `metaKey: true` taşıyan bir K olarak gönderirse Compose web onu Meta'yla basılmış saymaz: değiştiricileri kendi gördüğü tuş inişlerinden okur. Önce Meta'nın, sonra K'nın inişi gönderilince kısayol çalışır. Gerçek bir klavyede sorun yoktur.
+*   **Alanda yazan tuş tarayıcıdan tutulmaz.** Cmd ya da Ctrl olmadan bir karakter yazan bir kısayol (`/`, ya da Option ile bir harf) bir alanda tarayıcıdan tutulsaydı alan onu yazamazdı; Compose da onu kısayola vermez. `keepFromBrowser` böyle bir tuşu bırakır.
+*   **AltGr.** Windows'ta AltGr, Ctrl ile Alt birlikte basılmış gibi gelir ve birçok dilde bir harf ya da işaret yazar (Lehçede AltGr+Z "ż", Macarcada AltGr+F "["). `PantrixShortcut` değiştiricileri tam eşleştirdiği için Ctrl'li bir kısayol AltGr'yle basılmaz; Ctrl ve Alt'lı bir kısayol ise Windows'ta o harfin yerini alır, verilmemelidir.
 *   **`focusProperties` sırası.** `Modifier.focusProperties { canFocus = false }` yalnızca kendisinden **sonra** gelen odak hedefini etkiler. `.clickable(…).focusProperties { … }` tıklanabilirin odak hedefini kapatmaz; önce `focusProperties`, sonra `clickable` yazılmalıdır (komut paletinin satırlarında bulundu: odak alana değil ilk satıra gidiyordu).
 *   **Modal içinde odak istemek.** Bir modal'ın içeriğinde `LaunchedEffect` içinde hemen istenen odak sessizce başarısız olur: pencere içeriğini yerleştirmeden önce bir alan odak almaz. Bir kare beklenir (`withFrameNanos {}`), Pantrix'in modal'ı da öyle yapar.
 
@@ -189,6 +241,8 @@ onNodeWithTag("field").performKeyInput { withKeyDown(Key.MetaLeft) { pressKey(Ke
 | `foundation/.../keyboard/ShortcutsTest` | Yazılış (Apple ve ötekiler, her adlı tuş), eşitlik, tam değiştiricilerle basılma, odaktakine verilmeyen iniş ve kalkış, dıştakinin kazanması, kökün başta ve odak bırakılınca odağı alması, Tab'ın kökü atlaması | JVM, iOS simülatörü, JS, Wasm |
 | `components/.../CommandShortcutsTest` | Her komutun kısayolu, çalıştırılamayanın tuşu geçirmesi, ilkinin kazanması | JVM, iOS, JS, Wasm |
 | `components/.../CommandPaletteTest` | Paletin satırlarında kısayolun sistemin yazdığı gibi durum olarak okunması | JVM, iOS, JS, Wasm |
+| `foundation/.../keyboard/KeepFromBrowserOnTheWebTest` | Kısayolun yalnızca kendi değiştiricileriyle tutulması; öteki tuşların, alanda yazan tuşun ve AltGr'nin bırakılması; düğümün odak içindeyken tutup odak gidince bırakması; `onShortcut`'ın çalışırken kendi tuşunu tutması | JS, Wasm |
+| `components/.../CodeEditorOnTheWebTest` | Editör odaktayken Ctrl+F'nin ve Ctrl+H'nin tutulması; AltGr+F'nin ve salt okunur editörde Ctrl+H'nin bırakılması | JS, Wasm |
 :::
 
 Android'in ana makine testleri `commonTest`'i görmez (bkz. ROBORAZZI_GUIDE.md).
@@ -197,12 +251,14 @@ Android'in ana makine testleri `commonTest`'i görmez (bkz. ROBORAZZI_GUIDE.md).
 
 *   **Android emülatörü:** uygulama açılır açılmaz, hiçbir şeye dokunmadan `adb shell input keycombination KEYCODE_CTRL_LEFT KEYCODE_K` demo'nun paletini açtı.
 *   **Tarayıcı (Chrome, macOS):** bir tıklamadan sonra Cmd+K (önce Meta'nın inişiyle) paleti açtı.
+*   **Yerleşik tarayıcı (Chromium, macOS):** demo'nun kod editöründe Cmd+F'nin tuş olayı tarayıcıya tutulmuş (`defaultPrevented`) gitti ve editörün bul çubuğu açıldı; Cmd+K'nın tuş olayı tutulmadı.
 
 ### Doğrulanmayanlar
 
 *   iOS'ta donanım klavyesiyle Cmd+K: simülatörde Cmd+K, simülatörün kendi "yazılım klavyesini aç/kapa" kısayoludur ve uygulamaya gelmez.
 *   Masaüstü uygulaması elle.
 *   Bir ekran okuyucunun kısayolları seslendirmesi.
+*   Chrome'da, Safari'de ve Firefox'ta gerçek bir klavyeyle tarayıcının bul çubuğunun, geçmişinin ve konsolunun açılmadığı: yerleşik tarayıcının kendi bul çubuğu yoktur; tutulduğu tuş olayının `defaultPrevented`'ından okundu.
 
 ## 9. Bu depoda nerede {#repository toc="9. Depoda"}
 
@@ -211,6 +267,8 @@ Android'in ana makine testleri `commonTest`'i görmez (bkz. ROBORAZZI_GUIDE.md).
 | :--- | :--- |
 | `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/keyboard/PantrixShortcut.kt` | `PantrixShortcut`, tuş adları |
 | `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/keyboard/Shortcuts.kt` | `onShortcut`, `shortcutRoot` |
+| `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/keyboard/KeepFromBrowser.kt` | `keepFromBrowser` |
+| `ui/foundation/src/webMain/kotlin/com/pantrixui/foundation/keyboard/KeepFromBrowser.web.kt` | Web'de tuşu tarayıcıdan tutan dinleyici, tuşların klavyedeki yerlerinin adları |
 | `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/platform/OperatingSystem.kt` | `OperatingSystem`, `LocalOperatingSystem` |
 | `ui/components/src/commonMain/kotlin/com/pantrixui/components/overlay/commandpalette/CommandShortcuts.kt` | `commandShortcuts` |
 | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/shell/DemoCommands.kt` | Demo'nun kökü ve kendi paleti |

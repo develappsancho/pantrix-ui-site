@@ -12,6 +12,23 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Added
+
+- **Four guides:** the app's own words in its reader's language, sending a text to another app, previewing a screen's
+  states and a small semantics tree for iOS, each with a sketch to try.
+
+### Changed
+
+- **Pantrix UI 0.2.1:** the lines that install the library, on the home page, in Installation and for coding
+  assistants, the AI page's files and the skill; the site counts 108 components and 29 guides.
+- **Installation:** the dependency in a version catalog too, with the tests' lines; how to make GitHub's token and the
+  two lines it takes; what a project from Android Studio's wizard changes; the first example's text and imports; a
+  brand example whose names exist; the `compileSdk` the packages ask for; and the web's row leads to the loader that
+  gives Safari the JavaScript build.
+- **The page for coding assistants:** the skill's eleven rules, all it keeps; and Claude Code's plugin installed for
+  the whole project, with a new session to list it.
+- **Roadmap:** 0.2.0 among the versions, and server-driven UI planned for 0.3.0.
+
 ## [26.11.7] - 2026-11-07
 
 The site read again on a phone and a desktop: the home page's tour keeps its button and one height, a step's

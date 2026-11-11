@@ -9,6 +9,17 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Eklenenler
+
+- **Dört rehber:** uygulamanın kendi sözleri okurunun dilinde, bir metni başka bir uygulamaya göndermek, bir ekranın hâllerini önizlemek ve iOS için küçük bir semantik ağaç; her biri denenecek bir çizimle.
+
+### Değişenler
+
+- **Pantrix UI 0.2.1:** kütüphaneyi kuran satırlar, ana sayfada, Kurulum'da ve kodlama asistanları için, yapay zekâ sayfasının dosyaları ve beceri; site 108 bileşen ve 29 rehber sayar.
+- **Kurulum:** bağımlılık bir sürüm kataloğuyla da, testlerin satırlarıyla; GitHub'ın token'ının nasıl alındığı ve aldığı iki satır; Android Studio sihirbazından gelen bir projede neyin değiştiği; ilk örneğin metni ve importları; adları var olan bir marka örneği; paketlerin istediği `compileSdk`; ve web'in satırı Safari'ye JavaScript sürümünü veren yükleyiciye götürür.
+- **Kodlama asistanları sayfası:** becerinin on bir kuralı, tuttuğunun hepsi; ve Claude Code'un eklentisi bütün proje için kurulur, onu gösteren yeni bir oturumla.
+- **Yol haritası:** sürümler arasında 0.2.0, ve sunucu güdümlü UI 0.3.0 için planlandı.
+
 ## [26.11.7] - 2026-11-07
 
 Site telefonda ve masaüstünde yeniden okundu: ana sayfanın turu düğmesini ve tek yüksekliğini korur, bir adımın "isteğe bağlı" sözü ve uyarlanabilir sayfanın çizimleri artık harf harf dizilmez, belgelerin başlıkları da başlık olarak okunur.

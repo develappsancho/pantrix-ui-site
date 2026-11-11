@@ -25,7 +25,7 @@ Compose hakkında söylenen her şey Compose Multiplatform 1.12.2'nin ve compose
 *   **Tema varsayılanlarını cihazdan okur.** Bir uygulama için doğru olan budur: sistemin dili, karanlık modu, yazı ölçeği, hareketi azaltma ayarı, işletim sistemi. Bir test için her biri makineye bağlı bir girdidir.
 *   **Compose'un test panosu sistemindir.** `LocalClipboard` testte de makinenin panosunu verir; `rememberFilePicker()` platformun seçicisini açar.
 *   **Saat cihazındır.** Bugün `Clock.System`'dan ve cihazın UTC farkından (`systemUtcOffset`) okunur.
-*   **Bazı bulgular geç gelir.** Tanılama, sıkışmış bir dokunma hedefini yarım saniye, iki düğümde aynı etiketi bir buçuk saniye sürünce bildirir: bir sayfa geçişi, sürdüğü boyunca, iki sayfayı birlikte gösterir (Android'de 700 ms).
+*   **Bazı bulgular geç gelir.** Tanılama, sıkışmış bir dokunma hedefini yarım saniye, iki düğümde aynı etiketi ve boş bir adı bir buçuk saniye sürünce bildirir: bir sayfa geçişi, sürdüğü boyunca, iki sayfayı birlikte gösterir (Android'de 700 ms), uygulamanın kaynaklarından okunan sözcükler de tarayıcıda birkaç kare geç gelir.
 *   **Robolectric yalnızca bir manifest'in bildirdiği etkinliği başlatır.** androidx'in `ui-test-manifest`'i bu etkinliği bildirir ama androidx Compose'un sürümüyle gelir, Compose Multiplatform'unkiyle değil.
 *   **Cihaz otomasyonu platformun erişilebilirlik ağacını okur.** Android'de etiket ancak `testTagsAsResourceId` açıkken `resource-id` olur; iOS'ta Compose `testTag`'i kendisi `accessibilityIdentifier` yapar. Web'de Compose bir tuvale çizer; anlam ağacının gizli bir DOM aynası vardır, ama bir shadow root'un içindedir (8. bölüm).
 
@@ -53,7 +53,7 @@ Test modülü `ui/testing`, `com.pantrixui:testing` olarak yayınlanır; paketi 
 kotlin {
     sourceSets {
         commonTest.dependencies {
-            implementation("com.pantrixui:testing:0.1.1")
+            implementation("com.pantrixui:testing:0.2.1")
             implementation(kotlin("test"))
         }
         // runComposeUiTest masaüstünde gerçekten çizer: test JVM'i bu makinenin Skiko'sunu ister.
@@ -63,8 +63,11 @@ kotlin {
 ```
 
 *   **Yalnızca test kaynak kümelerine.** Modülün Android tarafı `androidx.activity.ComponentActivity`'yi kendi manifest'inde bildirir; bir uygulamanın kendi derlemesine girerse bu etkinliği de taşır.
-*   **Android'in host testleri.** Android'in host testleri ayrı bir kaynak ağacındaysa (`androidHostTest`), modül oraya ayrıca eklenir. Bağımlı olunca etkinlik testin manifest'ine birleşir; testin kendi `AndroidManifest.xml`'ine gerek kalmaz (`TestingOnAndroidTest` bu yüzden manifest'sizdir).
+*   **Android'in host testleri.** Kotlin Multiplatform'un Android eklentisinde `withHostTest {}` host testlerini ortak kaynak kümesi ağacına koyar: her `commonTest` testi orada, altında Android olmayan düz JUnit ile ikinci kez derlenir ve koşar; aralarındaki her UI testi düşer (Pantrix'inkiler boş bir `Build.FINGERPRINT`'te düştü). Kendi ağaçları onları ayırır: `withHostTestBuilder { sourceSetTreeName = "androidScreenshot" }.configure { isIncludeAndroidResources = true }`; ad `test`'ten başka herhangi biri olabilir. Modül o zaman `androidHostTest`'e de eklenir. Bağımlı olunca etkinlik testin manifest'ine birleşir; testin kendi `AndroidManifest.xml`'ine gerek kalmaz (`TestingOnAndroidTest` bu yüzden manifest'sizdir).
+*   **Robolectric'te Android 17.** Pantrix'in kendi host testleri API 34'te koşar (`@Config(sdk = [34])`). Host testleri API 37'de koşan bir uygulamaya iki şey daha gerekir; bunlar bu depoda değil, bir uygulamanın testlerinde görüldü: Espresso 3.7.0 (`androidx.test.espresso:espresso-core:3.7.0`), çünkü Compose Multiplatform 1.12.2'nin ui-test'inin getirdiği 3.5.0 Android 17'den artık olmayan bir `InputManager.getInstance()` ister; ve JDK 21'de host testinin görevine `jvmArgs("--add-exports=java.base/jdk.internal.access=ALL-UNNAMED")`, Robolectric 4.17'nin Android 17'si bunu ister.
 *   **Deneysel API.** `ComposeUiTest` ve `runComposeUiTest` compose ui-test'te `@ExperimentalTestApi`'dir. Onu alan yardımcılar (`onEachPlatform`, `assertNoFindings`) da öyledir; bulma yardımcıları değildir.
+*   **Testin koşucusu v2'ninkidir.** `runComposeUiTest` `androidx.compose.ui.test.v2`'den içe aktarılır: Compose Multiplatform 1.12.2 `androidx.compose.ui.test`'tekini kullanımdan kalkmış sayar, v2 ekranın eşyordamlarını bir `StandardTestDispatcher`'da koşar. Pantrix'in yardımcıları ikisinin `ComposeUiTest`'ini de alır; Pantrix'in kendi testleri v2'yi kullanır.
+*   **Bir convention eklentisinde.** Kotlin sınıfı olarak yazılan bir Gradle eklentisinde `compose` erişicisi yoktur: masaüstü satırı, Pantrix'in kendi derlemesindeki gibi, `implementation(extensions.getByType<ComposeExtension>().dependencies.desktop.currentOs)`'tur.
 
 ### 3.2. Bir bileşeni bulmak
 
@@ -105,7 +108,7 @@ onPantrixNode("Segment", "newest", scope = "SegmentButton_sort") // bir kontrol�
 | `locale` | `PantrixLocale.English` | Yazının yönü de onunla gelir |
 | `density` | `PantrixDensity.Comfortable` | |
 | `fontScale` | `1f` | Yalnızca yazı büyür; ekranın pikselleri aynı kalır |
-| `window` | `null`: testin çizdiği pencere | Verilirse `PantrixWindowFrame` içinde: katlar ve katmanlar ona göre |
+| `window` | `null`: testin çizdiği pencere | Verilirse `PantrixWindowFrame` içinde: katlar ve katmanlar ona göre, içinde açılan bir katman testin bütün yerini örter |
 | hareket | Azaltılmış | Hiçbir şey yarı yolda yakalanmaz; bir snackbar bir karede girer ve çıkar |
 | `findings` | `null`: tanılama açık, bulgular günlüğe | Verilirse bulgular orada toplanır (3.5) |
 | `analytics`, `haptics` | `NoOp` | Kaydedici verilince ekranın söyledikleri tutulur (3.4) |
@@ -127,6 +130,17 @@ fun pay_is_told_and_the_screen_has_no_findings() = runComposeUiTest {
 }
 ```
 
+**Pencere ekrana söylenendir, çizildiği boy değil.** Test kendi yerinde çizer: masaüstünde 1024×768 piksel, Robolectric'te 320dp genişlik. `PantrixWindow(DpSize(1440.dp, 900.dp))` denen bir ekran o yerde dizilir, düğmelerine dar gelen bir araç çubuğu da. Bir genişliğin düzeni o boyda sınanır: masaüstünde Compose'un `runDesktopComposeUiTest(width, height)`'iyle, iOS'ta ve web'de `runSkikoComposeUiTest(size = …)` ile, ortak bir testte de ekranı temanın içinde o boyda bir kutuya koyarak. Testin yerinin dışında kalan çizilmez, oraya bir basış da boşa gider. Kutu yerin sol üst köşesinden başlar ve sağa ve aşağı taşar (`wrapContentSize(Alignment.TopStart, unbounded = true)`): `requiredSize` yerinden büyük bir kutuyu ortalardı, 1024×768'lik yerde 1440×900'lük ekranın soldan 208 ve üstten 66 pikseli, üst barı da, dışarıda kalırdı.
+
+```kotlin
+val window = PantrixWindow(DpSize(1440.dp, 900.dp))
+setContent {
+    PantrixTestTheme(platform = PlatformType.Desktop, window = window) {
+        Box(Modifier.wrapContentSize(Alignment.TopStart, unbounded = true).size(window.size)) { TableScreen() }
+    }
+}
+```
+
 **Her platformda:** `onEachPlatform(content, check)` ekranı dört platformda sırayla, testin tek koşusunda kurar. Web'de bir koşu, testin geri verdiği bir söz (promise) olduğundan, bir döngüden başlatılan koşuları kimse beklemez; onlarda düşen hiçbir testi düşürmez.
 
 ```kotlin
@@ -140,7 +154,7 @@ onEachPlatform({ platform -> PantrixTestTheme(platform = platform) { SaveButton(
 :::table
 | Çift | Ne tutar, nasıl cevap verir |
 | :--- | :--- |
-| `TestClipboard(traits)` | Ekranın kopyaladığını, sırayla. `text()` ve `texts()` platformun okuduğu gibi okur: Android'de `ClipData`'nın ilk öğesi, masaüstünde `Transferable`'ın metni, iOS'ta düz metin, web'de `text/plain`. Web'de okumak tarayıcıyı bekler (`suspend`). `traits` ekrana platformun huyu olarak söylenir: `ClipboardTraits(announcedBySystem = true)` Android 13, `ClipboardTraits(writable = false)` düz http'den sunulan bir sayfa. Compose'un metin alanının sorduğu platform panosu da (`nativeClipboard`) testindir: masaüstünde son kopyayı tutan kendi AWT panosu, iOS'ta genel pasteboard'dan ayrı, kendi adlı bir pasteboard |
+| `TestClipboard(traits)` | Ekranın kopyaladığını, sırayla. `text()` ve `texts()` platformun okuduğu gibi okur: Android'de `ClipData`'nın ilk öğesi, masaüstünde `Transferable`'ın metni, iOS'ta düz metin, web'de `text/plain`. Web'de okumak tarayıcıyı bekler (`suspend`). `traits` ekrana platformun huyu olarak söylenir: `ClipboardTraits(announcedBySystem = true)` Android 13, `ClipboardTraits(writable = false)` düz http'den sunulan bir sayfa. Compose'un metin alanının sorduğu platform panosu da (`nativeClipboard`) testindir: masaüstünde son kopyayı tutan kendi AWT panosu, iOS'ta genel pasteboard'dan ayrı, kendi adlı bir pasteboard. `putText(text)` panoya başka bir uygulamanın kopyaladığı gibi bir metin koyar: ekranın `readText()`'i onu okur, masaüstünde, Android'de ve iOS'ta ⌘V ya da Ctrl+V'si de; web'de ⌘V tarayıcının kendi yapıştırmasıdır, onu sayfaya `performPaste` gönderir (3.5) |
 | `RecordingAnalytics()` | Bileşenlerin bildirdiği olayları sırayla: `events`, `eventsOf("Button")` |
 | `RecordingHaptics()` | Çalınan dokunsal geri bildirimleri sırayla: `played` |
 | `TestFilePicker(files)` | Her seçime `files` ile cevap verir: yalnızca seçicinin gösterdiği türlerden, tek dosya istenmişse ilkiyle; hiçbiri uymuyorsa cevap vermez, seçiciyi kapatan bir kullanıcı gibi. `requests` her seçimin ne istediğini tutar |
@@ -173,6 +187,7 @@ CompositionLocalProvider(LocalPantrixClock provides PantrixClock(clock) { 3.hour
 | `assertHasName(name)` | Ekran okuyucunun düğüme verdiği ad: içerik açıklaması, yoksa yazısı |
 | `assertTouchTargetOf(platform)` | Parmağın basabileceği alan platformun istediği kadar: Android'de 48dp, iOS'ta 44pt, masaüstünde ve web'de fareyle 32dp. Ölçülen, basışı alan bölgedir, çizilen değil |
 | `performShortcut(shortcut, system)` | Kısayola o sistemin klavyesi gibi basar: Apple'ın sistemlerinde Command, ötekilerde Control ile. Ekranın da o sistemde yazıldığını `PantrixTestTheme(system = …)` söyler |
+| `performPaste(text, clipboard, system)` | Düğümde yapıştırma tuşuna o sistemin klavyesi gibi basar, önce metni panoya koyar: `Modifier.onPaste`'in duyduğu her platformda o metindir. Web'de tuş inikken sayfaya tarayıcının yapıştırmasını da gönderir, odaktaki öğeden yükselen bir `paste`; tarayıcı yapıştırmayı makinenin panosundan verir ve bir testin tuşu onu getirmez. `clipboard` temaya verilen pano, `system` `PantrixTestTheme(system = …)`'dir. Bir metin alanına `performTextInput` ile yazılır |
 | `readText()` | Düğümün gösterdiği yazı: bir metin alanının tuttuğu, yoksa yazıları ve birleştirdiklerinin yazıları, satır satır |
 :::
 
@@ -180,7 +195,75 @@ Piksel ve renk yardımcıları modülde yoktur: bir rengi pikselde aramak bileş
 
 ### 3.6. Ekran görüntüleri
 
-Ekran görüntüsü testleri için modülde bir yardımcı yoktur ve modül Roborazzi'ye bağlanmaz: hangi platformda, hangi araçla ve nereye kaydedileceği uygulamanın seçimidir. Pantrix'in kendi kurulumu Roborazzi rehberindedir. Bir uygulama için özeti:
+Ekran görüntüsü testleri için modülde bir yardımcı yoktur ve modül Roborazzi'ye bağlanmaz: hangi platformda, hangi araçla ve nereye kaydedileceği uygulamanın seçimidir. Pantrix'in kendi kurulumu, bir uygulamanın modülü için yazılmış hâliyle:
+
+```kotlin
+// Ortak modülün build.gradle.kts'i.
+plugins {
+    id("io.github.takahirom.roborazzi") version "1.77.0"
+}
+
+kotlin {
+    sourceSets {
+        jvmTest.dependencies { implementation("io.github.takahirom.roborazzi:roborazzi-compose-desktop:1.77.0") }
+        iosTest.dependencies { implementation("io.github.takahirom.roborazzi:roborazzi-compose-ios:1.77.0") }
+        // Kendi ağacında (3.1) commonTest'ten hiçbir şey onunla gelmez.
+        getByName("androidHostTest").dependencies {
+            implementation("io.github.takahirom.roborazzi:roborazzi:1.77.0")
+            implementation("io.github.takahirom.roborazzi:roborazzi-compose:1.77.0")
+            implementation("org.robolectric:robolectric:4.17")
+            implementation("org.jetbrains.compose.ui:ui-test:1.12.2")
+            implementation("com.pantrixui:testing:0.2.1")
+        }
+    }
+}
+
+roborazzi {
+    outputDir.set(layout.projectDirectory.dir("screenshots"))
+}
+
+// captureRoboImage'a verilen dosya adı, iOS'taki gibi JVM'de ve Android'de de outputDir'e düşer.
+tasks.withType<Test>().configureEach {
+    systemProperty("roborazzi.record.filePathStrategy", "relativePathFromRoborazziContextOutputDirectory")
+}
+```
+
+```kotlin
+// jvmTest: verilen boyda, bu makinenin Skia'sıyla çizilir.
+@OptIn(ExperimentalTestApi::class)
+class CheckoutScreenshotTest {
+    @Test
+    fun checkout() = runDesktopComposeUiTest(width = 1024, height = 768) {
+        setContent { PantrixTestTheme(platform = PlatformType.Desktop) { CheckoutScreen() } }
+        onRoot().captureRoboImage("Checkout.png") // io.github.takahirom.roborazzi.captureRoboImage
+    }
+}
+
+// androidHostTest: Robolectric'te, Android'in kendi çizicisiyle.
+@RunWith(RobolectricTestRunner::class)
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+@Config(sdk = [34], qualifiers = "w400dp-h800dp-mdpi")
+class CheckoutScreenshotOnAndroidTest {
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun checkout() = runComposeUiTest {
+        setContent { PantrixTestTheme { CheckoutScreen() } }
+        onRoot().captureRoboImage("Checkout.png") // com.github.takahirom.roborazzi.captureRoboImage
+    }
+}
+
+// iosTest: simülatörde.
+@OptIn(ExperimentalTestApi::class)
+class CheckoutScreenshotOnIosTest {
+    @Test
+    fun checkout() = runComposeUiTest {
+        setContent { PantrixTestTheme(platform = PlatformType.Ios) { CheckoutScreen() } }
+        onRoot().captureRoboImage(this, filePath = "Checkout.png") // io.github.takahirom.roborazzi.captureRoboImage
+    }
+}
+```
+
+Referanslar her platformun test görevinde (`jvmTest`, `testAndroidHostTest`, `iosSimulatorArm64Test`) `-Proborazzi.test.record=true` ile kaydedilir, `verifyRoborazzi` ile denetlenir. Pantrix'in bundan öğrendikleri:
 
 *   **Üç platform.** Masaüstü (`jvmTest`, `io.github.takahirom.roborazzi.captureRoboImage`), Android (`androidHostTest`, Robolectric, `@GraphicsMode(GraphicsMode.Mode.NATIVE)`, `com.github.takahirom.roborazzi.captureRoboImage`) ve iOS (`iosTest`, `captureRoboImage(this, filePath = …)`). Web'de Roborazzi yoktur.
 *   **Sahneyi `PantrixTestTheme` kurar.** Tema, platform, dil ve yazı ölçeği sabitlenmezse görüntü makineden makineye değişir. Tarih gösteren bir sahne bir `TestClock` almalıdır: yoksa görüntü her ay değişir.
@@ -246,7 +329,168 @@ Demo'nun `MaestroFlowsTest`'i (JVM) akışların kataloğun gerisinde kalmadığ
 *   iOS görevinde Xcode'un derleme aşaması ortak modülün kendi Gradle görevini çağırır (`embedAndSignAppleFrameworkForXcode`): içteki Gradle ikinci bir daemon açar, dıştakini beklemez.
 *   **Süre:** bütün akışlar bir platformda üç saat kadar sürer; bir sayfa bir buçuk dakika kadar, bir örnek sekiz dokuz saniye. Zamanın çoğu Maestro'nun her basıştan sonra ekranın durulmasını beklemesidir. Bir bölüm ya da bir etiket daha çabuk biter: `-Pmaestro.flows`, `-Pmaestro.include=smoke`.
 
+**Bir uygulamada.** Yukarıdaki görevler demo'nundur, bu deponun derlemesindedir; bir uygulama onları hiçbir eklentiden almaz. Bir Android uygulaması için aynısı, kopyalanacak iki görev olarak: `-Pmaestro.device` cihazı, `-Pmaestro.flows` projenin kökünden akışları adlandırır; rapor `build/maestro/report.xml`'dir. iOS'ta derleme `xcrun simctl install <udid> <app>` ile kurulur, `maestro test` aynı biçimde koşar.
+
+```kotlin
+// androidApp/build.gradle.kts: debug derlemesini tek bir cihaza kurar, sonra akışları onda koşar.
+val maestroDevice = providers.gradleProperty("maestro.device")
+val maestroFlows = providers.gradleProperty("maestro.flows").orElse("maestro")
+
+val installForMaestro by tasks.registering(Exec::class) {
+    dependsOn("assembleDebug")
+    val apk = layout.buildDirectory.file("outputs/apk/debug/androidApp-debug.apk").get().asFile
+    commandLine(buildList {
+        add("adb")
+        maestroDevice.orNull?.let { addAll(listOf("-s", it)) }
+        addAll(listOf("install", "-r", apk.path))
+    })
+}
+
+val maestroTest by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Runs the Maestro flows on the device the debug build was installed on."
+    dependsOn(installForMaestro)
+    val report = layout.buildDirectory.file("maestro/report.xml").get().asFile
+    commandLine(buildList {
+        addAll(listOf("maestro", "test"))
+        maestroDevice.orNull?.let { addAll(listOf("--device", it)) }
+        addAll(listOf("-e", "APP_ID=com.example.app.debug", "--format", "junit", "--output", report.path))
+        addAll(maestroFlows.get().split(',').map { rootProject.file(it).path })
+    })
+}
+```
+
 **Ne zaman hangisi:** Ekranın davranışı, erişilebilirliği ve platform kuralları ortak testlerde (`runComposeUiTest`), beş hedefte sınanır. Maestro gerçek bir cihazda, gerçek bir uygulamanın kurulduğunu ve etiketlerin sisteme ulaştığını gösterir; klavyeyi, sistem çubuklarını ve gezinmeyi de içerir.
+
+### 3.8. Tarayıcıda
+
+Ortak testler tarayıcıda da koşar (`jsBrowserTest`, `wasmJsBrowserTest`), Compose Multiplatform 1.12.2'nin şartlarıyla:
+
+*   **Bir yürütülebilir.** Compose, öyle derlenmeyen bir web hedefinde hiçbir UI testini koşmaz: `js { browser() }`'da ve `wasmJs { browser() }`'da `binaries.executable()` (CMP-4906).
+*   **JS'te Skiko.** JS hedefinde her UI testi "org_jetbrains_skia_Surface__1nMakeRasterN32Premul is not defined" ile düşer: Compose Skiko'nun çalışma zamanını test paketinin yanına kopyalar, ama onu hiçbir şey yüklemez. Modülün `karma.config.d`'sindeki bir dosya çalışma zamanını sunar ve testleri `awaitSkiko` çözülene kadar bekletir; Compose Multiplatform 1.13 aynısını kendisi üretir. Wasm Skiko'yu kendisi yükler.
+*   **Süre.** Mocha bir teste iki saniye verir; tarayıcıda Skiko'yla çizilen bir UI testi, hiçbir şey ters gitmeden onları aşar: Pantrix yirmi verir.
+*   **Beklemek.** Tarayıcıda `waitUntil` sayfanın tek iş parçacığını tutar ve testin beklediği, `Dispatchers.Default`'taki bir iş ya da bir indirme, hiç koşmaz. Test bunun yerine gerçek zamanda bekler: `withContext(Dispatchers.Default) { delay(50) }`, ardından `awaitIdle()`.
+*   **Uygulamanın kendi sözleri.** Bir uygulamanın Compose'un kaynaklarından okuduğu metni (`stringResource`) tarayıcı indirir: Karma test paketinin `kotlin/composeResources/`'unu sunmalı ve `/composeResources/`'u oraya göndermelidir; test onu yukarıdaki gibi bekler. Bir uygulamanın testlerinde görüldü; Pantrix'in kendileri hiçbirini okumaz.
+
+Pantrix'in iki dosyası; `config/karma/js/`'te ve `config/karma/wasm/`'dadırlar ve Kotlin'in Karma'sına `useConfigDirectory` ile verilirler; bir uygulamanın modülünde onun `karma.config.d/`'sinde dururlar:
+
+```javascript
+// karma.config.d/mocha-timeout.js, iki hedef için.
+// Mocha's two seconds, raised for Compose UI tests.
+//
+// A test here draws through Skiko in a browser, and the heavier ones take longer than two seconds with nothing
+// wrong: a drag injected in real time, anything at all while a full build loads the machine. The JVM runs the
+// same tests with no per-test limit. Twenty seconds still catches a hang.
+//
+// Kotlin appends every file in this directory to the karma.conf.js it generates, where `config` is in scope.
+(function (config) {
+    const client = config.client || {};
+    config.set({ client: Object.assign({}, client, { mocha: Object.assign({}, client.mocha, { timeout: 20000 }) }) });
+})(config);
+```
+
+```javascript
+// karma.config.d/compose-skiko.js, yalnızca JS için: Compose Multiplatform 1.13'te silinir.
+// Loads the Skiko runtime before Compose UI tests start on the Kotlin/JS browser target.
+//
+// Compose Multiplatform 1.12 copies skiko.mjs, skiko.wasm and js-reexport-symbols.mjs next to the
+// test bundle, but nothing in the bundle imports js-reexport-symbols.mjs: the module that puts the
+// org_jetbrains_skia_* functions on window and exposes awaitSkiko. An application reaches it
+// through onWasmReady; runComposeUiTest does not, so every UI test failed with
+// "org_jetbrains_skia_Surface__1nMakeRasterN32Premul is not defined" (CMP-4906).
+//
+// This is the Karma setup Compose Multiplatform generates itself from 1.13.0-alpha01
+// (JetBrains/compose-multiplatform#5621): serve the runtime files, and hold Karma's start until
+// awaitSkiko has resolved. Delete this file once the project is on Compose Multiplatform 1.13 or
+// later; mocha-timeout.js beside it stays, and so does the wiring in KmpComposePlugin.
+//
+// Kotlin appends this file to the karma.conf.js it generates for the js test task of every module
+// that applies pantrix.kmp.compose, where `config` is in scope. The wasmJs target does not use it.
+const fs = require("fs");
+const path = require("path");
+
+(function (config) {
+    const files = config.files || [];
+    // The Kotlin test bundle: build/js/packages/<module>-test/kotlin/<module>-test.js.
+    const testEntry = files.find((entry) =>
+        typeof entry === "string" &&
+        entry.endsWith(".js") &&
+        entry.includes(path.sep + "kotlin" + path.sep)
+    );
+    if (!testEntry) return;
+
+    const kotlinDir = path.dirname(testEntry);
+    // Modules without Compose UI get no Skiko runtime next to their bundle, and need nothing here.
+    if (!fs.existsSync(path.resolve(kotlinDir, "js-reexport-symbols.mjs"))) return;
+
+    const isListed = (filePath) => files.some((entry) =>
+        entry === filePath ||
+        (entry && typeof entry === "object" && entry.pattern === filePath)
+    );
+
+    for (const name of ["js-reexport-symbols.mjs", "skiko.mjs", "skiko.wasm"]) {
+        const filePath = path.resolve(kotlinDir, name);
+        if (fs.existsSync(filePath) && !isListed(filePath)) {
+            files.unshift({ pattern: filePath, watched: false, included: false, served: true });
+        }
+    }
+
+    // Karma runs the tests when the page calls __karma__.loaded(). The loader holds that call until
+    // js-reexport-symbols.mjs has been imported, which publishes the Skia functions, and until
+    // awaitSkiko has resolved, which means skiko.wasm is instantiated.
+    const loaderFile = path.resolve(kotlinDir, "compose-skiko-loader.js");
+    fs.writeFileSync(loaderFile, `(function () {
+    if (!window.__karma__) return;
+    const originalLoaded = window.__karma__.loaded.bind(window.__karma__);
+    let skikoReady = null;
+    window.__karma__.loaded = function () {
+        if (!skikoReady) {
+            const reexportUrl = Object.keys(window.__karma__.files || {})
+                .find((url) => url.endsWith("js-reexport-symbols.mjs"));
+            skikoReady = reexportUrl
+                ? import(reexportUrl).then((module) => module?.api?.awaitSkiko ?? Promise.resolve())
+                : Promise.resolve();
+        }
+        skikoReady.then(() => originalLoaded()).catch((error) => {
+            window.__karma__.error(error?.stack ?? String(error));
+        });
+    };
+})();
+`);
+
+    // First, so the loader wraps __karma__.loaded before anything else can call it.
+    if (!isListed(loaderFile)) {
+        files.unshift(loaderFile);
+    }
+    config.files = files;
+})(config);
+```
+
+### 3.9. Web'de uçtan uca
+
+Cihaz otomasyonu bir sayfaya ulaşmaz: Maestro 2.10'un Chromium'u, Compose'un anlam ağacının kopyasını tutan gölge köke girmez (8. bölüm). Sayfada JavaScript koşan bir araç girer, Chrome'un DevTools'u ya da Playwright:
+
+```javascript
+// Anlam ağacının kopyası, tuvali taşıyan öğenin gölge kökünün içinde.
+function a11yRoot(node = document.documentElement) {
+    if (node.id === "cmp_a11y_root") return node;
+    for (const child of [...node.children, ...(node.shadowRoot ? node.shadowRoot.children : [])]) {
+        const found = a11yRoot(child);
+        if (found) return found;
+    }
+    return null;
+}
+
+const save = a11yRoot().querySelector('[id="Checkout.Button_pay"]');
+save.getAttribute("aria-label"); // adı; sözleri öğenin kendi metnidir
+save.getBoundingClientRect();    // sayfada nerede durduğu: ortasına basmak için
+save.click();                    // düğümün basışını işaretçisiz çalıştırır
+```
+
+*   **Kopya.** Compose 1.12.2 anlam ağacını `#cmp_a11y_root`'un altındaki gizli öğelere yazar: bir öğenin `id`'si Pantrix etiketidir, bu yüzden bir seçici onu tırnak içine alır (`[id="SegmentButton_sort.Segment_newest"]`, nokta için); adı `aria-label`, sözleri metni, rolü `role`'dür.
+*   **Nerede ve nasıl basılır.** Ekrandaki bir öğe düğümünün yerinde ve boyunda durur (`position: fixed`); ekran dışındakinin boyu yoktur. Ortasına tarayıcının kendi fare olayıyla (DevTools'un `Input.dispatchMouseEvent`'i) basmak Compose'a gerçek bir basış olarak gider; bir uygulamanın testlerinde görüldü. Öğenin `click()`'i düğümün kendi basışını işaretçisiz çalıştırır.
+*   **Ne zaman.** Kopya ekran durulduktan 100 ms sonra yazılır, değişmeyi sürdürürken de en çok bir saniye geç: test öğeyi okumadan önce onu bekler.
+*   **Bir katmandan sonra.** Compose 1.12.2'de kopya en son açılan katmanı izler: bir menü, sheet ya da dialog kapandıktan sonra, sayfa yeniden yüklenene kadar o katmanın hâlinde kalır ([web uyumluluğu rehberi](/docs/guides/web-compatibility), 7. bölüm). Bir test sayfayı bir katman açmadan önce okur ya da sayfayı yeniden yükler.
 
 ## 4. Pantrix olmadan {#without}
 
@@ -303,7 +547,7 @@ iOS'ta gerek yoktur: Compose `testTag`'i `accessibilityIdentifier` olarak verir.
 *   **Ekran görüntüsü yardımcısı.** Modül Roborazzi'ye bağlanmaz (3.6).
 *   **Piksel ve renk yardımcıları.** Pantrix'in kendi testlerinde kalır.
 *   **Pencereyi ve saati kendiliğinden sabitlemek.** `window` verilmezse ekran testin çizdiği pencerededir (masaüstünde 1024×768, Robolectric'te 320dp genişlik); `clock` verilmezse cihazın saatidir.
-*   **Web'de cihaz otomasyonu.** Maestro 2.10'un Chromium'u Compose'un anlam ağacını göremiyor (8. bölüm); web'de ortak testler koşar.
+*   **Web'de cihaz otomasyonu.** Maestro 2.10'un Chromium'u Compose'un anlam ağacını göremiyor (8. bölüm); sayfada JavaScript koşan bir araç etiketlere ulaşır (3.9), modül bunun için bir yardımcı vermez.
 *   **Android'de metin alanının menüsü.** Compose Android'de, fareyle sağ tıklanınca ya da seçim çubuğu açılırken, yapıştırılacak bir şey olup olmadığını yalnızca kendi panosuna (`AndroidClipboard`) sorar. Testin panosuyla bir metin alanına sağ tıklayan bir test `IllegalArgumentException` ile düşer (Robolectric'te görüldü); odaklanmak, yazmak ve kopyalamak sormaz. Çubuk Robolectric'te açılamadı: dokunarak seçim, pano ne olursa olsun, büyüteçte düşüyor (açık madde).
 *   **Bir bileşenin içini bilmek.** Modül bileşenleri adlarıyla tanır; bir bileşenin parçalarının adı (`Segment`, `Day_2026_10_24`) o bileşenin KDoc'undadır.
 
@@ -322,7 +566,9 @@ Her davranış bir kez bozulup testin kırmızıya döndüğü görüldü (8. b�
 *   **Temanın dışından verilen bir yerel temanınkine yenilir.** `PantrixTestTheme` panoyu ve huylarını, işletim sistemini, yazı ölçeğini ve dosya seçiciyi kendisi verir; bunları temanın dışından veren bir testin değeri ekrana ulaşmaz (`CompositionLocalProvider(LocalClipboard provides …) { PantrixTestTheme { … } }`). Parametreyle ya da temanın içinden verilir. Dışarıdan verilen ekran yoğunluğu ve saat geçer: tema yalnızca yazı ölçeğini değiştirir, saati de yalnızca `clock` verildiğinde.
 *   **Compose'un metin alanı platformun panosuna bakar.** Yapıştırılacak bir şey olup olmadığını panonun `nativeClipboard`'ına sorar: masaüstünde sağ tık menüsü açılırken, iOS'ta her odaklanışta. Onu vermeyen bir pano, arayüzün varsayılanıyla, `NotImplementedError` ile düşer; iOS'ta odaklanan her metin alanı düşer. `TestClipboard` masaüstünde kendi AWT panosunu, iOS'ta kendi adlı pasteboard'unu verir; bir testin kendi yazdığı pano da vermelidir.
 *   **`setContent` bir testte bir kez çağrılır.** İkinci çağrı hata verir; değişen bir parametre `mutableStateOf` ile verilir.
-*   **Android'de ortak testler host ağacında koşmaz.** Android'e özgü bir davranış `androidHostTest`'te ayrıca sınanır.
+*   **Android'de ortak testler, kendi ağacı olmadıkça host ağacında koşar.** `withHostTest` ile her ortak test orada, düz JUnit altında yeniden koşar ve bir UI testi düşer. Kendi ağacında (3.1) host ağacı hiçbirini almaz; Android'e özgü bir davranış orada ayrıca sınanır.
+*   **Tarayıcıda `waitUntil` başka hiçbir şeyi koşturmaz.** `Dispatchers.Default`'taki bir işi ya da tarayıcının indirmesini bekleyen bir bekleme hiç bitmez; test gerçek zamanda bekler (3.8). Pantrix'in kendi tarayıcı testlerinde görüldü: `PantrixDiffView`'ın `Dispatchers.Default`'ta yapılan uzun bir karşılaştırması.
+*   **Android'de boyutsuz bir düğüm odak almaz.** `FocusRequester.requestFocus()` orada `false` der ve tuşlar düğüme gelmez; JVM'de, iOS'ta ve web'de aynı düğüm odağı alır. Tuşa basılan düğüme bir boyut verilir (`Modifier.size(…)`). Robolectric'te görüldü (`TestingOnAndroidTest`); Compose'un Android kaynağında nedenine bakılmadı.
 *   **Web'de panonun okunması bekler.** `TestClipboard.text()` web'de tarayıcının sözünü bekler; güvenli bağlamda olmayan bir sayfada Compose boş bir metin yazar.
 *   **iOS testinde dosya seçici.** Compose'un iOS testlerinde uygulama ve `LocalUIViewController` yoktur; `rememberFilePicker()` orada hiç cevap vermeyen bir seçici döndürür.
 *   **Maestro'da seçili bir seçenek iki platformda iki ayrı özelliktir.** iOS seçili ya da açık her denetimi `selected` diye verir: radyo düğmesi, segment, onay kutusu, anahtar, çip, ağacın ve sayfa numaralarının satırı. Android yalnızca sekme rolündeki bir düğümü (sekme, alt bar'ın ve yan menünün satırı) `selected`, ötekileri `checked` diye verir. Demo'nun `subflows/assert_chosen.yaml`'ı ve `assert_not_chosen.yaml`'ı platforma göre bakar; bir sekmeye iki platformda da `selected: true` ile bakılır.
@@ -351,10 +597,10 @@ Her davranış bir kez bozulup testin kırmızıya döndüğü görüldü (8. b�
 | Bulmak: anahtar ve kesilmesi, bölüm zinciri, anahtarsız bulmak, parçalar, ekranın etiketleri ve birleştirilmiş ağaç | `ui/testing/src/commonTest/.../PantrixTagsTest.kt` (JVM, iOS, JS, Wasm) |
 | Tema: varsayılanlar, verilenler, masaüstünde ve web'de Windows, pencere ve durumun korunması, pano ve onun üstünde odaklanan bir metin alanı, seçici, saat, tanılama, bekleyen bulgu, her platform | `PantrixTestThemeTest` |
 | Çiftler: analitik, dokunsal geri bildirim, seçicinin cevapları, saat, pano (zor metinler dahil) ve yazılamayan pano | `TestDoublesTest` |
-| Doğrulamalar: ad, yazı, dokunma hedefi, kısayol | `PantrixAssertionsTest` |
+| Doğrulamalar: ad, yazı, dokunma hedefi, kısayol, iki sistemin yapıştırması ve pencerenin kökünde `shortcutRoot`'tan sonra duyulan yapıştırma | `PantrixAssertionsTest` |
 | Masaüstünde platformun panosu: son kopyayı tutar, temizlenince boşalır, her testin panosu kendinin | `ui/testing/src/jvmTest/.../TestClipboardOnTheDesktopTest.kt` |
 | iOS'ta platformun panosu: aynıları, genel pasteboard'a hiç yazılmaması da | `ui/testing/src/iosTest/.../TestClipboardOnIosTest.kt` |
-| Android: manifest'siz test, `ClipData` ve etiketi, seçici | `ui/testing/src/androidHostTest/.../TestingOnAndroidTest.kt` |
+| Android: manifest'siz test, `ClipData` ve etiketi, tuşla yapıştırma, seçici | `ui/testing/src/androidHostTest/.../TestingOnAndroidTest.kt` |
 | Etiketin metni | `ui/foundation/src/commonTest/.../testing/TestTagTest.kt` |
 | Ekranın saati ve okuyanları | `PantrixClockTest`, `TimeTextFieldTest`, `ElasticDatePickerTest`, `ChartScreenClockTest` |
 | Ekranın seçicisi | `LocalFilePickerTest`, `FilesOnAndroidTest` |
@@ -362,7 +608,7 @@ Her davranış bir kez bozulup testin kırmızıya döndüğü görüldü (8. b�
 
 ### Elle bozulan davranışlar
 
-*   Test modülünde 24 davranış tek tek bozuldu; her birinde en az bir test kırmızıya döndü: anahtarsız bulmanın parçaları ve uzun adları ayırması, etiketlerin süzülmesi, anahtarın elle kurulması, temanın işletim sistemi, yazı ölçeği, panonun huyları, makinenin panosu, platformun seçicisi, cihazın saati, tanılamanın kapanması ve bulguların tutulmaması, pencerenin çerçevesi, her platformun yeniden kurulması, yarım saniyelik bekleyiş, adın sırası, dokunma hedefinin iki yönü, kısayolun Command'ı, metin alanının yazısı, seçicinin türleri ve tek dosyası, olayların kopyası, panonun son kopyası, saatin ilerlemesi.
+*   Test modülünde 26 davranış tek tek bozuldu; her birinde en az bir test kırmızıya döndü: anahtarsız bulmanın parçaları ve uzun adları ayırması, etiketlerin süzülmesi, anahtarın elle kurulması, temanın işletim sistemi, yazı ölçeği, panonun huyları, makinenin panosu, platformun seçicisi, cihazın saati, tanılamanın kapanması ve bulguların tutulmaması, pencerenin çerçevesi, her platformun yeniden kurulması, yarım saniyelik bekleyiş, adın sırası, dokunma hedefinin iki yönü, kısayolun Command'ı, metin alanının yazısı, seçicinin türleri ve tek dosyası, olayların kopyası, panonun son kopyası, saatin ilerlemesi, yapıştırmanın Command'ı ve web'de sayfaya gönderilen yapıştırma.
 *   Platform panosunun yedeği bozuldu. Masaüstünde dört yoldan: yedek hiçbir şey tutmuyor, kopya yedeğe ulaşmıyor, temizlenince yedek boşalmıyor, bütün panolara tek bir yedek. iOS'ta dört yoldan: yedek hiçbir şey tutmuyor, temizlenince boşalmıyor, bütün panolara tek bir yedek, hiç yedek yok. Hepsinde bir test kırmızıya döndü. Sonuncusu, Pantrix'in iOS testlerinden 299'unu düşüren eksiğin kendisidir; onu temanın panosunun üstünde odaklanan metin alanı testi de yakaladı. iOS'ta sistemin genel pasteboard'una yazan bir bozma denenmedi: Simulator onu Mac'inkiyle paylaşabilir.
 *   Foundation'daki üç açılımda 18 davranış bozuldu; 17'sinde bir test kırmızıya döndü. Kalanı saat alanının `remember` anahtarıdır: seçicinin içi her açılışta yeniden kurulduğu için fark etmez.
 
@@ -381,11 +627,15 @@ Her davranış bir kez bozulup testin kırmızıya döndüğü görüldü (8. b�
 *   **Manifest'in birleşmesi:** foundation'ın ve bileşenlerin Android host testlerinin kendi manifest'i silindi; testleri (40 ve 193) modülün manifest'iyle geçiyor.
 *   **Web'de demo'nun üç yeni örneği:** "Ekranın saati" Kiritimati'de 24 Ekim'i, Pago Pago'da 23 Ekim'i gösteriyor; "Örnek dosyalarla bir ekran" iki örnek dosyayı yazıyor; "Testin aradığı etiket" aranan ve taşınan etiketi aynı yazıyor.
 
+*   **Web'de uçtan uca (2026-11-10), sayfanın JavaScript'iyle sürülen bir tarayıcıda:** demo'nun Wasm derlemesinde 3.9'daki işlev `#cmp_a11y_root`'u tuvalin gölge kökünün içinde buldu; `id`'ler Pantrix etiketleriydi; `Button_show_with_close`'un `click()`'i snackbar'ı gösterdi, onun öğesi iletisini ve kapatma düğmesini tutuyordu. Görünüş menüsü açılıp kapatılınca kopyada menünün 11 öğesi kaldı, sayfadan hiçbir şey yoktu.
+*   **Pencere boyundaki kutu (2026-11-10, geçici bir masaüstü testinde):** 1024×768'lik yerde, yoğunluk 1'de, `wrapContentSize(Alignment.TopStart, unbounded = true).size(1440.dp, 900.dp)` kutuyu (0, 0)'da, `requiredSize(1440.dp, 900.dp)` (−208, −66)'da dizdi.
+
 ### Doğrulanmayanlar
 
 *   Gerçek cihazlar, Maestro Cloud ve Linux ya da Windows'ta bir CI makinesi. Bir Android telefonda iki dil: tam koşu cihazın dili olan İngilizceyle koştu; akışlar Türkçede de geçmek için yazıldı (etiketler ve iki dilin sözleri), Türkçe bir cihazda tam koşu yapılmadı.
 *   Modülün Maven'den alındığı ayrı bir proje: POM'u, modül meta verisi ve Android AAR'ının manifest'i üretildi ve okundu, yerel depoya yayınlanmadı.
-*   Web'de shadow root'a giren bir araç (örneğin Playwright'ın seçicileri) ile etiketlerin bulunması.
+*   Web'de Playwright'ın seçicileri ve DevTools'un fare olayıyla bir basış: kopya sayfanın kendi JavaScript'iyle okundu ve basıldı (`click()`).
+*   3.6'daki ekran görüntüsü kurulumu ve 3.7'deki Maestro görevleri, bir uygulama için yazıldıkları hâliyle: bu deponun kurulumunu yeniden söylerler, bir uygulamanın derlemesinde koşturulmadılar. 3.8'deki uygulama kaynakları şartları ve Robolectric'te Android 17 (3.1) bir uygulamanın testlerinde görüldü, burada değil.
 *   Android'de testin panosuyla açılan bir seçim çubuğu (5. bölüm): Compose'un kaynağında okundu; Robolectric'te dokunarak seçim büyüteçte düştüğü için açılamadı, cihazda koşulmadı.
 
 ## 9. Bu depoda nerede {#repository toc="9. Depoda"}

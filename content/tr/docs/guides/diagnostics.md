@@ -50,15 +50,16 @@ Kütüphane dört parçayı da verir (`com.pantrixui.foundation.diagnostics`; in
 | `PantrixDiagnostics.Log` | Her bulguyu platformun günlüğüne yazar: Android'de Logcat'e `Pantrix` etiketiyle bir uyarı (`Log.w`), iOS'ta birleşik günlüğe (`NSLog`, Xcode'un konsolu), tarayıcıda `console.warn`, JVM'de standart hata |
 | `PantrixFindings(then = …)` | Bulguları saklar (`all`, `clear()`, `boundsOf(finding)`), her birini `then`'e de verir. `all` bir kompozisyonda okunursa büyüdükçe izlenir |
 | `PantrixFinding` | Bir bulgu: `check`, `component`, `testTag`, `screen` (`TestScope` zinciri), `message` (İngilizce) ve ölçülen `values` |
-| `PantrixCheck` | Altı denetim (3.1) |
+| `PantrixCheck` | Yedi denetim (3.1) |
 | `LocalPantrixDiagnostics` | O noktadaki alıcı |
 | `PantrixDiagnosticsInspector(findings) { … }` | Uygulamanın üstünde bulguların sayısını gösteren bir düğme; basınca bulguların listesi; listeden seçilen bulgunun düğümü ekrana bir sonraki basışa kadar çerçevelenir. Bulgu yokken bir şey göstermez |
 | `Modifier.checkName(component, name)` | Uygulamanın kendi bileşeni için `MissingName` |
 | `Modifier.checkContrast(component) { pairs }`, `ContrastPair`, `ContrastNeed` | Uygulamanın kendi bileşeni için `LowContrast` |
+| `Modifier.checkGraphCycles(component, cycles)` | Uygulamanın kendi grafiği için `GraphCycle` |
 | `contrastRatio(foreground, background)` | İki rengin WCAG 2.2 oranı |
 :::
 
-### 3.1. Altı denetim
+### 3.1. Yedi denetim
 
 :::table
 | Denetim | Ne zaman bildirilir | Nereden gelir | Nasıl düzelir |
@@ -66,9 +67,10 @@ Kütüphane dört parçayı da verir (`com.pantrixui.foundation.diagnostics`; in
 | `DuplicateTestTag` | Aynı penceredeki iki düğüm aynı etiketi bir buçuk saniye taşırsa: bir sayfa geçişinden uzun | `Modifier.pantrixTestTag`: bütün Pantrix bileşenleri ve onu kullanan uygulama kodu | Her birine kendi `tagKey`'i, ya da her birini kendi `TestScope`'una koymak |
 | `LowContrast` | Temanın 34 rol çifti, renkleri her değiştiğinde bir kez; bileşenlerin yazı ve işaret çiftleri, bileşen ve renkleri için bir kez, kaç tanesi gösterirse göstersin | `PantrixTheme`; kendi `…Colors` sınıfı olan 39 bileşen; `checkContrast` | Yazı 4,5:1; büyük yazı ve bir kontrolün işareti 3:1 |
 | `SmallTouchTarget` | Bir kontrol platformun dokunma hedefinden az yere yarım saniye yerleşirse | `Modifier.minTouchTarget`: Pantrix'in basılan kontrolleri | Üstündekine yer verdirmek |
-| `MissingName` | Ekran okuyucunun söyleyeceği ad boşsa. `null` bildirilmez: süs olan bir resim ya da yazısıyla adlanan bir kontrol adını vermez | `contentDescription`, `label` ya da `title` alan bileşenler; `checkName` | Uygulamanın dilinde, ne olduğunu ya da ne yaptığını söyleyen bir ad |
+| `MissingName` | Ekran okuyucunun söyleyeceği ad bir buçuk saniye boş kalırsa: bir an geç gelen bir ad, uygulamanın kaynaklarından okunan sözcüklerin tarayıcıda geldiği gibi, bildirilmez. `null` bildirilmez: süs olan bir resim ya da yazısıyla adlanan bir kontrol adını vermez | `contentDescription`, `label` ya da `title` alan bileşenler; `checkName` | Uygulamanın dilinde, ne olduğunu ya da ne yaptığını söyleyen bir ad |
 | `NoStringsForLanguage` | Temanın dili İngilizce değilken sözleri İngilizceyse | `PantrixTheme` | `PantrixTheme(strings = …)` ile o dilin sözleri |
 | `ShadowedShortcut` | Bir kısayolu çevresindeki bir düğüm de dinliyorsa: içteki hiç çalışmaz | `Modifier.onShortcut` | İçtekini kaldırmak ya da başka bir tuşa almak |
+| `GraphCycle` | Bir grafiğin bağları bir döngüye giriyorsa: döngüyü kapatan bağ geriye çizilir ve hiçbir şeyi yerleştirmez | `PantrixGraph`; `checkGraphCycles` | Bağı bırakmak ya da ters çevirmek; döngü amaçlanmışsa bulgu yerinde kalır |
 :::
 
 Temanın 34 çifti: altı rolün (`primary`, `success`, `info`, `warning`, `danger`, `neutral`) her biri için `onColor` `color` üstünde, `onContainer` `container` üstünde, `color` `background` ve `surface` üstünde; sayfanın `onSurface`, `textPrimary` ve `textSecondary` yazıları ile `borderStrong` ve `focusRing` işaretleri, `background` ve `surface` üstünde.
@@ -234,7 +236,7 @@ Bir ekran testinin sonunda `assertEquals(emptyMap(), repeatedTestTags())`. Test 
 | `ui/foundation`, `PantrixDiagnosticsTest` | JVM, iOS simülatörü, JS, Wasm | Tema alıcı verilmedikçe hiçbir şey aramaz; içteki tema dıştakinin alıcısını kullanır; bulgular bir kez ve geldikleri sırayla saklanır; şüphe bir sonraki karede, yerleşiminki yarım saniye, yinelenen etiket bir buçuk saniye sonra bildirilir; süresi dolmadan kalkan bildirilmez; bir kez bildirilir, geri gelirse yeniden; aynı şüphenin sahipleri tek şüphedir; masa yalnızca bekleyen bir şey varken kare ister; günlük satırı |
 | `ui/foundation`, `PantrixDiagnosticsOnIosTest` | iOS simülatörü | Yüzde işaretleri ve `%@` taşıyan bir bulgu birleşik günlüğe yazılır ve uygulama çökmez |
 | `ui/foundation`, `ContrastRatioTest` | Aynı dört hedef | Beyaz üstünde siyah 21, kendi üstünde bir renk 1; hangisinin üstte çizildiği fark etmez; arkasını gösteren ön renk çizildiği gibi ölçülür; belirtilmemiş bir rengin oranı yoktur |
-| `ui/foundation`, `DuplicateTestTagTest`, `SmallTouchTargetTest`, `LowContrastTest`, `MissingNameTest`, `NoStringsForLanguageTest`, `ShadowedShortcutTest` | Aynı dört hedef | Her denetim: bulduğu, bulmadığı, kapalıyken hiçbir şey ölçmediği, sonradan açılınca bulduğu |
+| `ui/foundation`, `DuplicateTestTagTest`, `SmallTouchTargetTest`, `LowContrastTest`, `MissingNameTest`, `NoStringsForLanguageTest`, `ShadowedShortcutTest`, `GraphCycleTest` | Aynı dört hedef | Her denetim: bulduğu, bulmadığı, kapalıyken hiçbir şey ölçmediği, sonradan açılınca bulduğu |
 | `ui/components`, `ComponentDiagnosticsTest`, `DiagnosticsInspectorTest` | JVM, iOS simülatörü, JS, Wasm | Pantrix'in kendi renkleri iki modda da bulgu değildir; bir bileşenin bulgusu etiketiyle gelir; dolgulu zeminde dolgusuz bileşen; adlar, tekrarlar, sıkışan hedef; inspector'ın düğmesi, listesi, çerçevesi ve temizlemesi |
 | `ui/components`, `ComponentScreenshotTest.diagnostics_inspector` | JVM, Android, iOS simülatörü | Inspector'ın açık ve koyu temadaki görüntüsü |
 | `app/shared`, `DemoPagesTest`, `DiagnosticsSamplesTest`, `DemoShellTest`, `SettingsPageTest`, `DemoSettingsTest` | JVM | Her sayfa iki dilde sıfır bulguyla; iki tanılama sayfasının her örneği yalnızca kendi bulgularını gösterir; ayar açılıp kapanınca uygulama yerinde kalır; kapanınca bulgular silinir; ayar saklanır ve eski kayıtta açıktır |
@@ -264,7 +266,7 @@ Her davranış bir kez elle bozuldu ve hangi testin kırmızı olduğuna bakıld
 | `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/diagnostics/PantrixDiagnostics.kt` | `PantrixCheck`, `PantrixFinding`, `PantrixDiagnostics`, `LocalPantrixDiagnostics` |
 | `…/diagnostics/PantrixFindings.kt` | `PantrixFindings` |
 | `…/diagnostics/DiagnosticsDesk.kt` | Pencere başına masa: şüpheler, yarım saniye, bir kez bildirme |
-| `…/diagnostics/DuplicateTestTag.kt`, `LowContrast.kt`, `MissingName.kt`, `NoStringsForLanguage.kt` | Denetimler; `checkContrast`, `ContrastPair`, `ContrastNeed`, `checkName` |
+| `…/diagnostics/DuplicateTestTag.kt`, `LowContrast.kt`, `MissingName.kt`, `NoStringsForLanguage.kt`, `GraphCycle.kt` | Denetimler; `checkContrast`, `ContrastPair`, `ContrastNeed`, `checkName`, `checkGraphCycles` |
 | `…/a11y/TouchTarget.kt`, `…/keyboard/Shortcuts.kt`, `…/testing/TestTag.kt` | `SmallTouchTarget`, `ShadowedShortcut` ve etiketlerin kaydı |
 | `…/token/color/ContrastRatio.kt` | `contrastRatio` |
 | `ui/foundation/src/{android,ios,jvm,web}Main/…/diagnostics/PantrixDiagnostics.*.kt` | Platformların günlükleri |

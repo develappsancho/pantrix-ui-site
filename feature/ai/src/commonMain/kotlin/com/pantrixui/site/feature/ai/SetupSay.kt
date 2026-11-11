@@ -75,14 +75,14 @@ internal object SetupSay {
             BySize(Words("Claude Code", "Claude Code")),
             BySize(
                 Words(
-                    "Then /mcp lists pantrix-ui as connected, and /skills lists the plugin's skill.",
-                    "Sonra /mcp pantrix-ui'yi bağlı gösterir, /skills de eklentinin becerisini."
+                    "In a new session /mcp lists pantrix-ui as connected, and /skills lists the plugin's skill.",
+                    "Yeni bir oturumda /mcp pantrix-ui'yi bağlı gösterir, /skills de eklentinin becerisini."
                 ),
                 tablet = Words(
-                    "Then /mcp lists pantrix-ui, and /skills lists the skill.",
-                    "Sonra /mcp pantrix-ui'yi, /skills de beceriyi gösterir."
+                    "In a new session /mcp lists pantrix-ui, and /skills the skill.",
+                    "Yeni bir oturumda /mcp pantrix-ui'yi, /skills de beceriyi gösterir."
                 ),
-                phone = Words("/mcp and /skills then list pantrix-ui.", "Sonra /mcp ve /skills pantrix-ui'yi gösterir.")
+                phone = Words("A new session's /mcp lists pantrix-ui.", "Yeni oturumda /mcp pantrix-ui'yi gösterir.")
             ),
             BySize(
                 // The plugin brings the server at the site's address and the skill: the server added by its address
@@ -90,25 +90,28 @@ internal object SetupSay {
                 listOf(
                     SetupLine(
                         comment = Words(
-                            "# The server and the skill, with Pantrix UI's plugin",
-                            "# Sunucu ve beceri, Pantrix UI'ın eklentisiyle"
+                            "# The server and the skill, with Pantrix UI's plugin, for the project",
+                            "# Sunucu ve beceri, Pantrix UI'ın eklentisiyle, proje için"
                         )
                     ),
-                    SetupLine("claude plugin marketplace add ${LibraryFacts.PACKAGES_REPOSITORY}"),
-                    SetupLine("claude plugin install pantrix-ui@pantrix-ui")
+                    SetupLine("claude plugin marketplace add ${LibraryFacts.PACKAGES_REPOSITORY} --scope project"),
+                    SetupLine("claude plugin install pantrix-ui@pantrix-ui --scope project")
                 ),
                 tablet = listOf(
                     SetupLine(comment = Words("# Server and skill, with the plugin", "# Sunucu ve beceri, eklentiyle")),
                     SetupLine("claude plugin marketplace add \\"),
-                    SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY}"),
-                    SetupLine("claude plugin install pantrix-ui@pantrix-ui")
+                    SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY} --scope project"),
+                    SetupLine("claude plugin install \\"),
+                    SetupLine("  pantrix-ui@pantrix-ui --scope project")
                 ),
                 phone = listOf(
                     SetupLine(comment = Words("# the server and the skill", "# sunucu ve beceri")),
                     SetupLine("claude plugin marketplace add \\"),
-                    SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY}"),
+                    SetupLine("  ${LibraryFacts.PACKAGES_REPOSITORY} \\"),
+                    SetupLine("  --scope project"),
                     SetupLine("claude plugin install \\"),
-                    SetupLine("  pantrix-ui@pantrix-ui")
+                    SetupLine("  pantrix-ui@pantrix-ui \\"),
+                    SetupLine("  --scope project")
                 )
             )
         ),

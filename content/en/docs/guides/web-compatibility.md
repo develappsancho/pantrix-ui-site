@@ -122,6 +122,46 @@ tasks.named("wasmJsBrowserDistribution") {
 *   The JS distribution is a **dependency** of the Wasm distribution, not of the copy. Where the copy is a finalizer that depends on the JS distribution, Gradle stops with "Unable to make progress running work": Kotlin's JS tasks have finalizers of their own, and Gradle cannot run a finalizer that waits on tasks with finalizers.
 *   `skiko.wasm` (the name without a hash) is asked for by the script only where the page gives its own `locateFile`; the script asks for the copy named by its hash.
 
+### 3.3. The webpack plugin that takes the paths out
+
+The web module's `webpack.config.d/stripFilePaths.js`, which Kotlin's webpack setup takes in by itself (section 7):
+
+```javascript
+// Takes the path of the machine that built a script out of it.
+//
+// Skiko's skiko.mjs reads `import.meta.url`, and webpack writes it into the script as the module's own path where it
+// was built: "file:///Users/<name>/…/kotlin/skiko.mjs", the builder's user name and folders in a public file. The
+// script reads it only for the folder it was loaded from, which it asks for nothing here: it finds Skiko's Wasm by the
+// address webpack gives it. Each such string becomes an empty one, which the script takes for no path at all. It is
+// done after the script is minified and before its source map is written, through a ReplaceSource, so that the map
+// still matches the script. A development build writes each module into a string that it evaluates, where the path's
+// quotes are escaped, `\"file:///…\"`: the empty string keeps their escape, or it would end the module's string.
+config.plugins.push({
+    apply(compiler) {
+        const { Compilation, sources } = compiler.webpack;
+        compiler.hooks.thisCompilation.tap("StripFilePaths", (compilation) => {
+            compilation.hooks.processAssets.tap(
+                { name: "StripFilePaths", stage: Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_SIZE + 1 },
+                () => {
+                    for (const asset of compilation.getAssets()) {
+                        if (!/\.m?js$/.test(asset.name)) continue;
+                        const text = asset.source.source().toString();
+                        const paths = [...text.matchAll(/(\\?)"file:\/\/\/[^"\\]*\1"/g)];
+                        if (paths.length === 0) continue;
+                        const stripped = new sources.ReplaceSource(asset.source);
+                        for (const path of paths) {
+                            const quote = `${path[1]}"`;
+                            stripped.replace(path.index, path.index + path[0].length - 1, quote + quote);
+                        }
+                        compilation.updateAsset(asset.name, stripped);
+                    }
+                }
+            );
+        });
+    }
+});
+```
+
 ## 4. The code {#the-code}
 
 *   **`wasmJsMain` → `webMain`.** In Kotlin 2.4, most code that speaks to the browser (`JsAny`, `JsString`, `toJsString`, `js("...")`, `kotlinx.browser.window`) is shared by the two web targets and moves to `webMain` as it is. The resources too (`index.html`, styles, icons) go to `webMain/resources`.
@@ -251,10 +291,12 @@ map $uri $site_cache {
 | The emulator's Chrome | The system image's Chrome is old and stays so, not updated | It is of use for just that reason: it tries the old browser's way |
 | A finalizer in Gradle | "Unable to make progress running work" | The JS distribution is a dependency of the Wasm one, the copy only a finalizer (3.2) |
 | `JsException` | Catches the cancellation too in JS | The cancellation is sent up first (section 4) |
-| Webpack and `import.meta.url` | The `import.meta.url` in Skia's JavaScript is written as the file's path on the machine that builds the script (`file:///Users/…`): a user name and folders in a public file | The script reads it only for the folder it was loaded from, and does not use it here: a webpack plugin turns every `"file:///…"` string into an empty one, after the script is minified and before its map is written (`webpack.config.d/stripFilePaths.js`, section 9) |
+| Webpack and `import.meta.url` | The `import.meta.url` in Skia's JavaScript is written as the file's path on the machine that builds the script (`file:///Users/…`): a user name and folders in a public file | The script reads it only for the folder it was loaded from, and does not use it here: a webpack plugin turns every `"file:///…"` string into an empty one, after the script is minified and before its map is written (`webpack.config.d/stripFilePaths.js`, section 3.3) |
 | The klibs' source paths | Kotlin writes into each module's klib the full path its source files have on the machine that builds it; they reach the Wasm (`/Users/…/src/commonMain/…`): a user name and folders in a public file. The library's klibs write the paths relative to the repository's root from 0.1.1 on | In each of the app's modules that builds for the web, `tasks.withType<Kotlin2JsCompile>().configureEach { compilerOptions.freeCompilerArgs.add("-Xklib-relative-path-base=${rootDir.absolutePath}") }`; `/Users/` is searched for in the Wasm with `strings` (section 8) |
 | WebKit 27.2's Wasm compiler | The app draws its first frame, then stops on a `NullPointerException` in `SkiaParagraph.getBoundingBox`; the page stays blank, and the loader does not go over to JS | WebKit is given the JS build (5.2). Any text with a link (`LinkAnnotation`, `PantrixLink`) can set it off; the JS build has none of it |
 | The page's language | Where the language changes inside the app, the page's `<html lang>` stays the one it was opened in: a screen reader reads Turkish words with English sounds, and the browser offers to translate from the wrong language | With the library: the outermost `PantrixTheme` writes its `locale`'s language and follows it. Without it: `document.documentElement.setAttribute("lang", tag)` as the language changes |
+| The screen reader's copy | Compose 1.12.2 writes the semantics tree into a hidden copy in the DOM (`#cmp_a11y_root`, whose root is `aria-live="polite"`), but from one layer: when a menu, a sheet or a dialog opens the copy turns into its nodes, and when the layer closes it stays so. A snackbar shown after that, and every change of the page, never reaches a screen reader | Compose 1.13.0 keeps every layer; the library upgrades once it is stable. Until then a browser test reads the copy before any layer opens; where none has, a snackbar's message stands in the copy as text and is said |
+| A shortcut pressed in a field | While a text field has the focus, Cmd+F, Ctrl+H or F3 that the app answers opens the browser's find bar, its history or its next match as well: Compose handles a key in a field after the browser, and keeps only Tab | With the library: `onShortcut` keeps its own shortcut, and the keys answered otherwise are given to `Modifier.keepFromBrowser(shortcuts)` ([keyboard shortcuts guide](/docs/guides/keyboard-shortcuts), 3.4). Without it: `preventDefault()` for those keys in the window's `keydown`, in the capturing phase, while the focus is in the field |
 | `adb screencap` | On an emulator with more than one screen (a foldable), it warns and takes the first | The screen is chosen with `-d <screen>` |
 :::
 

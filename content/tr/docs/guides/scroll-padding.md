@@ -111,6 +111,15 @@ PantrixScaffold(bottomBar = { insets -> AppTabs(Modifier.padding(insets)) }) { p
 
 Öğesine konmayan bir satır eskisi gibi davranır: kenara gelir. Listede `contentPadding` söylenenden azsa listeden olmayan istenir (2. bölüm, 1. ayrıntı): **iki değer aynı değişkenden gelmelidir.** Izgaralarda (`LazyVerticalGrid`) kullanım aynıdır.
 
+`PantrixLazyPageScaffold`'ta liste sayfanındır: içerik listenin payını `contentPadding` olarak alır (`LazyPageScope`), sayfanın kendi satırları, başlığı ve üst kısmı, onu söyler, uygulamanın satırları da söyler. Bir satırın kendi kapsamı onu okuyamaz (bir listenin kapsamları bir DSL'inkidir): satırlardan önce okunur.
+
+```kotlin
+PantrixLazyPageScaffold(title = "Orders") {
+    val shown = Modifier.scrollPadding(contentPadding)
+    items(orders, key = { it.id }) { order -> OrderRow(order, shown) }
+}
+```
+
 ### 3.3. Klavye açıkken
 
 Metin alanı olan ekran kaydırma alanını klavyenin üstünde bitirir. O sırada alt bar klavyenin arkasındadır; boşluktan klavyenin payı düşülür. Compose'un `PaddingValues` çıkarması bunu yapar: sıfırın altına inmez ve değeri sorulduğu anda okur, klavye oynarken ekran yeniden kurulmaz.
@@ -125,7 +134,7 @@ Column(
 )
 ```
 
-Demo'nun sayfası böyledir (`App.kt`, `DemoPage`).
+Demo'nun bileşen sayfası bunun lazy liste hâlidir: her satırı `contentPadding - WindowInsets.ime.asPaddingValues()`'i söyler (`ComponentPage.kt`).
 
 ### 3.4. İçindeki kaydırıcılar
 
@@ -214,6 +223,7 @@ Bu yalın hâlde iki kullanım iki ayrı modifier'dır (sınırında kesen ve ke
 
 *   `ScrollPaddingTest` (on iki test, beş hedefte): sütunun sonu ve başı, satırın iki ucu ve sağdan sola düzen, içeriğin uzandığından fazlasının istenmemesi, değişen boşluk, içteki kaydırıcı, üstündekinin kırptığı öğe, kaydırma sürerken kaldırılan boşluk, lazy sütun ve lazy satır, odak halkasıyla birlikte.
 *   `DemoShellTest`: sayfanın aşağısındaki bir düğme odağı alınca alt bar'ın üstünde durur.
+*   `PageScaffoldTest`: bir listenin sayfasında odağı alan satır alttaki bar'ın üstünde durur.
 *   `HorizontalScrollFrameTest`: çerçeve, ucundaki düğme odağı alınca en ucuna kadar gider.
 *   Yazılan satırların mutasyonu: 80 mutantın 63'ü öldü, 6'sı derlenmedi; sağ kalan 11'in beşi gerçek boşluktu ve testleri yazıldı (satırı sütunun içinde kayan bir halka, kırpılan öğe, kaldırılan boşluk, halkanın taştığı kadar, kartın kopyalama düğmesi).
 
@@ -244,7 +254,8 @@ Compose Multiplatform 1.12.1, `foundation` ve `ui`:
 | Kaydırılan içeriği bulan ve isteği sınırında kesen hesap | aynı pakette `RoomInView.kt` (`withRoom`); odak halkası da onu kullanır (`FocusRing.kt`) |
 | Bir halkanın taştığı kadar | `PantrixPlatform.focusRingReach` (`Platform.kt`) |
 | Testler | `ScrollPaddingTest`, `FocusRingInViewTest` (`ui/foundation/src/commonTest/.../a11y`) |
-| Demo'nun sayfası | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/App.kt` (`DemoPage`) |
+| Demo'nun sayfası | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/page/ComponentPage.kt` (`ComponentPage`) |
+| Listenin sayfası | `ui/components/src/commonMain/kotlin/com/pantrixui/components/container/page/PageScaffold.kt` (`ListBody`), `LazyPageScope` (`PageAction.kt`) |
 | Demo'nun yana kayan çerçevesi | `app/shared/.../demo/page/HorizontalScrollFrame.kt` |
 | Demo'da örnek | `Scaffold` sayfasında "Bar'ın altından kayan listede odak" |
 :::

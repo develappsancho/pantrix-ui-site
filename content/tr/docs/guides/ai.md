@@ -165,6 +165,8 @@ claude plugin install pantrix-ui@pantrix-ui
 ```
 
 *   **Skill'in adı:** eklentinin skill'leri eklentinin adını önek alır: `pantrix-ui:pantrix-ui`.
+*   **Bütün ekip için:** iki komutta da `--scope project` ile pazar ve eklenti projenin `.claude/settings.json`'una yazılır, ekip onu git'le alır; onsuz yalnızca kullanıcınındır.
+*   **Yeni bir oturum:** eklenti bir oturum başlarken yüklenir. Kurulduğu oturum ne sunucusunu ne skill'ini görür; yeni bir oturumda `/mcp` `pantrix-ui`'yi bağlı gösterir, `/skills` de skill'ini.
 *   **Güncel tutmak:** eklentinin sürümü kütüphaneninkidir. Pazar güncellenince (`claude plugin marketplace update pantrix-ui`) yeni sürüm gelir.
 *   **Yazan:** `release.sh publish`, pazarı (`.claude-plugin/marketplace.json`) ve eklentiyi (`plugins/pantrix-ui/`) her sürümde sürümün jar'ının yazdığı skill'le yeniden yazar ve `claude plugin validate` ile denetler (dağıtım rehberi).
 
@@ -211,7 +213,7 @@ Pantrix'i kullanan bir uygulamanın deposu skill'i ve sunucuyu şöyle alır. İ
 
     Claude Code `${PANTRIX_MCP_JAR}`'ı her makinenin kendi değişkeniyle açar: dosya git'e girer, jar'ın yolu girmez. Etkileşimli bir oturum depodaki sunucuyu ilk açılışta onaya sorar; `claude -p` sormadan yükler. Sunucu bir siteden sunuluyorsa girdi yalnızca adresi taşır (`"type": "http"`, `"url"`) ve 2. adıma gerek kalmaz.
 5.  **Denemek:** uygulamanın klasöründe `claude` açılır. `/skills` listesinde `pantrix-ui`, `/mcp` listesinde bağlı `pantrix-ui` görünür. "Bir kayıt ekranı yaz" gibi bir istekte asistan skill'i yükler, sunucunun araçlarını çağırır ve Pantrix'in bileşenleriyle yazar (9. bölümdeki deneme).
-6.  **Güncel tutmak:** Pantrix güncellenince 1–3 yeniden atılır: kütüphane, jar ve skill aynı sürümden olur. Skill komutu klasörü baştan yazar; değişiklik uygulamanın deposunda bir commit'tir.
+6.  **Güncel tutmak:** Pantrix güncellenince 1–3 yeniden atılır: kütüphane, jar ve skill aynı sürümden olur. Skill komutu klasörü baştan yazar; değişiklik uygulamanın deposunda bir commit'tir. Asistan sunucuyu bir oturum için bir kez başlatır ve tutar; altında yeniden yazılan bir jar, örneğin yeni bir yerel yayımla, ancak yeni bir oturumda ya da sunucu yeniden bağlanınca (`/mcp`) cevap verir; eklentileri yeniden yüklemek onu yeniden başlatmaz. Sunucu hangi derleme olduğunu söyler: `get_changelog` "Answered by the MCP server of Pantrix UI 0.1.2-SNAPSHOT, commit 7f42363d, built 2026-11-10 12:31 UTC" diye başlar, `initialize`'ın verdiği sürümü de aynısını taşır (`0.1.2-SNAPSHOT+7f42363d.20261110T1231Z`), ve başladığı jar diskte daha yeniyken her cevap bunu söyleyen bir notla biter.
 7.  **Öteki asistanlar:** ayarlarını bir `mcpServers` alanından okuyan istemciler aynı girdiyi kendi ayar dosyalarında alır. Skill'leri okuyan bir asistan `pantrix-ui` klasörünü kendi skill klasöründen okur. İkisini de okumayan bir asistana `llms.txt` verilir (aşağıda).
 
 ### Dosyaları vermek

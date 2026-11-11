@@ -62,7 +62,7 @@
         "tr": "Kütüphanenin gösterildiği ve denendiği uygulama: her bileşen kendi sayfasında, örnekleri kodlarıyla canlı çalışır, API'si kütüphanenin KDoc'undan, İngilizce ve Türkçe. Her sayfayı bir Maestro akışı Android'de ve iOS'ta gezer."
       },
       "url": "https://develappsancho.github.io/pantrix-ui-cmp-package/",
-      "download": "https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.2.0/PantrixUI-0.2.0.dmg",
+      "download": "https://github.com/develappsancho/pantrix-ui-cmp-package/releases/download/v0.2.1/PantrixUI-0.2.1.dmg",
       "platforms": [
         { "kind": "Web", "name": "Web", "detail": { "en": "Wasm, and a JavaScript build for older browsers", "tr": "Wasm, eski tarayıcılar için de bir JavaScript sürümü" } },
         { "kind": "Android", "name": "Android", "detail": { "en": "An APK on each release", "tr": "Her sürümde bir APK" } },

@@ -23,12 +23,14 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.process.ExecOperations
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import javax.inject.Inject
 
 /**
@@ -72,6 +74,10 @@ class WebApplicationConventionPlugin : Plugin<Project> {
                 implementation(project(":app:shared"))
                 implementation(libs.compose.ui)
             }
+        }
+        // The JavaScript build's minifier runs out of Node's default memory on a script this large.
+        tasks.withType<KotlinWebpack>().matching { it.name == JS_PRODUCTION_WEBPACK }.configureEach {
+            nodeArgs += WEBPACK_HEAP
         }
 
         val tool = configurations.create("sitePrerenderTool") {
@@ -182,6 +188,12 @@ class WebApplicationConventionPlugin : Plugin<Project> {
 
         /** The JavaScript build's script, which `site.js` starts where the browser cannot run the Wasm build. */
         const val JS_BUNDLE = "site-js.js"
+
+        /** The task that bundles and minifies the JavaScript build for production. */
+        const val JS_PRODUCTION_WEBPACK = "jsBrowserProductionWebpack"
+
+        /** Node's memory for that task, in megabytes, as the library's own web demo gives it. */
+        const val WEBPACK_HEAP = "--max-old-space-size=8192"
 
         /** The page's own script, which starts the build the browser can run. */
         const val LOADER = "src/webMain/resources/site.js"

@@ -1,6 +1,6 @@
 ---
 title: Panoya metin kopyalama
-description: Compose Multiplatform'da bir metni panoya kopyalamanın neden tek bir çağrı olmadığı, bunun için kütüphanenin ne verdiği, bir kopyalama düğmesinin ne zaman ne söylemesi gerektiği ve bunun nasıl sınandığı. Sorun Pantrix'e özgü değildir: ortak kodunda bir "kopyala" düğmesi olan her Compose Multiplatform projesinde aynı şekilde görülür.
+description: Compose Multiplatform'da bir metni panoya kopyalamanın neden tek bir çağrı olmadığı, bunun için kütüphanenin ne verdiği, bir kopyalama düğmesinin ne zaman ne söylemesi gerektiği, panodaki metnin nasıl okunduğu, bir yapıştırmanın nasıl duyulduğu ve bunların nasıl sınandığı. Sorun Pantrix'e özgü değildir: ortak kodunda bir "kopyala" düğmesi olan her Compose Multiplatform projesinde aynı şekilde görülür.
 ---
 
 Compose hakkında burada söylenen her şey Compose Multiplatform 1.12.1'in kaynaklarında okunmuş ya da bu depoda koşan bir testte görülmüştür; hangisinin nerede görüldüğü 7. ve 8. bölümlerde yazılıdır. Doğrulanamayanlar 8. bölümde ayrıca sayılır.
@@ -72,10 +72,12 @@ Kütüphane üç parçayı da verir (`com.pantrixui.foundation.platform`):
 | :--- | :--- |
 | `rememberPantrixClipboard()` | Düz metin için pano: `LocalClipboard`'ın verdiği panonun üstünde, `LocalClipboardTraits`'in huylarıyla. Yeniden kurulumlarda aynı nesnedir; pano ya da huylar değişince yenisi verilir |
 | `PantrixClipboard.copyText(text, label)` | Metni panoya koyar ve konup konmadığını söyler (`suspend`, `Boolean`). Yazılacak pano yoksa panoya hiç gitmez ve `false` der. `label` yalnızca Android'de taşınır |
+| `PantrixClipboard.readText()` | Panodaki düz metni okur (`suspend`, `String?`). Panoda metin yoksa, okunacak pano yoksa ya da platform okumayı reddettiyse `null` der; okunacak pano yoksa panoya hiç gitmez |
 | `PantrixClipboard.traits` | Bu panonun huyları |
-| `ClipboardTraits(writable, announcedBySystem)` | İki huy: yazılacak bir pano var mı; sistem kopyalananı kendisi gösteriyor mu |
-| `currentClipboardTraits()` | Platformun huyları, sorulduğu andaki hâliyle. Android'de API 33'ten başlayarak `announcedBySystem`; tarayıcıda sayfa güvenli bir bağlamda değilse ve masaüstünde JVM başsız çalışıyorsa `writable` yanlış |
+| `ClipboardTraits(writable, announcedBySystem, readable)` | Üç huy: yazılacak bir pano var mı; sistem kopyalananı kendisi gösteriyor mu; okunacak bir pano var mı |
+| `currentClipboardTraits()` | Platformun huyları, sorulduğu andaki hâliyle. Android'de API 33'ten başlayarak `announcedBySystem`; tarayıcıda sayfa güvenli bir bağlamda değilse ve masaüstünde JVM başsız çalışıyorsa `writable` ve `readable` yanlış; tarayıcıda `navigator.clipboard.read` yoksa (127'den eski Firefox) `readable` yanlış |
 | `LocalClipboardTraits` | `rememberPantrixClipboard()`'un baktığı huylar. Verilmezse platformunkidir; bir test başka bir platformunkini buradan verir |
+| `Modifier.onPaste(enabled, onPaste)` | Odak düğümün içindeyken okuyucunun yapıştırmasını, ⌘V'yi ya da Ctrl+V'yi duyar ve metniyle `onPaste`'i çağırır; içteki bir metin alanı yapıştırmayı kendisi almadıkça |
 :::
 
 ### 3.1. Kopyalama düğmesi
@@ -126,6 +128,43 @@ Platforma bakan tek bir satır yoktur: aynı düğme beş hedefte de derlenir. `
 ### 3.3. Etiket
 
 `label` panoya konanın ne olduğunu söyler: "Bağlantı", "Kod". Yalnızca Android taşır; `ClipData.newPlainText`'in belgesi ona "User-visible label for the clip data" der, bu yüzden uygulamanın dilinde verilir. Diğer platformlarda yok sayılır. Verilmezse boştur.
+
+### 3.4. Panodan okumak ve yapıştırmayı duymak
+
+Bir ekran panodakini iki yoldan alır: bir düğmeyle (`readText()`) ya da okuyucunun kendi yapıştırmasıyla, ⌘V ya da Ctrl+V (`Modifier.onPaste`).
+
+```kotlin
+// commonMain
+@Composable
+fun StartScreen(open: (String) -> Unit) {
+    val clipboard = rememberPantrixClipboard()
+    val scope = rememberCoroutineScope()
+    // Pencerenin her yerinde: kök, başka hiçbir şey odakta değilken odağı tutar.
+    Column(Modifier.shortcutRoot().onPaste { text -> open(text) }) {
+        PantrixButton(
+            text = "Panodan yapıştır",
+            // Askıda: tarayıcı ve iOS önce sorabilir.
+            onClick = { scope.launch { clipboard.readText()?.let(open) } },
+            enabled = clipboard.traits.readable,
+            tagKey = "paste"
+        )
+    }
+}
+```
+
+:::table
+| Platform | `readText()` | ⌘V ya da Ctrl+V (`onPaste`) |
+| :--- | :--- | :--- |
+| Android | Okur; sistem Android 12'den başlayarak panodan okunduğunu bir uyarıyla söyler | Donanım klavyesinin tuşu: tuş inerken panoyu okur |
+| Masaüstü | Okur: başka bir uygulamanın kopyasını ana iş parçacığının dışında, bellekte tutulan bir metni yerinde; ekransız JVM'de `readable` yanlıştır | Tuş inerken panoyu okur |
+| iOS | Başka bir uygulamanın kopyaladığını okumadan önce iOS izin sorar | Donanım klavyesinin tuşu: tuş inerken panoyu okur. Odakta bir metin alanı varken yapıştırmayı UIKit yapar; düğüm tuşu ona bırakır |
+| Web | Tarayıcı sorar: Chrome sayfa için bir kez, Safari her okumada kendi "Yapıştır" düğmesiyle; ikisi de yalnızca bir basıştan hemen sonra yanıt verir | Tarayıcının kendi yapıştırması: metin soru sorulmadan gelir |
+:::
+
+*   **Metin alanı kendisine yapıştırır.** Odak içteki bir metin alanındaysa yapıştırma onundur; `onPaste` bir şey duymaz.
+*   **İçteki alır.** Odağın çevresinde iki `onPaste` varsa yapıştırmayı içteki alır; `enabled = false` olan onu çevresindekine bırakır.
+*   **⌘V bir kısayol değildir.** Web'de `onShortcut(PantrixShortcut(Key.V, command = true))` tuşu tarayıcıdan saklar ve tarayıcı hiç yapıştırmaz. Yapıştırma `onPaste` ile duyulur.
+*   **Boş pano.** Panoda metin yoksa `readText()` `null` döner ve `onPaste` çağrılmaz.
 
 ## 4. Pantrix olmadan {#without}
 
@@ -246,21 +285,21 @@ fun CopyLinkButton(link: String, snackbars: SnackbarHostState) {
 
 ## 5. Yardımcının yapmadıkları {#limits toc="5. Yapmadıkları"}
 
-Yardımcı tek bir iş yapar: düz bir metni panoya koyar ve konup konmadığını söyler. Şunları yapmaz:
+Yardımcı düz bir metni panoya koyar ve konup konmadığını söyler, panodaki düz metni okur ve okuyucunun yapıştırmasını duyar. Şunları yapmaz:
 
-*   **Panodan okumaz.** Yapıştırmak için bir çağrısı yoktur.
+*   **Bir yapıştırma menüsü çizmez.** Bir metin alanının menüsündeki "Yapıştır" alanındır; `onPaste` yalnızca tuşu ve tarayıcının yapıştırmasını duyar.
 *   **Düz metinden başkasını koymaz.** Biçimli metin, HTML, bir adres (URI), bir görüntü ya da bir dosya taşımaz.
 *   **Panoyu boşaltmaz.** Compose'da bu `setClipEntry(null)`'dır.
 *   **İçeriği hassas diye işaretlemez.** Android'de bir parola gibi içeriğin gösterilirken gizlenmesini isteyen işaret `ClipDescription.EXTRA_IS_SENSITIVE`'dir (Android SDK kaynağı); `ClipData.newPlainText` onu koymaz.
 *   **Haber vermez.** Snackbar'ı uygulama gösterir; yardımcı yalnızca ne olduğunu söyler.
 
-İlk ikisini bir proje kendisi yazacaksa yolu yine platformdan platforma ayrılır. Compose'un kaynaklarının gösterdiği kadarı aşağıdadır; okuma sütunu, Compose Foundation'ın metin alanlarında yapıştırırken kullandığı kendi okuyucusundan (`ClipboardUtils.*.kt`, `readText()`) alınmıştır. O okuyucu `internal`'dır, bir uygulama onu çağıramaz.
+Düz metinden başkasını taşımayı ya da Pantrix olmadan okumayı bir proje kendisi yazacaksa yolu yine platformdan platforma ayrılır. Compose'un kaynaklarının gösterdiği kadarı aşağıdadır; okuma sütunu, Compose Foundation'ın metin alanlarında yapıştırırken kullandığı kendi okuyucusundan (`ClipboardUtils.*.kt`, `readText()`) alınmıştır. O okuyucu `internal`'dır, bir uygulama onu çağıramaz.
 
 :::table
 | Platform | Metni geri okumak | Düz metinden başkası |
 | :--- | :--- | :--- |
 | Android | `getClipEntry()?.clipData?.getItemAt(0)?.text?.toString()`. Panonun içeriğine ilk erişimde sistem bir uyarı gösterir (Compose'un belgesindeki adıyla "App pasted from Clipboard"); yalnızca panoda ne olduğunu sormak için `clipboard.nativeClipboardManager.primaryClipDescription` | Herhangi bir `ClipData`: `ClipEntry(clipData)` ya da `clipData.toClipEntry()`. İçindeki ilk adres için `firstUriOrNull()` (deneysel) |
-| Masaüstü | `getClipEntry()?.asAwtTransferable` (deneysel); `isDataFlavorSupported(DataFlavor.stringFlavor)` ise `getTransferData(DataFlavor.stringFlavor) as? String`. Foundation bunu `Dispatchers.IO`'da yapar ve `IOException`'ı "metin yok" sayar | Herhangi bir `Transferable`: `ClipEntry(transferable)`. `ClipboardOwner` da ise panonun sahibi olarak verilir |
+| Masaüstü | `getClipEntry()?.asAwtTransferable` (deneysel); `isDataFlavorSupported(DataFlavor.stringFlavor)` ise `getTransferData(DataFlavor.stringFlavor) as? String`. Foundation bunu başka bir uygulamanın kopyası için `Dispatchers.IO`'da yapar, bellekte tutulan bir `StringSelection` için yerinde, ve `IOException`'ı "metin yok" sayar | Herhangi bir `Transferable`: `ClipEntry(transferable)`. `ClipboardOwner` da ise panonun sahibi olarak verilir |
 | iOS | `getClipEntry()?.getPlainText()` (deneysel). Pano boşsa `getClipEntry()` null döner | Compose'un `ClipEntry`'si yalnızca metin taşır ("Currently, it operates only with string(s)"); gerisi için `UIPasteboard` doğrudan kullanılır |
 | Web | `getClipEntry()?.clipboardItems` (deneysel); ilk öğenin `getType("text/plain")`'i bir `Blob` verir, metni `blob.text()` ile, bir `Promise` olarak gelir. Dizi `js`'te `Array`, `wasmJs`'te `JsArray`'dir: iki hedefte ayrı yazılır. Tarayıcı okumayı reddederse Compose hata fırlatmaz, içi boş bir giriş döner; `read` hiç yoksa null döner | Kendi `ClipboardItem`'larınla `ClipEntry(clipboardItems)` (kurucu deneysel). Tam pano arayüzü olmayan tarayıcıda Compose yalnızca `writeText` ile düz metni yazar |
 :::
@@ -338,6 +377,29 @@ Metnin kendisine her platformun testi kendi yoluyla bakar:
 
 Web'de yol başkadır. `webTest`, `webMain` gibi iki hedefin ortak kaynak kümesidir ve `ClipEntry`'nin içi orada tek bir biçimde yazılamaz: öğeleri bir hedefte `Array`, ötekinde `JsArray`'dir. Testin yerine geçtiği şey Compose'un panosu değil, tarayıcınınkidir: böylece Compose'un tarayıcıya gerçekten ne verdiği görülür, reddedilen bir yazma da gerçek yolundan geçer (`Promise.reject(new DOMException(…, 'NotAllowedError'))`). İki fonksiyonun da yerine geçilir; hangisinin çağrılacağına Compose tarayıcıya bakarak karar verir.
 
+### 6.4. Yapıştırmayı sınamak
+
+Bir uygulamanın testi panoya başka bir uygulamanın kopyaladığı gibi bir metin koyar: `TestClipboard.putText(text)` (`com.pantrixui:testing`). Ekranın `readText()`'i onu okur:
+
+```kotlin
+val clipboard = TestClipboard()
+val opened = mutableListOf<String>()
+setContent { PantrixTestTheme(clipboard = clipboard) { StartScreen(open = { opened += it }) } }
+clipboard.putText("{\"a\": 1}")
+onPantrixNode("Button", "paste").performClick()
+waitForIdle()
+assertEquals(listOf("{\"a\": 1}"), opened)
+```
+
+Tuşla yapıştırmayı `performPaste(text, clipboard, system)` dener: metni panoya koyar ve yapıştırma tuşuna o sistemin klavyesi gibi basar. Web'de ⌘V tarayıcının kendi yapıştırmasıdır ve makinenin panosundan gelir; bir testin tuşu onu getirmez. Orada yardımcı, tuş inikken sayfaya tarayıcının yapıştırmasını gönderir: odaktaki öğeden yükselen, metni taşıyan bir `ClipboardEvent`. Böylece aynı test beş hedefte de geçer:
+
+```kotlin
+onPantrixNode("Screen", "start").performPaste("{\"a\": 1}", clipboard, OperatingSystem.Android)
+assertEquals(listOf("{\"a\": 1}"), opened)
+```
+
+`system`, ekranın yazıldığı sistemdir, `PantrixTestTheme(system = …)`; temanın varsayılanı Android'dir, yapıştırması Ctrl+V'dir. Bir metin alanına `performTextInput` ile yazılır.
+
 ## 7. Tuzaklar {#pitfalls}
 
 :::table
@@ -356,6 +418,9 @@ Web'de yol başkadır. `webTest`, `webMain` gibi iki hedefin ortak kaynak kümes
 | **Tek fonksiyonun yerine geçen web testi** | Compose tam pano arayüzü varsa `write`'ı, yoksa `writeText`'i çağırır. Test yalnızca birinin yerine geçmişse öteki gerçek panoya yazar | İkisinin de yerine geç; kopyalamadan önce yerlerinde olduklarına bak | Kaynak: `PlatformClipboard.js.kt`, `.wasm.kt` |
 | **Sahte panoda `nativeClipboard`** | Arayüzdeki `nativeClipboard` kullanımdan kalkmıştır ve verilmezse `NotImplementedError` fırlatır. Masaüstünde metin alanının sağ tık menüsü panoyu hâlâ onunla sorar | Kopyalama düğmesi için gerekmez. Aynı testte bir metin alanının menüsü de varsa sahte panoda onu da ver | Kaynak: `Clipboard.kt`, `ClipboardUtils.desktop.kt`. Bu depoda `TextFieldDesktopTest` |
 | **Android'de okumak** | `getClipEntry()` panonun içeriğine erişir; ilk erişimde sistem "App pasted from Clipboard" uyarısını gösterir | Yalnızca ne olduğunu sormak için `primaryClipDescription` | Kaynak: `Clipboard.kt`'nin belgesi |
+| **⌘V'yi kısayol yapmak** | Web'de `onShortcut` tuşu tarayıcıdan saklar; tarayıcı yapıştırmaz ve `paste` olayı hiç gelmez | Yapıştırmayı `Modifier.onPaste` ile duy | Kaynak: `ComposeWindowInternal.web.kt` (`processClipKeyDown`), tarayıcı yapıştırmayı ancak tuş saklanmadıysa gönderir |
+| **iOS'ta iki kez yapıştırmak** | UIKit ⌘V'yi odaktaki alana yapıştırır ve tuşu Compose'a da verir; Compose'un alanı tuşu almaz, çevresindeki bir tuş dinleyicisi aynı metni bir kez daha alır | Odakta UIKit'in bir metin girişi varken tuşa dokunma: `onPaste` böyle yapar | Kaynak: `InputViews.ios.kt` (`pressesBegan`), `NativeTextInputView.ios.kt` (`paste`). Testte iOS'un alanı ⌘V'yi almadı (`OnPasteTest`) |
+| **Basışsız okumak** | Tarayıcı okumayı yalnızca bir basıştan hemen sonra yanıtlar; açılışta ya da bir zamanlayıcıdan okumak reddedilir | Okumayı bir düğmeye bağla; ⌘V için `onPaste` | Tarayıcıların belgeleri; denenmedi |
 | **Dil taşımayan etiket** | Etiket kullanıcıya görünür bir metindir; koda gömülen bir etiket uygulamanın dili değişince eskisinde kalır | Etiketi çağıran versin, uygulamanın dilinde | Android SDK kaynağı (`ClipData.newPlainText`); test: etiket Android'de gelir, başka yerde gelmez |
 :::
 
@@ -367,10 +432,16 @@ Web'de yol başkadır. `webTest`, `webMain` gibi iki hedefin ortak kaynak kümes
 | Test | Nerede koşar | Neye bakar |
 | :--- | :--- | :--- |
 | `ui/foundation`, `PantrixClipboardTest` | JVM, iOS simülatörü, JS, Wasm (9 test) | Kopyalama panoya bir giriş koyar ve `true` der; yazılacak pano yokken `false` der ve panoya hiç dokunmaz; pano ne fırlatırsa fırlatsın cevap `false`'tur; iptal edilen kopyalama iptal olur, cevap vermez; hatırlanan pano yeniden kurulumda aynıdır, pano ya da huylar değişince yenisidir ve yenisine bakar |
-| `ui/foundation`, `PantrixClipboardOnTheDesktopTest` | JVM (3 test) | Gelen şey, metin biçimi verilen metin olan bir `Transferable`'dır; satır sonları, ASCII dışı harfler ve emoji eksiksiz gelir; masaüstünün huyları: ekranı olan JVM'de yazılır, başsız olanda yazılmaz |
+| `ui/foundation`, `PantrixClipboardOnTheDesktopTest` | JVM (4 test) | Gelen şey, metin biçimi verilen metin olan bir `Transferable`'dır; satır sonları, ASCII dışı harfler ve emoji eksiksiz gelir; bellekte tutulan metin soran iş parçacığında, başka bir uygulamanın kopyası onun dışında okunur; masaüstünün huyları: ekranı olan JVM'de yazılır ve okunur, başsız olanda ikisi de olmaz |
 | `ui/foundation`, `PantrixClipboardOnAndroidTest` | Robolectric (7 test) | Sistemin panosundaki ilk öğe verilen metindir, etiketi verilen etikettir, türü düz metindir; etiket verilmezse boştur; `announcedBySystem` API 33 ve 34'te doğru, 32 ve 30'da yanlıştır |
 | `ui/foundation`, `PantrixClipboardOnIosTest` | iOS simülatörü (3 test) | Gelen girişin `getPlainText()`'i verilen metindir; zor metin eksiksiz gelir; iOS'un huyları |
 | `ui/foundation`, `PantrixClipboardOnTheWebTest` | ChromeHeadless'ta JS ve Wasm (5 test) | Test koşucusunun sayfasında `writable` doğrudur; `navigator.clipboard` gizlenince yanlıştır; tarayıcıya verilen öğenin `text/plain` parçası verilen metindir; zor metin eksiksiz gelir; tarayıcının reddettiği yazmanın cevabı `false`'tur |
+| `ui/foundation`, `PantrixClipboardReadTest` | JVM, iOS simülatörü, JS, Wasm (6 test) | Kopyalanan metin olduğu gibi, zor metin de eksiksiz geri okunur; son kopya okunur; boş pano metin vermez; okunacak pano yokken panoya hiç sorulmaz; okumayı reddeden pano metin vermez |
+| `ui/foundation`, `OnPasteTest` | JVM, iOS simülatörü, JS, Wasm (7 test) | Yapıştırma tuşu panonun metnini odağın çevresindeki düğüme ve zincirde odağı alan düğümden sonra duran düğüme verir, web'de vermez: orada tuş tarayıcınındır; odak dışındaki düğüm duymaz; içteki metin alanı kendisine yapıştırır; içteki düğüm alır; `enabled = false` olan çevresindekine bırakır; boş pano bir şey yapıştırmaz |
+| `ui/foundation`, `OnPasteOnTheWebTest` | ChromeHeadless'ta JS ve Wasm (8 test) | Tarayıcının yapıştırması metniyle verilir ve alınmış diye işaretlenir; alınmayan tarayıcıya kalır; bir alanın aldığı verilmez; kapandıktan sonra duyulmaz; düğüm içinde inen tuşun ardından gelen yapıştırmayı duyar, tuşsuz geleni duymaz; pencerenin kökünde `shortcutRoot`'tan sonra da duyar; içteki alır; `enabled = false` olan çevresindekine bırakır |
+| `ui/testing`, `TestDoublesTest` | JVM, iOS simülatörü, JS, Wasm | `putText` ile konan metni ekran okur; temizlenince okumaz |
+| `ui/testing`, `PantrixAssertionsTest` | JVM, iOS simülatörü, JS, Wasm | `performPaste`'in metnini `onPaste` her hedefte duyar, web'de tarayıcının yapıştırmasıyla; her sistem kendi öncü tuşuyla yapıştırır, ötekinin tuşu bir şey yapıştırmaz; metin her durumda panodadır; pencerenin kökünde `shortcutRoot`'tan sonra da duyulur |
+| `ui/testing`, `TestingOnAndroidTest` | Robolectric | Android'de `performPaste` testin panosuna bir `ClipData` koyar ve Ctrl+V onu okur |
 | `app/shared`, `CodeBlockTest` | JVM (5 test) | Örnek uygulamanın kopyalama düğmesi kodu panoya koyar ve söyler; reddeden panoyu, panosu olmayan sayfayı "kopyalanamadı" diye söyler; sistemin gösterdiği kopyayı söylemez |
 | `app/shared`, `CopyMessageTest` | JVM, iOS simülatörü, JS, Wasm (3 test) | Kopyalamadan sonra ne dendiğinin kuralı |
 :::
@@ -384,13 +455,14 @@ Her davranış bir kez elle bozuldu ve hangi testin kırmızı olduğuna bakıld
 *   **Ortak kod:** yazmanın hiç yapılmaması; yazdıktan sonra `false` denmesi; `writable`'a bakılmaması; fırlatan panoya `true` denmesi; yalnızca `Exception` yakalanması; iptalin yutulması; `remember`'ın kaldırılması; anahtarlarından panonun ya da huyların çıkarılması; huyların `LocalClipboardTraits`'ten okunmaması; etiket ile metnin yer değiştirmesi. On birinde de bir test kırmızı oldu.
 *   **Platformlar:** her platformda metin yerine etiketin konması; Android'de sınırın 34'e, 32'ye ve 30'a çekilmesi; masaüstünde ve iOS'ta huyların değiştirilmesi; tarayıcıda sorunun hep "var" ve hep "yok" demesi. Hepsinde o platformun bir testi kırmızı oldu.
 *   **Yalnızca bir yerde görülen:** `LocalClipboardTraits`'in varsayılanı platformunki yerine boş huylar olunca JVM'de hiçbir test kırmızı olmaz, çünkü orada ikisi aynıdır. Android'de `on_android_14_a_remembered_clipboard_knows_the_system_shows_a_copy_itself` kırmızı olur.
+*   **Tuşla yapıştırmak:** masaüstünde bellekte tutulan metnin de ana iş parçacığının dışında okunması (`a_text_held_in_memory_is_read_in_place_and_another_application_s_away_from_the_thread` kırmızı oldu; `ui/testing`'in yapıştırma testleri geçti, okuma o kadar kısa sürdüğü için: düzeltilen bir yarıştır); `performPaste`'in hep Control'le basması (JVM'de `a_paste_is_pressed_as_each_system_presses_it`); web'de sayfaya yapıştırma gönderilmemesi (JS'te yapıştırmanın iki testi de).
 
 ### Doğrulanmayanlar
 
 *   **Android 13'ün önizlemesi.** Sistemin kopyalananı kendisi gösterdiği ve uygulamadan ikinci kez söylememesini istediği Android'in belgelerindendir. Bu depoda Android 14 emülatöründe görüldüğü `docs/OPEN_ITEMS.md`'de yazılıdır; bu rehber yazılırken yeniden bakılmadı. Robolectric önizlemeyi çizmez: testler yalnızca huyun hangi sürümde ne dediğine bakar.
 *   **Gerçek bir http sayfası.** Güvenli olmayan bağlam, düz http ile sunulan bir sayfada denenmedi. Testte `navigator.clipboard` sayfadan gizlendi; Compose'un o durumda yazmayı atladığı kaynakta okundu, bir testte görülmedi.
 *   **Tarayıcının gerçek reddi.** Bir tarayıcının yazmayı hangi koşullarda reddettiğine bakılmadı. Testteki ret, testin kendi koyduğu bir rettir; hiçbir test gerçek panoya yazmadı.
-*   **Tam pano arayüzü olmayan tarayıcı.** Compose'un `writeText`'e düştüğü yol (kaynaktaki nota göre 127'den eski Firefox) hiçbir tarayıcıda koşmadı. Testler yalnızca ChromeHeadless 154'te koştu.
+*   **Tam pano arayüzü olmayan tarayıcı.** Compose'un `writeText`'e düştüğü yol (kaynaktaki nota göre 127'den eski Firefox) hiçbir tarayıcıda koşmadı. Testler yalnızca ChromeHeadless'ta koştu (154 ve 156).
 *   **Gerçek panolar.** Masaüstünde, iOS'ta ve tarayıcıda hiçbir test sistemin panosuna yazmadı. Kopyalananın başka bir uygulamaya yapıştırılabildiğine bu rehber için bakılmadı.
 *   **Android'de çok büyük metin.** Sistemin taşıyamayacağı kadar büyük bir metnin reddedildiği denenmedi. Kaynakta görülen, servisin hatasının bir `RuntimeException` olarak fırladığıdır.
 *   **Masaüstünde kullanılamayan pano.** `IllegalStateException` JDK'nın belgesinde yazılıdır; görülmedi.
@@ -398,6 +470,9 @@ Her davranış bir kez elle bozuldu ve hangi testin kırmızı olduğuna bakıld
 *   **iOS simülatörünün panosu.** Simülatör panosunu üstünde koştuğu makineyle paylaşabilir; iOS testleri bu yüzden sahte panoyla koşar. Paylaşımın kendisi denenmedi.
 *   **Susan sistemler.** Masaüstünde, iOS'ta, tarayıcıda ve Android 12L ile altında sistemin bir kopyayı kendisi göstermediği kütüphanenin kabulüdür (`announcedBySystem = false`); gerçek cihazlarda bakılmadı.
 *   **Ekran okuyucu.** Kopyalamanın sesli olarak nasıl duyurulduğuna bakılmadı.
+*   **iOS'ta donanım klavyesiyle ⌘V.** UIKit'in odaktaki alana yapıştırdığı ve tuşu Compose'a da verdiği kaynakta okundu. Buradan simülatöre ⌘V basılamadı: odakta UIKit'in metin girişi varken düğümün tuşu bıraktığı görülmedi.
+*   **Tarayıcının okuma izni.** `readText()`'in Chrome'da ve Safari'de sorduğu soru görülmedi; testlerde okunan testin kendi panosudur.
+*   **Gerçek bir yapıştırma.** Tarayıcının gerçek bir ⌘V'de `paste` olayını Compose'un girişine gönderdiği kaynakta okundu; testte olay sayfaya testin kendisi gönderdi.
 
 ## 9. Bu depoda nerede {#repository toc="9. Depoda"}
 
@@ -405,16 +480,18 @@ Her davranış bir kez elle bozuldu ve hangi testin kırmızı olduğuna bakıld
 | Dosya | Ne |
 | :--- | :--- |
 | `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/platform/PantrixClipboard.kt` | `ClipboardTraits`, `currentClipboardTraits`, `LocalClipboardTraits`, `PantrixClipboard`, `rememberPantrixClipboard` |
-| `ui/foundation/src/androidMain/…/PantrixClipboard.android.kt`, `iosMain/…/PantrixClipboard.ios.kt`, `jvmMain/…/PantrixClipboard.jvm.kt` | Üç platformun huyları ve panoya konan türü |
-| `ui/foundation/src/webMain/…/PantrixClipboard.web.kt` | Tarayıcının huyları ve tarayıcıya sorulan soru |
-| `ui/foundation/src/jsMain/…/PantrixClipboard.js.kt`, `wasmJsMain/…/PantrixClipboard.wasmJs.kt` | İki web hedefinde panoya konan tür |
+| `ui/foundation/src/commonMain/kotlin/com/pantrixui/foundation/platform/OnPaste.kt` | `Modifier.onPaste` |
+| `ui/foundation/src/androidMain/…/PantrixClipboard.android.kt`, `iosMain/…/PantrixClipboard.ios.kt`, `jvmMain/…/PantrixClipboard.jvm.kt` | Üç platformun huyları, panoya konan türü ve ondan okunan metin; iOS'ta UIKit'in metin girişine bakış |
+| `ui/foundation/src/webMain/…/PantrixClipboard.web.kt` | Tarayıcının huyları, tarayıcıya sorulan soru ve tarayıcının yapıştırmasının dinlenmesi |
+| `ui/foundation/src/jsMain/…/PantrixClipboard.js.kt`, `wasmJsMain/…/PantrixClipboard.wasmJs.kt` | İki web hedefinde panoya konan tür ve ondan okunan metin |
 | `ui/foundation/src/commonTest/…/platform/RecordingClipboard.kt` | Testlerin sahte panosu |
-| `ui/foundation/src/commonTest`, `jvmTest`, `androidHostTest`, `iosTest`, `webTest` altında `…/platform/PantrixClipboard*Test.kt` | 8. bölümdeki testler |
+| `ui/foundation/src/commonTest`, `jvmTest`, `androidHostTest`, `iosTest`, `webTest` altında `…/platform/PantrixClipboard*Test.kt` ve `…/platform/OnPaste*Test.kt` | 8. bölümdeki testler |
 | `app/shared/src/commonMain/kotlin/com/pantrixui/cmp/demo/page/CodeBlock.kt` | Örnek uygulamanın kopyalama düğmesi ve ne diyeceğinin kuralı (`copyMessage`) |
 :::
 
 ## 10. Açık kalanlar {#open}
 
-*   Yardımcı panodan okumaz ve düz metinden başkasını taşımaz (bkz. 5. bölüm).
+*   Yardımcı düz metinden başkasını taşımaz ve bir yapıştırma menüsü çizmez (bkz. 5. bölüm).
+*   iOS'ta donanım klavyesiyle ⌘V'nin, odakta bir alan varken alana bırakıldığı cihazda görülmedi (bkz. 8. bölüm).
 *   Masaüstünde ve iOS'ta dayandığı Compose API'si deneyseldir (`@ExperimentalComposeUiApi`); Compose Multiplatform'un sonraki bir sürümünde değişebilir.
 *   Yalnızca testlerde görüldü: gerçek cihazlarda, gerçek tarayıcılarda ve düz http ile sunulan bir sayfada bakılmadı.

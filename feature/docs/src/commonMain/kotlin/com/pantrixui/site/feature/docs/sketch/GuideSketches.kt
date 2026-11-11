@@ -28,5 +28,9 @@ internal val GuideSketches: Map<String, @Composable () -> Unit> = mapOf(
     "analytics" to { AnalyticsSketch() },
     "chart-export" to { ChartExportSketch() },
     "detekt" to { DetektSketch() },
-    "material3" to { Material3Sketch() }
+    "material3" to { Material3Sketch() },
+    "language" to { LanguageSketch() },
+    "previews" to { PreviewsSketch() },
+    "sharing" to { SharingSketch() },
+    "semantics-tree" to { SemanticsTreeSketch() }
 )

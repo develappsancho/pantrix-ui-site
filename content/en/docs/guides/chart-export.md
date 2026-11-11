@@ -3,7 +3,7 @@ title: Exporting a chart as a file
 description: How a Pantrix chart is exported as PNG, SVG and PDF, what the library does and what it leaves to the app, how the file made reaches the user on each platform, and the limits of the three kinds of file.
 ---
 
-The chart **makes** the file and **hands** it to the app; it does not save it, share it or download it. Foundation's `FileSaver` gives it to the user, with each platform's window for saving a file (section 3); the share sheet is the app's.
+The chart **makes** the file and **hands** it to the app; it does not save it, share it or download it. Foundation's `FileSaver` gives it to the user, with each platform's window for saving a file (section 3); a file's share sheet is the app's. A text or a link is sent by foundation's `ShareSheet` ([the sharing guide](/docs/guides/sharing)).
 
 Everything said here of the library was seen in tests that run in this repository, or by looking at the files made; which was seen where is written in section 6. The two pieces for sharing in section 3 are the demo's old code, and compiled on four platforms; where they were tried is in section 6.
 

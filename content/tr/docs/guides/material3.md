@@ -18,7 +18,7 @@ Kütüphanenin kendisi Material'sız kalır: köprü Material'ı kullanan tek mo
 
 ```kotlin
 commonMain.dependencies {
-    implementation("com.pantrixui:material3:0.1.1")
+    implementation("com.pantrixui:material3:0.2.1")
 }
 ```
 

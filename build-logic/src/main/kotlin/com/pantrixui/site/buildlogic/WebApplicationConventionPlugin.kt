@@ -340,7 +340,10 @@ abstract class NodeTest : DefaultTask() {
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val loader: ConfigurableFileCollection
 
-    /** The built site the tests in Chrome open, given to them as `SITE_DIST`. */
+    /**
+     * The built site the tests in Chrome open, given to them as `SITE_DIST`. It is no input: the distribution's
+     * finalizers write into the same folder, and the tests that open it have no [stamp], so they run each time.
+     */
     @get:Internal
     abstract val site: DirectoryProperty
 
@@ -351,6 +354,12 @@ abstract class NodeTest : DefaultTask() {
 
     @get:Inject
     protected abstract val execOperations: ExecOperations
+
+    init {
+        // An optional output, even unset, makes Gradle call the task up to date while its tests are unchanged: the
+        // tests in Chrome would pass again on a site they never opened. Without a stamp it is never up to date.
+        outputs.upToDateWhen { task -> (task as NodeTest).stamp.isPresent }
+    }
 
     @TaskAction
     fun run() {

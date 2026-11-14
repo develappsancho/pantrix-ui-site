@@ -79,6 +79,9 @@ internal class ComponentReader(
         check(unknown.isEmpty()) { "The library has components in groups the site does not show: $unknown" }
     }
 
+    /** Every component's composable, `PantrixButton`, in the order the site shows them. */
+    val functions: List<String> get() = listed.map { it.function }
+
     /** The list of the components in [language]. */
     fun index(language: Language): ComponentIndex = ComponentIndex(
         language = language,

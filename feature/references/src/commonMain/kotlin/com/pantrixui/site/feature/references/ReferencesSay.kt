@@ -38,6 +38,9 @@ internal object ReferencesSay {
     fun picture(address: String): Words =
         Words("$address on a desktop and on a phone", "$address bir masaüstünde ve bir telefonda")
 
+    /** What the picture of an app's own screen on its card is called, for a screen reader. */
+    fun screen(address: String): Words = Words("$address on a desktop", "$address bir masaüstünde")
+
     val ComponentsTitle = Words("The components it draws with", "Çizdiği bileşenler")
 
     /** What stands under the components' title: how many of them there are. */

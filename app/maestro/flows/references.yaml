@@ -1,5 +1,6 @@
 # The references list the apps built with Pantrix UI: the site first, then the library's demo with its links, to visit
-# its web build and to download its macOS app.
+# its web build and to download its macOS app, and Formatico with its links and its open source. The list is far down
+# a phone's page, its cards' pictures tall: a first launch reaches it in more than the 20 seconds a scroll is given.
 appId: ${APP_ID}
 ---
 - runFlow: ../subflows/launch.yaml
@@ -13,6 +14,17 @@ appId: ${APP_ID}
     element:
       id: "Link_visit_pantrix_ui_demo"
     direction: DOWN
+    timeout: 40000
 - assertVisible: "Pantrix UI's demo|Pantrix UI'ın demosu"
 - assertVisible:
     id: "Link_download_pantrix_ui_demo"
+- scrollUntilVisible:
+    element:
+      id: "Link_visit_formatico"
+    direction: DOWN
+    timeout: 40000
+- assertVisible: "Formatico"
+- assertVisible:
+    id: "Link_download_formatico"
+- assertVisible:
+    id: "Button_source_formatico"

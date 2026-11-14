@@ -204,10 +204,10 @@ class SiteStrings(
     /** The link to every guide: "All 24 guides". */
     fun allGuides(count: Int): String = allGuides.invoke(count)
 
-    /** The count of components: "100 components". */
+    /** The count of components: "[count] components". */
     fun componentCount(count: Int): String = componentCount.invoke(count)
 
-    /** What the start card of the components says: "All 100, by group." */
+    /** What the start card of the components says: "All [count], by group." */
     fun startComponents(count: Int): String = startComponents.invoke(count)
 
     /** What a screen reader says of the language button: "Language: EN, English". */

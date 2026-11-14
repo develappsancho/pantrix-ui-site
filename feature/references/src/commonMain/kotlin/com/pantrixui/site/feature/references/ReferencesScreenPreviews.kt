@@ -8,6 +8,7 @@ import com.pantrixui.site.core.designsystem.PREVIEW_DESKTOP_WIDTH
 import com.pantrixui.site.core.designsystem.PREVIEW_PHONE_HEIGHT
 import com.pantrixui.site.core.designsystem.PREVIEW_PHONE_WIDTH
 import com.pantrixui.site.core.designsystem.SitePreview
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.PlatformKind
 import com.pantrixui.site.core.model.Reference
 import com.pantrixui.site.core.model.ReferencePlatform
@@ -51,8 +52,9 @@ private val SAMPLE_SITE = Reference(
     name = "Pantrix UI's site",
     address = "pantrixui.com",
     line = "The library's documentation site and its apps for Android, iOS and macOS, from one Kotlin codebase.",
-    about = "The library's own documentation site and its apps: the guides, a page for each of the 100 components " +
-        "with its examples running live, the theme builder, the window simulator and a page that asks the MCP server.",
+    about = "The library's own documentation site and its apps: the guides, a page for each of the " +
+        "${LibraryFacts.COMPONENTS} components with its examples running live, the theme builder, the window " +
+        "simulator and a page that asks the MCP server.",
     url = "https://pantrixui.com",
     source = "https://github.com/develappsancho/pantrix-ui-site",
     download = "/download",

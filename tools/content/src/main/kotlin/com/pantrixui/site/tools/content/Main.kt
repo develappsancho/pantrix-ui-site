@@ -7,6 +7,7 @@ import com.pantrixui.site.core.model.ContentFiles
 import com.pantrixui.site.core.model.GuideCatalogue
 import com.pantrixui.site.core.model.GuideTopic
 import com.pantrixui.site.core.model.Language
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Page
 import com.pantrixui.site.core.model.References
 import com.pantrixui.site.core.model.SearchIndex
@@ -21,8 +22,9 @@ import kotlin.math.ceil
  * jar, the changelog and the components, their list and each one's page, in both languages. A component the site
  * writes examples of its own for, under `--pages`' `examples` ([SiteExamples]), shows those. The apps built with
  * Pantrix UI come from `--pages`' `references.json` ([ReferencesReader]), one file a language. A page names the site's
- * own address as `{{site}}`, written as `--site` gives it. What `--out` held before is replaced, so that a page taken
- * out of the site is gone from it too.
+ * own address as `{{site}}`, written as `--site` gives it, and how many components the library has as
+ * `{{components}}` ([LibraryFacts.COMPONENTS], which the build counts in the same jar). What `--out` held before is
+ * replaced, so that a page taken out of the site is gone from it too.
  */
 fun main(args: Array<String>) {
     val options = args.toList().chunked(2).associate { it.first() to it.last() }
@@ -36,7 +38,6 @@ fun main(args: Array<String>) {
         .map(SiteGuides::withCatalogue)
     val written = writer.write(sitePages)
     writer.writeMinutes(guides.minutes)
-    Language.entries.forEach { writer.writeReferences(it, ReferencesReader.read(folder, it)) }
     val english = ChangelogReader(Language.English).read(documents.text(LibraryDocuments.ENGLISH_CHANGELOG))
     val turkish = ChangelogReader(Language.Turkish, english).read(documents.text(LibraryDocuments.TURKISH_CHANGELOG))
     val upcoming = documents.version()
@@ -48,6 +49,10 @@ fun main(args: Array<String>) {
         changelogs = mapOf(Language.English to english, Language.Turkish to turkish),
         siteExamples = SiteExamples.read(File(folder, SiteExamples.FOLDER))
     )
+    check(components.functions.size == LibraryFacts.COMPONENTS) {
+        "The library lists ${components.functions.size} components and the build counted ${LibraryFacts.COMPONENTS}"
+    }
+    Language.entries.forEach { writer.writeReferences(it, ReferencesReader.read(folder, it, components.functions)) }
     val indexes = Language.entries.associateWith(components::index)
     val componentPages = Language.entries.associateWith(components::pages)
     val count = Language.entries.sumOf { language ->
@@ -63,11 +68,18 @@ fun main(args: Array<String>) {
 
 /**
  * The pages the site writes itself, from a folder of `<language>/<path>.md` files. A page names the site's own address
- * as [SITE]: it is written as [site] gives it, so that a new address is one line of `gradle.properties`.
+ * as [SITE]: it is written as [site] gives it, so that a new address is one line of `gradle.properties`. It names how
+ * many components the library has as [COMPONENTS], so that a release with more says so on every page.
  */
 internal object SitePages {
     /** How a page names the site's own address: `{{site}}/mcp`. */
     const val SITE = "{{site}}"
+
+    /** How a page names how many components the library has: `{{components}} components`. */
+    const val COMPONENTS = "{{components}}"
+
+    /** [text] with the library's count of components where it names it. */
+    fun withCount(text: String): String = text.replace(COMPONENTS, LibraryFacts.COMPONENTS.toString())
 
     fun read(
         folder: File,
@@ -77,7 +89,7 @@ internal object SitePages {
         root.walkTopDown().filter { it.isFile && it.extension == "md" }.sortedBy { it.path }.map { file ->
             val name = file.relativeTo(root).invariantSeparatorsPath.removeSuffix(".md")
             val path = if (name == "index") "/" else "/$name"
-            PageReader(language, path).read(file.readText().replace(SITE, site))
+            PageReader(language, path).read(withCount(file.readText().replace(SITE, site)))
         }.toList()
     }
 }

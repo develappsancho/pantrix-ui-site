@@ -1,6 +1,6 @@
 ---
 title: Pantrix UI
-description: A design system and adaptive UI library for Compose Multiplatform: 100 components on Compose Foundation, with no Material dependency, and one theme that follows the conventions of Android, iOS, the desktop and the web.
+description: A design system and adaptive UI library for Compose Multiplatform: {{components}} components on Compose Foundation, with no Material dependency, and one theme that follows the conventions of Android, iOS, the desktop and the web.
 ---
 
 ## The code of the landing page {#code}

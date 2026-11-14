@@ -1,6 +1,6 @@
 ---
 title: Pantrix UI
-description: Compose Multiplatform için bir tasarım sistemi ve uyarlanabilir arayüz kütüphanesi: Compose Foundation üstünde 100 bileşen, Material'a hiçbir bağımlılık olmadan, ve Android'in, iOS'un, masaüstünün ve web'in alışkanlıklarını izleyen tek bir tema.
+description: Compose Multiplatform için bir tasarım sistemi ve uyarlanabilir arayüz kütüphanesi: Compose Foundation üstünde {{components}} bileşen, Material'a hiçbir bağımlılık olmadan, ve Android'in, iOS'un, masaüstünün ve web'in alışkanlıklarını izleyen tek bir tema.
 ---
 
 ## Ana sayfanın kodu {#code}

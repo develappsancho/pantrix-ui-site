@@ -10,11 +10,14 @@ import kotlin.test.assertTrue
 class ReferencesPageTest {
     @Test
     fun a_platform_keeps_the_apps_that_run_on_it() = siteAt(Route.References) {
-        val web = hasPantrixTag("Button", "platform_web")
-        press(web)
-        until("the web's apps") { has(hasText("Pantrix UI's demo")) }
+        val demo = hasText("Pantrix UI's demo")
+        val formatico = hasText("Formatico")
+        press(hasPantrixTag("Button", "platform_ios"))
+        until("iOS's apps, with no Formatico") { has(demo) && !has(formatico) }
+        press(hasPantrixTag("Button", "platform_web"))
+        until("the web's apps") { has(demo) && has(formatico) }
         press(hasPantrixTag("Button", "platform_all"))
-        until("every app") { has(hasText("Pantrix UI's demo")) }
+        until("every app") { has(demo) && has(formatico) }
     }
 
     @Test
@@ -23,7 +26,10 @@ class ReferencesPageTest {
             hasPantrixTag("Button", "visit_pantrix_ui_site"),
             hasPantrixTag("Button", "source_pantrix_ui_site"),
             hasPantrixTag("Link", "visit_pantrix_ui_demo"),
-            hasPantrixTag("Link", "download_pantrix_ui_demo")
+            hasPantrixTag("Link", "download_pantrix_ui_demo"),
+            hasPantrixTag("Link", "visit_formatico"),
+            hasPantrixTag("Link", "download_formatico"),
+            hasPantrixTag("Button", "source_formatico")
         ).forEachIndexed { index, way ->
             press(way)
             until("${way.description} opened") { services.opened.size == index + 1 || address() != "/references" }
@@ -33,7 +39,20 @@ class ReferencesPageTest {
             }
         }
         assertTrue(services.opened.any { it.endsWith(".dmg") }, "${services.opened}")
-        assertTrue(services.opened.any { "github.com" in it }, "${services.opened}")
+        assertTrue("https://formatico.pantrixui.com" in services.opened, "${services.opened}")
+        assertTrue("https://github.com/develappsancho/formatico-cmp" in services.opened, "${services.opened}")
+        assertTrue(
+            "https://github.com/develappsancho/formatico-cmp/releases/latest" in services.opened,
+            "${services.opened}"
+        )
+    }
+
+    /** Formatico's card shows its own screen, and the demo's, which has none, its mark. */
+    @Test
+    fun an_app_s_card_shows_its_screen_where_it_has_one() = siteAt(Route.References) {
+        scrollTo(hasPantrixTag("Image", "picture_formatico"))
+        until("Formatico's screen") { has(hasPantrixTag("Image", "picture_formatico")) }
+        assertTrue(!has(hasPantrixTag("Image", "picture_pantrix_ui_demo")), "the demo has no picture of its own")
     }
 
     @Test

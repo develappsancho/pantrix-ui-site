@@ -12,6 +12,18 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Added
+
+- **References:** Formatico, an app that formats, validates, explores and converts structured text on the web, Android
+  and a Mac, among All projects, its card with a picture of its screen in the page's theme and a tag that leads to its
+  open source.
+
+### Fixed
+
+- **The count of components:** the home page, Introduction, the references and the sketch of the site say the
+  library's 108 components where they said 100, and the library's demo counts all of them; the build counts them in
+  the library itself.
+
 ## [26.11.11] - 2026-11-11
 
 The site on Pantrix UI 0.2.1: four new guides with sketches to try, an installation that goes from GitHub's token to

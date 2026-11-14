@@ -7,7 +7,7 @@ section: Başlarken
 ## Ne olduğu {#what}
 
 :::facts
-- Bileşenler: 100, sekiz grupta
+- Bileşenler: {{components}}, sekiz grupta
 - Hedefler: Android, iOS, JVM, Wasm, JS
 - Bağımlılık: yalnızca Compose Foundation
 - Diller: İngilizce, Türkçe, Arapça
@@ -31,7 +31,7 @@ fun App() {
 ## İçinde ne var {#modules}
 
 :::table Modüller
-- `com.pantrixui:components`: 100 bileşen: öğeler, girdiler, tarihler, kaplar, gezinme, katmanlar, veri ve grafikler. `foundation` ve `annotations`'ı da getirir
+- `com.pantrixui:components`: {{components}} bileşen: öğeler, girdiler, tarihler, kaplar, gezinme, katmanlar, veri ve grafikler. `foundation` ve `annotations`'ı da getirir
 - `com.pantrixui:foundation`: Tema ve hazır ayarları, token'lar, pencere ve katları, diller ve platformun hizmetleri: pano, dosyalar, kısayollar, dokunsal geri bildirim
 - `com.pantrixui:testing`: Bir uygulamanın testleri için: etiketle bulmak, her makinede aynı olan bir tema, platform hizmetlerinin yerine geçenler
 - `com.pantrixui:material3`: Material 3'e iki yönlü köprü, ekran ekran geçen bir uygulama için

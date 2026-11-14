@@ -9,6 +9,14 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Eklenenler
+
+- **Referanslar:** web'de, Android'de ve Mac'te yapılandırılmış metni biçimlendiren, doğrulayan, gezdiren ve dönüştüren Formatico, Bütün projeler arasında; kartında sayfanın temasında ekranının bir resmi ve açık kaynağına götüren bir etiket.
+
+### Düzeltilenler
+
+- **Bileşen sayısı:** ana sayfa, Giriş, referanslar ve sitenin çizimi 100 dedikleri yerde kütüphanenin 108 bileşenini söyler, kütüphanenin demosu da hepsini sayar; sayıyı derleme kütüphanenin kendisinde sayar.
+
 ## [26.11.11] - 2026-11-11
 
 Site Pantrix UI 0.2.1'de: denenecek çizimleriyle dört yeni rehber, GitHub token'ından insanın kendi markasına giden bir kurulum, becerinin bütün kurallarıyla kodlama asistanları sayfası ve Jetpack Compose kütüphanesinin yapıldığı, 0.2.1'e kadar güncel bir yol haritası.

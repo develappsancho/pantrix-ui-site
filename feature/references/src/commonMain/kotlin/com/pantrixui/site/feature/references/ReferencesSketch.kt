@@ -39,6 +39,7 @@ import com.pantrixui.foundation.theme.PantrixTheme
 import com.pantrixui.site.core.designsystem.SiteTheme
 import com.pantrixui.site.core.designsystem.content.dotted
 import com.pantrixui.site.core.i18n.LocalLanguage
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Words
 
 /** The ground a picture of an app stands on: the canvas's colour and its dots, what it holds in its middle. */
@@ -262,11 +263,14 @@ private val TITLE = listOf(
     Words("Each one at home.", "Her biri kendi evinde.")
 )
 private val LEAD = Words(
-    "A design system for Compose Multiplatform: 100 components on Compose Foundation, no Material.",
-    "Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde 100 bileşen, Material yok."
+    "A design system for Compose Multiplatform: ${LibraryFacts.COMPONENTS} components on Compose Foundation, " +
+        "no Material.",
+    "Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde ${LibraryFacts.COMPONENTS} bileşen, " +
+        "Material yok."
 )
 private val START = Words("Get started", "Başla")
-private val BROWSE = Words("Browse 100 components", "100 bileşene göz at")
+private val BROWSE =
+    Words("Browse ${LibraryFacts.COMPONENTS} components", "${LibraryFacts.COMPONENTS} bileşene göz at")
 private val REVIEW = Words("Write a review", "Bir yorum yaz")
 private val NAV = listOf(
     Words("Docs", "Belgeler"),

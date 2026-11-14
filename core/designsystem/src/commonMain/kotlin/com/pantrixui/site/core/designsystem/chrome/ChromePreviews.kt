@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.dp
 import com.pantrixui.site.core.designsystem.PREVIEW_DESKTOP_WIDTH
 import com.pantrixui.site.core.designsystem.PREVIEW_PHONE_WIDTH
 import com.pantrixui.site.core.designsystem.SitePreview
+import com.pantrixui.site.core.model.LibraryFacts
 
 @Preview(widthDp = PREVIEW_DESKTOP_WIDTH, heightDp = HEADER_HEIGHT)
 @Composable
@@ -105,7 +106,12 @@ private fun SiteSidebarSample(dark: Boolean) {
                 NavSection(
                     title = "Library",
                     items = listOf(
-                        NavItem(key = "components", label = "Components", href = "/components", count = 100),
+                        NavItem(
+                            key = "components",
+                            label = "Components",
+                            href = "/components",
+                            count = LibraryFacts.COMPONENTS
+                        ),
                         NavItem(key = "guides", label = "Guides", href = "/docs/guides")
                     )
                 )

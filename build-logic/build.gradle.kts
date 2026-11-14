@@ -92,6 +92,10 @@ gradlePlugin {
             id = "site.address"
             implementationClass = "com.pantrixui.site.buildlogic.SiteAddressConventionPlugin"
         }
+        register("siteLibraryFacts") {
+            id = "site.library-facts"
+            implementationClass = "com.pantrixui.site.buildlogic.LibraryFactsConventionPlugin"
+        }
         register("siteContent") {
             id = "site.content"
             implementationClass = "com.pantrixui.site.buildlogic.ContentConventionPlugin"

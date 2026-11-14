@@ -9,8 +9,8 @@
         "tr": "Kütüphanenin belge sitesi ve Android, iOS ve macOS uygulamaları, tek bir Kotlin kod tabanından."
       },
       "about": {
-        "en": "The library's own documentation site and its apps: the guides, a page for each of the 100 components with its examples running live, the theme builder, the window simulator and a page that asks the MCP server.",
-        "tr": "Kütüphanenin kendi belge sitesi ve uygulamaları: rehberler, 100 bileşenin her biri için örnekleri canlı çalışan bir sayfa, tema oluşturucu, pencere simülatörü ve MCP sunucusuna soran bir sayfa."
+        "en": "The library's own documentation site and its apps: the guides, a page for each of the {{components}} components with its examples running live, the theme builder, the window simulator and a page that asks the MCP server.",
+        "tr": "Kütüphanenin kendi belge sitesi ve uygulamaları: rehberler, {{components}} bileşenin her biri için örnekleri canlı çalışan bir sayfa, tema oluşturucu, pencere simülatörü ve MCP sunucusuna soran bir sayfa."
       },
       "url": "https://pantrixui.com",
       "source": "https://github.com/develappsancho/pantrix-ui-site",
@@ -54,8 +54,8 @@
       "name": { "en": "Pantrix UI's demo", "tr": "Pantrix UI'ın demosu" },
       "address": "develappsancho.github.io/pantrix-ui-cmp-package",
       "line": {
-        "en": "The library's catalogue: each of its 100 components on a page, with its examples, their code and its API.",
-        "tr": "Kütüphanenin kataloğu: 100 bileşeninin her biri bir sayfada, örnekleri, kodları ve API'siyle."
+        "en": "The library's catalogue: each of its {{components}} components on a page, with its examples, their code and its API.",
+        "tr": "Kütüphanenin kataloğu: {{components}} bileşeninin her biri bir sayfada, örnekleri, kodları ve API'siyle."
       },
       "about": {
         "en": "The app the library is shown and checked with: each component on a page of its own, its examples running live with their code and its API from the library's KDoc, in English and Turkish. A Maestro flow walks every page on Android and iOS.",
@@ -70,29 +70,7 @@
         { "kind": "Desktop", "name": "macOS", "detail": { "en": "A signed and notarized app", "tr": "İmzalı ve noterden geçmiş bir uygulama" } }
       ],
       "languages": ["en", "tr"],
-      "components": [
-        "PantrixAccordion", "PantrixAlert", "PantrixAreaChart", "PantrixAutoResizeTextField", "PantrixAutoText",
-        "PantrixAvatar", "PantrixBackButton", "PantrixBadge", "PantrixBadgedBox", "PantrixBarChart",
-        "PantrixBreadcrumb", "PantrixButton", "PantrixButtonGroup", "PantrixCandlestickChart", "PantrixCard",
-        "PantrixCardSkeleton", "PantrixCarousel", "PantrixChart", "PantrixCheckbox", "PantrixChip", "PantrixCodeBlock",
-        "PantrixCommandPalette", "PantrixDataTable", "PantrixDateFilledTextField", "PantrixDatePicker",
-        "PantrixDateTextField", "PantrixDiagnosticsInspector", "PantrixDialog", "PantrixDivider",
-        "PantrixElasticDatePicker", "PantrixFileDrop", "PantrixFileItem", "PantrixFilledAutoResizeTextField",
-        "PantrixFilledSecureTextField", "PantrixFilledTextArea", "PantrixFilledTextField", "PantrixFunnelChart",
-        "PantrixGanttChart", "PantrixGauge", "PantrixHeatmap", "PantrixIcon", "PantrixIconButton", "PantrixImage",
-        "PantrixJsonView", "PantrixLineChart", "PantrixLink", "PantrixListDetailScaffold", "PantrixListItem",
-        "PantrixMenu", "PantrixMeterGroup", "PantrixModal", "PantrixMultiSelect", "PantrixNavigationBar",
-        "PantrixNavigationRail", "PantrixPageJump", "PantrixPageScaffold", "PantrixPageSize", "PantrixPagination",
-        "PantrixPieChart", "PantrixPolarChart", "PantrixPopover", "PantrixProgressCircle", "PantrixRadarChart",
-        "PantrixRadioButton", "PantrixRadioGroup", "PantrixRangeChart", "PantrixSankeyChart", "PantrixScaffold",
-        "PantrixScatterChart", "PantrixSecureTextField", "PantrixSegmentButton", "PantrixSelect", "PantrixSheet",
-        "PantrixShowcaseScaffold", "PantrixSidebar", "PantrixSkeleton", "PantrixSkeletonText", "PantrixSnackbarHost",
-        "PantrixSparkline", "PantrixSpinner", "PantrixStatusTracker", "PantrixSupportingPaneScaffold",
-        "PantrixSurface", "PantrixSwitchButton", "PantrixTabletopLayout", "PantrixTabs", "PantrixTag", "PantrixText",
-        "PantrixTextArea", "PantrixTextField", "PantrixTimeFilledTextField", "PantrixTimePicker",
-        "PantrixTimeTextField", "PantrixTooltip", "PantrixTopBar", "PantrixTreeView", "PantrixTreemap",
-        "PantrixTriStateCheckbox", "PantrixTwoPane", "PantrixWaterfallChart"
-      ],
+      "components": "all",
       "made": [
         {
           "title": { "en": "Its pages written from annotations", "tr": "Sayfaları açıklamalardan yazılır" },
@@ -110,6 +88,39 @@
           "title": { "en": "Published with each release", "tr": "Her sürümle yayımlanır" },
           "detail": { "en": "Its web build on GitHub Pages, beside its APK, its DMG and its build for the iOS simulator.", "tr": "Web sürümü GitHub Pages'ta; yanında APK'sı, DMG'si ve iOS simülatörü derlemesi." }
         }
+      ]
+    },
+    {
+      "key": "formatico",
+      "name": "Formatico",
+      "address": "formatico.pantrixui.com",
+      "line": {
+        "en": "Formats, validates, explores and converts JSON, XML, YAML, TOML, CSV and properties in one workspace, with text, tree, table and graph views.",
+        "tr": "JSON, XML, YAML, TOML, CSV ve properties belgelerini tek çalışma alanında biçimlendirir, doğrular, gezdirir ve dönüştürür; metin, ağaç, tablo ve grafik görünümleriyle."
+      },
+      "about": {
+        "en": "Formatico formats, validates, explores and converts structured text: JSON and its kin (JSONC, JSON5, NDJSON), XML, YAML, TOML, CSV/TSV and properties/INI, in one workspace with a text, tree, table and graph view, JSONPath and XPath queries, conversion between formats and a comparison by meaning. Built with Pantrix UI and no Material, for Android, the desktop and the web, in English and Turkish.",
+        "tr": "Formatico; JSON ve akrabalarını (JSONC, JSON5, NDJSON), XML, YAML, TOML, CSV/TSV ve properties/INI belgelerini tek bir çalışma alanında biçimlendirir, doğrular; metin, ağaç, tablo ve grafik görünümünde gezdirir; JSONPath ve XPath sorguları, biçimler arası dönüştürme ve anlamca karşılaştırma sunar. Pantrix UI ile, Material'sız; Android, masaüstü ve web için, İngilizce ve Türkçe."
+      },
+      "url": "https://formatico.pantrixui.com",
+      "source": "https://github.com/develappsancho/formatico-cmp",
+      "download": "https://github.com/develappsancho/formatico-cmp/releases/latest",
+      "platforms": [
+        { "kind": "Web", "name": "Web", "detail": { "en": "Wasm, and a JavaScript build for older browsers", "tr": "Wasm, eski tarayıcılar için de bir JavaScript sürümü" } },
+        { "kind": "Android", "name": "Android", "detail": { "en": "An APK on GitHub", "tr": "GitHub'da bir APK" } },
+        { "kind": "Desktop", "name": "macOS", "detail": { "en": "A signed and notarized app; a Windows installer is on its way", "tr": "İmzalı ve noterden geçmiş bir uygulama; Windows kurulumu yolda" } }
+      ],
+      "languages": ["en", "tr"],
+      "components": [
+        "PantrixAlert", "PantrixAutoText", "PantrixBackButton", "PantrixBadge", "PantrixBreadcrumb", "PantrixButton",
+        "PantrixButtonGroup", "PantrixCard", "PantrixCheckbox", "PantrixChip", "PantrixCodeBlock", "PantrixCodeEditor",
+        "PantrixCommandPalette", "PantrixDataTable", "PantrixDialog", "PantrixDiffView", "PantrixDivider",
+        "PantrixEmptyState", "PantrixFileDrop", "PantrixGraph", "PantrixIcon", "PantrixIconButton", "PantrixImage",
+        "PantrixKeycaps", "PantrixLazyTreeView", "PantrixLink", "PantrixListItem", "PantrixMenu", "PantrixMeterGroup",
+        "PantrixPageScaffold", "PantrixPopover", "PantrixRadioGroup", "PantrixScaffold", "PantrixSegmentButton",
+        "PantrixSelect", "PantrixSheet", "PantrixSidebar", "PantrixSnackbarHost", "PantrixSpinner", "PantrixStatusBar",
+        "PantrixSurface", "PantrixSwitchButton", "PantrixTabs", "PantrixTag", "PantrixText", "PantrixTextField",
+        "PantrixToolbar", "PantrixTwoPane"
       ]
     }
   ]

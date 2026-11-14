@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +28,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -35,6 +37,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pantrixui.components.elements.button.ButtonColors
+import com.pantrixui.components.elements.button.ButtonSize
+import com.pantrixui.components.elements.button.ButtonSizeStyle
+import com.pantrixui.components.elements.button.ButtonStyle
+import com.pantrixui.components.elements.button.ButtonVariant
+import com.pantrixui.components.elements.button.PantrixButton
+import com.pantrixui.components.elements.icon.PantrixIcon
+import com.pantrixui.components.elements.image.PantrixImage
 import com.pantrixui.components.elements.link.LinkUnderline
 import com.pantrixui.components.elements.link.PantrixLink
 import com.pantrixui.components.elements.text.PantrixText
@@ -52,6 +62,7 @@ import com.pantrixui.site.core.designsystem.content.landingHeading
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.PlatformKind
 import com.pantrixui.site.core.model.Reference
+import org.jetbrains.compose.resources.painterResource
 
 /**
  * The app the page features, the first: what it is, where it runs, three facts and the ways to reach it, beside a
@@ -511,8 +522,9 @@ internal fun AllProjects(
 }
 
 /**
- * An app's card in the list: its mark, its name, its line, where it runs, how many components, and links to it and to
- * its desktop app where it has one.
+ * An app's card in the list: a picture of it, 16:10 as the design's card has it, its own screen where it has one
+ * ([ReferencePictures]) and its mark where not; its name, and where its source is open a tag that leads to it; its
+ * line, where it runs, how many components, and links to it and to its desktop app where it has one.
  */
 @Composable
 private fun ProjectCard(
@@ -524,15 +536,30 @@ private fun ProjectCard(
     val colors = PantrixTheme.colors
     val site = SiteTheme.colors
     Column(modifier.landingCard(colors.surface, colors.border, corner = 18.dp)) {
-        SketchGround(Modifier.fillMaxWidth().height(CARD_PICTURE)) { AppMark(project.name, size = 56.dp) }
+        val picture = Modifier.fillMaxWidth().aspectRatio(CARD_PICTURE)
+        val screen = ReferencePictures.of(project.key, dark = site.dark)
+        if (screen != null) {
+            PantrixImage(
+                painter = painterResource(screen),
+                modifier = picture,
+                contentDescription = ReferencesSay.screen(project.address).of(language),
+                contentScale = ContentScale.Crop,
+                tagKey = "picture_${project.key}"
+            )
+        } else {
+            SketchGround(picture) { AppMark(project.name, size = 56.dp) }
+        }
         Box(Modifier.fillMaxWidth().height(1.dp).background(site.hairline))
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            PantrixText(
-                text = project.name,
-                style = strong(17.sp),
-                color = colors.textPrimary,
-                modifier = Modifier.semantics { heading() }
-            )
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                PantrixText(
+                    text = project.name,
+                    style = strong(17.sp),
+                    color = colors.textPrimary,
+                    modifier = Modifier.weight(1f).semantics { heading() }
+                )
+                project.source?.let { address -> SourceTag(project.key) { onAction(ReferencesAction.Open(address)) } }
+            }
             PantrixText(text = project.line, style = small(14.sp), color = colors.textSecondary)
             @OptIn(ExperimentalLayoutApi::class)
             FlowRow(
@@ -578,6 +605,34 @@ private fun ProjectCard(
                     underline = LinkUnderline.OnHover
                 )
             }
+        }
+    }
+}
+
+/**
+ * The tag of an app whose source is open, on its card in the list: the featured card's "Open source", as a button that
+ * leads to the source, since the card has no room for a button of its own.
+ */
+@Composable
+private fun SourceTag(
+    key: String,
+    onClick: () -> Unit
+) {
+    val language = LocalLanguage.current
+    val success = PantrixTheme.colors.success
+    PantrixButton(
+        onClick = onClick,
+        contentDescription = "${ReferencesSay.OpenSource.of(language)}: ${ReferencesSay.Source.of(language)}",
+        variant = ButtonVariant.Solid,
+        size = ButtonSize.Small,
+        style = ButtonStyle(small = ButtonSizeStyle(height = 28.dp, horizontalPadding = 12.dp)),
+        shape = CircleShape,
+        colors = ButtonColors(container = success.container, content = success.onContainer),
+        tagKey = "source_$key"
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+            PantrixText(text = ReferencesSay.OpenSource.of(language), style = strong(12.5.sp), maxLines = 1)
+            PantrixIcon(imageVector = SiteIcons.ArrowUpRight, contentDescription = null, size = 12.dp)
         }
     }
 }
@@ -678,8 +733,8 @@ private const val MARK_CORNER = 0.29f
 /** How many apps' cards stand side by side on a desktop. */
 private const val DESKTOP_COLUMNS = 3
 
-/** How tall the picture of an app's card is. */
-private val CARD_PICTURE = 180.dp
+/** How wide the picture of an app's card is to how tall: 16:10, as the design's card and a desktop's screen are. */
+private const val CARD_PICTURE = 16f / 10f
 
 private val DASH_WIDTH = 1.5.dp
 private const val DASH = 10f

@@ -37,6 +37,9 @@ data class SiteColors(
     val code: CodeColors,
     val sketch: SketchColors
 ) {
+    /** Whether this is the dark set: what chooses a picture made for the dark theme. */
+    val dark: Boolean get() = this == Dark
+
     companion object {
         /** The light set. */
         val Light = SiteColors(

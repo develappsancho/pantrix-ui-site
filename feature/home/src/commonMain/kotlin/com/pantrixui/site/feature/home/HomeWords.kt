@@ -7,6 +7,9 @@ import com.pantrixui.site.core.model.Words
 
 /** The landing page's words, in each language. */
 internal object HomeSay {
+    /** How many components the library has, as its words say it. */
+    private const val COMPONENTS = LibraryFacts.COMPONENTS
+
     val News = Words("New", "Yeni")
     val NewsLine = Words(
         "Text areas, a form's fields and a tap that puts the keyboard away",
@@ -18,21 +21,22 @@ internal object HomeSay {
         Words("Each one at home.", "Her biri kendi evinde.")
     )
     val Lead = Words(
-        "Pantrix UI is a design system for Compose Multiplatform: 100 components on Compose Foundation, with no " +
-            "Material dependency, and one theme that follows the conventions of Android, iOS, the desktop and the web.",
-        "Pantrix UI, Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde 100 bileşen, " +
-            "Material'a hiçbir bağımlılık olmadan, ve Android'in, iOS'un, masaüstünün ve web'in alışkanlıklarını " +
-            "izleyen tek bir tema."
+        "Pantrix UI is a design system for Compose Multiplatform: $COMPONENTS components on Compose Foundation, " +
+            "with no Material dependency, and one theme that follows the conventions of Android, iOS, the desktop " +
+            "and the web.",
+        "Pantrix UI, Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde $COMPONENTS " +
+            "bileşen, Material'a hiçbir bağımlılık olmadan, ve Android'in, iOS'un, masaüstünün ve web'in " +
+            "alışkanlıklarını izleyen tek bir tema."
     )
     val NewsLineShort = Words("Text areas and forms", "Metin kutuları ve formlar")
     val LeadShort = Words(
-        "A design system for Compose Multiplatform: 100 components on Compose Foundation, no Material, and one theme " +
-            "that follows each platform's conventions.",
-        "Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde 100 bileşen, Material yok, ve " +
-            "her platformun alışkanlıklarını izleyen tek bir tema."
+        "A design system for Compose Multiplatform: $COMPONENTS components on Compose Foundation, no Material, " +
+            "and one theme that follows each platform's conventions.",
+        "Compose Multiplatform için bir tasarım sistemi: Compose Foundation üstünde $COMPONENTS bileşen, Material " +
+            "yok, ve her platformun alışkanlıklarını izleyen tek bir tema."
     )
     val GetStarted = Words("Get started", "Başla")
-    val Browse = Words("Browse 100 components", "100 bileşene göz at")
+    val Browse = Words("Browse $COMPONENTS components", "$COMPONENTS bileşene göz at")
     const val INSTALL = "implementation(\"com.pantrixui:components:${LibraryFacts.RELEASE}\")"
     val Copy = Words("Copy", "Kopyala")
     val Copied = Words("Copied", "Kopyalandı")
@@ -85,7 +89,7 @@ internal object HomeSay {
 
     // The numbers.
     val Stats = listOf(
-        "100" to Words("components", "bileşen"),
+        "$COMPONENTS" to Words("components", "bileşen"),
         "6" to Words("Kotlin targets, from Android to Wasm", "Kotlin hedefi, Android'den Wasm'a"),
         "4" to Words("platform presets in one theme", "platform hazır ayarı, tek temada"),
         "3" to Words("languages, right-to-left included", "dil, sağdan sola dahil"),

@@ -30,8 +30,11 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -56,7 +59,12 @@ import com.pantrixui.site.core.designsystem.siteClickable
 import com.pantrixui.site.core.i18n.LocalLanguage
 import com.pantrixui.site.core.model.Route
 
-/** The library in five numbers, on a band across the window. */
+/**
+ * The library in five numbers, on a band across the window. On a desktop with room for their whole words on one line,
+ * at least [NUMBERS_GAP] apart, they are spread across it as the desktop's design has them. On a narrower desktop the
+ * whole words would crowd one another and the numbers stand at uneven steps, so they take the tablet's design: five
+ * even columns with the shorter words.
+ */
 @Composable
 internal fun Numbers() {
     val language = LocalLanguage.current
@@ -66,13 +74,37 @@ internal fun Numbers() {
         SiteLayout.Tablet -> PaddingValues(24.dp)
         SiteLayout.Phone -> PaddingValues(horizontal = 16.dp, vertical = 20.dp)
     }
-    val numbers = HomeSay.Stats.mapIndexed { index, (value, words) ->
-        value to (if (layout == SiteLayout.Desktop) words else HomeSay.StatsShort[index]).of(language)
-    }
+    val whole = HomeSay.Stats.map { (value, words) -> value to words.of(language) }
+    val short = HomeSay.Stats.mapIndexed { index, (value, _) -> value to HomeSay.StatsShort[index].of(language) }
+    val numbers = if (layout == SiteLayout.Desktop) whole else short
     LandingBand(padding, ground = SiteTheme.colors.surfaceAlt) {
         when (layout) {
-            SiteLayout.Desktop -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                numbers.forEach { (value, label) -> Number(value, label, size = 30.sp) }
+            SiteLayout.Desktop -> BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val measurer = rememberTextMeasurer()
+                val valueStyle = numberStyle(DESKTOP_NUMBER)
+                val labelStyle = numberLabelStyle()
+                val gap = with(LocalDensity.current) { NUMBERS_GAP.roundToPx() }
+                val room = constraints.maxWidth
+                val oneLine = remember(whole, valueStyle, labelStyle, gap, room) {
+                    val widths = whole.sumOf { (value, label) ->
+                        maxOf(
+                            measurer.measure(value, valueStyle).size.width,
+                            measurer.measure(label, labelStyle).size.width
+                        )
+                    }
+                    widths + gap * (whole.size - 1) <= room
+                }
+                if (oneLine) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        whole.forEach { (value, label) -> Number(value, label, size = DESKTOP_NUMBER) }
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        short.forEach { (value, label) ->
+                            Number(value, label, size = DESKTOP_NUMBER, Modifier.weight(1f))
+                        }
+                    }
+                }
             }
 
             SiteLayout.Tablet -> Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -103,11 +135,7 @@ private fun Number(
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
-        PantrixText(
-            text = value,
-            style = display(size, line = 1.3f, spacing = -0.03f),
-            color = PantrixTheme.colors.textPrimary
-        )
+        PantrixText(text = value, style = numberStyle(size), color = PantrixTheme.colors.textPrimary)
         if (label != null) NumberLabel(label)
     }
 }
@@ -117,15 +145,23 @@ private fun NumberLabel(
     text: String,
     modifier: Modifier = Modifier
 ) {
-    PantrixText(
-        text = text,
-        style = SiteTheme.type.factLabel.copy(
-            fontSize = if (SiteTheme.layout == SiteLayout.Desktop) 13.sp else 12.5.sp
-        ),
-        color = SiteTheme.colors.muted,
-        modifier = modifier
-    )
+    PantrixText(text = text, style = numberLabelStyle(), color = SiteTheme.colors.muted, modifier = modifier)
 }
+
+/** A number of the band, [size] large. */
+@Composable
+private fun numberStyle(size: TextUnit): TextStyle = display(size, line = 1.3f, spacing = -0.03f)
+
+/** What a number of the band counts, in the layout's size. */
+@Composable
+private fun numberLabelStyle(): TextStyle =
+    SiteTheme.type.factLabel.copy(fontSize = if (SiteTheme.layout == SiteLayout.Desktop) 13.sp else 12.5.sp)
+
+/** How large a number of the band is on a desktop. */
+private val DESKTOP_NUMBER = 30.sp
+
+/** How far apart the numbers stand at least, with their whole words on one line: the desktop design's gap. */
+private val NUMBERS_GAP = 48.dp
 
 /**
  * "One theme, four sets of manners": the same field and button drawn in each platform's conventions, live, with

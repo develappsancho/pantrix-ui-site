@@ -201,7 +201,7 @@ class SiteStrings(
     private val entries: (Int) -> String,
     private val nothingBreaking: (String) -> String
 ) {
-    /** The link to every guide: "All 24 guides". */
+    /** The link to every guide: "All [count] guides". */
     fun allGuides(count: Int): String = allGuides.invoke(count)
 
     /** The count of components: "[count] components". */

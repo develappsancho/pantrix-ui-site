@@ -32,6 +32,18 @@ class HomePageTest {
         }
     }
 
+    /**
+     * The numbers keep their whole words on a desktop with room for them on one line, and take the tablet's shorter
+     * ones, in even columns, on a desktop without it.
+     */
+    @Test
+    fun the_numbers_take_their_shorter_words_where_a_desktop_has_no_room_for_the_whole() {
+        val whole = hasText("Kotlin targets, from Android to Wasm")
+        val short = hasText("Kotlin targets")
+        siteAt(Route.Home) { until("the whole words") { has(whole) && !has(short) } }
+        siteAt(Route.Home, SiteSize.NarrowDesktop) { until("the shorter words") { has(short) && !has(whole) } }
+    }
+
     @Test
     fun its_foot_leads_to_the_docs_and_to_the_site_in_turkish() = siteAt(Route.Home) {
         mapOf(

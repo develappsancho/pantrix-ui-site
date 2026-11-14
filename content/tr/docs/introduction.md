@@ -7,7 +7,7 @@ section: Başlarken
 ## Ne olduğu {#what}
 
 :::facts
-- Bileşenler: {{components}}, sekiz grupta
+- Bileşenler: {{components}}, {{groups}} grupta
 - Hedefler: Android, iOS, JVM, Wasm, JS
 - Bağımlılık: yalnızca Compose Foundation
 - Diller: İngilizce, Türkçe, Arapça

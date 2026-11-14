@@ -4,6 +4,7 @@ import com.pantrixui.site.core.model.Block
 import com.pantrixui.site.core.model.ContentFiles
 import com.pantrixui.site.core.model.ContentsEntry
 import com.pantrixui.site.core.model.Language
+import com.pantrixui.site.core.model.LibraryFacts
 import com.pantrixui.site.core.model.Page
 import com.pantrixui.site.core.model.Span
 import com.pantrixui.site.core.model.Token
@@ -174,6 +175,12 @@ class PageReaderTest {
         }
         // The site's own address, named as {{site}}, is written as the build gives it, in the text and in the code.
         assertTrue(pages.none { SitePages.SITE in it.markdown.orEmpty() })
+        // The library's counts, named as {{components}} and {{groups}}, are written too: the groups as a word.
+        assertTrue(pages.none { "{{" in it.markdown.orEmpty() || "{{" in it.description })
+        val introduction = pages.filter { it.path == "/docs/introduction" }.associateBy { it.language }
+        val count = LibraryFacts.COMPONENTS
+        assertTrue("Components: $count, in eight groups" in introduction.getValue(Language.English).markdown.orEmpty())
+        assertTrue("Bileşenler: $count, sekiz grupta" in introduction.getValue(Language.Turkish).markdown.orEmpty())
         val assistants = pages.filter { it.path == "/docs/ai-assistants" }
         assertEquals(2, assistants.size)
         assistants.forEach { page ->

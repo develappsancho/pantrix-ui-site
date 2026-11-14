@@ -7,7 +7,7 @@ section: Getting started
 ## What it is {#what}
 
 :::facts
-- Components: {{components}}, in eight groups
+- Components: {{components}}, in {{groups}} groups
 - Targets: Android, iOS, JVM, Wasm, JS
 - Dependency: Compose Foundation alone
 - Languages: English, Turkish, Arabic

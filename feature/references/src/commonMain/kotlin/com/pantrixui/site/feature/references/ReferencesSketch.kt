@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -91,7 +92,7 @@ private fun DesktopWindow(modifier: Modifier) {
             .size(DESKTOP_WIDTH, DESKTOP_HEIGHT)
             .clip(RoundedCornerShape(12.dp))
             .background(colors.background)
-            .border(1.dp, colors.border, RoundedCornerShape(12.dp))
+            .border(1.dp, colors.borderHover, RoundedCornerShape(12.dp))
     ) {
         Row(
             Modifier.fillMaxWidth().height(24.dp).background(site.surfaceAlt).padding(horizontal = 10.dp),
@@ -108,7 +109,7 @@ private fun DesktopWindow(modifier: Modifier) {
         ) {
             BrandMark(18.dp)
             SketchText(BRAND, 11.sp, colors.textPrimary)
-            NAV.forEach { SketchText(it.of(language), 9.sp, site.muted) }
+            NAV.forEach { SketchText(it.of(language), 9.sp, site.muted, FontWeight.SemiBold) }
             Spacer(Modifier.weight(1f))
             Box(
                 Modifier.size(90.dp, 18.dp).background(site.surfaceAlt, RoundedCornerShape(6.dp))
@@ -122,7 +123,7 @@ private fun DesktopWindow(modifier: Modifier) {
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Headline(22.sp)
-                SketchText(LEAD.of(language), 9.5.sp, colors.textSecondary)
+                SketchText(LEAD.of(language), 9.5.sp, colors.textSecondary, FontWeight.Medium, line = LEAD_LINE)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Pill(START.of(language), filled = true, size = 9.sp)
                     Pill(BROWSE.of(language), filled = false, size = 9.sp)
@@ -144,7 +145,7 @@ private fun DesktopWindow(modifier: Modifier) {
                     SketchText(REVIEW.of(language), 9.sp, colors.textPrimary)
                     Box(
                         Modifier.fillMaxWidth().height(34.dp)
-                            .border(1.dp, colors.border, RoundedCornerShape(6.dp))
+                            .border(1.dp, colors.borderHover, RoundedCornerShape(6.dp))
                     )
                     Box(Modifier.fillMaxWidth().height(16.dp).background(colors.primary.color, CircleShape))
                 }
@@ -172,7 +173,7 @@ private fun PhoneWindow(modifier: Modifier) {
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BrandMark(14.dp)
+            BrandMark(14.dp, letter = false)
             SketchText(BRAND, 9.sp, colors.textPrimary)
         }
         Line(SiteTheme.colors.hairline)
@@ -202,7 +203,11 @@ private fun Headline(size: TextUnit) {
     )
 }
 
-/** A button of the sketch: a pill of words, the brand's fill where [filled], an edge where not. */
+/**
+ * A button of the sketch: a pill of words, the brand's fill where [filled], an edge where not. One that [fill]s its
+ * width, as on the phone, has its words in its middle and no room at its sides, as the design draws it: the phone's is
+ * too narrow for "Browse … components" with room around it.
+ */
 @Composable
 private fun Pill(
     text: String,
@@ -218,36 +223,39 @@ private fun Pill(
             shape
         )
     } else {
-        Modifier.border(1.dp, colors.border, shape)
+        Modifier.border(1.dp, colors.borderHover, shape)
     }
-    Box(
-        Modifier.then(if (fill) Modifier.fillMaxWidth() else Modifier).height(22.dp).then(ground)
-            .padding(horizontal = 10.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        SketchText(text, size, if (filled) colors.primary.onColor else colors.textPrimary)
+    val width = if (fill) Modifier.fillMaxWidth() else Modifier
+    val room = if (fill) Modifier else Modifier.padding(horizontal = 10.dp)
+    Box(width.height(22.dp).then(ground).then(room), contentAlignment = Alignment.Center) {
+        SketchText(text, size, if (filled) colors.primary.onColor else colors.textPrimary, FontWeight.Bold)
     }
 }
 
-/** The brand's "P", [size] large. */
+/** The brand's mark, [size] large: its "P" where [letter], a plain square where the sketch is too small for one. */
 @Composable
-private fun BrandMark(size: Dp) {
+private fun BrandMark(
+    size: Dp,
+    letter: Boolean = true
+) {
     Box(
         Modifier.size(size).background(BRAND_BLUE, RoundedCornerShape(size * BRAND_CORNER)),
         contentAlignment = Alignment.Center
     ) {
-        SketchText("P", (size.value * BRAND_LETTER).sp, Color.White)
+        if (letter) SketchText("P", (size.value * BRAND_LETTER).sp, Color.White)
     }
 }
 
-/** A line of [text] at [size] in [color], in the sketch's bold type. */
+/** A line of [text] at [size] in [color], in the sketch's [weight], bold unless told, its lines [line] apart. */
 @Composable
 private fun SketchText(
     text: String,
     size: TextUnit,
-    color: Color
+    color: Color,
+    weight: FontWeight = FontWeight.ExtraBold,
+    line: Float = WORDS_LINE
 ) {
-    PantrixText(text = text, style = strong(size).copy(lineHeight = (size.value * WORDS_LINE).sp), color = color)
+    PantrixText(text = text, style = strong(size, weight).copy(lineHeight = (size.value * line).sp), color = color)
 }
 
 /** A hairline across the window. */
@@ -299,3 +307,6 @@ private const val BRAND_CORNER = 0.28f
 private const val BRAND_LETTER = 0.55f
 private const val HEADLINE_LINE = 1.1f
 private const val WORDS_LINE = 1.4f
+
+/** How far apart the lead's lines are, as the design's: half their size again. */
+private const val LEAD_LINE = 1.5f

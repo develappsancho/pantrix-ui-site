@@ -16,6 +16,8 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 ### Düzeltilenler
 
 - **Bileşen sayısı:** ana sayfa, Giriş, referanslar ve sitenin çizimi 100 dedikleri yerde kütüphanenin 108 bileşenini söyler, kütüphanenin demosu da hepsini sayar; sayıyı derleme kütüphanenin kendisinde sayar.
+- **Referanslar:** sitenin çizimi telefonunda "108 bileşene göz at"ı bütün yazar; düğmeleri, yazıları ve kenarları tasarımın çizdiği gibi.
+- **Ana sayfa:** sayıların sözleri tek satıra sığmayan bir masaüstü penceresinde sayılar, birbirine sıkışacakları yerde, kısa sözleriyle beş eşit sütunda durur.
 
 ## [26.11.11] - 2026-11-11
 

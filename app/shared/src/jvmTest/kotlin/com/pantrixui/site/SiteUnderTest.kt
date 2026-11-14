@@ -174,7 +174,10 @@ internal enum class SiteSize(
 ) {
     Phone(390, 844),
     Tablet(834, 1194),
-    Desktop(1440, 900)
+    Desktop(1440, 900),
+
+    /** A desktop window just wide enough for the desktop's layout, where a band of it has less room than at 1440. */
+    NarrowDesktop(960, 800)
 }
 
 /**

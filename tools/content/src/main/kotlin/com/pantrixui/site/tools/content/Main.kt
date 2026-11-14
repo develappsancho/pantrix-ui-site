@@ -1,6 +1,7 @@
 package com.pantrixui.site.tools.content
 
 import com.pantrixui.site.core.model.Changelog
+import com.pantrixui.site.core.model.ComponentGroups
 import com.pantrixui.site.core.model.ComponentIndex
 import com.pantrixui.site.core.model.ComponentPage
 import com.pantrixui.site.core.model.ContentFiles
@@ -69,7 +70,8 @@ fun main(args: Array<String>) {
 /**
  * The pages the site writes itself, from a folder of `<language>/<path>.md` files. A page names the site's own address
  * as [SITE]: it is written as [site] gives it, so that a new address is one line of `gradle.properties`. It names how
- * many components the library has as [COMPONENTS], so that a release with more says so on every page.
+ * many components the library has as [COMPONENTS], so that a release with more says so on every page, and how many
+ * groups the site shows them in as [GROUPS], a word in the page's language.
  */
 internal object SitePages {
     /** How a page names the site's own address: `{{site}}/mcp`. */
@@ -78,8 +80,55 @@ internal object SitePages {
     /** How a page names how many components the library has: `{{components}} components`. */
     const val COMPONENTS = "{{components}}"
 
+    /** How a page names how many groups the site shows the components in, as a word: `in {{groups}} groups`. */
+    const val GROUPS = "{{groups}}"
+
     /** [text] with the library's count of components where it names it. */
     fun withCount(text: String): String = text.replace(COMPONENTS, LibraryFacts.COMPONENTS.toString())
+
+    /** [text], a page in [language], with the counts it names: its components', and its groups' as a word. */
+    fun withCounts(
+        text: String,
+        language: Language
+    ): String = withCount(text).replace(GROUPS, inWords(ComponentGroups.keys.size, language))
+
+    /** [count] as a word in [language], as a page writes a number up to twelve: "eight", "sekiz"; its digits above. */
+    fun inWords(
+        count: Int,
+        language: Language
+    ): String {
+        val words = if (language == Language.Turkish) TURKISH_NUMBERS else ENGLISH_NUMBERS
+        return words.getOrNull(count - 1) ?: count.toString()
+    }
+
+    private val ENGLISH_NUMBERS = listOf(
+        "one",
+        "two",
+        "three",
+        "four",
+        "five",
+        "six",
+        "seven",
+        "eight",
+        "nine",
+        "ten",
+        "eleven",
+        "twelve"
+    )
+    private val TURKISH_NUMBERS = listOf(
+        "bir",
+        "iki",
+        "üç",
+        "dört",
+        "beş",
+        "altı",
+        "yedi",
+        "sekiz",
+        "dokuz",
+        "on",
+        "on bir",
+        "on iki"
+    )
 
     fun read(
         folder: File,
@@ -89,7 +138,7 @@ internal object SitePages {
         root.walkTopDown().filter { it.isFile && it.extension == "md" }.sortedBy { it.path }.map { file ->
             val name = file.relativeTo(root).invariantSeparatorsPath.removeSuffix(".md")
             val path = if (name == "index") "/" else "/$name"
-            PageReader(language, path).read(withCount(file.readText().replace(SITE, site)))
+            PageReader(language, path).read(withCounts(file.readText().replace(SITE, site), language))
         }.toList()
     }
 }

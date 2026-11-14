@@ -23,6 +23,10 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 - **The count of components:** the home page, Introduction, the references and the sketch of the site say the
   library's 108 components where they said 100, and the library's demo counts all of them; the build counts them in
   the library itself.
+- **References:** the sketch of the site says "Browse 108 components" whole on its phone, its buttons, words and edges
+  drawn as the design draws them.
+- **Home page:** on a desktop window too narrow for the numbers' whole words on one line, the numbers stand in five
+  even columns with their shorter words, where they crowded one another.
 
 ## [26.11.11] - 2026-11-11
 

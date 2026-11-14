@@ -2,9 +2,8 @@ package com.pantrixui.site.core.model
 
 /**
  * The counts the site says of the library: the sidebar's card, the guides' link, the start cards of the page for an
- * address with no page, the home page's and the landing pages' lines, and the content's (`{{components}}`). The
- * components are counted by the build in the library's own jar; the guides are written here, as the library's README
- * says them.
+ * address with no page, the home page's and the landing pages' lines, and the content's (`{{components}}`). Both are
+ * counted by the build in the library's own jar, so no page writes them by hand.
  */
 object LibraryFacts {
     /**
@@ -13,8 +12,11 @@ object LibraryFacts {
      */
     const val COMPONENTS: Int = BUILT_COMPONENT_COUNT
 
-    /** How many of its guides are for apps, in both languages. */
-    const val GUIDES: Int = 29
+    /**
+     * How many of its guides are for apps, in both languages: the guides of the same jar, counted at build time. The
+     * site lists each of them ([GuideCatalogue]).
+     */
+    const val GUIDES: Int = BUILT_GUIDE_COUNT
 
     /** The Compose Multiplatform the library was last checked with, which a guide's foot names. */
     const val COMPOSE_VERSION: String = "1.12.2"

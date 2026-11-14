@@ -216,7 +216,9 @@ internal fun AdaptiveTour(
         if (state.tourPlaying && inView && !still) {
             // Counted in frames: a tab a browser hides draws none, and the tour waits with it.
             val start = withFrameMillis { it }
-            while (withFrameMillis { it } - start < TOUR_INTERVAL) Unit
+            do {
+                val now = withFrameMillis { it }
+            } while (now - start < TOUR_INTERVAL)
             act(HomeAction.NextTourStep)
         }
     }

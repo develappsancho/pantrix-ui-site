@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+## [26.11.14] - 2026-11-14
+
+Pantrix UI ile yapılan uygulamalar arasında Formatico, onları sayan her sayfada kütüphanenin kendisinde sayılan 108 bileşeni ve dar bir masaüstünde eşit sütunlarda duran ana sayfa sayıları.
+
 ### Eklenenler
 
 - **Referanslar:** web'de, Android'de ve Mac'te yapılandırılmış metni biçimlendiren, doğrulayan, gezdiren ve dönüştüren Formatico, Bütün projeler arasında; kartında sayfanın temasında ekranının bir resmi ve açık kaynağına götüren bir etiket.

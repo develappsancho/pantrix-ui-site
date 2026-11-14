@@ -12,6 +12,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+## [26.11.14] - 2026-11-14
+
+Formatico among the apps built with Pantrix UI, the library's 108 components on every page that counts them, counted
+in the library itself, and the home page's numbers in even columns on a narrower desktop.
+
 ### Added
 
 - **References:** Formatico, an app that formats, validates, explores and converts structured text on the web, Android

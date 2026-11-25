@@ -105,10 +105,13 @@ class ReferencesReaderTest {
     @Test
     fun formatico_is_listed_beside_the_demo_and_the_demo_draws_with_every_component() {
         val english = site(Language.English)
-        assertEquals(listOf("pantrix-ui-site", "pantrix-ui-demo", "formatico"), english.map { it.key })
+        assertEquals(
+            listOf("pantrix-ui-site", "pantrix-ui-demo", "formatico", "developersancho"),
+            english.map { it.key }
+        )
         val demo = english[1]
         assertEquals(LibraryFacts.COMPONENTS, demo.components.size)
-        val formatico = english.last()
+        val formatico = english.single { it.key == "formatico" }
         assertEquals(
             listOf(PlatformKind.Web, PlatformKind.Android, PlatformKind.Desktop),
             formatico.platforms.map {
@@ -119,7 +122,24 @@ class ReferencesReaderTest {
         assertEquals("https://github.com/develappsancho/formatico-cmp", formatico.source)
         assertEquals("https://github.com/develappsancho/formatico-cmp/releases/latest", formatico.download)
         assertEquals(48, formatico.components.size)
-        assertTrue(site(Language.Turkish).last().line.startsWith("JSON, XML, YAML"))
+        assertTrue(site(Language.Turkish).single { it.key == "formatico" }.line.startsWith("JSON, XML, YAML"))
+    }
+
+    /**
+     * developersancho.com, last in the list: published on the web alone, its source closed, no app to download, and
+     * the 16 components its own screens draw with.
+     */
+    @Test
+    fun developersancho_com_is_listed_on_the_web_with_no_source() {
+        val entry = site(Language.English).last()
+        assertEquals("developersancho", entry.key)
+        assertEquals(listOf(PlatformKind.Web), entry.platforms.map { it.kind })
+        assertEquals("https://developersancho.com", entry.url)
+        assertEquals(null, entry.source)
+        assertEquals(null, entry.download)
+        assertEquals(16, entry.components.size)
+        assertEquals(setOf("en", "tr"), entry.languages.toSet())
+        assertTrue(site(Language.Turkish).last().line.startsWith("Staff Mobile Engineer Mesut Genç'in"))
     }
 
     /**

@@ -122,6 +122,29 @@
         "PantrixSurface", "PantrixSwitchButton", "PantrixTabs", "PantrixTag", "PantrixText", "PantrixTextField",
         "PantrixToolbar", "PantrixTwoPane"
       ]
+    },
+    {
+      "key": "developersancho",
+      "name": "developersancho.com",
+      "address": "developersancho.com",
+      "line": {
+        "en": "The personal site of Mesut Genç, Staff Mobile Engineer: four case studies, projects, experience and a contact form, in English and Turkish.",
+        "tr": "Staff Mobile Engineer Mesut Genç'in kişisel sitesi: dört vaka, projeler, deneyim ve bir iletişim formu; İngilizce ve Türkçe."
+      },
+      "about": {
+        "en": "The personal site of Mesut Genç, Staff Mobile Engineer: four case studies whose architecture PantrixGraph draws live, the projects, the experience, a contact form and a command palette. One Compose Multiplatform app on Pantrix UI, with a design preset of its own, Ink & Signal, and no Material: the web first, each page also written as static HTML, in English and Turkish. The same app opens on Android, iOS and the desktop; only the web is published.",
+        "tr": "Staff Mobile Engineer Mesut Genç'in kişisel sitesi: mimarilerini PantrixGraph'ın canlı çizdiği dört vaka, projeler, deneyim, bir iletişim formu ve bir komut paleti. Pantrix UI üstünde tek bir Compose Multiplatform uygulaması; kendi tasarım preset'i Ink & Signal ile, Material'sız: önce web, her sayfası statik HTML olarak da yazılır; İngilizce ve Türkçe. Aynı uygulama Android'de, iOS'ta ve masaüstünde de açılır; yalnızca web yayımlanır."
+      },
+      "url": "https://developersancho.com",
+      "platforms": [
+        { "kind": "Web", "name": "Web", "detail": { "en": "Wasm, and a JavaScript build for older browsers", "tr": "Wasm, eski tarayıcılar için de bir JavaScript sürümü" } }
+      ],
+      "languages": ["en", "tr"],
+      "components": [
+        "PantrixAlert", "PantrixAvatar", "PantrixButton", "PantrixCard", "PantrixCheckbox", "PantrixCommandPalette",
+        "PantrixGraph", "PantrixIcon", "PantrixIconButton", "PantrixLink", "PantrixSegmentButton", "PantrixSheet",
+        "PantrixTag", "PantrixText", "PantrixTextArea", "PantrixTextField"
+      ]
     }
   ]
 }

@@ -16,6 +16,14 @@ class ReferencePicturesTest {
     }
 
     @Test
+    fun developersancho_com_has_its_screen_in_each_theme() {
+        assertNotNull(ReferencePictures.of("developersancho", dark = false))
+        assertNotNull(ReferencePictures.of("developersancho", dark = true))
+        val names = setOf("reference_developersancho", "reference_developersancho_dark")
+        assertTrue(names.all { it in ReferencePictures.names })
+    }
+
+    @Test
     fun an_app_without_a_picture_has_its_mark() {
         assertNull(ReferencePictures.of("pantrix-ui-demo", dark = false))
         assertNull(ReferencePictures.of("pantrix-ui-demo", dark = true))

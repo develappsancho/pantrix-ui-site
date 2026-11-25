@@ -12,6 +12,11 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+### Added
+
+- **References:** developersancho.com, the personal site of a Staff Mobile Engineer on the web, among All projects,
+  its card with a picture of its home page in the page's theme and a link to visit it.
+
 ## [26.11.14] - 2026-11-14
 
 Formatico among the apps built with Pantrix UI, the library's 108 components on every page that counts them, counted

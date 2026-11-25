@@ -12,12 +12,19 @@ class ReferencesPageTest {
     fun a_platform_keeps_the_apps_that_run_on_it() = siteAt(Route.References) {
         val demo = hasText("Pantrix UI's demo")
         val formatico = hasText("Formatico")
+        val developersancho = hasText("developersancho.com")
         press(hasPantrixTag("Button", "platform_ios"))
-        until("iOS's apps, with no Formatico") { has(demo) && !has(formatico) }
+        until("iOS's apps, with no Formatico and no developersancho.com") {
+            has(demo) && !has(formatico) && !has(developersancho)
+        }
+        press(hasPantrixTag("Button", "platform_android"))
+        until("Android's apps, with no developersancho.com") {
+            has(demo) && has(formatico) && !has(developersancho)
+        }
         press(hasPantrixTag("Button", "platform_web"))
-        until("the web's apps") { has(demo) && has(formatico) }
+        until("the web's apps") { has(demo) && has(formatico) && has(developersancho) }
         press(hasPantrixTag("Button", "platform_all"))
-        until("every app") { has(demo) && has(formatico) }
+        until("every app") { has(demo) && has(formatico) && has(developersancho) }
     }
 
     @Test
@@ -29,7 +36,8 @@ class ReferencesPageTest {
             hasPantrixTag("Link", "download_pantrix_ui_demo"),
             hasPantrixTag("Link", "visit_formatico"),
             hasPantrixTag("Link", "download_formatico"),
-            hasPantrixTag("Button", "source_formatico")
+            hasPantrixTag("Button", "source_formatico"),
+            hasPantrixTag("Link", "visit_developersancho")
         ).forEachIndexed { index, way ->
             press(way)
             until("${way.description} opened") { services.opened.size == index + 1 || address() != "/references" }
@@ -45,13 +53,18 @@ class ReferencesPageTest {
             "https://github.com/develappsancho/formatico-cmp/releases/latest" in services.opened,
             "${services.opened}"
         )
+        assertTrue("https://developersancho.com" in services.opened, "${services.opened}")
+        assertTrue(!has(hasPantrixTag("Button", "source_developersancho")), "developersancho.com's source is closed")
+        assertTrue(!has(hasPantrixTag("Link", "download_developersancho")), "developersancho.com has no download")
     }
 
-    /** Formatico's card shows its own screen, and the demo's, which has none, its mark. */
+    /** Formatico's and developersancho.com's cards show their own screens, and the demo's, which has none, its mark. */
     @Test
     fun an_app_s_card_shows_its_screen_where_it_has_one() = siteAt(Route.References) {
         scrollTo(hasPantrixTag("Image", "picture_formatico"))
         until("Formatico's screen") { has(hasPantrixTag("Image", "picture_formatico")) }
+        scrollTo(hasPantrixTag("Image", "picture_developersancho"))
+        until("developersancho.com's screen") { has(hasPantrixTag("Image", "picture_developersancho")) }
         assertTrue(!has(hasPantrixTag("Image", "picture_pantrix_ui_demo")), "the demo has no picture of its own")
     }
 

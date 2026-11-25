@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+### Eklenenler
+
+- **Referanslar:** web'de bir Staff Mobile Engineer'ın kişisel sitesi developersancho.com, Bütün projeler arasında; kartında sayfanın temasında ana sayfasının bir resmi ve onu açan bir bağlantı.
+
 ## [26.11.14] - 2026-11-14
 
 Pantrix UI ile yapılan uygulamalar arasında Formatico, onları sayan her sayfada kütüphanenin kendisinde sayılan 108 bileşeni ve dar bir masaüstünde eşit sütunlarda duran ana sayfa sayıları.

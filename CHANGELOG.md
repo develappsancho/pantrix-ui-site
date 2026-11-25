@@ -12,6 +12,10 @@ What changed on Pantrix UI's site, `pantrixui.com`, and in its apps, for someone
 
 ## [Unreleased]
 
+## [26.11.25] - 2026-11-25
+
+developersancho.com among the apps built with Pantrix UI.
+
 ### Added
 
 - **References:** developersancho.com, the personal site of a Staff Mobile Engineer on the web, among All projects,

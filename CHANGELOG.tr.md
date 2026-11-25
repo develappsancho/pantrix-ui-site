@@ -9,6 +9,10 @@ Pantrix UI'ın sitesinde, `pantrixui.com`'da, ve uygulamalarında nelerin deği�
 
 ## [Yayınlanmamış]
 
+## [26.11.25] - 2026-11-25
+
+Pantrix UI ile yapılan uygulamalar arasında developersancho.com.
+
 ### Eklenenler
 
 - **Referanslar:** web'de bir Staff Mobile Engineer'ın kişisel sitesi developersancho.com, Bütün projeler arasında; kartında sayfanın temasında ana sayfasının bir resmi ve onu açan bir bağlantı.
